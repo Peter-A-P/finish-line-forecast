@@ -7,7 +7,7 @@ for nothing in the portfolio. The first live target fixes the calendar: **Cape t
 St. John's, Sunday 2026-10-18**, five weeks out, with **Run to Remember 11 km, 2026-11-11** as
 the second live race on a frozen model and the **Tely 10 (June 2027, capped at 4,466)** as the
 "field of thousands" race in Part B. **Package:** `finishline`. **Repository:**
-`Peter-A-P/finish-line-forecast` (not created yet). **Fed by:** 11 (Overload), whose Daniels,
+`Peter-A-P/finish-line-forecast`, private until the backtest table is in. **Fed by:** 11 (Overload), whose Daniels,
 heat, wind, course-bearing and age-grading modules are copied across with attribution and
 with every personal calibration detail stripped. **Feeds:** nothing.
 
