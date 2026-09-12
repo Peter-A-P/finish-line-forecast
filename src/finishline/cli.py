@@ -37,9 +37,16 @@ DATA = Path("data")
 CACHE = DATA / "cache" / "nlaa"
 EXTERNAL = DATA / "cache" / "raceroster"
 
-# The archive this project reads. 2016 is where the ten-year history starts; the pages go
-# back to 1978 and the older ones are a different era of both the sport and the software.
-FIRST_YEAR = 2016
+# The archive this project reads. The pages go back to 1978.
+#
+# 2008 rather than 2016, changed once the 2016 boundary turned out to be an artefact
+# rather than a decision: 67 of the 453 Cape to Cabot entrants had their earliest result in
+# 2016 exactly, which is the shape a history makes when it has been cut off rather than
+# when it began. Eighteen years covers a masters career from one age band to the next and
+# doubles most courses' editions. Before 2008 the returns fall away: a result older than
+# that says almost nothing about how someone will run next month, and the recent-form
+# window is eighteen months regardless.
+FIRST_YEAR = 2008
 LAST_YEAR = date.today().year
 
 NOTICES_ENV = "FINISHLINE_NOTICES_SENT"

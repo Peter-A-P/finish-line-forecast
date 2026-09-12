@@ -68,6 +68,15 @@ NOT_ROAD = re.compile(
     re.IGNORECASE,
 )
 
+# The heading over the road results, which the site renamed in 2016.
+#
+# ⚠️ **Every index from 2008 to 2015 calls it "Road Race Series"**, and matching only the
+# current wording read eight years of the archive as having no road racing in them at all,
+# silently. The same failure as the missing ruler: nothing raised, the coverage number
+# simply wrong. Matching on "road" and not on the rest of the phrase is what makes it
+# survive the next rename.
+ROAD_SECTION = r"<h4[^>]*>\s*Road\b[^<]*</h4>(.*?)(?=<h4|\Z)"
+
 _KM = re.compile(r"(\d+(?:\.\d+)?)\s*k(?:m\b|\b)", re.IGNORECASE)
 _MILE = re.compile(r"(\d+(?:\.\d+)?)\s*mi(?:le)?s?\b", re.IGNORECASE)
 _FILE_DATE = re.compile(r"(\d{4})(\d{2})(\d{2})")
@@ -191,7 +200,7 @@ def parse_index(page: str, year: int) -> list[tuple[str, str, date | None]]:
     on its own and the track and cross-country lists are left alone.
     """
     section = re.search(
-        r"<h4[^>]*>\s*Road Running\s*</h4>(.*?)(?=<h4|\Z)", page, re.DOTALL | re.IGNORECASE
+        ROAD_SECTION, page, re.DOTALL | re.IGNORECASE
     )
     if not section:
         return []

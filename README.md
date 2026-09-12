@@ -6,8 +6,8 @@ published once the results are in. For a race director that is pacing, corral an
 staffing planned from expected finish times rather than guesses; for a runner it is a goal
 time with an honest interval instead of a hunch.
 
-**Status: week 1 of 5.** Ten years of Newfoundland road results are read, 17,099 runners
-resolved out of them, and the three baselines are measured on every race since 2024. No
+**Status: week 1 of 5.** Eighteen years of Newfoundland road results are read, 23,713
+runners resolved out of them, and the three baselines are measured on every race since 2024. No
 prediction has been made yet. The first live race is the Cape to Cabot 20 km in St. John's
 on 2026-10-18, with a second on a frozen model on 2026-11-11; predictions are committed,
 tagged and hashed in this repository before each race and scored against the official
@@ -24,31 +24,30 @@ indexes, which carry event names and dates and no runners.
 
 | | |
 |---|---|
-| Individual road races, 2016 to 2026 | 160 |
-| Distinct courses | 45 |
-| Deepest course history | 10 editions (Flat Out 5 km), 9 (Cape to Cabot 20 km) |
-| Index rows skipped, each with a reason | 39 |
+| Individual road races, 2008 to 2026 | 287 |
+| Distinct courses | 80 |
+| Deepest course history | 17 editions (Mews Memorial 8 km, Mundy Pond 5 km), 16 (Cape to Cabot 20 km) |
 | Years with no racing | 2020 |
 
-The skip list is the coverage claim, so it distinguishes a duplicate from a hole: 29 of
-the 39 are team standings, awards pages, relays, cross-country and school races, which are
-other views of races already read or other disciplines. One is a real hole, a race
-published as a PDF. [docs/data-terms.md](docs/data-terms.md) has the full table and the
-two known gaps in the Tely 10's history.
+The skip list is the coverage claim, so it distinguishes a duplicate from a hole. Most
+skips are team standings, awards pages, relays, cross-country and school races, which are
+other views of races already read or other disciplines; a handful are real holes, mostly
+races published as a PDF. [docs/data-terms.md](docs/data-terms.md) has the full table and
+every page that would not parse.
 
 **What reading all of it produced.** Written by `finishline report`; not edited by hand.
 
 <!-- finishline:archive -->
 | | |
 |---|---:|
-| Races read | 160 |
-| Finishes parsed | 48,650 |
-| Runners resolved | 17,099 |
-| Runners this refuses to tell apart, and will not publish | 129 |
-| Runners with one finish | 9,237 |
-| Runners with two or three | 4,550 |
-| Runners with four or more | 3,295 |
-| Pages that would not parse | 1 |
+| Races read | 283 |
+| Finishes parsed | 74,678 |
+| Runners resolved | 23,713 |
+| Runners this refuses to tell apart, and will not publish | 355 |
+| Runners with one finish | 12,651 |
+| Runners with two or three | 6,272 |
+| Runners with four or more | 4,763 |
+| Pages that would not parse | 5 |
 <!-- finishline:end:archive -->
 
 **How well the obvious approaches do.** Every race from 2024 on, each predicted only from
@@ -59,18 +58,18 @@ it.
 <!-- finishline:baselines -->
 | Prior results | Runners | Model | Answered | MAE, minutes (95% CI) | Mean % error | Skill vs carry-forward |
 |---|---:|---|---:|---|---:|---:|
-| 0 | 5869 | `carry-forward` | 0% | - | - | baseline |
+| 0 | 5594 | `carry-forward` | 0% | - | - | baseline |
 |  |  | `best-equal-vdot` | 0% | - | - | - |
-|  |  | `category-median` | 97% | 18.5 (18.0 to 19.0) | 18% | - |
-| 1 | 2742 | `carry-forward` | 100% | 9.3 (8.9 to 9.7) | 10% | baseline |
-|  |  | `best-equal-vdot` | 64% | 7.5 (7.2 to 7.9) | 8% | 19% |
-|  |  | `category-median` | 97% | 16.3 (15.7 to 16.9) | 16% | -75% |
-| 2 to 3 | 2942 | `carry-forward` | 100% | 8.8 (8.4 to 9.2) | 9% | baseline |
-|  |  | `best-equal-vdot` | 75% | 7.6 (7.3 to 8.0) | 8% | 13% |
-|  |  | `category-median` | 97% | 15.5 (14.9 to 16.0) | 16% | -76% |
-| 4 or more | 6770 | `carry-forward` | 100% | 7.2 (7.0 to 7.4) | 8% | baseline |
-|  |  | `best-equal-vdot` | 90% | 7.1 (6.8 to 7.3) | 7% | 1% |
-|  |  | `category-median` | 97% | 13.9 (13.6 to 14.2) | 18% | -94% |
+|  |  | `category-median` | 96% | 18.5 (18.0 to 18.9) | 18% | - |
+| 1 | 2648 | `carry-forward` | 100% | 9.6 (9.2 to 10.1) | 10% | baseline |
+|  |  | `best-equal-vdot` | 63% | 7.5 (7.2 to 7.9) | 8% | 22% |
+|  |  | `category-median` | 97% | 16.1 (15.5 to 16.7) | 16% | -68% |
+| 2 to 3 | 2833 | `carry-forward` | 100% | 9.2 (8.8 to 9.7) | 9% | baseline |
+|  |  | `best-equal-vdot` | 73% | 7.7 (7.2 to 8.0) | 8% | 17% |
+|  |  | `category-median` | 97% | 15.9 (15.3 to 16.5) | 16% | -72% |
+| 4 or more | 7233 | `carry-forward` | 100% | 7.4 (7.2 to 7.6) | 8% | baseline |
+|  |  | `best-equal-vdot` | 87% | 7.1 (6.9 to 7.3) | 7% | 4% |
+|  |  | `category-median` | 97% | 14.1 (13.8 to 14.4) | 18% | -90% |
 <!-- finishline:end:baselines -->
 
 **Getting the order right**, which is the number a race director actually plans from.
@@ -78,9 +77,9 @@ it.
 <!-- finishline:placing -->
 | Model | Races | Mean absolute place error | Spearman, predicted vs actual |
 |---|---:|---:|---:|
-| `carry-forward` | 49 | 24.5 | 0.840 |
+| `carry-forward` | 49 | 25.8 | 0.836 |
 | `best-equal-vdot` | 48 | 18.3 | 0.836 |
-| `category-median` | 45 | 96.3 | 0.357 |
+| `category-median` | 45 | 96.4 | 0.356 |
 <!-- finishline:end:placing -->
 
 **The live prediction tables are empty until there is a prediction.**
@@ -95,15 +94,15 @@ it.
 **Who is entered for the first live race.** Cape to Cabot, from the club's published start
 list of 2026-09-12, matched against the archive.
 
-| | Before the 2026 Tely was added | After |
+| | 2016 on, no 2026 Tely | 2008 on, with it |
 |---|---:|---:|
 | Entrants on the list | 453 | 453 |
-| Resolve to a runner in the archive | 386 (85%) | **415 (92%)** |
-| Have a 2026 result, so current-season form | 166 (37%) | **333 (74%)** |
-| Have four or more prior results | 252 | 278 |
-| No history at all | 67 | 38 |
+| Resolve to a runner in the archive | 386 (85%) | **419 (92%)** |
+| Have a 2026 result, so current-season form | 166 (37%) | **332 (73%)** |
+| Have four or more prior results | 252 | **289** |
+| No history at all | 67 | **34** |
 
-**That second row is why one race mattered more than the other 159.** The 2026 Tely 10 is
+**That second row is why one race mattered more than the other 282.** The 2026 Tely 10 is
 not on the association's own site: it timed the race on Race Roster in June and its Tely
 page links out, where every edition from 2018 to 2025 is published in place. It is 4,147
 finishers, the largest field in the province, and adding it doubles the share of this field
@@ -119,16 +118,18 @@ platform's terms, is set out in [docs/data-terms.md](docs/data-terms.md).
 
 ### What the baselines already say
 
-**A third of the runners in any race have never raced here before.** 5,869 of the 18,323
-runners predicted across those 49 races had no prior result at all, and for them the only
-answer any of these models can give is the middle of their age and sex category, which is
-out by 18.5 minutes on average. That number, not the model comparison, is the size of the
-real problem, and it got larger rather than smaller when the Tely was added: a
-mass-participation race of 4,147 brings in more first-timers than it does histories.
+**A third of the runners in any race have never raced here before.** 5,594 of the 18,308
+runners predicted across those 49 races had no prior result at all, even with eighteen
+years of archive behind them, and for those runners the only answer any of these models can
+give is the middle of their age and sex category, which is out by 18.5 minutes on average.
+That number, not the model comparison, is the size of the real problem. Adding eight more
+years of history moved it by less than three hundred runners, which is worth knowing: the
+cold start is not a gap in the archive, it is people who have genuinely never raced here.
 
 **The race calculator beats the last result, but only where it will answer.** Reading the
 best recent form off Daniels' curve is 19 percent better than carrying the last race
-forward for runners with one prior result, and it ties on runners with four or more. What
+forward for runners with one prior result, and it gains four percent on runners with four
+or more. What
 moves is coverage: it answers for 63 percent of the thin histories and 90 percent of the
 deep ones, because a runner with more results is likelier to have one inside the range the
 curve is fitted for. A calculator that quietly extrapolated instead would have posted a
@@ -159,7 +160,7 @@ exist to fill.
   (`Paradise` and `Pradise`, `Conception Bay South` and `Cbs`), so the true number is
   lower than 416, and 416 is what gets published because it is the one that can be checked.
 - It does not predict a runner it cannot tell apart from another runner of the same name.
-  129 were held back on the current archive, and they are counted rather than guessed at.
+  355 were held back on the current archive, and they are counted rather than guessed at.
 - It does not publish anything about a runner beyond what the race results already
   publish: name and hometown as printed, and the prediction.
 - Its intervals are calibrated on past races. Coverage is guaranteed on average within a
@@ -170,7 +171,7 @@ exist to fill.
 
 See [PLAN.md](PLAN.md). Public road-race results from the Newfoundland and Labrador
 Athletics Association are crawled once, parsed and resolved to runners across races.
-There is no runner identifier anywhere in that archive, and 105 of the 160 readable races
+There is no runner identifier anywhere in that archive, and most of the readable races
 print no hometown either, so the resolver works from the name and from the one piece of
 evidence the pages give away for free: a runner cannot get younger. Every printed age band
 on a dated race implies a window of birth years, and one person's windows have to

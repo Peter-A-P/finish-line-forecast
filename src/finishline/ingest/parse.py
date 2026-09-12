@@ -124,6 +124,19 @@ CANONICAL: dict[str, str] = {
     "pace mi": "pace_per_mile",
     "hometown": "hometown",
     "city": "hometown",
+    # Spellings the older pages use. "no" is the tail of "Bib No" where the header runs
+    # over two lines, and "group" the tail of "Age Group".
+    "club": "club",
+    "team": "club",
+    "bib no": "bib",
+    "no": "bib",
+    "gend": "sex",
+    "gender": "sex",
+    "sex": "sex",
+    "age group": "age_band",
+    "group": "age_band",
+    "div": "age_band",
+    "division": "age_band",
 }
 
 
@@ -573,28 +586,53 @@ def _tables_without_a_ruler(lines: list[str]) -> list[Table]:
         if not header:
             continue
         body = [lines[index] for index in run]
-        fields = data_fields(body)
-        if len(fields) < 3:
+        if len(data_fields(body)) < 3:
             continue
-        ordered = _headers_in_order(lines, header, len(fields))
+        table = _read_run(lines, header, body)
+        if table is not None and table.rows:
+            tables.append(table)
+    return tables
+
+
+def _read_run(lines: list[str], header: list[int], body: list[str]) -> Table | None:
+    """One block of result rows, read with as much of the header as makes sense of it.
+
+    ⚠️ **A page's title can sit close enough to its header to be read as part of it.**
+    Eighteen pages from 2008 and 2009 print "Organized by the Nautilus Running Club" on
+    the line above the column names, and taking two header lines turned `NAME` into
+    `Nautilus NAME` and refused the page. The fix is to try the widest header first and
+    narrow it: the column names have to resolve to known fields, so a window that does
+    not resolve is a window that included something which is not a header.
+    """
+    last: UnknownColumns | None = None
+    for window in range(len(header), 0, -1):
+        chosen = header[-window:]
+        fields = data_fields(body)
+        ordered = _headers_in_order(lines, chosen, len(fields))
         if ordered is None:
-            fields = _split_merged(fields, _merged_spans(lines, header, fields), body)
-        joined = ordered or _joined_headers(lines, header, fields)
+            fields = _split_merged(fields, _merged_spans(lines, chosen, fields), body)
+        joined = ordered or _joined_headers(lines, chosen, fields)
         unknown = tuple(text for text in joined if flatten_header(text) not in CANONICAL)
         if unknown:
-            raise UnknownColumns(unknown)
+            last = UnknownColumns(unknown)
+            continue
         columns = tuple(
             Column(field=CANONICAL[flatten_header(text)], header=text, start=lo, end=hi)
             for text, (lo, hi) in zip(joined, fields, strict=True)
         )
         spans = column_spans(fields, fields)
-        rows = tuple(
-            dict(zip((column.field for column in columns), _cells(line, spans), strict=True))
-            for line in body
+        return Table(
+            columns=columns,
+            rows=tuple(
+                dict(
+                    zip((c.field for c in columns), _cells(line, spans), strict=True)
+                )
+                for line in body
+            ),
         )
-        if rows:
-            tables.append(Table(columns=columns, rows=rows))
-    return tables
+    if last is not None:
+        raise last
+    return None
 
 
 # ------------------------------------------------------------------ value parsing

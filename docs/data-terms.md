@@ -54,41 +54,49 @@ published yet.
 
 ### What the archive holds, and what it does not
 
-Measured by `finishline catalogue`, 2026-09-12, over the year indexes for 2016 to 2026.
+Measured by `finishline catalogue`, 2026-09-12, over the year indexes for 2008 to 2026.
 
 | | |
 |---|---|
-| Individual road races read | 160 |
-| Distinct courses | 45 |
-| Index rows deliberately skipped | 39 |
-| Years covered | 2016 to 2026, **no 2020** |
+| Individual road races read | 287 |
+| Distinct courses | 80 |
+| Deepest course histories | 17 editions (Mews Memorial 8 km, Mundy Pond 5 km), 16 (Cape to Cabot 20 km) |
+| Index rows skipped, each with its own reason | 46 |
+| Years covered | 2008 to 2026, **no 2020** |
 
-The skips, by reason:
+**Why 2008 and not 2016.** The first crawl stopped at 2016, on the reasoning that ten
+years was enough and the older pages were a different era. Then the Cape to Cabot start
+list showed 67 of its 453 entrants with an earliest result in 2016 exactly, which is the
+shape a history makes when it has been cut off rather than when it began. Eighteen years
+covers a masters career from one age band into the next and takes the deepest courses from
+9 editions to 16 or 17. Before 2008 the returns fall away: the recent-form window is
+eighteen months whatever the archive holds, so an older result speaks to a career arc and
+not to next month's race.
 
-| Rows | Reason |
-|---:|---|
-| 8 | cross-country, a different discipline on grass |
-| 7 | team standings, a second view of a race already read |
-| 6 | awards, likewise |
-| 6 | school races |
-| 5 | relays, which are not individual results |
-| 4 | trail races, not comparable to a road course |
-| 2 | children's races, two distances on one page |
-| 1 | results published as a PDF (Run to Remember 2016) |
+⚠️ **The heading changed name and eight years went missing without a sound.** Every index
+from 2008 to 2015 calls its road section "Road Race Series"; 2016 onward calls it "Road
+Running". The parser matched the current wording, found nothing, and reported nothing,
+which is the same failure as a parser keyed on a ruler that most pages do not draw. It now
+matches on "Road" and leaves the rest of the phrase alone, and a test pins both spellings.
 
 **Known holes, stated rather than discovered later.**
 
 - **2020 is absent.** The season did not happen.
-- **The 2026 Tely 10 is not on the results index**, though every edition from 2018 to
-  2025 is. The Tely publishes its own archive at `/tely10/results/`, which is a second
-  loader and is not built yet. Until it is, the largest field in the province is missing
-  its most recent edition.
-- **2016 and 2017 carry no Tely at all** on the main index, for the same reason.
-- **One race is a PDF** and is not read. A PDF parser for one page in eleven years is not
-  worth the week.
-- **A team page is not a hole.** Seven of the skips are team standings for races whose
-  individual results are read; counting them as races made nineteen editions of a race
-  run seven times.
+- **Five pages will not parse**, out of 288 read:
+  - The 2008 Cape to Cabot and the 2008 HBC Run for Canada are stubs that link out to a
+    third-party timing site rather than carrying results themselves.
+  - The 2011 Mews Memorial 8 km carries no results table.
+  - **The 2013 Tely 10 prints its rows with no column header at all**, only the race title
+    above them. The layout is recognisable and this parser still refuses it, because
+    supplying column names it was not given is exactly the guess that everything else here
+    is built to avoid.
+  - The 2017 Turkey Tea is an HTML table rather than fixed-width text, the only page in
+    eighteen years in that shape.
+- **A few races are published as PDFs** and are not read, including one Cape to Cabot
+  edition and one Huffin' Puffin marathon. A PDF parser for a handful of pages in eighteen
+  years is not worth the week, and the skip list names each one.
+- **A team page is not a hole.** Many of the skips are team standings and awards pages for
+  races whose individual results are read.
 
 ## Athletics NorthEAST entrant lists
 

@@ -207,3 +207,28 @@ def test_the_crawler_says_who_it_is() -> None:
     assert "finishline" in nlaa.USER_AGENT
     assert "@" in nlaa.USER_AGENT
     assert nlaa.MIN_INTERVAL >= 1.0
+
+
+def test_the_road_section_is_found_under_either_name_the_site_has_used(
+    index_page: str,
+) -> None:
+    """The site renamed the heading in 2016, and matching the new name only lost 2008 to 2015.
+
+    Eight years of road racing read as empty, with nothing raised: the same failure as a
+    parser keyed on a ruler that two thirds of the pages do not draw. Matching on "Road"
+    and not on the rest of the phrase is what makes it survive the next rename.
+    """
+    old = index_page.replace("Road Running", "Road Race Series")
+    assert len(nlaa.parse_index(old, 2031)) == len(nlaa.parse_index(index_page, 2031)) > 0
+
+
+def test_the_other_sections_are_still_left_alone() -> None:
+    """"Road" must not start matching the cross-country or track headings."""
+    page = (
+        "<h4>Cross Country Running Results</h4><ol>"
+        '<li><b>Sep 1</b>, <a href="xc/2031/a.php">A 5km</a></li></ol>'
+        "<h4>Road Race Series</h4><ol>"
+        '<li><b>Oct 1</b>, <a href="rr/2031/20311001-b-5km.php">B 5km</a></li></ol>'
+    )
+    rows = nlaa.parse_index(page, 2031)
+    assert [href for href, _e, _w in rows] == ["rr/2031/20311001-b-5km.php"]

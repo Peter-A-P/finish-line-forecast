@@ -39,6 +39,10 @@ def to_result(row: dict[str, str], race_id: str) -> Result:
         category_place = parse.place_of(raw)
     if "sex_place" in row:
         sex_place = parse.integer(row["sex_place"])
+    if not sex and (printed := row.get("sex", "").strip()[:1].upper()):
+        # Some older pages give sex its own column rather than folding it into a
+        # placing. One letter, and only M or F; anything else is left unknown.
+        sex = printed if printed in {"M", "F"} else None
 
     name, club = parse.name_and_club(row.get("name", ""))
     hometown = clean(row.get("hometown", "")) or None
@@ -47,7 +51,7 @@ def to_result(row: dict[str, str], race_id: str) -> Result:
         place=parse.integer(row.get("place", "")),
         bib=parse.integer(row.get("bib", "")),
         name=clean(name),
-        club=club,
+        club=club or (clean(row["club"]) if row.get("club") else None),
         sex=sex,
         sex_place=sex_place,
         age_band=age_band,
