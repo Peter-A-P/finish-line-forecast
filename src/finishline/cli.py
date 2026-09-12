@@ -35,6 +35,7 @@ app = typer.Typer(add_completion=False, help=__doc__)
 
 DATA = Path("data")
 CACHE = DATA / "cache" / "nlaa"
+EXTERNAL = DATA / "cache" / "raceroster"
 
 # The archive this project reads. 2016 is where the ten-year history starts; the pages go
 # back to 1978 and the older ones are a different era of both the sport and the software.
@@ -206,7 +207,7 @@ def _dataset(first: int, last: int) -> Dataset:
     """The catalogue, parsed and resolved."""
     with nlaa.Cache(CACHE) as cache:
         races, _skipped = cache_catalogue(cache, first, last)
-        return store.build(cache, races)
+        return store.build(cache, races, external_dir=EXTERNAL)
 
 
 def cache_catalogue(

@@ -10,9 +10,10 @@ page and decides, rather than a race silently going missing from a coverage numb
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 
 from finishline.identity.resolve import Runner, resolve
-from finishline.ingest import nlaa, parse, records
+from finishline.ingest import nlaa, parse, raceroster, records
 from finishline.schema import Race, Result
 
 
@@ -49,8 +50,16 @@ class Dataset:
         return counts
 
 
-def build(cache: nlaa.Cache, races: list[Race]) -> Dataset:
-    """Parse and resolve everything in the catalogue that the cache already holds."""
+def build(
+    cache: nlaa.Cache, races: list[Race], *, external_dir: Path | None = None
+) -> Dataset:
+    """Parse and resolve everything in the catalogue that the cache already holds.
+
+    `external_dir` adds the races that are not on the association's own pages, from
+    `ingest/raceroster.REGISTER`. There is one so far, the 2026 Tely 10, and the reason
+    it is read from elsewhere is in that module and in `docs/data-terms.md`. Passing None
+    leaves them out, which is what the tests do.
+    """
     by_id = {race.race_id: race for race in races}
     results: list[Result] = []
     failures: list[tuple[Race, str]] = []
@@ -69,6 +78,14 @@ def build(cache: nlaa.Cache, races: list[Race]) -> Dataset:
             failures.append((race, "no results table on the page"))
             continue
         results.extend(rows)
+
+    if external_dir is not None:
+        for entry in raceroster.REGISTER:
+            by_id[entry.race_id] = entry.race
+            try:
+                results.extend(raceroster.load(entry, external_dir))
+            except (OSError, ValueError) as error:
+                failures.append((entry.race, f"external source unavailable: {error}"))
 
     return Dataset(
         races=by_id,
