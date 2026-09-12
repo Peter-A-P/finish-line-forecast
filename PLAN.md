@@ -1,6 +1,6 @@
 # Plan: Finish Line Forecast
 
-**Written:** 2026-09-12. **Status:** plan only, nothing built.
+**Written:** 2026-09-12. **Status:** week 1 built the same day; see section 13.
 
 **Build:** an alongside project, so planned in relative weeks. Earliest start: now. It waits
 for nothing in the portfolio. The first live target fixes the calendar: **Cape to Cabot 20 km,
@@ -481,6 +481,44 @@ Recorded here in the commit that made them, so a reader can tell a decision from
    runner object handed to a model carries every result including the one being predicted,
    so the category-median baseline was reading a first-timer's age band off the finishing
    list of the race in question. Section 5.6 did not anticipate either.
+
+**2026-09-12, later the same day: the crawl ran and the archive answered back.**
+
+7. **The archive has three layouts, not two, and two thirds of it has no ruler.** Section
+   5.1 said the parser handles "the two observed layouts by header detection". Both counts
+   were wrong. Every page from 2016 to mid-2018 prints its header and then its rows with no
+   rule between them, so a parser keyed on the ruler read 108 of 160 races as empty and
+   raised nothing at all: the coverage number was simply wrong and nothing said so. The
+   ruler was never load-bearing, because the boundaries are measured from the rows either
+   way. The third layout is the 2022 Tely, with a class code, a place-of-field and a net
+   time, its ruler drawn across three columns at once and its header printed several
+   characters left of its own data; it is read by counting, since nine header columns and
+   nine measured columns agree about the shape of the table. One page remains unread, an
+   HTML table from 2017, and is recorded as a hole.
+
+8. **Entity resolution was keyed on the wrong thing, and the archive said so twice.**
+   Section 5.2 made the hometown a splitting key. But 105 of the 159 readable races print
+   no hometown column at all, so the key held back one runner in six for a column the page
+   never had; and runners move, with 1,103 of the 1,656 multi-town names showing a single
+   clean switch over time. Pat Example settled it: a consistent ageing sequence with times
+   improving throughout, cut into two half-histories by a move to the mainland. The age bands
+   are now the only thing that splits a name, because a runner cannot get younger, and the
+   hometown only breaks a tie. Runners held back fell from 2,608 to 119 and runners with
+   four or more finishes rose from 2,363 to 3,005.
+
+9. **The merge risk that change creates is published rather than argued about.** Two
+   runners of one name and a compatible age now merge. 416 of 15,689 resolved runners have
+   a printed hometown that changes back and forth rather than once, which is the shape two
+   merged people make, and that is the bound the README carries. Reading them shows most
+   are one person spelling their own town differently between entry forms, so the true
+   figure is lower; 416 is published because it is the one a reader can check.
+
+10. **The first measured result reframes the project.** Across 48 races from 2024, a third
+    of every field (4,457 of 14,205 runners) had never raced in this archive before, and
+    for them the only available answer is the middle of their category, 17 minutes out.
+    Section 1 treated the cold start as one stratum among four; it is the largest one, and
+    the hierarchical model's group prior (section 5.3) is therefore the most important
+    single piece of the build rather than a fallback.
 
 6. **Section 3's page-count estimate stands but its shape was wrong.** The Tely 10's own
    archive at `/tely10/results/` is a second loader, not an optional extra: the main index
