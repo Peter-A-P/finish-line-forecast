@@ -148,3 +148,49 @@ place-of-field (`1/106`) and a net time, under a ruler drawn across three column
 and a header printed several characters left of its own data. It is read by counting: the
 header's own columns come to nine and the rows measure nine, so they agree about the shape
 of the table and can be read off in order.
+
+## Race Roster, and the 2026 Tely 10: the best missing input
+
+Checked 2026-09-12, before anything was fetched.
+
+**The 2026 Tely 10 is not on nlaa.ca at all.** Every edition from 2018 to 2025 is, but the
+2026 race was timed on Race Roster and the association's own Tely page links there rather
+than publishing the results itself. It is the single most valuable result missing from this
+project: about 4,000 finishers in June 2026, the largest field in the province, four months
+before Cape to Cabot, and **72% of the Cape to Cabot entrants have run a Tely before**.
+Without it, only 37% of that field has any 2026 result at all.
+
+**It is not taken from Race Roster.** What the terms say:
+
+| Clause | Where | What it says |
+|---|---|---|
+| Copying content | Terms of Service for Event Registrants, section 7, updated 2024-01-01 | A user agrees "not to sell, license, rent, modify, distribute, copy, reproduce, transmit, publicly display, publicly perform, publish, adapt, edit or create derivative works of any Site Content". |
+| Structure of the service | Section 3.1 | No reverse engineering or attempting "to discover the source code or structure, sequence and organization of all or any part of the Services". |
+| API access | API License and Terms of Service, updated 2020-03-06 | Access is by issued developer credentials; APIs may be used "only through documented means", and accessing data beyond the documented parameters requires "Race Roster's express consent". |
+| Crawling | `results.raceroster.com/robots.txt` | `User-agent: *` is allowed; two named AI crawlers are disallowed. |
+
+The results pages are a React application with no documented public API, so reading them
+in bulk means calling an internal GraphQL endpoint. The permissive `robots.txt` governs
+indexing, not extraction and republication, and it does not override the terms above.
+
+**The decision.** No. This project publishes derived, per-person predictions in public; it
+dropped Strava on exactly this reasoning, and taking 4,000 people's results out of an
+undocumented endpoint against a no-reproduction clause would make that earlier decision
+look like convenience rather than principle. The number is worth having and it is not worth
+having on those terms.
+
+**What would work instead**, in order of how likely it is:
+
+1. **Ask the association.** The NLAA owns the Tely 10 and its results. As the event
+   organiser it can export the finisher file from Race Roster in one click and send it, and
+   it already publishes every other edition itself. The draft is in [emails.md](emails.md).
+2. **Ask Race Roster** for API credentials under its documented licence. A real route with
+   a longer lead time.
+
+Either way the file lands in `ingest/resultsfile.py`, which maps a timing export onto the
+same rows the pages produce, refuses a column it does not recognise, and will not import a
+file without a recorded source and date.
+
+**Until then the prediction still runs**, and the gap is recency rather than coverage: 85%
+of the Cape to Cabot field resolves to a runner in the archive and 252 of the 453 entrants
+have four or more prior results. The README says which races the prediction was built from.

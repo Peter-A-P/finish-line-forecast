@@ -92,6 +92,25 @@ it.
 | Cape to Cabot 20 km, 2026-10-18 | _not yet_ | | | | | | | | | |
 | Run to Remember 11 km, 2026-11-11 | | | | | | | | | | |
 
+**Who is entered for the first live race.** Cape to Cabot, from the club's published start
+list of 2026-09-12, matched against the archive.
+
+| | |
+|---|---:|
+| Entrants on the list | 453 |
+| Resolve to a runner in the archive | 386 (85%) |
+| Have four or more prior results | 252 |
+| Have run a Tely 10 at some point | 328 (72%) |
+| Have any 2026 result at all | 166 (37%) |
+
+That last row is the one gap worth naming. **The 2026 Tely 10 is missing**, because it was
+timed on a commercial platform rather than published on the association's own site, and its
+terms do not permit this project to take it. It is about 4,000 finishers in June, the
+largest field in the province, and seven in ten of this field have run that race before.
+The request that would fix it is written and the importer for the file is built; see
+[docs/data-terms.md](docs/data-terms.md). Until then the prediction is short of recent form,
+not short of runners.
+
 **Course and conditions.** Week 2 fills this; the normalisation is not built yet.
 
 | Course | Estimated course factor (95% CI) | Physics prior | MAE without normalisation | MAE with normalisation |

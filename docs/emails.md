@@ -80,3 +80,37 @@ finishline crawl --notices-sent
 
 or set `FINISHLINE_NOTICES_SENT=1`. Record the date they were sent in
 [data-terms.md](data-terms.md).
+
+---
+
+## 3. NLAA, for the 2026 Tely 10 results file
+
+**To:** athletics@nlaa.ca
+**Subject:** Would you be able to send the 2026 Tely 10 results file?
+
+> Hello again,
+>
+> Following on from my note about the road-results project: I have everything from the
+> site now, 2016 through 2026, and it is working well.
+>
+> The one gap is this year's Tely 10. Every edition from 2018 to 2025 is on nlaa.ca, but
+> the 2026 results are on Race Roster and the Tely page links out to them. I would rather
+> not pull them off Race Roster, because their terms do not really allow for it and it is
+> your race and your data either way.
+>
+> Would you be able to export the 2026 finisher list from Race Roster and send it as a
+> CSV? As the event organiser it should be a couple of clicks in the results dashboard.
+> Names, times, categories and hometowns are all I need, exactly what the results pages
+> already show; I have no use for email addresses or anything else on the registration
+> side, and would rather not receive them.
+>
+> It matters more than one race normally would: about seven in ten of the people entered
+> for Cape to Cabot next month have run a Tely at some point, so this June's race is the
+> most recent form most of them have.
+>
+> If it is easier, posting it on nlaa.ca where the other years live would work just as
+> well, and would be useful to more people than me.
+>
+> No rush and no problem if not.
+>
+> Peter Parker
