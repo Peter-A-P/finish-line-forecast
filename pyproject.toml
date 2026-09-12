@@ -1,0 +1,87 @@
+[build-system]
+requires = ["hatchling>=1.25,<2.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "finishline"
+version = "0.1.0.dev0"
+description = "Finish Line Forecast: pre-registered finish-time and placing predictions for Newfoundland road races from public results."
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+license = "MIT"
+authors = [{ name = "Peter Parker" }]
+keywords = ["running", "race prediction", "conformal prediction", "hierarchical models"]
+
+# Every pin is a major-version ceiling. A prediction published in October 2026 has to be
+# reproducible from this repository years later, and these libraries break API across
+# majors. The floor is the oldest version whose API this code actually uses.
+dependencies = [
+  "polars>=1.9,<2.0",   # every table: parsed results, the runner history, the backtest rows.
+                        # 1.x has a stable API; 0.x did not, and this project keeps Parquet
+                        # written today readable later.
+  "numpy>=2.1,<3.0",    # the arithmetic under the metrics and the bootstrap. 2.x for the
+                        # current promotion rules, which change what a float32 column does.
+  "httpx>=0.28,<1.0",   # the polite fetcher: one connection, explicit timeouts, and a
+                        # user agent that says who is asking. Pre-1.0, so the ceiling is 1.
+  "truststore>=0.10,<1.0",  # TLS verified against the operating system trust store,
+                        # so certificates the OS trusts are trusted here too.
+  "typer>=0.15,<1.0",   # the finishline CLI. Pre-1.0, so the ceiling is the next major.
+]
+
+[project.optional-dependencies]
+# Arrives with the weeks that need it (PLAN.md section 6). Kept out of the default install
+# so a clean-environment rerun of the parser and the baselines stays a small download.
+models = [
+  "pymc>=5.18,<6.0",       # the hierarchical model (PLAN.md 5.3), CPU, minutes on this data
+  "lightgbm>=4.5,<5.0",    # the quantile challenger (PLAN.md 5.4)
+  "scikit-learn>=1.6,<2.0",# LightGBM's sklearn API needs it
+]
+charts = [
+  "matplotlib>=3.9,<4.0",  # the figures the README shows, written to disk, no interactive backend
+]
+
+[project.scripts]
+finishline = "finishline.cli:app"
+
+[project.urls]
+Repository = "https://github.com/Peter-A-P/finish-line-forecast"
+
+[dependency-groups]
+dev = [
+  "pytest>=8.3,<10.0",
+  "mypy>=1.13,<2.0",
+  "ruff>=0.8,<1.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/finishline"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# Pinned explicitly so the ruleset does not drift when ruff changes its defaults.
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF", "ANN"]
+ignore = [
+  "ANN401",  # typer callbacks and test helpers take Any in a few documented places
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ANN201"]  # a test function returns None and saying so on every one is noise
+
+[tool.mypy]
+files = ["src", "tests"]
+python_version = "3.13"
+strict = true
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+# Ships no py.typed marker.
+module = ["truststore"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

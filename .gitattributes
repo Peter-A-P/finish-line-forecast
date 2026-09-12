@@ -1,0 +1,8 @@
+# The golden fixtures are fixed-width text whose column positions are the thing under
+# test. Checking them out with translated line endings has never broken the parser, which
+# splits on both, but pinning them costs nothing and removes the question.
+tests/fixtures/*.html text eol=lf
+
+# Everything else is ordinary source; let git normalise it in the repository and give each
+# machine its own endings in the working tree.
+* text=auto

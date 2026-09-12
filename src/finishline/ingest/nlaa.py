@@ -1,0 +1,311 @@
+"""Reading nlaa.ca: the year index, the race catalogue, and a cache that fetches once.
+
+THE MANNERS ARE PART OF THE DESIGN
+----------------------------------
+The Newfoundland and Labrador Athletics Association publishes every road result back to
+1978 on a small site with no terms page, no `robots.txt` and, judging by the markup, no
+budget for bandwidth. This project needs about three hundred of those pages, once. So:
+
+- one request at a time, never concurrent, with at least `MIN_INTERVAL` seconds between
+  the end of one and the start of the next;
+- a user agent that says what this is and how to reach the person running it, because an
+  administrator who wants it to stop should not have to guess;
+- every page written to disk on arrival and read from disk forever after, so a rerun of
+  the whole pipeline costs zero requests;
+- the SHA-256 and the fetch time recorded per page, so a number published in October can
+  be traced to the bytes it was computed from.
+
+⚠️ **Nothing in `data/cache/` is committed.** The pages carry thousands of identifiable
+people, and the repository publishes only predictions. `.gitignore` enforces it; this
+note is here because the reason is not obvious from the filename.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import html
+import json
+import re
+import ssl
+import time
+from datetime import UTC, date, datetime
+from pathlib import Path
+from typing import Self
+
+import httpx
+import truststore
+
+from finishline.identity.normalise import clean
+from finishline.schema import HALF_MARATHON_M, MARATHON_M, MILE_M, Race
+
+BASE = "https://www.nlaa.ca/results/"
+INDEX = BASE + "index.php?year={year}"
+
+USER_AGENT = (
+    "finishline/0.1 (Finish Line Forecast, a personal running-analytics project; "
+    "one request per second, each page fetched once; peter.alexander.parker@outlook.com)"
+)
+
+# Seconds between requests. One a second is slower than a person clicking through the
+# archive and the whole crawl still finishes inside five minutes.
+MIN_INTERVAL = 1.0
+TIMEOUT = 30.0
+
+# Results this project does not model, recognised from the event name. Trail races are
+# not comparable to a road course at all; relays are not individual results; the school
+# cross-country series is a different discipline on grass. Each is skipped by name and
+# the skip is reported, never silently dropped.
+NOT_ROAD = re.compile(
+    r"\b(trail|relay|cross[- ]country|\bxc\b|school|kid'?s?|walk(?:ers)?)\b", re.IGNORECASE
+)
+
+_KM = re.compile(r"(\d+(?:\.\d+)?)\s*k(?:m\b|\b)", re.IGNORECASE)
+_MILE = re.compile(r"(\d+(?:\.\d+)?)\s*mi(?:le)?s?\b", re.IGNORECASE)
+_FILE_DATE = re.compile(r"(\d{4})(\d{2})(\d{2})")
+
+
+def distance_m(event: str) -> float | None:
+    """The distance an event name declares, in metres, or None when it does not.
+
+    None is the answer for "Kid's Race Trapline (1km & 3km)", which is two races on one
+    page, and for anything whose name carries no distance at all. The catalogue reports
+    those rather than guessing, because a 5 km result filed as a 10 km would land in the
+    history as a runner who halved their time.
+    """
+    text = event.lower()
+    if "half marathon" in text or "half-marathon" in text:
+        return HALF_MARATHON_M
+    if "marathon" in text:
+        return MARATHON_M
+
+    kms = {float(m.group(1)) for m in _KM.finditer(text)}
+    miles = {float(m.group(1)) for m in _MILE.finditer(text)}
+    if len(kms) + len(miles) > 1:
+        return None  # two distances on one page; the catalogue reports it
+    if kms:
+        return kms.pop() * 1000.0
+    if miles:
+        return miles.pop() * MILE_M
+    if re.search(r"\bmile\b", text):
+        return MILE_M
+    return None
+
+
+def is_road(event: str, href: str) -> bool:
+    """Whether this row is an individual road result this project reads.
+
+    PDFs are excluded: four results a year are scans rather than the timing software's
+    text, and a PDF parser for four pages a year is not the best use of the week. They
+    are named in docs/data-terms.md so the gap is on the record.
+    """
+    return not NOT_ROAD.search(event) and href.lower().endswith(".php")
+
+
+def race_id(href: str, event: str) -> str:
+    """A stable id for one edition: its date and the page that holds it."""
+    stem = href.rsplit("/", 1)[-1].removesuffix(".php")
+    return stem if _FILE_DATE.match(stem) else f"{event.lower().replace(' ', '-')}-{stem}"
+
+
+# The event a name belongs to, found by a phrase that survives the sponsor.
+#
+# ⚠️ **The sponsor is in the event name and changes every few years.** The same road up
+# Signal Hill has been the "Cape to Cabot 20km" and the "Capital Subaru Cape to Cabot
+# 20km"; the 10 km in Mount Pearl has been the "Turkey Tea" under three different
+# sponsors. Deriving a course from the whole name splits one course into several, and a
+# course effect estimated on four editions instead of nineteen is a wider prior for no
+# reason. So the match is on the part of the name that is the race rather than the
+# cheque. Extended from the crawl: `finishline catalogue --skips` prints every event
+# name that fell through to the derived slug.
+COURSE_ALIASES: tuple[tuple[str, str], ...] = (
+    ("cape to cabot", "cape-to-cabot"),
+    ("tely", "tely-10"),
+    ("turkey tea", "turkey-tea"),
+    ("mundy pond", "mundy-pond"),
+    ("flat out", "flat-out"),
+    ("mews", "mews-memorial"),
+    ("five & dime", "five-and-dime"),
+    ("five and dime", "five-and-dime"),
+    ("run from away", "run-from-away"),
+    ("trapline", "trapline"),
+    ("woodward", "trapline"),
+    ("uniformed services", "usr"),
+    ("usr", "usr"),
+    ("run to remember", "run-to-remember"),
+    ("run 2 remember", "run-to-remember"),
+    ("huffin", "huffin-puffin"),
+)
+
+
+def course_id(event: str, metres: float) -> str:
+    """The course an edition runs on, shared across editions and split by distance.
+
+    The distance is part of the identity because a race that offers 5 km and 10 km runs
+    two different routes from one start line, and the Trapline offers four. The event is
+    matched against COURSE_ALIASES first, and falls back to a slug of the name with the
+    distance and the boilerplate stripped out.
+    """
+    text = event.lower()
+    for phrase, alias in COURSE_ALIASES:
+        if phrase in text:
+            return f"{alias}-{round(metres)}"
+    stripped = re.sub(r"\d+(\.\d+)?\s*(km|k|mi|mile|miles)\b", " ", text)
+    stripped = re.sub(
+        r"\b(half[- ]marathon|marathon|road race|race|results?|individual)\b", " ", stripped
+    )
+    slug = re.sub(r"[^a-z0-9]+", "-", stripped).strip("-")
+    return f"{slug or 'unknown'}-{round(metres)}"
+
+
+def parse_index(page: str, year: int) -> list[tuple[str, str, date | None]]:
+    """Every road-running row on a year index: (href, event name, date).
+
+    The index groups results by discipline under an `<h4>`, so the road section is taken
+    on its own and the track and cross-country lists are left alone.
+    """
+    section = re.search(
+        r"<h4[^>]*>\s*Road Running\s*</h4>(.*?)(?=<h4|\Z)", page, re.DOTALL | re.IGNORECASE
+    )
+    if not section:
+        return []
+    rows: list[tuple[str, str, date | None]] = []
+    for item in re.finditer(
+        r"<li[^>]*>(?:\s*<b[^>]*>(?P<when>.*?)</b>\s*,)?\s*"
+        r"<a[^>]+href=\"(?P<href>[^\"]+)\"[^>]*>(?P<event>.*?)</a>",
+        section.group(1),
+        re.DOTALL | re.IGNORECASE,
+    ):
+        href = item.group("href").strip()
+        event = clean(html.unescape(re.sub(r"<[^>]+>", "", item.group("event"))))
+        rows.append((href, event, _date_from(href, item.group("when"), year)))
+    return rows
+
+
+def _date_from(href: str, when: str | None, year: int) -> date | None:
+    """The edition's date: from the filename if it carries one, else the printed day.
+
+    The filename wins because it is written by whoever uploaded the results and the
+    printed date is occasionally the entry deadline.
+    """
+    stem = href.rsplit("/", 1)[-1]
+    if match := _FILE_DATE.match(stem):
+        try:
+            return date(int(match.group(1)), int(match.group(2)), int(match.group(3)))
+        except ValueError:
+            pass
+    if when:
+        text = re.sub(r"<[^>]+>", "", when).strip()
+        for fmt in ("%B %d", "%b %d"):
+            try:
+                return datetime.strptime(f"{text} {year}", f"{fmt} %Y").date()
+            except ValueError:
+                continue
+    return None
+
+
+class Cache:
+    """Pages on disk, fetched at most once, with a manifest of what came from where."""
+
+    def __init__(self, root: Path) -> None:
+        self.root = root
+        self.pages = root / "pages"
+        self.manifest = root / "manifest.jsonl"
+        self._last_request = 0.0
+        self._client: httpx.Client | None = None
+
+    def __enter__(self) -> Self:
+        return self
+
+    def __exit__(self, *_: object) -> None:
+        self.close()
+
+    def close(self) -> None:
+        if self._client is not None:
+            self._client.close()
+            self._client = None
+
+    def path_for(self, url: str) -> Path:
+        """Where this URL lives on disk. Readable, so the cache can be inspected."""
+        slug = re.sub(r"[^A-Za-z0-9._-]+", "_", url.removeprefix(BASE)).strip("_")
+        return self.pages / f"{slug[:120]}.html"
+
+    def cached(self, url: str) -> bool:
+        return self.path_for(url).exists()
+
+    def get(self, url: str, *, refetch: bool = False) -> str:
+        """This page's text, from disk when it is there and from the network when not."""
+        path = self.path_for(url)
+        if path.exists() and not refetch:
+            return path.read_text(encoding="utf-8", errors="replace")
+
+        body = self._fetch(url)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(body, encoding="utf-8", newline="\n")
+        self._record(url, path, body)
+        return body
+
+    def _fetch(self, url: str) -> str:
+        if self._client is None:
+            context = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+            self._client = httpx.Client(
+                headers={"User-Agent": USER_AGENT},
+                timeout=TIMEOUT,
+                follow_redirects=True,
+                verify=context,
+            )
+        wait = MIN_INTERVAL - (time.monotonic() - self._last_request)
+        if wait > 0:
+            time.sleep(wait)
+        try:
+            response = self._client.get(url)
+            response.raise_for_status()
+        finally:
+            self._last_request = time.monotonic()
+        return response.text
+
+    def _record(self, url: str, path: Path, body: str) -> None:
+        row = {
+            "url": url,
+            "path": path.name,
+            "sha256": hashlib.sha256(body.encode("utf-8")).hexdigest(),
+            "bytes": len(body.encode("utf-8")),
+            "fetched_at": datetime.now(UTC).isoformat(timespec="seconds"),
+        }
+        self.manifest.parent.mkdir(parents=True, exist_ok=True)
+        with self.manifest.open("a", encoding="utf-8", newline="\n") as handle:
+            handle.write(json.dumps(row) + "\n")
+
+
+def catalogue(cache: Cache, years: range) -> tuple[list[Race], list[tuple[str, str]]]:
+    """Every road race in these years, and the rows deliberately left out with the reason.
+
+    The skips are returned rather than logged away because they are the coverage claim:
+    a reader who wants to know what is missing from the history should be able to see the
+    list, and `docs/data-terms.md` prints it.
+    """
+    races: list[Race] = []
+    skipped: list[tuple[str, str]] = []
+    for year in years:
+        page = cache.get(INDEX.format(year=year))
+        for href, event, when in parse_index(page, year):
+            if not is_road(event, href):
+                skipped.append((event, "not an individual road result, or a PDF"))
+                continue
+            if when is None:
+                skipped.append((event, "no date on the index row or in the filename"))
+                continue
+            metres = distance_m(event)
+            if metres is None:
+                skipped.append((event, "no single distance in the event name"))
+                continue
+            races.append(
+                Race(
+                    race_id=race_id(href, event),
+                    name=event,
+                    date=when,
+                    distance_m=metres,
+                    course_id=course_id(event, metres),
+                    url=BASE + href,
+                )
+            )
+    return races, skipped
