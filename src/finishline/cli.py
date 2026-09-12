@@ -24,8 +24,12 @@ from typing import Annotated
 
 import typer
 
+from finishline import report, store
+from finishline.backtest import run
 from finishline.ingest import nlaa
+from finishline.models import baselines
 from finishline.schema import Race
+from finishline.store import Dataset
 
 app = typer.Typer(add_completion=False, help=__doc__)
 
@@ -125,6 +129,84 @@ def crawl(
             cache.get(race.url)
             typer.echo(f"  [{index:>3}/{len(outstanding)}] {race.race_id}")
     typer.echo("done; nothing here is committed (see .gitignore)")
+
+
+@app.command()
+def dataset(
+    first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
+    last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+    failures: Annotated[bool, typer.Option(help="List the pages that would not parse.")] = False,
+) -> None:
+    """Parse every cached page and resolve the results into runners."""
+    data = _dataset(first, last)
+    typer.echo(
+        f"{len(data.races) - len(data.failures)} races read, "
+        f"{data.finishes:,} finishes, "
+        f"{len(data.resolved):,} runners, "
+        f"{len(data.ambiguous):,} too ambiguous to publish"
+    )
+    for label, count in data.depth_counts().items():
+        typer.echo(f"  {count:>6,} runners with {label} prior finish(es)")
+
+    if data.failures:
+        typer.echo(f"\n{len(data.failures)} pages did not parse:")
+        for race, why in data.failures if failures else data.failures[:5]:
+            typer.echo(f"  {race.race_id}\n      {why[:160]}")
+        if not failures and len(data.failures) > 5:
+            typer.echo(f"  ... and {len(data.failures) - 5} more; pass --failures")
+
+    if data.ambiguous:
+        typer.echo("\nWhy runners were held back, most common first:")
+        reasons: dict[str, int] = {}
+        for runner in data.ambiguous:
+            key = (runner.reason or "unknown").split("(")[0].strip()
+            reasons[key] = reasons.get(key, 0) + 1
+        for reason, count in sorted(reasons.items(), key=lambda item: -item[1]):
+            typer.echo(f"  {count:>6,}  {reason}")
+
+
+@app.command()
+def backtest(
+    scored_from: Annotated[int, typer.Option(help="First year to score.")] = 2024,
+    first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
+    last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+) -> None:
+    """Score the baselines at every origin and print the tables."""
+    data = _dataset(first, last)
+    scored = run.run(data.races, data.resolved, baselines.BASELINES, scored_from=scored_from)
+    names = [model.name for model in baselines.BASELINES]
+    races = len({row.race_id for row in scored})
+    typer.echo(f"{races} races scored from {scored_from}, {len(scored):,} predictions\n")
+    typer.echo(report.baseline_table(scored, names))
+    typer.echo()
+    typer.echo(report.placing_table(scored, names))
+
+
+@app.command(name="report")
+def write_report(
+    scored_from: Annotated[int, typer.Option(help="First year to score.")] = 2024,
+    first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
+    last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+) -> None:
+    """Write the measured tables into README.md, between their markers."""
+    data = _dataset(first, last)
+    scored = run.run(data.races, data.resolved, baselines.BASELINES, scored_from=scored_from)
+    names = [model.name for model in baselines.BASELINES]
+
+    readme = Path("README.md")
+    text = readme.read_text(encoding="utf-8")
+    text = report.replace_between(text, "archive", report.archive_table(data))
+    text = report.replace_between(text, "baselines", report.baseline_table(scored, names))
+    text = report.replace_between(text, "placing", report.placing_table(scored, names))
+    readme.write_text(text, encoding="utf-8", newline="\n")
+    typer.echo("README.md tables rewritten from the measurement")
+
+
+def _dataset(first: int, last: int) -> Dataset:
+    """The catalogue, parsed and resolved."""
+    with nlaa.Cache(CACHE) as cache:
+        races, _skipped = cache_catalogue(cache, first, last)
+        return store.build(cache, races)
 
 
 def cache_catalogue(

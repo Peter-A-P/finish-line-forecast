@@ -20,22 +20,46 @@ So this module is asymmetric on purpose. Where the evidence is thin it splits, a
 two results cannot be told apart it refuses: the runner is marked ambiguous, excluded
 from the published prediction file, and counted. The count is a published number.
 
-THE EVIDENCE, IN ORDER
-----------------------
+THE EVIDENCE, AND WHY IT IS NOT THE HOMETOWN
+--------------------------------------------
+The obvious key is name plus hometown. It was the first design here and the archive
+refuted it twice over.
+
+**Most of the archive has no hometown.** 105 of the 157 readable races print no hometown
+column at all, for anybody: every page from 2016 to 2023 except a handful. That is 15,777
+of 42,466 results arriving with a blank. Keying on the town held back one runner in six
+for a column the page never had.
+
+**And runners move.** Of the 1,656 names that appear under two or more printed towns,
+1,103 show a single clean switch over time, which is what moving house looks like; only
+553 interleave, which is what two people look like. Pat Example is the case that settled
+it: under-20 in 2018, 20-29 from 2021, 20-24 in 2023 and 25-29 in 2025, times improving
+throughout, St. John's in 2023 and Corner Brook in 2025. One runner, one career, one move
+to the mainland, and the hometown rule made him two people with half a history each.
+
+So the evidence is, in order:
+
 1. **The name key** (`normalise.name_key`) groups candidates. Nothing is merged across
    different name keys, ever.
-2. **The hometown** splits a name group. Two different printed towns are two runners.
-   A blank town joins the only cluster when there is exactly one, and is ambiguous when
-   there are more, because a blank is missing information and not a match.
-3. **The age band over time** is the check that catches the rest, and it is the one piece
-   of real evidence the pages hand us for free. A runner cannot get younger. Every
-   printed band on a dated race implies a window of birth years, and one person's windows
-   must intersect. Two runners sharing a name and a town are usually caught here, because
-   two people of the same name in the same town are rarely the same age.
+2. **The age band over time** splits the group, and it is the only thing that does. A
+   runner cannot get younger, so every printed band on a dated race implies a window of
+   birth years and one person's windows must all intersect. Where they cannot, that is
+   two runners, and the split is forced by evidence rather than assumed.
+3. **The hometown breaks a tie** and never splits. It is consulted only when a result
+   could join more than one runner of the same name, which happens when the result's own
+   page printed no age band at all.
 
-⚠️ **Sex is a check, not a key.** It is printed for almost every result, and a group
-whose results disagree about it is two runners. But it is not used to split, because a
-single mis-keyed row would then fork an otherwise clean history.
+⚠️ **Sex is a check, not a key**, for the same reason: a single mis-keyed row would fork
+an otherwise clean history. A cluster whose results disagree about it is flagged.
+
+WHAT THIS GETS WRONG, AND THE NUMBER THAT BOUNDS IT
+---------------------------------------------------
+⚠️ **Two runners of the same name whose ages are compatible now merge into one.** That is
+the cost of the change, it is real, and it is the expensive direction. What makes it
+publishable rather than hidden is that it can be counted: a runner whose results
+interleave two printed hometowns is exactly the shape two merged people make, and
+`Runner.town_switches` reports it. The README carries that count as the upper bound on
+how often this is wrong.
 """
 
 from __future__ import annotations
@@ -80,6 +104,35 @@ class Runner:
         """
         return sum(1 for result in self.results if result.finished)
 
+    @property
+    def towns(self) -> tuple[str, ...]:
+        """The hometowns this runner was printed under, in date order, deduplicated.
+
+        ⚠️ **Deduplicated by key, not by spelling.** `St. John's` and `St.john's` are one
+        town, and counting them as two made the merge-risk number below look three times
+        worse than it is. The printed form is what comes back, because that is what the
+        page said; the comparison is on the key.
+        """
+        seen: list[str] = []
+        keys: list[str] = []
+        for result in self.results:
+            key = town_key(result.hometown)
+            if key and (not keys or keys[-1] != key):
+                keys.append(key)
+                seen.append(result.hometown or "")
+        return tuple(seen)
+
+    @property
+    def town_switches(self) -> int:
+        """How many times the printed hometown changed.
+
+        One switch is a runner who moved. Two or more is the shape two people of the same
+        name make when their results interleave, so the count of runners above one is the
+        published upper bound on how often this module merged two people. See the module
+        note.
+        """
+        return max(0, len(self.towns) - 1)
+
 
 def age_range(band: str | None) -> tuple[int, int] | None:
     """The ages a printed band covers, or None when it is not a band this reads."""
@@ -119,26 +172,26 @@ def _intersect(windows: list[tuple[int, int]]) -> tuple[int, int] | None:
     return (low, high) if low <= high else None
 
 
-def _cluster_by_town(results: list[Result]) -> tuple[list[list[Result]], list[Result]]:
-    """Split one name group by hometown, and hand back the rows that cannot be placed.
+def _compatible(window: tuple[int, int] | None, other: tuple[int, int] | None) -> bool:
+    """Whether one person could have both of these age bands.
 
-    ⚠️ **The clusters come back in sorted order, not in the order the archive was read.**
-    They used to come back in first-seen order, which made the runner ids depend on which
-    year the crawler happened to parse first. A prediction file has to be reproducible
-    from the archive alone, so the order is fixed here rather than hoped for.
+    An unknown band is compatible with anything: several pages print no age column, and
+    absence of evidence must not read as evidence of a second runner.
     """
-    towns: dict[str, list[Result]] = defaultdict(list)
-    blank: list[Result] = []
-    for result in results:
-        key = town_key(result.hometown)
-        (blank if key == "" else towns[key]).append(result)
+    if window is None or other is None:
+        return True
+    return _intersect([window, other]) is not None
 
-    if not towns:
-        return ([blank] if blank else []), []
-    if len(towns) == 1:
-        only = next(iter(towns.values()))
-        return [only + blank], []
-    return [towns[key] for key in sorted(towns)], blank
+
+def _merge_windows(
+    window: tuple[int, int] | None, other: tuple[int, int] | None
+) -> tuple[int, int] | None:
+    """What a cluster's birth-year window becomes once this result joins it."""
+    if window is None:
+        return other
+    if other is None:
+        return window
+    return _intersect([window, other])
 
 
 def _sex_of(results: list[Result]) -> tuple[str | None, bool]:
@@ -152,8 +205,13 @@ def _sex_of(results: list[Result]) -> tuple[str | None, bool]:
 def resolve(results: list[Result], races: dict[str, Race]) -> list[Runner]:
     """Group results into runners, marking the ones that cannot be told apart.
 
-    Deterministic: the same results in any order give the same runners with the same
-    ids, because a prediction file has to be reproducible from the archive alone.
+    One sweep per name, oldest result first. Each result joins the runner whose birth-year
+    window it fits; where it fits none, it starts a new one; where it fits several, the
+    hometown decides, and if the hometown cannot, the result is held back rather than
+    guessed at.
+
+    Deterministic: the same results in any order give the same runners with the same ids,
+    because a prediction file has to be reproducible from the archive alone.
     """
     by_name: dict[str, list[Result]] = defaultdict(list)
     for result in results:
@@ -161,58 +219,81 @@ def resolve(results: list[Result], races: dict[str, Race]) -> list[Runner]:
 
     runners: list[Runner] = []
     for key in sorted(by_name):
-        clusters, unplaceable = _cluster_by_town(by_name[key])
+        group = sorted(
+            by_name[key],
+            key=lambda r: (races[r.race_id].date, r.race_id, r.place or 0, r.name),
+        )
+        clusters: list[list[Result]] = []
+        windows: list[tuple[int, int] | None] = []
+        held: list[tuple[Result, int]] = []
 
-        for result in unplaceable:
+        for result in group:
+            mine = birth_window(result.age_band, races[result.race_id].date)
+            fits = [
+                index
+                for index, window in enumerate(windows)
+                if _compatible(window, mine)
+            ]
+            if not fits:
+                clusters.append([result])
+                windows.append(mine)
+                continue
+            if len(fits) > 1:
+                fits = _narrow_by_town(result, clusters, fits)
+            if len(fits) != 1:
+                held.append((result, len(fits)))
+                continue
+            clusters[fits[0]].append(result)
+            windows[fits[0]] = _merge_windows(windows[fits[0]], mine)
+
+        for result, candidates in held:
             runners.append(
                 Runner(
-                    runner_id=f"{key}#blank#{result.race_id}",
+                    runner_id=f"{key}#held#{result.race_id}#{result.place}",
                     name=result.name,
-                    hometown=None,
+                    hometown=result.hometown,
                     sex=result.sex,
                     results=(result,),
                     ambiguous=True,
                     reason=(
-                        "no hometown printed, and this name appears under "
-                        f"{len(clusters)} different hometowns"
+                        f"{candidates} runners of this name could be this result, and "
+                        "the page printed no age band to tell them apart"
                     ),
                 )
             )
-
-        for cluster in clusters:
-            ordered = sorted(
-                cluster, key=lambda r: (races[r.race_id].date, r.race_id, r.place or 0)
-            )
-            runners.append(_runner_from(key, ordered, races))
+        for index, cluster in enumerate(clusters):
+            runners.append(_runner_from(key, index, cluster, races))
     return runners
 
 
-def _runner_from(key: str, ordered: list[Result], races: dict[str, Race]) -> Runner:
-    """One cluster as a runner, checked for the things that mean it is really two."""
-    windows = [
-        window
-        for result in ordered
-        if (window := birth_window(result.age_band, races[result.race_id].date))
+def _narrow_by_town(result: Result, clusters: list[list[Result]], fits: list[int]) -> list[int]:
+    """Use the hometown to choose between runners of one name, where it can.
+
+    The tie-break, never the split. A result with no printed town narrows nothing, and a
+    town that matches no candidate narrows nothing either, because a runner who moved is
+    commoner in this archive than two runners of a name (see the module note).
+    """
+    town = town_key(result.hometown)
+    if not town:
+        return fits
+    matched = [
+        index
+        for index in fits
+        if any(town_key(row.hometown) == town for row in clusters[index])
     ]
-    consistent = _intersect(windows) if windows else None
+    return matched if len(matched) == 1 else fits
+
+
+def _runner_from(
+    key: str, index: int, ordered: list[Result], races: dict[str, Race]
+) -> Runner:
+    """One cluster as a runner, checked for the things that mean it is really two."""
     sex, disagreed = _sex_of(ordered)
-
     town = next((result.hometown for result in reversed(ordered) if result.hometown), None)
-    runner_id = f"{key}#{town_key(town)}" if town else key
-
-    reason: str | None = None
-    if windows and consistent is None:
-        bands = ", ".join(
-            f"{result.age_band} in {races[result.race_id].date.year}"
-            for result in ordered
-            if result.age_band
-        )
-        reason = f"age bands cannot belong to one runner ({bands})"
-    elif disagreed:
-        reason = "results under this name and hometown disagree about sex"
+    reason = "results under this name disagree about sex" if disagreed else None
 
     return Runner(
-        runner_id=runner_id,
+        runner_id=key if index == 0 else f"{key}#{index}",
         name=ordered[-1].name,
         hometown=town,
         sex=sex,

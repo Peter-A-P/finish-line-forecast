@@ -95,29 +95,56 @@ def test_one_runner_ageing_normally_stays_one_runner() -> None:
     assert runners[0].history_depth == 2
 
 
-def test_a_runner_who_got_younger_is_two_runners_and_is_not_published() -> None:
-    """Two people share a name and a town, and the age bands are what give them away."""
+def test_a_runner_who_got_younger_is_two_runners() -> None:
+    """Two people share a name, and the age bands are the only thing that gives them away.
+
+    This is the one split this module makes, and it is forced by evidence: nobody is
+    50-59 in 2021 and 20-29 in 2026. Both come out clean, with one result each.
+    """
     results = [
         result("r2021", "Chris Power", band="50-59"),
         result("r2026", "Chris Power", band="20-29"),
     ]
     runners = resolve.resolve(results, RACES)
-    assert len(runners) == 1
-    assert runners[0].ambiguous
-    assert runners[0].reason is not None
-    assert "cannot belong to one runner" in runners[0].reason
+    assert len(runners) == 2
+    assert not any(runner.ambiguous for runner in runners)
+    assert [runner.history_depth for runner in runners] == [1, 1]
+    assert len({runner.runner_id for runner in runners}) == 2
 
 
-def test_two_towns_are_two_runners() -> None:
-    """Same name, different towns: split, which costs two thin histories and no lies."""
+def test_a_runner_who_moved_is_still_one_runner() -> None:
+    """The case the archive settled. Pat Example raced in St. John's and then the mainland.
+
+    Of the 1,656 names in this archive with two or more printed hometowns, 1,103 show a
+    single clean switch over time, which is what moving house looks like. Splitting on the
+    town gave him two half-histories and a worse prediction for both.
+    """
     results = [
-        result("r2023", "Chris Walsh", town="St. John's"),
-        result("r2025", "Chris Walsh", town="Corner Brook"),
+        result("r2023", "Pat Example", town="St. John's", band="20-24"),
+        result("r2025", "Pat Example", town="Corner Brook", band="25-29"),
     ]
     runners = resolve.resolve(results, RACES)
-    assert len(runners) == 2
-    assert {runner.hometown for runner in runners} == {"St. John's", "Corner Brook"}
-    assert not any(runner.ambiguous for runner in runners)
+    assert len(runners) == 1
+    assert runners[0].history_depth == 2
+    assert runners[0].towns == ("St. John's", "Corner Brook")
+    assert runners[0].town_switches == 1
+    assert not runners[0].ambiguous
+
+
+def test_a_second_town_switch_is_counted_as_the_risk_it_is() -> None:
+    """Interleaved towns are the shape two merged people make, so they are countable.
+
+    This module cannot tell them apart and says so; the count bounds how often it is
+    wrong, and the README publishes it.
+    """
+    results = [
+        result("r2021", "Chris Walsh", town="St. John's"),
+        result("r2023", "Chris Walsh", town="Corner Brook"),
+        result("r2025", "Chris Walsh", town="St. John's"),
+    ]
+    runners = resolve.resolve(results, RACES)
+    assert len(runners) == 1
+    assert runners[0].town_switches == 2
 
 
 def test_a_town_spelled_two_ways_is_one_runner() -> None:
@@ -142,20 +169,37 @@ def test_a_missing_town_joins_the_only_runner_of_that_name() -> None:
     assert runners[0].hometown == "Paradise"
 
 
-def test_a_missing_town_under_an_ambiguous_name_is_not_guessed() -> None:
-    """Two Chris Walshes and a blank third: the blank is nobody's, and it is counted."""
+def test_a_result_that_could_be_either_runner_is_held_back() -> None:
+    """Two Chris Walshes of different ages, and a third result whose page printed no band.
+
+    It fits both and the page gives nothing to choose with, so it is held back and
+    counted rather than attached to whichever came first.
+    """
     results = [
-        result("r2021", "Chris Walsh", town="St. John's"),
-        result("r2023", "Chris Walsh", town="Corner Brook"),
-        result("r2025", "Chris Walsh", town=None),
+        result("r2021", "Chris Walsh", band="50-59", town=None),
+        result("r2023", "Chris Walsh", band="20-29", town=None),
+        result("r2025", "Chris Walsh", band=None, town=None),
     ]
     runners = resolve.resolve(results, RACES)
-    ambiguous = [runner for runner in runners if runner.ambiguous]
-    assert len(ambiguous) == 1
-    assert ambiguous[0].results[0].race_id == "r2025"
-    assert ambiguous[0].reason is not None
-    assert "no hometown printed" in ambiguous[0].reason
+    held = [runner for runner in runners if runner.ambiguous]
+    assert len(held) == 1
+    assert held[0].results[0].race_id == "r2025"
+    assert held[0].reason is not None
+    assert "no age band" in held[0].reason
     assert sum(runner.history_depth for runner in runners if not runner.ambiguous) == 2
+
+
+def test_a_hometown_breaks_the_tie_where_it_can() -> None:
+    """The town is the tie-break and never the split. Here it decides, so nothing is held."""
+    results = [
+        result("r2021", "Chris Walsh", band="50-59", town="Corner Brook"),
+        result("r2023", "Chris Walsh", band="20-29", town="St. John's"),
+        result("r2025", "Chris Walsh", band=None, town="Corner Brook"),
+    ]
+    runners = resolve.resolve(results, RACES)
+    assert not any(runner.ambiguous for runner in runners)
+    older = next(r for r in runners if r.results[0].race_id == "r2021")
+    assert [row.race_id for row in older.results] == ["r2021", "r2025"]
 
 
 def test_results_that_disagree_about_sex_are_flagged() -> None:

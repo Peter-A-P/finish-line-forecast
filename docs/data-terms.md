@@ -47,6 +47,11 @@ telling them is not something to do quietly, so `finishline crawl` refuses until
 notices in [emails.md](emails.md) have gone out. The rail is in code because the person
 the command is convenient for is not the person who decided to be polite.
 
+**Sent 2026-09-12**, to the Newfoundland and Labrador Athletics Association and to
+Athletics NorthEAST. The crawl ran the same day. If either organisation asks for it to
+stop, it stops: the cache is local, nothing is committed, and no prediction has been
+published yet.
+
 ### What the archive holds, and what it does not
 
 Measured by `finishline catalogue`, 2026-09-12, over the year indexes for 2016 to 2026.
@@ -120,3 +125,26 @@ and is removed from every future prediction file within a day. The removal is lo
 without the name. Past prediction files are never edited, because a pre-registered
 prediction that can be edited afterwards is not one; the runner is removed going forward
 and the file's hash stays what it was.
+
+## What reading all of it actually produced
+
+Measured 2026-09-12 by `finishline dataset`, after the crawl.
+
+| | |
+|---|---:|
+| Races read | 159 of 160 |
+| Finishes parsed | 44,503 |
+| Runners resolved | 15,689 |
+| Held back as unresolvable | 119 |
+
+**The one page that would not parse** is the 2017 Turkey Tea, which that year was
+published as an HTML table by Athletics NorthEAST's timing software rather than as the
+fixed-width text every other page uses. One page in eleven years; a second parser for it
+is deferred and the gap is here rather than hidden.
+
+**Three layouts, not two.** The plan said the archive had two. It has three: the general
+one, the Tely 10's, and a third the Tely used in 2022 with a class code (`LM30-34`), a
+place-of-field (`1/106`) and a net time, under a ruler drawn across three columns at once
+and a header printed several characters left of its own data. It is read by counting: the
+header's own columns come to nine and the rows measure nine, so they agree about the shape
+of the table and can be read off in order.

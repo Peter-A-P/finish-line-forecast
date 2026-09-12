@@ -29,6 +29,14 @@ def to_result(row: dict[str, str], race_id: str) -> Result:
         sex = sex or class_sex
         age_band = age_band or class_band
         category_place = category_place if category_place is not None else class_place
+    if "class_code" in row:
+        # The 2022 Tely spells the class as "LM30-34" and puts the placing in its own
+        # column as "1/106". Same two facts, a different printout.
+        code_sex, code_band = parse.class_code(row["class_code"])
+        sex = sex or code_sex
+        age_band = age_band or code_band
+    if category_place is None and (raw := row.get("category_place")):
+        category_place = parse.place_of(raw)
     if "sex_place" in row:
         sex_place = parse.integer(row["sex_place"])
 
