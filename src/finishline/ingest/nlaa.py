@@ -55,8 +55,17 @@ TIMEOUT = 30.0
 # not comparable to a road course at all; relays are not individual results; the school
 # cross-country series is a different discipline on grass. Each is skipped by name and
 # the skip is reported, never silently dropped.
+#
+# ⚠️ **"Team" and "Awards" are here because one race is three pages.** Every Tely 10
+# publishes its individual results, its team standings and its awards as separate rows on
+# the index, all with the same date and the same distance in the name. Read as races they
+# made nineteen editions of a race that has been run ten times, which is how this was
+# found: a course prior would have been estimated from the same day three times over and
+# the team page's runners would have entered the history twice.
 NOT_ROAD = re.compile(
-    r"\b(trail|relay|cross[- ]country|\bxc\b|school|kid'?s?|walk(?:ers)?)\b", re.IGNORECASE
+    r"\b(trail|relay|cross[- ]country|\bxc\b|school|kid'?s?|walk(?:ers)?"
+    r"|teams?|awards?)\b",
+    re.IGNORECASE,
 )
 
 _KM = re.compile(r"(\d+(?:\.\d+)?)\s*k(?:m\b|\b)", re.IGNORECASE)
@@ -91,14 +100,32 @@ def distance_m(event: str) -> float | None:
     return None
 
 
-def is_road(event: str, href: str) -> bool:
-    """Whether this row is an individual road result this project reads.
+def why_not_read(event: str, href: str) -> str | None:
+    """Why this index row is not read, or None when it is.
 
-    PDFs are excluded: four results a year are scans rather than the timing software's
-    text, and a PDF parser for four pages a year is not the best use of the week. They
-    are named in docs/data-terms.md so the gap is on the record.
+    ⚠️ **The two reasons are kept apart on purpose.** A team page is a different view of
+    a race this project already has; a PDF is a race it does not have at all. Reported as
+    one reason, the skip list said "not an individual road result, or a PDF" for both,
+    and a reader could not tell a duplicate from a hole. The skip list is the coverage
+    claim, so it has to distinguish them.
+
+    ⚠️ **Only PDFs are excluded by extension, not everything that is not `.php`.** The
+    2017 Turkey Tea is published as `.htm` and is a road race like any other; filtering
+    on the extension dropped it for a reason that has nothing to do with its contents. A
+    file extension is not evidence about a layout, and the parser already refuses loudly
+    on a layout it does not know, so the decision belongs there. A PDF is genuinely not
+    text and stays out.
     """
-    return not NOT_ROAD.search(event) and href.lower().endswith(".php")
+    if match := NOT_ROAD.search(event):
+        return f"not an individual road result ({match.group(0).lower()})"
+    if href.lower().endswith(".pdf"):
+        return "results published as a PDF, which this does not read"
+    return None
+
+
+def is_road(event: str, href: str) -> bool:
+    """Whether this row is an individual road result this project reads."""
+    return why_not_read(event, href) is None
 
 
 def race_id(href: str, event: str) -> str:
@@ -288,8 +315,8 @@ def catalogue(cache: Cache, years: range) -> tuple[list[Race], list[tuple[str, s
     for year in years:
         page = cache.get(INDEX.format(year=year))
         for href, event, when in parse_index(page, year):
-            if not is_road(event, href):
-                skipped.append((event, "not an individual road result, or a PDF"))
+            if reason := why_not_read(event, href):
+                skipped.append((event, reason))
                 continue
             if when is None:
                 skipped.append((event, "no date on the index row or in the filename"))

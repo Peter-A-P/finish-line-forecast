@@ -1,0 +1,53 @@
+name: CI
+
+# One job. This project's tests run against committed fixtures and never touch the
+# network, so there is nothing to split out: the whole suite is seconds, and a CI that
+# needed the results archive would be a CI that fetched somebody's pages on every push.
+#
+# The cache-backed tests (row counts on the real four-thousand-runner Tely field) skip
+# here by design, because `data/cache/` is not committed and must not be.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_FROZEN: "1"
+
+jobs:
+  checks:
+    name: ruff, mypy, tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install Python 3.13 and the project
+        run: uv sync --all-groups
+
+      - name: ruff
+        run: uv run ruff check .
+
+      - name: mypy --strict
+        run: uv run mypy
+
+      - name: pytest
+        run: uv run pytest
+
+      - name: the crawler must refuse without the courtesy notices
+        run: |
+          if uv run finishline crawl; then
+            echo "crawl ran without the notices having gone out" >&2
+            exit 1
+          fi

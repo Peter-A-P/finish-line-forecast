@@ -6,15 +6,37 @@ published once the results are in. For a race director that is pacing, corral an
 staffing planned from expected finish times rather than guesses; for a runner it is a goal
 time with an honest interval instead of a hunch.
 
-**Status: planning.** Nothing has run yet. The plan is in [PLAN.md](PLAN.md): a five-week
-build, alongside other work, aimed at the Cape to Cabot 20 km in St. John's on
-2026-10-18, with a second race on a frozen model on 2026-11-11. Predictions are committed
-and tagged in this repository before each race and scored against the official results
-after it.
+**Status: week 1 of 5.** The archive reader, the runner resolver, the three baselines and
+the backtest harness are built and tested. No prediction has been made yet. The first
+live race is the Cape to Cabot 20 km in St. John's on 2026-10-18, with a second on a
+frozen model on 2026-11-11; predictions are committed, tagged and hashed in this
+repository before each race and scored against the official results after it. Build plan:
+[PLAN.md](PLAN.md).
+
+The results pages have not been crawled yet, because `finishline crawl` refuses until a
+courtesy note has gone to the two organisations whose pages it reads. That rail is in
+code, not in a document: see [docs/emails.md](docs/emails.md).
 
 ## Result
 
-Not yet measured. The build fills these tables.
+**What the archive holds.** Measured by `finishline catalogue` on 2026-09-12 from the year
+indexes, which carry event names and dates and no runners.
+
+| | |
+|---|---|
+| Individual road races, 2016 to 2026 | 160 |
+| Distinct courses | 45 |
+| Deepest course history | 10 editions (Flat Out 5 km), 9 (Cape to Cabot 20 km) |
+| Index rows skipped, each with a reason | 39 |
+| Years with no racing | 2020 |
+
+The skip list is the coverage claim, so it distinguishes a duplicate from a hole: 29 of
+the 39 are team standings, awards pages, relays, cross-country and school races, which are
+other views of races already read or other disciplines. One is a real hole, a race
+published as a PDF. [docs/data-terms.md](docs/data-terms.md) has the full table and the
+two known gaps in the Tely 10's history.
+
+**The prediction tables are empty until there is a prediction.** The build fills them.
 
 **Live: predicted before the gun, scored after** (bootstrap 95% CIs over runners)
 
@@ -25,12 +47,15 @@ Not yet measured. The build fills these tables.
 
 **Backtest: every NLAA road race 2024 to 2026, each predicted from results strictly before it**
 
-| Prior results per runner | Runners | Carry-forward MAE | Best equal-VDOT MAE | Hierarchical MAE | Challenger MAE | Coverage at 80% | Coverage at 90% | Median width |
-|---|---|---|---|---|---|---|---|---|
-| 0 | _not yet_ | | | | | | | |
-| 1 | | | | | | | | |
-| 2 to 3 | | | | | | | | |
-| 4 or more | | | | | | | | |
+Each model's coverage is printed beside its error, because a model that answers for the
+easy half of a field is not better than one that answers for all of it.
+
+| Prior results per runner | Runners | Carry-forward MAE | Best equal-VDOT MAE, and what it could answer for | Category median MAE | Hierarchical MAE | Challenger MAE | Coverage at 80% | Coverage at 90% | Median width |
+|---|---|---|---|---|---|---|---|---|---|
+| 0 | _not yet_ | | | | | | | | |
+| 1 | | | | | | | | | |
+| 2 to 3 | | | | | | | | | |
+| 4 or more | | | | | | | | | |
 
 **Course and conditions**
 
@@ -62,6 +87,11 @@ Not yet measured. The build fills these tables.
 
 See [PLAN.md](PLAN.md). Public road-race results from the Newfoundland and Labrador
 Athletics Association are crawled once, parsed and resolved to runners across races.
+There is no runner identifier anywhere in that archive, so the resolver works from the
+name, the hometown and the one piece of evidence the pages give away for free: a runner
+cannot get younger, so every printed age band on a dated race implies a window of birth
+years, and one person's windows have to intersect. Where two results cannot be told
+apart the runner is marked ambiguous, kept out of the published file, and counted.
 Every past result is converted to a neutral-condition equivalent using a course factor
 from the route's elevation profile, Daniels' heat correction and a calibrated wind model.
 A Bayesian hierarchical model on log finish time shrinks each runner's fitness, trend and

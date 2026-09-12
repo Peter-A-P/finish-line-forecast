@@ -56,11 +56,30 @@ def test_a_half_marathon_is_not_a_marathon() -> None:
         ("ANE School Mile Road Race", "rr/2025/school.pdf", False),
         ("Kid's Race Trapline (1km and 3km)", "rr/2025/kids.pdf", False),
         ("Trapline 5km Road Race (U19)", "rr/2025/u19.php", True),
+        ("Tely 10 Mile Road Race - Individual Results", "rr/2025/tely.php", True),
+        ("Tely 10 Mile Road Race - Team Results", "rr/2025/teams.php", False),
+        ("Tely 10 Mile Road Race - Awards", "rr/2025/awards.php", False),
+        ("The Tely 10 Mile Road Race: Team Awards", "rr/2018/ta.php", False),
     ],
 )
 def test_only_individual_road_results_are_read(event: str, href: str, expected: bool) -> None:
     """A junior road race is a road race; a trail race and a relay are not."""
     assert nlaa.is_road(event, href) is expected
+
+
+def test_one_race_published_as_three_pages_is_one_race() -> None:
+    """Every Tely publishes results, team standings and awards as separate index rows.
+
+    Read as races they made nineteen editions of a race run ten times, which would have
+    estimated one day's course effect three times and counted the same runners twice.
+    """
+    same_day = [
+        ("Tely 10 Mile Road Race - Individual Results", "rr/2025/tely-results.php"),
+        ("Tely 10 Mile Road Race - Team Results", "rr/2025/tely-teams.php"),
+        ("Tely 10 Mile Road Race - Awards", "rr/2025/tely-awards.php"),
+    ]
+    kept = [event for event, href in same_day if nlaa.is_road(event, href)]
+    assert kept == ["Tely 10 Mile Road Race - Individual Results"]
 
 
 def test_a_course_survives_its_sponsor() -> None:
@@ -130,10 +149,35 @@ def test_the_catalogue_keeps_the_road_races_and_says_why_it_dropped_the_rest(
         "Run To Remember 11km",
     ]
     reasons = dict(skipped)
-    assert reasons["Pharmasave Figure 8 (8K) Trail Race"].startswith("not an individual")
+    assert reasons["Pharmasave Figure 8 (8K) Trail Race"] == (
+        "not an individual road result (trail)"
+    )
+    assert reasons["USR - Marathon Relay"] == "not an individual road result (relay)"
+    assert reasons["ANE School Mile Road Race"] == "not an individual road result (school)"
     assert reasons["Boxing Day Handicap"] == "no single distance in the event name"
     assert "Kid's Race Trapline 2031 (1km and 3km)" in reasons
     assert len(races) + len(skipped) == 13, "every index row is either kept or explained"
+
+
+def test_a_skipped_duplicate_reads_differently_from_a_skipped_hole(index_page: str) -> None:
+    """A team page is a race already held; a PDF is a race missing. Not one reason."""
+    duplicate = nlaa.why_not_read("Tely 10 Mile Road Race - Team Results", "rr/t.php")
+    hole = nlaa.why_not_read("ANE School Mile Road Race", "rr/s.pdf")
+    assert duplicate == "not an individual road result (team)"
+    assert hole == "not an individual road result (school)"
+    assert nlaa.why_not_read("Turkey Tea 10K", "rr/tt.pdf") == (
+        "results published as a PDF, which this does not read"
+    )
+    assert nlaa.why_not_read("Turkey Tea 10K", "rr/tt.php") is None
+
+
+def test_an_older_page_is_not_dropped_for_its_file_extension() -> None:
+    """The 2017 Turkey Tea is a .htm page and a road race like any other.
+
+    A file extension is not evidence about a layout. The parser refuses loudly on one it
+    does not know, so that decision belongs there and not here.
+    """
+    assert nlaa.why_not_read("16th Annual Turkey Tea 10K Road Race", "rr/2017/tt.htm") is None
 
 
 def test_the_cache_fetches_once_and_records_what_it_fetched(tmp_path: Path) -> None:
