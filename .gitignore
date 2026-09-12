@@ -1,0 +1,29 @@
+# Private working notes, never committed
+CLAUDE.local.md
+
+# Secrets
+.env
+.env.*
+
+# Fetched pages, entrant lists and the resolved history cache: personal data, never committed
+data/cache/
+data/raw/
+data/entrants/
+data/resolved/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+dist/
+build/
+*.egg-info/
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
