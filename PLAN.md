@@ -434,9 +434,55 @@ candidate: it was rejected on terms, not on evidence, and belongs in `docs/data-
 | Deferred | Kept so the door stays open |
 |---|---|
 | **Part B: opt-in Strava channel.** A runner authorises through OAuth; their recent runs feed 11's per-run VDOT into their own prediction; they alone see it; nothing pooled, nothing trained on it, and the public file never changes. Needs the paid developer tier and a fresh read of the agreement on the day | `models/` takes a per-runner fitness override with a stated source; the prediction schema has an optional `private_channel` flag that the public renderer never reads |
-| **The Tely 10, June 2027**: the field of thousands, chip times, a public entrant lookup, and fifty years of history | The Tely 10 parser layout is built in Part A because the history needs it; the entrant lookup is one loader |
+| **The Tely 10, June 2027**: the field of thousands, chip times, a public entrant lookup, and fifty years of history | The Tely 10 parser layout is built and tested in Part A because the history needs it; the entrant lookup is one loader |
+| **The Tely 10's own archive** at `/tely10/results/`, which holds the editions the main results index does not carry (2016, 2017 and, so far, 2026) | One loader against a second index, feeding the same row schema; the layout is already parsed |
 | Away results by NL runners (Boston, Sportstats, Athlinks) and the Huffin' Puffin, once their terms are read | `ingest/` is one module per provider behind one row schema; the model takes a result from any provider |
 | NLAA cross-country and track results as extra observations | A second parser for the HyTek meet layout; the schema already has a discipline column |
 | A runner-facing goal-time tool | The prediction function is pure and importable; a static page over it is a weekend |
 | Chip against gun time as separate targets | The Tely 10 rows carry both; the schema has both columns, nullable |
 | Weather as a distribution rather than a point forecast | `delta_r`'s prior already has a width; feeding an ensemble forecast widens it by data rather than by assumption |
+
+---
+
+## 13. Changes to this plan
+
+Recorded here in the commit that made them, so a reader can tell a decision from a drift.
+
+**2026-09-12, week 1 built.**
+
+1. **The crawl is a rail in code, not a line in a plan.** Section 0 said Peter emails NLAA
+   and Athletics NorthEAST before the crawler runs. `finishline crawl` now refuses until
+   told the notices have gone, CI asserts that it refuses, and `finishline notices` prints
+   what to send. The reason for the change is that the plan's version was enforceable only
+   by whoever remembered it, and that person is the one the command is convenient for.
+
+2. **The catalogue is a week-1 deliverable of its own.** It reads one index page per year,
+   which carries event names and dates and no runners, so it produces a real measured
+   number (160 races, 45 courses, 39 explained skips) without fetching anybody's results.
+   It was going to be a step inside the crawl; splitting it out is what made the two
+   findings below visible before a single results page was read.
+
+3. **A race is published as three pages, and two of them are not races.** Every Tely 10
+   has an individual result page, a team-standings page and an awards page, all on the
+   index with the same date and the same distance in the name. Read as races they made
+   nineteen editions of a race run seven times, which would have estimated one day's
+   course effect three times over. Excluded by name; the count is now seven, and section 3
+   understated how much cleaning the index needs.
+
+4. **The skip list has to name its reason per row.** It reported "not an individual road
+   result, or a PDF" for everything, which cannot distinguish a duplicate from a hole. The
+   skip list is the coverage claim in section 1, so it now names the reason, and doing that
+   immediately turned up the 2017 Turkey Tea being dropped for having a `.htm` extension.
+   Only PDFs are now excluded by extension: an extension is not evidence about a layout,
+   and the parser refuses loudly on one it does not know.
+
+5. **Two leaks the tests found, both closed.** Races on the same day are not each other's
+   history, which matters because the Trapline starts four races from one line. And the
+   runner object handed to a model carries every result including the one being predicted,
+   so the category-median baseline was reading a first-timer's age band off the finishing
+   list of the race in question. Section 5.6 did not anticipate either.
+
+6. **Section 3's page-count estimate stands but its shape was wrong.** The Tely 10's own
+   archive at `/tely10/results/` is a second loader, not an optional extra: the main index
+   carries no Tely for 2016, 2017 or 2026, so the largest field in the province is missing
+   its most recent edition. Added to Deferred; it does not block Cape to Cabot.
