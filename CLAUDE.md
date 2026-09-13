@@ -13,6 +13,9 @@ prediction-then-error record. The plan is in [PLAN.md](PLAN.md).
   the code and say why in the commit message.
 - `docs/data-terms.md` once it exists: what may be fetched, from where, and how a runner
   asks to be removed.
+- [docs/todo.md](docs/todo.md): what is open and who owns it. Things waiting on Peter, on an
+  outside event, or on a decision that is not the assistant's to make. Nothing that has a
+  home in PLAN.md's schedule belongs there.
 
 ## Engineering standard
 
