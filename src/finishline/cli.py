@@ -6,6 +6,8 @@ The pipeline in the order it runs:
     finishline catalogue      what races exist, and which are read
     finishline courses        how hard each course is, measured against its hills
     finishline crawl          fetch the results pages, once, politely
+    finishline weather        fetch the observed weather for every race month
+    finishline conditions     what heat and wind cost, estimated from the editions
     finishline dataset        parse, resolve runners, write the tables
     finishline backtest       score the baselines at every origin
     finishline report         the tables the README publishes
@@ -30,9 +32,9 @@ import typer
 from finishline import report, store
 from finishline.backtest import run
 from finishline.history import History
-from finishline.ingest import entrants, nlaa
+from finishline.ingest import eccc, entrants, nlaa
 from finishline.metrics import grade
-from finishline.models import baselines
+from finishline.models import baselines, conditions
 from finishline.models import courses as models_courses
 from finishline.schema import Race
 from finishline.store import Dataset
@@ -43,6 +45,7 @@ DATA = Path("data")
 CACHE = DATA / "cache" / "nlaa"
 EXTERNAL = DATA / "cache" / "raceroster"
 ENTRANTS = DATA / "entrants"
+WEATHER = DATA / "cache" / "eccc"
 COURSES = DATA / "courses.toml"
 
 
@@ -254,6 +257,132 @@ def course_factors(
             f"{measured.course_id:<40}{measured.finishes:>7,}{measured.editions:>4}"
             f"{measured.percent:>8.1f}%{interval:>17}   {implied}"
         )
+
+
+@app.command(name="conditions")
+def weather_effect(
+    first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
+    last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+) -> None:
+    """What the weather on the day costs, estimated from the editions.
+
+    Needs the observations cached; `finishline weather` fetches them.
+    """
+    data = _dataset(first, last)
+    history = History.before(date.today(), data.races, data.resolved)
+    fitted = models_courses.fit(history, data.races, draws=1)
+    rows, skipped = _conditions_rows(data, fitted)
+
+    typer.echo(f"{len(rows)} editions with an observation; {skipped} without one")
+    model = conditions.fit(rows)
+    if model is None:
+        typer.echo("not enough editions to estimate anything")
+        raise typer.Exit(code=1)
+
+    low, high = model.intervals["temp_at_10km"]
+    typer.echo(
+        f"\ntemperature at 10 km : {model.temp_coefficient(10_000.0) * 100:+.3f}% per degree "
+        f"[{low * 100:+.3f}, {high * 100:+.3f}]"
+    )
+    low, high = model.intervals["wind"]
+    typer.echo(
+        f"wind speed           : {model.wind * 100:+.3f}% per km/h "
+        f"[{low * 100:+.3f}, {high * 100:+.3f}]"
+    )
+    low, high = model.intervals["tailwind"]
+    typer.echo(
+        f"tailwind             : {model.tailwind * 100:+.3f}% per km/h along the bearing "
+        f"[{low * 100:+.3f}, {high * 100:+.3f}]  (negative means it helps)"
+    )
+    typer.echo(
+        f"\nexplains {model.explained * 100:.1f}% of the edition variance, "
+        f"leaving sd {model.residual_sd * 100:.2f}%"
+    )
+    typer.echo("\nwhat a degree costs, by distance:")
+    for label, metres in (
+        ("5 km", 5_000.0),
+        ("10 km", 10_000.0),
+        ("Tely 10", 16_093.0),
+        ("Cape to Cabot 20 km", 20_000.0),
+        ("marathon", 42_195.0),
+    ):
+        typer.echo(f"  {label:<22}{model.temp_coefficient(metres) * 100:+.3f}% per degree")
+
+    typer.echo(
+        f"\nneutral is {conditions.NEUTRAL_TEMP_C:.0f} C and "
+        f"{conditions.NEUTRAL_WIND_KMH:.0f} km/h; Cape to Cabot on a 20 C morning would be "
+        f"{model.adjustment(20_000.0, 20.0, conditions.NEUTRAL_WIND_KMH) * 100:+.2f}%"
+    )
+
+
+def _conditions_rows(
+    data: Dataset, fitted: models_courses.Fit
+) -> tuple[list[conditions.Observation], int]:
+    """Every edition the airport can speak for, with its observed weather."""
+    finishers: dict[str, int] = {}
+    for result in data.results:
+        if result.finished:
+            finishers[result.race_id] = finishers.get(result.race_id, 0) + 1
+
+    profiles = course_profiles()
+    rows: list[conditions.Observation] = []
+    skipped = 0
+    with eccc.Cache(WEATHER) as weather:
+        for race_id, effect in fitted.editions.items():
+            race = data.races[race_id]
+            if not eccc.near_st_johns(race.course_id):
+                skipped += 1
+                continue
+            try:
+                met = eccc.conditions(weather, race_id, race.date, race.distance_m)
+            except eccc.NoObservation:
+                skipped += 1
+                continue
+            if met.wind_kmh is None:
+                skipped += 1
+                continue
+            bearing = profiles.get(race.course_id, {}).get("bearing_deg")
+            rows.append(
+                conditions.Observation(
+                    race_id=race_id,
+                    course_id=race.course_id,
+                    distance_m=race.distance_m,
+                    finishers=finishers.get(race_id, 0),
+                    effect=effect,
+                    temp_c=met.temp_c,
+                    wind_kmh=met.wind_kmh,
+                    tailwind_kmh=met.tailwind(None if bearing is None else float(bearing)),
+                )
+            )
+    return rows, skipped
+
+
+@app.command()
+def weather(
+    notices_sent: Annotated[
+        bool, typer.Option("--notices-sent", help="The courtesy notes have gone out.")
+    ] = False,
+    first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
+    last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+) -> None:
+    """Fetch the observed weather for every month that holds a race, once, one a second."""
+    if not (notices_sent or os.environ.get(NOTICES_ENV)):
+        typer.echo(NOTICES, err=True)
+        raise typer.Exit(code=2)
+
+    with nlaa.Cache(CACHE) as cache:
+        races, _skipped = cache_catalogue(cache, first, last)
+    months = sorted({(race.date.year, race.date.month) for race in races})
+    typer.echo(f"{len(races)} races over {len(months)} station-months")
+
+    with eccc.Cache(WEATHER) as store_:
+        for index, (year, month) in enumerate(months, start=1):
+            station = eccc.station_for(year)
+            already = store_.path_for(station, year, month).exists()
+            store_.get(station, year, month)
+            if not already:
+                typer.echo(f"  [{index:>3}/{len(months)}] {year}-{month:02d}  {station.name}")
+    typer.echo("done; nothing here is committed (see .gitignore)")
 
 
 @app.command()

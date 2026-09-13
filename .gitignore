@@ -30,3 +30,6 @@ Thumbs.db
 
 # The snapshot log: a local record of a scheduled job, not data
 data/entrants/snapshot.log
+
+# Observed weather: Open Government Licence data, but a big local cache, not committed
+data/cache/eccc/

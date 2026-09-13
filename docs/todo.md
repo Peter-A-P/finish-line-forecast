@@ -69,6 +69,25 @@ which is the line this project drew for Strava and it does not move because the 
 arrived by a different route. A single published ascent total about a public road is a
 different thing, and is what Cape to Cabot's second figure is.
 
+### 2b. Course bearings, which are now worth more than elevations
+
+**This is the highest-value thing anyone can add to `data/courses.toml`.** Peter's point
+that the Tely's prevailing westerly is a tailwind for almost the whole race turned out to
+be the fix for a term that was measuring nothing: fitted as one wind-speed number for the
+whole province, a tailwind course and a headwind course cancel.
+
+Only two courses carry a bearing so far, the Tely (70 degrees) and Cape to Cabot (321), and
+27 editions is not enough to separate the tailwind coefficient from zero. It has the right
+sign, -0.022 percent per km/h [-0.100, +0.054], and is published as not-yet-significant.
+
+Wanted per point-to-point course: roughly where it starts and where it finishes, or just
+the compass direction the field generally runs. **A loop or out-and-back has no bearing and
+must not be given one**; those courses feel the wind as a cost whichever way it blows, and
+`courses.toml` leaving `bearing_deg` out is how that is said.
+
+Candidates worth checking, all with real history: Mews Memorial 8 km, Mundy Pond 5 km,
+Harbour Front 10 km, Turkey Tea 10 km, Run to Remember 11 km, Flat Out 5 km.
+
 ## Waiting on an outside event
 
 ### 3. Score the Uniformed Services Run against its start list

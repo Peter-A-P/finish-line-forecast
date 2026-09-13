@@ -666,3 +666,63 @@ hand.**
 
     Archive after all three: **286 races, 52 courses, 282 read, 74,516 finishes, 23,713
     runners, 355 held back.**
+
+**2026-09-13, the conditions layer: two wrong answers before the right one.**
+
+17. **The weather looked like it did not matter, and that was a weighting mistake.** The
+    first pass regressed 227 edition effects near the airport on observed temperature and
+    wind, unweighted, and got **+0.027 percent per degree with an interval straddling
+    zero**: the honest-looking conclusion that in a climate this cool the morning does not
+    move a race. It does. An edition effect estimated from thirty finishers is mostly noise
+    and this archive is full of them, so the small races were shouting down the large ones.
+    Weighted by field the same coefficient is +0.15, and on editions above 400 finishers
+    +0.29, both clear of zero. The null was an artefact of counting a 30-runner 5 km and a
+    4,000-runner Tely equally.
+
+18. **The second wrong answer was worse, because it was a plausible number.** Wired up, the
+    model fitted the raw edition effects, which still contain the course: a Cape to Cabot
+    edition sits near +9 percent because of Signal Hill, not because of the morning. The
+    temperature coefficient was then partly measuring that the hard courses here run in
+    October and the easy ones in June. What gave it away was the residual: **4.42 percent,
+    larger than the 2.79 percent within-course scatter it was supposed to be explaining**. A
+    model cannot explain something and leave more behind than it started with. Demeaned
+    within course and weighted, it explains **32.3 percent of the edition variance and
+    leaves sd 2.34 percent**.
+
+19. **The temperature coefficient is a function of distance, not a number**, and the
+    ordering is the one physiology predicts: **-0.05 percent per degree at 5 km, +0.23 at
+    10 km, +0.43 at the Tely, +0.51 at Cape to Cabot, +0.81 at a marathon.** The 5 km sign
+    is left as measured rather than clipped, because at that distance heat is not the
+    binding constraint and a warm morning here is usually a calm one.
+
+    **The check that makes this credible.** The Tely 10 on its own, eleven editions of two
+    to four thousand finishers each, run between 3.6 and 22.7 degrees because two COVID
+    years pushed it into October, gives **+0.41 percent per degree, +0.42 controlling for
+    year, R-squared 0.64**. The pooled model with its distance term, fitted across every
+    course and never told about the Tely, returns **+0.425** for that distance. Two routes
+    to the same coefficient, and it sits in the range the marathon literature reports.
+
+20. **A wind speed is not a wind, and Peter said so from the road before the data did.**
+    The prevailing wind in Tely season is westerly, and the Tely runs east-north-east from
+    Paradise into St. John's, so the usual wind is a tailwind for almost the whole race.
+    Cape to Cabot runs north-west from Cape Spear to Signal Hill, so the same westerly is a
+    headwind. Fitted as one speed term for the whole province those cancel, which is what
+    the first fit showed: +0.076 percent per km/h, interval through zero.
+
+    Wind now enters twice: the **speed**, which a loop or out-and-back feels whichever way
+    it blows because it loses more into the wind than it gains coming back, and the signed
+    **tailwind along the course bearing**, which only a point-to-point course has. Bearings
+    are in `data/courses.toml`, great-circle from start to finish, 70 degrees for the Tely
+    and 321 for Cape to Cabot. A 30 km/h westerly is +28.5 km/h of tailwind on one and 18.5
+    km/h against on the other.
+
+    ⚠️ **The tailwind coefficient has the right sign and does not yet clear zero**:
+    -0.022 percent per km/h [-0.100, +0.054], negative meaning it helps. There is variation
+    to fit, the Tely ranging -14.8 to +29.2 km/h of tailwind and Cape to Cabot -38.5 to
+    +16.0, but only two courses carry a bearing, which is 27 editions. More bearings is now
+    the highest-value thing anyone can add to `courses.toml`, and it is in `docs/todo.md`.
+    It is reported as not-yet-significant rather than quietly kept because the sign is
+    pleasing.
+
+    One fact that falls out and is worth the race director's attention: **Cape to Cabot runs
+    into a headwind in 13 of its 16 editions**, four of them above 25 km/h against.

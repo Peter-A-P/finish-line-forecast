@@ -178,6 +178,36 @@ The observations are the backtest's basis because Overload measured Open-Meteo's
 temperature about 6 degrees Celsius off at this coast. There is no observation of the
 future, so the live prediction uses the forecast and says so.
 
+**Fetched by `finishline weather`**, under the same rails as the results crawler: one
+request a second, an identifying user agent, each station-month written to
+`data/cache/eccc/` with its SHA-256 and kept forever, and a refusal until the courtesy
+notes have gone out. 120 station-months cover every race in the archive. Not committed: it
+is a large cache of somebody else's published file, and `.gitignore` keeps it local.
+
+⚠️ **Two stations, and one of them lies quietly.** "ST JOHN'S A" (6720) carries hourly
+observations to the end of 2011 and "ST JOHN'S INTL A" (50089) from 2012. Asked for a month
+outside its coverage, a station returns **744 complete-looking rows with every temperature
+empty**, not an error. Taken at face value the whole backtest would have run with no weather
+for the first four years and nothing would have said so, which is the same silence as a
+parser keyed on a ruler most pages do not draw and an index heading that changed wording in
+2016. `hourly` raises rather than returning nothing. The boundary was measured by asking
+both stations for May and September of 2010 through 2014, not assumed.
+
+⚠️ **The timestamps are Local Standard Time in every month.** ECCC does not shift for
+daylight saving, so a race starting at 09:00 on a wall clock in July is at 08:00 in the
+file. Every road race here runs inside the daylight-saving period. Read wrong, every race
+moves an hour earlier into the cool of the morning, which biases the heat term the same way
+every time and looks like a modest effect rather than a mistake.
+
+⚠️ **The airport is not the course.** St. John's Intl is a fair proxy for a race on the
+Avalon and says nothing useful about one in Gander, Garnish, Bay Roberts or Labrador City.
+Those courses are named in `eccc.AWAY_FROM_ST_JOHNS` and excluded from the conditions fit
+rather than quietly averaged in: 55 of the 282 editions.
+
+⚠️ **No results page in this archive prints a start time**, so 09:00 local is an assumption,
+and the window runs from there to roughly when the back of the field finishes. It is an
+argument rather than a constant so the assumption can be moved and the effect measured.
+
 ## Removal
 
 A runner who does not want to be named writes to the address in the crawler's user agent

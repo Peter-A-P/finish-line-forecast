@@ -17,6 +17,13 @@ name = "Cape to Cabot"
 distance_m = 20000
 climb_m = 550
 drop_m = 450
+bearing_deg = 321
+bearing_source = """\
+Great-circle bearing from Cape Spear (47.5189 N, 52.6197 W) to Cabot Tower on Signal Hill \
+(47.5707 N, 52.6815 W). North-west, so the westerly that pushes the Tely along is a \
+headwind here: the same 30 km/h wind is +28.5 km/h of tailwind at the Tely and 18.5 km/h \
+against on this course.\
+"""
 source = """\
 capetocabot.com and the race's press coverage: "four major climbs, a 550-metre elevation \
 gain and a 450-metre drop", with "grades of more than 10 per cent in some parts". The \
@@ -44,4 +51,30 @@ notes = """\
 No published elevation figure found. The measured course factor from 1,029 finishes is the \
 only number this project has for it, and it is enough: the interval on it is tighter than \
 any prior derived from a climb total would be.\
+"""
+
+# ---------------------------------------------------------------------------------------
+# Course bearing: the compass direction the runners travel, for the wind term.
+#
+# ⚠️ **Only point-to-point courses have one.** A loop or an out-and-back has no net
+# direction, and the wind on it is a cost whichever way it blows, because you lose more
+# running into it than you gain running back with it. A course with no `bearing_deg` here
+# is treated that way deliberately; it is not a missing value to be filled in with zero.
+#
+# Bearings are great-circle, start point to finish point, from the published start and
+# finish locations. They describe the net direction and not every turn: the Tely bends and
+# Cape to Cabot does far more than bend. What they capture is which way the field is
+# generally going, which is what decides whether a prevailing wind helps or hurts.
+
+[tely-10-16093]
+name = "Tely 10"
+distance_m = 16093
+bearing_deg = 70
+source = """\
+Great-circle bearing from the start in Paradise to the finish at Bannerman Park, \
+St. John's. Peter's local knowledge, which the geometry then confirmed: the wind at this \
+time of year is usually westerly, and a westerly is close to a straight tailwind on this \
+bearing. A 30 km/h westerly projects to +28.5 km/h of tailwind here and to 18.5 km/h of \
+headwind on Cape to Cabot, which is why one wind-speed number for the whole province was \
+measuring nothing.\
 """
