@@ -2,6 +2,7 @@
 
 The pipeline in the order it runs:
 
+    finishline snapshot       today's look at the two live entrant lists
     finishline catalogue      what races exist, and which are read
     finishline crawl          fetch the results pages, once, politely
     finishline dataset        parse, resolve runners, write the tables
@@ -26,7 +27,7 @@ import typer
 
 from finishline import report, store
 from finishline.backtest import run
-from finishline.ingest import nlaa
+from finishline.ingest import entrants, nlaa
 from finishline.models import baselines
 from finishline.schema import Race
 from finishline.store import Dataset
@@ -36,6 +37,7 @@ app = typer.Typer(add_completion=False, help=__doc__)
 DATA = Path("data")
 CACHE = DATA / "cache" / "nlaa"
 EXTERNAL = DATA / "cache" / "raceroster"
+ENTRANTS = DATA / "entrants"
 
 # The archive this project reads. The pages go back to 1978.
 #
@@ -75,6 +77,30 @@ or set FINISHLINE_NOTICES_SENT=1 in the environment.
 def notices() -> None:
     """Print what has to be sent before the crawler runs."""
     typer.echo(NOTICES)
+
+
+@app.command()
+def snapshot(
+    notices_sent: Annotated[
+        bool, typer.Option("--notices-sent", help="The courtesy notes have gone out.")
+    ] = False,
+) -> None:
+    """Take today's look at the two entrant lists, and never overwrite yesterday's.
+
+    ⚠️ **Run this every day until the gun.** The club's lists are live pages with no
+    archive anywhere: the Wayback Machine holds no past edition of them, so a day not
+    observed is a day gone. The no-show rate, the late-entry rate and the growth curve of
+    a field are all differences between snapshots, and the first race that pays for them
+    is the Uniformed Services Run, whose list can never be re-read after it starts.
+    """
+    if not (notices_sent or os.environ.get(NOTICES_ENV)):
+        typer.echo(NOTICES, err=True)
+        raise typer.Exit(code=2)
+
+    for seen in entrants.snapshot(ENTRANTS):
+        moved = "changed" if seen.changed else "unchanged since the last look"
+        typer.echo(f"  {seen.prefix:<10} {seen.entrants:>4} entrants, {moved}  {seen.path.name}")
+    typer.echo("nothing here is committed (see .gitignore)")
 
 
 @app.command()

@@ -105,9 +105,26 @@ Public pages on the club's store, "up-to-the-minute", no privacy statement:
 - Cape to Cabot: `athleticsnortheast.com/cart/index.php?main_page=page&id=4`
 - Uniformed Services Run: the same path with `id=1`
 
-Snapshotted daily from 2026-09-12 into `data/entrants/`, gitignored. On 2026-09-12 the
-Cape to Cabot list held 453 names with sex and shirt size against a cap of 500, and the
-USR list held about 670 adults across five events.
+Snapshotted daily from 2026-09-12 into `data/entrants/`, gitignored, by `finishline
+snapshot`. It fetches at the same one request a second as the results crawler, sends the
+same identifying user agent, and refuses to run until the courtesy notes have gone out
+exactly as `crawl` does; CI asserts both refusals. It writes a file only when the page has
+changed and a manifest row on every look, so a day with no new entries is recorded without
+a second copy of the names.
+
+**These pages are the opposite of a results page and are treated that way.** A results page
+is written once and never changes, so it is fetched once and kept forever. An entrant list
+changes every day until the gun and is archived nowhere, not even by the Wayback Machine,
+so the only chance to see it on a given day is that day. Snapshots are never overwritten.
+
+| Look | Cape to Cabot | USR |
+|---|---:|---:|
+| 2026-09-12T16:03Z | 453 | 895 |
+| 2026-09-13T00:14Z, the last before the USR gun | 458 | 896 |
+
+Of the 896 on the USR list, 629 are in the four individual road events that produce
+results: 277 half marathon, 198 10 km, 79 marathon, 75 5 km. The remainder are the kids'
+1 km, the family 3 km and the marathon relay, none of which this project predicts.
 
 **Sex is used. Shirt size is not**, by decision. A body-size proxy would probably help the
 model a little, and a public finish-time prediction that leaned on somebody's T-shirt size

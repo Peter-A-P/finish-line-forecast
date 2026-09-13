@@ -129,3 +129,67 @@ def test_a_file_with_a_recorded_source_keeps_it(tmp_path: Path) -> None:
     assert loaded.source == "NLAA, by email"
     assert loaded.received == "2026-09-12"
     assert len(loaded.results) == 3
+
+
+def test_a_snapshot_is_written_once_and_re_observed_without_a_copy(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Two looks at an unchanged list: one file, two manifest rows.
+
+    The file is the content and the manifest row is the observation. A list that did not
+    move is still a fact worth keeping, and it is not worth a second copy of the names.
+    """
+    monkeypatch.setattr(entrants, "_fetch", lambda url: LIST_PAGE)
+    monkeypatch.setattr(entrants, "MIN_INTERVAL", 0.0)
+
+    first = entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
+    second = entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
+
+    assert [s.changed for s in first] == [True]
+    assert [s.changed for s in second] == [False]
+    assert second[0].path == first[0].path
+    assert first[0].entrants == 3
+    assert len(list(tmp_path.glob("*.html"))) == 1
+    assert len((tmp_path / "manifest.jsonl").read_text(encoding="utf-8").splitlines()) == 2
+
+
+def test_a_changed_list_never_overwrites_the_earlier_look(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Yesterday's list is the only evidence of who had entered yesterday."""
+    monkeypatch.setattr(entrants, "MIN_INTERVAL", 0.0)
+    monkeypatch.setattr(entrants, "_fetch", lambda url: LIST_PAGE)
+    entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
+
+    grown = LIST_PAGE.replace(
+        "<li>Hollie Young", "<li>Ravi Nasser ---- (Male) Men's L</li>\n  <li>Hollie Young"
+    )
+    monkeypatch.setattr(entrants, "_fetch", lambda url: grown)
+    # A second snapshot in the same minute would collide on the filename, so the clock is
+    # what separates them; the guard here is that nothing is lost, not that it is fast.
+    monkeypatch.setattr(entrants, "_filename", lambda prefix, at: f"{prefix}_later.html")
+    later = entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
+
+    assert later[0].changed
+    assert later[0].entrants == 4
+    assert len(list(tmp_path.glob("*.html"))) == 2
+    assert entrants.load(later[0].path) != entrants.load(
+        next(p for p in sorted(tmp_path.glob("*.html")) if p != later[0].path)
+    )
+
+
+def test_the_snapshot_command_refuses_before_the_courtesy_notes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The same rail as the crawler: this fetches from the same club's site."""
+    from typer.testing import CliRunner
+
+    from finishline import cli
+
+    monkeypatch.delenv(cli.NOTICES_ENV, raising=False)
+    monkeypatch.setattr(cli, "ENTRANTS", tmp_path)
+    monkeypatch.setattr(
+        entrants, "_fetch", lambda url: pytest.fail("fetched before the notes went out")
+    )
+    result = CliRunner().invoke(cli.app, ["snapshot"])
+    assert result.exit_code == 2

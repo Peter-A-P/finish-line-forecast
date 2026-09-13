@@ -51,3 +51,10 @@ jobs:
             echo "crawl ran without the notices having gone out" >&2
             exit 1
           fi
+
+      - name: the entrant-list snapshot must refuse too
+        run: |
+          if uv run finishline snapshot; then
+            echo "snapshot ran without the notices having gone out" >&2
+            exit 1
+          fi

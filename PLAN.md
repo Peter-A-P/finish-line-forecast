@@ -524,3 +524,31 @@ Recorded here in the commit that made them, so a reader can tell a decision from
    archive at `/tely10/results/` is a second loader, not an optional extra: the main index
    carries no Tely for 2016, 2017 or 2026, so the largest field in the province is missing
    its most recent edition. Added to Deferred; it does not block Cape to Cabot.
+
+**2026-09-12, late: the entrant lists are now snapshotted by a command rather than by
+hand.**
+
+11. **A live page has no archive, and the first race that needed one was nine hours away.**
+    Section 0 said the two Athletics NorthEAST lists would be snapshotted daily from
+    Sep 12 so that the no-show and late-entry rates could be measured on the Uniformed
+    Services Run of Sep 13, a month before Cape to Cabot needs them. The snapshots on Sep
+    12 were taken by hand, and nothing in the repository would have taken the next one.
+    `finishline snapshot` now does it, under the same courtesy rail as the crawler and at
+    the same one-request-a-second, and CI asserts that it refuses without the notices in
+    the same way `crawl` does. It writes a file only when the page has changed and a
+    manifest row every time, because a day on which nobody entered is an observation and
+    not a reason to keep a second copy of five hundred names.
+
+    The last pre-gun look, 2026-09-13T00:14Z: **Cape to Cabot 458 entrants, up five in
+    the eight hours since the first snapshot, none withdrawn; the USR 896**, of whom 629
+    are in the four individual road events that will produce results (277 half, 198 10 km,
+    79 marathon, 75 5 km) and the rest are the kids' 1 km, the family 3 km and the marathon
+    relay. Section 0's note that the USR list held "10 km 272" was a miscount from before
+    the parser tracked the event headings: that figure was the 10 km and the 5 km together.
+
+    **No prediction was made for the USR.** The gun is inside twenty-four hours and the
+    rule in CLAUDE.md says `freeze` refuses inside twenty-four hours, which is a rule worth
+    more on the first occasion it is inconvenient than on any later one. The USR still pays
+    for itself: the final list is preserved, so when NLAA posts the results the no-show
+    rate, the late-entry rate and the list-to-results name-match rate are all measurable,
+    which is what section 5.6 wanted from it.

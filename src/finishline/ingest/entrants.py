@@ -16,12 +16,21 @@ who have signed up for a race, and the prediction file is the only published der
 
 from __future__ import annotations
 
+import hashlib
 import html
+import json
 import re
+import ssl
+import time
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 
+import httpx
+import truststore
+
 from finishline.identity.normalise import clean
+from finishline.ingest.nlaa import MIN_INTERVAL, TIMEOUT, USER_AGENT
 
 # One entrant per list item: a name, then the club's separator, then the details it
 # chooses to print. The separator is four hyphens on the Cape to Cabot list and absent on
@@ -49,6 +58,19 @@ _NOT_AN_ENTRANT = {
     "race registrations & other items", "have you seen ...",
 }
 
+# The two lists the club publishes, and the prefix each snapshot is filed under.
+#
+# ⚠️ **These pages are alive.** A results page is written once and never changes, so the
+# results cache fetches it once and keeps it forever. An entrant list changes every day
+# until the gun, and the only chance to observe it on a given day is that day. So this
+# does the opposite of the results cache: it re-fetches on every run, and it never
+# overwrites what an earlier run saw.
+_STORE = "https://www.athleticsnortheast.com/cart/index.php?main_page=page&id="
+LISTS: dict[str, str] = {
+    "c2c-2026": _STORE + "4",
+    "usr-2026": _STORE + "1",
+}
+
 
 @dataclass(frozen=True, slots=True)
 class Entrant:
@@ -62,6 +84,17 @@ class Entrant:
     def known_before_the_gun(self) -> tuple[str, str | None]:
         """Everything a prediction may use about an entrant with no history."""
         return self.name, self.sex
+
+
+@dataclass(frozen=True, slots=True)
+class Snapshot:
+    """One observation of one list: what was seen, when, and whether it had moved."""
+
+    prefix: str
+    path: Path
+    at: datetime
+    entrants: int
+    changed: bool
 
 
 def _content(page: str) -> str:
@@ -120,3 +153,89 @@ def latest_snapshot(directory: Path, prefix: str) -> Path | None:
     """
     snapshots = sorted(directory.glob(f"{prefix}_*.html"))
     return snapshots[-1] if snapshots else None
+
+
+def _fetch(url: str) -> str:
+    """One list page, at the same pace and under the same name as the results crawler."""
+    context = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    with httpx.Client(
+        headers={"User-Agent": USER_AGENT},
+        timeout=TIMEOUT,
+        follow_redirects=True,
+        verify=context,
+    ) as client:
+        response = client.get(url)
+        response.raise_for_status()
+        return response.text
+
+
+def snapshot(directory: Path, *, lists: dict[str, str] | None = None) -> list[Snapshot]:
+    """Take today's look at each list, and write down what was seen.
+
+    Two things are recorded and they are not the same thing. The **file** is the content
+    of the page, written only when the content is new; the **manifest row** is the
+    observation, written every time, whether or not anything changed. A day on which the
+    list did not move is a fact about the race, and it costs nothing to keep it, but it
+    does not need a second identical copy of five hundred names on disk.
+    """
+    pages = lists if lists is not None else LISTS
+    directory.mkdir(parents=True, exist_ok=True)
+    seen: list[Snapshot] = []
+    for index, (prefix, url) in enumerate(sorted(pages.items())):
+        if index:
+            time.sleep(MIN_INTERVAL)
+        body = _fetch(url)
+        digest = hashlib.sha256(body.encode("utf-8")).hexdigest()
+        at = datetime.now(UTC)
+        previous = latest_snapshot(directory, prefix)
+        if previous is not None and _digest_of(previous) == digest:
+            path, changed = previous, False
+        else:
+            path, changed = directory / _filename(prefix, at), True
+            path.write_text(body, encoding="utf-8", newline="\n")
+        _record(directory, prefix, url, path, digest, at, changed=changed)
+        seen.append(
+            Snapshot(
+                prefix=prefix,
+                path=path,
+                at=at,
+                entrants=len(parse(body)),
+                changed=changed,
+            )
+        )
+    return seen
+
+
+def _filename(prefix: str, at: datetime) -> str:
+    return f"{prefix}_ane-list_{at.strftime('%Y%m%dT%H%M')}Z.html"
+
+
+def _digest_of(path: Path) -> str:
+    """The hash of a snapshot already on disk, over the bytes `snapshot` hashed.
+
+    `write_text` with `newline="\\n"` writes the fetched text through unchanged, so the
+    bytes on disk are the bytes that were hashed and there is nothing to normalise here.
+    """
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _record(
+    directory: Path,
+    prefix: str,
+    url: str,
+    path: Path,
+    digest: str,
+    at: datetime,
+    *,
+    changed: bool,
+) -> None:
+    row = {
+        "list": prefix,
+        "url": url,
+        "path": path.name,
+        "sha256": digest,
+        "changed": changed,
+        "fetched_at": at.isoformat(timespec="seconds"),
+    }
+    with (directory / "manifest.jsonl").open("a", encoding="utf-8", newline="\n") as handle:
+        handle.write(json.dumps(row) + "\n")
