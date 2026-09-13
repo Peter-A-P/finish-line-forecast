@@ -552,3 +552,20 @@ hand.**
     for itself: the final list is preserved, so when NLAA posts the results the no-show
     rate, the late-entry rate and the list-to-results name-match rate are all measurable,
     which is what section 5.6 wanted from it.
+
+12. **The snapshot's idea of "changed" was wrong within an hour of being written, and the
+    live page said so.** The first version compared the page as fetched against the page
+    on disk. The club's store puts a fresh `securityToken` in every response, so no two
+    fetches of an unmoved list are ever byte equal: the second run reported both lists as
+    changed with the counts identical. Left alone it would have written a fresh copy of
+    458 and 896 names every day for the 35 days to Cape to Cabot and buried the growth
+    curve, which is the whole point of the exercise, under identical files. "Changed" now
+    means the parsed start list changed, sorted so that the club reordering its own page
+    is not mistaken for an entry; both hashes go in the manifest, the page's for the
+    provenance of the bytes and the listing's for whether anything happened. Two tests pin
+    it, one of them the token itself.
+
+    Worth noting for what it says about the rest of the build: this was caught only
+    because the command printed its count next to its verdict and the two disagreed. The
+    manifest rows written at 00:14Z and 00:28Z are labelled `changed` and are left as they
+    are; they were what the tooling believed at the time.

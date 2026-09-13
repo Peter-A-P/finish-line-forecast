@@ -172,11 +172,18 @@ def _fetch(url: str) -> str:
 def snapshot(directory: Path, *, lists: dict[str, str] | None = None) -> list[Snapshot]:
     """Take today's look at each list, and write down what was seen.
 
-    Two things are recorded and they are not the same thing. The **file** is the content
-    of the page, written only when the content is new; the **manifest row** is the
-    observation, written every time, whether or not anything changed. A day on which the
-    list did not move is a fact about the race, and it costs nothing to keep it, but it
-    does not need a second identical copy of five hundred names on disk.
+    Two things are recorded and they are not the same thing. The **file** is the start
+    list, written only when the start list is new; the **manifest row** is the observation,
+    written every time, whether or not anything moved. A day on which nobody entered is a
+    fact about the race, and it costs nothing to keep it, but it does not need a second
+    copy of five hundred names on disk.
+
+    ⚠️ **"Changed" means the entrants changed, not the bytes.** The store puts a fresh
+    `securityToken` in every response, so no two fetches of an unmoved list are ever byte
+    equal. Comparing the pages as fetched called every single look a change, which would
+    have written a new copy of both lists every day until the race and made the growth
+    curve unreadable. The comparison is over the parsed entrants; the page's own hash still
+    goes in the manifest, because that is the provenance of the file on disk.
     """
     pages = lists if lists is not None else LISTS
     directory.mkdir(parents=True, exist_ok=True)
@@ -185,23 +192,27 @@ def snapshot(directory: Path, *, lists: dict[str, str] | None = None) -> list[Sn
         if index:
             time.sleep(MIN_INTERVAL)
         body = _fetch(url)
-        digest = hashlib.sha256(body.encode("utf-8")).hexdigest()
         at = datetime.now(UTC)
+        entered = parse(body)
+        listing = _listing_digest(entered)
         previous = latest_snapshot(directory, prefix)
-        if previous is not None and _digest_of(previous) == digest:
+        if previous is not None and _listing_digest(load(previous)) == listing:
             path, changed = previous, False
         else:
             path, changed = directory / _filename(prefix, at), True
             path.write_text(body, encoding="utf-8", newline="\n")
-        _record(directory, prefix, url, path, digest, at, changed=changed)
+        _record(
+            directory,
+            prefix,
+            url,
+            path,
+            page=hashlib.sha256(body.encode("utf-8")).hexdigest(),
+            listing=listing,
+            at=at,
+            changed=changed,
+        )
         seen.append(
-            Snapshot(
-                prefix=prefix,
-                path=path,
-                at=at,
-                entrants=len(parse(body)),
-                changed=changed,
-            )
+            Snapshot(prefix=prefix, path=path, at=at, entrants=len(entered), changed=changed)
         )
     return seen
 
@@ -210,13 +221,15 @@ def _filename(prefix: str, at: datetime) -> str:
     return f"{prefix}_ane-list_{at.strftime('%Y%m%dT%H%M')}Z.html"
 
 
-def _digest_of(path: Path) -> str:
-    """The hash of a snapshot already on disk, over the bytes `snapshot` hashed.
+def _listing_digest(entered: list[Entrant]) -> str:
+    """A hash of the start list itself: who is entered, and in what.
 
-    `write_text` with `newline="\\n"` writes the fetched text through unchanged, so the
-    bytes on disk are the bytes that were hashed and there is nothing to normalise here.
+    Sorted, so that the club reordering its own page is not mistaken for somebody
+    entering. Order on these pages is roughly registration order and is not otherwise
+    meaningful, and the growth curve is what the snapshots are for.
     """
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    rows = sorted(f"{e.name}\x1f{e.sex or ''}\x1f{e.event or ''}" for e in entered)
+    return hashlib.sha256("\x1e".join(rows).encode("utf-8")).hexdigest()
 
 
 def _record(
@@ -224,16 +237,24 @@ def _record(
     prefix: str,
     url: str,
     path: Path,
-    digest: str,
-    at: datetime,
     *,
+    page: str,
+    listing: str,
+    at: datetime,
     changed: bool,
 ) -> None:
+    """One row per look, whether or not the list moved.
+
+    Both hashes are kept. `page_sha256` is the provenance of the bytes on disk, and it
+    differs on every fetch because of the store's per-request token; `listing_sha256` is
+    the start list, and it is the one that says whether anything happened.
+    """
     row = {
         "list": prefix,
         "url": url,
         "path": path.name,
-        "sha256": digest,
+        "page_sha256": page,
+        "listing_sha256": listing,
         "changed": changed,
         "fetched_at": at.isoformat(timespec="seconds"),
     }

@@ -27,3 +27,6 @@ build/
 Thumbs.db
 .vscode/
 .idea/
+
+# The snapshot log: a local record of a scheduled job, not data
+data/entrants/snapshot.log

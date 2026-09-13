@@ -108,9 +108,20 @@ Public pages on the club's store, "up-to-the-minute", no privacy statement:
 Snapshotted daily from 2026-09-12 into `data/entrants/`, gitignored, by `finishline
 snapshot`. It fetches at the same one request a second as the results crawler, sends the
 same identifying user agent, and refuses to run until the courtesy notes have gone out
-exactly as `crawl` does; CI asserts both refusals. It writes a file only when the page has
-changed and a manifest row on every look, so a day with no new entries is recorded without
-a second copy of the names.
+exactly as `crawl` does; CI asserts both refusals. It writes a file only when the start
+list has changed and a manifest row on every look, so a day with no new entries is
+recorded without a second copy of the names.
+
+⚠️ **"Changed" means the entrants changed, not the bytes.** The store puts a fresh
+`securityToken` in every response, so no two fetches are ever byte equal and the first
+version of this called every look a change. The comparison is over the parsed start list,
+sorted; the manifest keeps both hashes, `page_sha256` for the provenance of the file on
+disk and `listing_sha256` for whether anything actually happened.
+
+Run daily by `scripts/daily-snapshot.ps1` under Windows Task Scheduler; register it with
+`scripts/register-snapshot-task.ps1`, which also prints how to remove it. Every run appends
+a line to `data/entrants/snapshot.log` whether it worked or not, because a scheduled task
+that has been failing quietly for a fortnight is worse than no scheduled task.
 
 **These pages are the opposite of a results page and are treated that way.** A results page
 is written once and never changes, so it is fetched once and kept forever. An entrant list

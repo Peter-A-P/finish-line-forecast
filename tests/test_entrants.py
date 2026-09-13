@@ -6,6 +6,7 @@ both are tested for the same thing: read exactly what was given, refuse the rest
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -129,6 +130,54 @@ def test_a_file_with_a_recorded_source_keeps_it(tmp_path: Path) -> None:
     assert loaded.source == "NLAA, by email"
     assert loaded.received == "2026-09-12"
     assert len(loaded.results) == 3
+
+
+def test_a_page_that_differs_only_in_its_security_token_is_not_a_change(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The real store puts a fresh securityToken in every response.
+
+    Comparing the pages as fetched called every look a change, which would have written a
+    new copy of five hundred names every day until the race and buried the growth curve
+    under identical files. What is compared is the start list.
+    """
+    monkeypatch.setattr(entrants, "MIN_INTERVAL", 0.0)
+    tokened = LIST_PAGE.replace(
+        "<h1", "<script>var securityToken = '{token}';</script>\n<h1"
+    )
+    monkeypatch.setattr(entrants, "_fetch", lambda url: tokened.format(token="a" * 32))
+    first = entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
+    monkeypatch.setattr(entrants, "_fetch", lambda url: tokened.format(token="b" * 32))
+    second = entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
+
+    assert first[0].changed and not second[0].changed
+    assert len(list(tmp_path.glob("*.html"))) == 1
+
+    rows = [
+        json.loads(line)
+        for line in (tmp_path / "manifest.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    assert rows[0]["page_sha256"] != rows[1]["page_sha256"], "the bytes did differ"
+    assert rows[0]["listing_sha256"] == rows[1]["listing_sha256"], "the start list did not"
+
+
+def test_a_reordered_list_is_not_a_change(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The club reordering its own page is not somebody entering the race."""
+    monkeypatch.setattr(entrants, "MIN_INTERVAL", 0.0)
+    monkeypatch.setattr(entrants, "_fetch", lambda url: LIST_PAGE)
+    entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
+
+    shuffled = LIST_PAGE.replace(
+        "<li>Susan Abbott ---- (Female) Women's XS</li>\n  ", ""
+    ).replace(
+        "<li>Hollie Young",
+        "<li>Susan Abbott ---- (Female) Women's XS</li>\n  <li>Hollie Young",
+    )
+    monkeypatch.setattr(entrants, "_fetch", lambda url: shuffled)
+    again = entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
+    assert not again[0].changed
 
 
 def test_a_snapshot_is_written_once_and_re_observed_without_a_copy(
