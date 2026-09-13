@@ -1,6 +1,14 @@
 # Plan: Finish Line Forecast
 
-**Written:** 2026-09-12. **Status:** week 1 built the same day; see section 13.
+**Written:** 2026-09-12. **Status as of 2026-09-13:** weeks 1 and 2 built. The archive is
+read and resolved, the three baselines are measured, every course's difficulty is measured
+from the results with the physics as a cross-check, and the conditions layer is fitted.
+**Still to build:** the hierarchical model, the LightGBM challenger, Mondrian conformal
+intervals, the placing simulation, the participation model, and `freeze`/`score`.
+
+**Section 13 is the log of what the data refuted**, and it is the first thing to read after
+this line: twenty numbered entries, each one a design in this plan that measurement
+overturned. What is open and who owns it is in [docs/todo.md](docs/todo.md).
 
 **Build:** an alongside project, so planned in relative weeks. Earliest start: now. It waits
 for nothing in the portfolio. The first live target fixes the calendar: **Cape to Cabot 20 km,

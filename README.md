@@ -106,6 +106,57 @@ With a per-runner trend the median drift is +0.00% and the signs scatter. A mode
 first way and asked for 2026 would extrapolate ten points of course inflation that does not
 exist, and the table would look entirely reasonable.
 
+**What the morning costs.** The course layer says how hard a road is; this says how much of
+what is left over is the weather. It fits the same edition effects against the observed
+temperature and wind at St. John's airport, with the temperature coefficient allowed to grow
+with distance, because a 5 km field meets fifteen minutes of weather and a marathon field
+meets four hours of it.
+
+<!-- finishline:conditions -->
+Fitted on 227 editions near St. John's airport, 55 of 282 excluded as too far from it or without an observation. Explains **32%** of the edition-to-edition variance within a course, leaving sd 2.34%.
+
+| Race length | Cost per degree above neutral | What a 20 C morning costs |
+|---|---:|---:|
+| 5 km | -0.05% | -0.5% |
+| 10 km | +0.23% | +2.3% |
+| Tely 10 | +0.42% | +4.2% |
+| Cape to Cabot 20 km | +0.51% | +5.1% |
+| marathon | +0.81% | +8.1% |
+
+Neutral is 10 C and 20 km/h, which is the middle of this archive rather than a laboratory ideal.
+
+| Term | Estimate | 95% CI |
+|---|---:|---|
+| Temperature at 10 km, per degree | +0.233% | [+0.129, +0.342] |
+| Tailwind along the bearing, per km/h | -0.022% | [-0.100, +0.054] |
+<!-- finishline:end:conditions -->
+
+**The check.** The Tely 10 on its own is the cleanest natural experiment in the archive:
+eleven editions of two to four thousand finishers, run anywhere from 3.6 to 22.7 C because
+two COVID years pushed it into October. It gives +0.41% per degree on its own, +0.42
+controlling for year, R-squared 0.64. The pooled model above, fitted across every course and
+never told about the Tely, returns +0.425 at that distance. Both sit in the range the
+marathon literature reports for mid-pack runners.
+
+⚠️ **This took two wrong answers first, and both are in [PLAN.md](PLAN.md) section 13.**
+Fitted unweighted, temperature came out at +0.03% per degree with the interval through zero,
+which reads as "the weather does not move a race in a climate this cool"; an edition effect
+from thirty finishers is mostly noise and the small races were shouting down the large ones.
+Fitted on raw edition effects rather than within-course ones, it partly measured the fact
+that the hard courses here run in October and the easy ones in June. What caught the second
+one was the residual coming out at 4.42%, larger than the 2.79% scatter it was supposed to
+be explaining: a model cannot explain something and leave more behind than it started with.
+
+⚠️ **A wind speed is not a wind, and the tailwind term is not yet significant.** The
+prevailing wind in Tely season is westerly and the Tely runs east-north-east, so the usual
+wind pushes that field along; Cape to Cabot runs north-west, so the same westerly is a
+headwind, and it runs into one in 13 of its 16 editions. Fitted as a single speed for the
+whole province those cancel, which is exactly what the first attempt showed. Wind now enters
+as a speed, which a loop pays whichever way it blows, and as a signed tailwind along a course
+bearing, which only a point-to-point course has. Only two courses carry a bearing so far, so
+the tailwind coefficient has the right sign and an interval that still includes zero. It is
+reported that way rather than kept quiet because the sign is pleasing.
+
 **How well the obvious approaches do.** Every race from 2024 on, each predicted only from
 results dated strictly before it. Coverage sits beside error in every row, because a model
 that answers for the easy half of a field is not better than one that answers for all of

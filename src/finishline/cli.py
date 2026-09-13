@@ -422,6 +422,14 @@ def write_report(
     text = report.replace_between(
         text, "courses", report.course_table(fitted, course_profiles())
     )
+    # A fresh clone has no weather cache, so this reports its own absence rather than
+    # failing the whole report for the sake of one table.
+    rows, skipped = _conditions_rows(data, fitted)
+    text = report.replace_between(
+        text,
+        "conditions",
+        report.conditions_table(conditions.fit(rows), len(fitted.editions), skipped),
+    )
     text = report.replace_between(text, "baselines", report.baseline_table(scored, names))
     text = report.replace_between(text, "placing", report.placing_table(scored, names))
     readme.write_text(text, encoding="utf-8", newline="\n")

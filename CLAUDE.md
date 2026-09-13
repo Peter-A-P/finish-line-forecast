@@ -11,11 +11,38 @@ prediction-then-error record. The plan is in [PLAN.md](PLAN.md).
 - [PLAN.md](PLAN.md): the design, the data-terms outcome, the schedule. Do not deviate from
   it silently; if something in it turns out wrong, change the plan in the same commit as
   the code and say why in the commit message.
-- `docs/data-terms.md` once it exists: what may be fetched, from where, and how a runner
-  asks to be removed.
+- [docs/data-terms.md](docs/data-terms.md): what may be fetched, from where, under what
+  terms, and how a runner asks to be removed. Add a source's row before fetching it.
+- **[PLAN.md](PLAN.md) section 13 is the log of designs the data refuted.** Twenty entries
+  and growing. Read it before changing the parser, the resolver, the course layer or the
+  conditions layer: most of what looks like an odd choice in those modules is there because
+  the obvious choice was measured and was wrong.
 - [docs/todo.md](docs/todo.md): what is open and who owns it. Things waiting on Peter, on an
   outside event, or on a decision that is not the assistant's to make. Nothing that has a
   home in PLAN.md's schedule belongs there.
+
+## Running it
+
+Everything reads from a local cache, so a rerun costs no requests. The order:
+
+```
+finishline notices      what has to be sent before anything is fetched
+finishline snapshot     today's look at the two live entrant lists   (daily, needs --notices-sent)
+finishline catalogue    what races exist, and which are deliberately not read
+finishline crawl        fetch the results pages, once, one a second  (needs --notices-sent)
+finishline weather      fetch the ECCC observations per race month   (needs --notices-sent)
+finishline dataset      parse, resolve runners, print what came out
+finishline courses      how hard each course is, against what its hills predict
+finishline conditions   what heat and wind cost, by distance
+finishline backtest     score the baselines at every origin
+finishline report       rewrite the README tables from the measurement
+```
+
+`crawl`, `weather` and `snapshot` refuse to run until the courtesy notices have gone out,
+and CI asserts that they refuse. The env var is `FINISHLINE_NOTICES_SENT=1`.
+
+Checks: `uv run ruff check .`, `uv run mypy`, `uv run pytest`. On this machine the venv
+interpreter is `.venv/Scripts/python.exe`.
 
 ## Engineering standard
 
