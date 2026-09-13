@@ -7,9 +7,12 @@ a results table somebody can edit.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 from finishline.backtest import score
+from finishline.metrics import grade
+from finishline.models import courses
 from finishline.store import Dataset
 
 
@@ -39,6 +42,53 @@ def archive_table(dataset: Dataset) -> str:
     ]
     lines = ["| | |", "|---|---:|"]
     lines += [f"| {label} | {value} |" for label, value in rows]
+    return "\n".join(lines)
+
+
+def course_table(
+    fit: courses.Fit, profiles: Mapping[str, Mapping[str, Any]], *, show: int = 8
+) -> str:
+    """The hardest and easiest courses, and the grade the hills would need.
+
+    Both ends, not just the hard end. A reader checking whether this is measuring anything
+    real wants to see that the flat 5 km races come out flat, and the spread between the
+    ends is the thing a course correction has to be worth.
+    """
+    ranked = sorted(fit.courses.values(), key=lambda c: -c.factor)
+    if not ranked:
+        return "_No course has enough finishes to measure yet._"
+
+    lines = [
+        "| Course | Finishes | Editions | Slower than flat | 95% CI "
+        "| Grade that would explain it |",
+        "|---|---:|---:|---:|---|---|",
+    ]
+
+    def row(measured: courses.CourseFactor) -> str:
+        record = profiles.get(measured.course_id, {})
+        explained = ""
+        if "climb_m" in record:
+            solved = grade.implied_grade(
+                distance_m=float(record["distance_m"]),
+                climb_m=float(record["climb_m"]),
+                drop_m=float(record["drop_m"]),
+                factor=measured.factor,
+            )
+            explained = (
+                f"{solved:.1%} average, over the published {record['climb_m']:.0f} m of climb"
+                if solved is not None
+                else "**the published climb cannot explain it**"
+            )
+        return (
+            f"| {measured.course_id} | {measured.finishes:,} | {measured.editions} "
+            f"| {measured.percent:+.1f}% "
+            f"| [{measured.low * 100:+.1f}, {measured.high * 100:+.1f}] | {explained} |"
+        )
+
+    lines += [row(measured) for measured in ranked[:show]]
+    if len(ranked) > 2 * show:
+        lines.append(f"| _... {len(ranked) - 2 * show} more_ | | | | | |")
+    lines += [row(measured) for measured in ranked[-show:]]
     return "\n".join(lines)
 
 

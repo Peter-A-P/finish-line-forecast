@@ -6,9 +6,9 @@ published once the results are in. For a race director that is pacing, corral an
 staffing planned from expected finish times rather than guesses; for a runner it is a goal
 time with an honest interval instead of a hunch.
 
-**Status: week 1 of 5.** Eighteen years of Newfoundland road results are read, 23,713
-runners resolved out of them, and the three baselines are measured on every race since 2024. No
-prediction has been made yet. The first live race is the Cape to Cabot 20 km in St. John's
+**Status: week 2 of 5.** Eighteen years of Newfoundland road results are read, 23,713
+runners resolved out of them, the three baselines are measured on every race since 2024, and
+every course's difficulty is measured from the results. No prediction has been made yet. The first live race is the Cape to Cabot 20 km in St. John's
 on 2026-10-18, with a second on a frozen model on 2026-11-11; predictions are committed,
 tagged and hashed in this repository before each race and scored against the official
 results after it. Build plan: [PLAN.md](PLAN.md).
@@ -24,15 +24,24 @@ indexes, which carry event names and dates and no runners.
 
 | | |
 |---|---|
-| Individual road races, 2008 to 2026 | 287 |
-| Distinct courses | 80 |
+| Individual road races, 2008 to 2026 | 286 |
+| Distinct courses | 52 |
 | Deepest course history | 17 editions (Mews Memorial 8 km, Mundy Pond 5 km), 16 (Cape to Cabot 20 km) |
 | Years with no racing | 2020 |
 
 The skip list is the coverage claim, so it distinguishes a duplicate from a hole. Most
 skips are team standings, awards pages, relays, cross-country and school races, which are
 other views of races already read or other disciplines; a handful are real holes, mostly
-races published as a PDF. [docs/data-terms.md](docs/data-terms.md) has the full table and
+races published as a PDF. One is the same race published twice: the 2014 CHCM 10 km is on
+the index as both `.htm` and `.php` with the same 162 finishers in different letter cases,
+and counting it twice would have given 162 people a second result on a day they raced once.
+
+⚠️ **Eighty of those courses were really fifty-two.** The 2008 to 2015 index titles a race
+with its ordinal and whichever sponsor held the naming rights, so Burton's Pond read as six
+courses of one edition each and CHCM as seven, and every fragment then fell under the
+thirty-finish floor and vanished from the table below. The merge overshot once before it
+settled: some races have no name but their sponsor, and stripping it collapsed six unrelated
+half marathons into a single course called "unknown". [docs/data-terms.md](docs/data-terms.md) has the full table and
 every page that would not parse.
 
 **What reading all of it produced.** Written by `finishline report`; not edited by hand.
@@ -40,15 +49,62 @@ every page that would not parse.
 <!-- finishline:archive -->
 | | |
 |---|---:|
-| Races read | 283 |
-| Finishes parsed | 74,678 |
+| Races read | 282 |
+| Finishes parsed | 74,516 |
 | Runners resolved | 23,713 |
 | Runners this refuses to tell apart, and will not publish | 355 |
-| Runners with one finish | 12,651 |
-| Runners with two or three | 6,272 |
-| Runners with four or more | 4,763 |
+| Runners with one finish | 12,683 |
+| Runners with two or three | 6,252 |
+| Runners with four or more | 4,751 |
 | Pages that would not parse | 5 |
 <!-- finishline:end:archive -->
+
+**How hard each course is, measured rather than surveyed.** Runners cross between courses,
+so a course's difficulty is identifiable from finishes alone: somebody slower on Cape to
+Cabot than their own equal-VDOT expectation every year, and faster on Mews Memorial every
+year, is saying what the hills cost. Effects are centred on the average course somebody
+actually runs, so zero is ordinary rather than flat, and the interval resamples runners
+rather than finishes, because two races by one person are not independent evidence about a
+hill. The last column is a check and not an input: it asks what average grade would explain
+the measured factor, given the climb the race publishes.
+
+<!-- finishline:courses -->
+| Course | Finishes | Editions | Slower than flat | 95% CI | Grade that would explain it |
+|---|---:|---:|---:|---|---|
+| usr-42195 | 126 | 3 | +13.6% | [+11.6, +15.5] |  |
+| provincial-championship-42195 | 68 | 2 | +9.3% | [+6.4, +12.6] |  |
+| cape-to-cabot-20000 | 5,310 | 15 | +9.3% | [+9.0, +9.5] | 10.3% average, over the published 550 m of climb |
+| run-from-away-42195 | 79 | 1 | +8.0% | [+6.2, +9.7] |  |
+| huffin-puffin-42195 | 149 | 3 | +6.5% | [+5.1, +7.9] |  |
+| trapline-5000 | 138 | 6 | +6.4% | [-2.3, +15.6] |  |
+| bell-island-blast-16093 | 181 | 3 | +4.5% | [+3.7, +5.5] |  |
+| trapline-42195 | 55 | 7 | +4.4% | [+0.5, +8.7] |  |
+| _... 32 more_ | | | | | |
+| five-and-dime-5000 | 1,051 | 10 | -3.0% | [-3.6, -2.4] |  |
+| quidi-vidi-5000 | 334 | 4 | -3.2% | [-3.9, -2.4] |  |
+| ane-mile-1609 | 577 | 12 | -3.7% | [-4.8, -2.3] |  |
+| provincial-championship-5000 | 907 | 8 | -4.0% | [-4.5, -3.6] |  |
+| turkey-tea-10000 | 2,296 | 14 | -5.1% | [-5.4, -4.9] |  |
+| mews-memorial-8000 | 4,891 | 16 | -5.3% | [-5.5, -5.1] |  |
+| pearlgate-5000 | 88 | 1 | -5.7% | [-6.8, -4.8] |  |
+| oceanview-5000 | 108 | 1 | -6.3% | [-7.2, -5.5] |  |
+<!-- finishline:end:courses -->
+
+**The check is worth more than either number alone.** Cape to Cabot is the only course here
+with a published elevation, and the two routes to its difficulty were computed
+independently: 5,310 finishes say +9.3%, and 550 m of climb against 450 m of drop over 20 km
+through Minetti's cost-of-running curve needs a 10.3% average grade to produce that. The
+race's own course page says "grades of more than 10 per cent in some parts". Neither number
+was tuned to the other.
+
+⚠️ **A per-runner career trend is doing more work here than it looks.** Fitted with one
+constant per runner, Cape to Cabot's edition effect climbs almost monotonically from +3.8%
+in 2013 to +14.4% in 2025, which reads as a course getting harder every year. It is not: a
+career-long constant has nowhere to put the fact that runners age, so the edition effects
+absorb it, and all thirteen well-covered courses drift upward at a median of +0.60% a year.
+With a per-runner trend the median drift is +0.00% and the signs scatter. A model fitted the
+first way and asked for 2026 would extrapolate ten points of course inflation that does not
+exist, and the table would look entirely reasonable.
 
 **How well the obvious approaches do.** Every race from 2024 on, each predicted only from
 results dated strictly before it. Coverage sits beside error in every row, because a model
@@ -61,10 +117,10 @@ it.
 | 0 | 5594 | `carry-forward` | 0% | - | - | baseline |
 |  |  | `best-equal-vdot` | 0% | - | - | - |
 |  |  | `category-median` | 96% | 18.5 (18.0 to 18.9) | 18% | - |
-| 1 | 2648 | `carry-forward` | 100% | 9.6 (9.2 to 10.1) | 10% | baseline |
+| 1 | 2650 | `carry-forward` | 100% | 9.6 (9.2 to 10.0) | 10% | baseline |
 |  |  | `best-equal-vdot` | 63% | 7.5 (7.2 to 7.9) | 8% | 22% |
-|  |  | `category-median` | 97% | 16.1 (15.5 to 16.7) | 16% | -68% |
-| 2 to 3 | 2833 | `carry-forward` | 100% | 9.2 (8.8 to 9.7) | 9% | baseline |
+|  |  | `category-median` | 97% | 16.1 (15.5 to 16.8) | 16% | -68% |
+| 2 to 3 | 2831 | `carry-forward` | 100% | 9.2 (8.9 to 9.7) | 9% | baseline |
 |  |  | `best-equal-vdot` | 73% | 7.7 (7.2 to 8.0) | 8% | 17% |
 |  |  | `category-median` | 97% | 15.9 (15.3 to 16.5) | 16% | -72% |
 | 4 or more | 7233 | `carry-forward` | 100% | 7.4 (7.2 to 7.6) | 8% | baseline |

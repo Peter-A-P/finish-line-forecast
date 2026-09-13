@@ -58,10 +58,10 @@ Measured by `finishline catalogue`, 2026-09-12, over the year indexes for 2008 t
 
 | | |
 |---|---|
-| Individual road races read | 287 |
-| Distinct courses | 80 |
+| Individual road races read | 286 |
+| Distinct courses | 52 |
 | Deepest course histories | 17 editions (Mews Memorial 8 km, Mundy Pond 5 km), 16 (Cape to Cabot 20 km) |
-| Index rows skipped, each with its own reason | 46 |
+| Index rows skipped, each with its own reason | 47 |
 | Years covered | 2008 to 2026, **no 2020** |
 
 **Why 2008 and not 2016.** The first crawl stopped at 2016, on the reasoning that ten
@@ -141,6 +141,30 @@ results: 277 half marathon, 198 10 km, 79 marathon, 75 5 km. The remainder are t
 model a little, and a public finish-time prediction that leaned on somebody's T-shirt size
 is not one anyone would thank us for. The rule the project holds to is that it publishes
 only what the results publish, and a results page has never printed a shirt size.
+
+## Course elevation
+
+⚠️ **Nothing is fetched for this, and nothing needs to be.** The course factor this project
+uses is measured from the results, where Cape to Cabot's 5,310 finishes give +9.3 percent
+[+9.0, +9.5]. No survey, DEM or GPX can beat that interval, so the elevation figures exist
+to check the measurement rather than to feed it.
+
+| Figure | Source | Terms |
+|---|---|---|
+| Cape to Cabot, 550 m of climb against 450 m of drop over 20 km | `capetocabot.com/course.html`, and the same figures in the race's press coverage | A fact about a public road, published by the race about itself. Read once by hand, not crawled. |
+| Cape to Cabot, 519 m of climb | Peter Parker's own watch, 2025 edition | His own data about his own run. Six percent under the published figure, which is the usual disagreement between a barometric ascent total and a surveyed one, and it is kept as a bracket rather than a replacement. |
+
+Both are in `data/courses.toml` with the source beside the number, and a test refuses a
+course that states a climb without one. The race publishes an elevation profile image for
+its 2006 test run only, and no GPX or KML; the street-by-street route description is on the
+same page. **No third-party elevation service is used**, and none is needed: what the
+physics wants is the grade distribution, which nobody publishes, and the results already
+answer the question the profile would have been used to answer.
+
+⚠️ **Do not add a runner's own GPS trace to this.** A watch file is training data about an
+identifiable person, which is the line drawn for Strava at the top of this document and it
+does not move because the file arrived by a different route. Peter's own ascent figure is
+here as a single published number about a public road, not as a track.
 
 ## Weather
 

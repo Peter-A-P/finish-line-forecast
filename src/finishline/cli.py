@@ -4,6 +4,7 @@ The pipeline in the order it runs:
 
     finishline snapshot       today's look at the two live entrant lists
     finishline catalogue      what races exist, and which are read
+    finishline courses        how hard each course is, measured against its hills
     finishline crawl          fetch the results pages, once, politely
     finishline dataset        parse, resolve runners, write the tables
     finishline backtest       score the baselines at every origin
@@ -19,16 +20,20 @@ acknowledgement, and `finishline notices` prints what has to be sent first.
 from __future__ import annotations
 
 import os
+import tomllib
 from datetime import date
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 import typer
 
 from finishline import report, store
 from finishline.backtest import run
+from finishline.history import History
 from finishline.ingest import entrants, nlaa
+from finishline.metrics import grade
 from finishline.models import baselines
+from finishline.models import courses as models_courses
 from finishline.schema import Race
 from finishline.store import Dataset
 
@@ -38,6 +43,16 @@ DATA = Path("data")
 CACHE = DATA / "cache" / "nlaa"
 EXTERNAL = DATA / "cache" / "raceroster"
 ENTRANTS = DATA / "entrants"
+COURSES = DATA / "courses.toml"
+
+
+def course_profiles() -> dict[str, dict[str, Any]]:
+    """Published elevation figures, keyed by course, or nothing if the file is absent."""
+    if not COURSES.exists():
+        return {}
+    loaded: dict[str, dict[str, Any]] = tomllib.loads(COURSES.read_text(encoding="utf-8"))
+    return loaded
+
 
 # The archive this project reads. The pages go back to 1978.
 #
@@ -199,6 +214,48 @@ def dataset(
             typer.echo(f"  {count:>6,}  {reason}")
 
 
+@app.command(name="courses")
+def course_factors(
+    first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
+    last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+    draws: Annotated[int, typer.Option(help="Bootstrap draws over runners.")] = 400,
+) -> None:
+    """How hard each course is, measured from the results, against what the hills predict.
+
+    The measurement is the answer and the elevation is the check. Where a course publishes
+    a climb, the grade that reconciles the two is printed: if it is a grade a road can
+    have, the factor is the hills, and if it is not, something else is going on.
+    """
+    data = _dataset(first, last)
+    history = History.before(date.today(), data.races, data.resolved)
+    fitted = models_courses.fit(history, data.races, draws=draws)
+    profiles = course_profiles()
+
+    floor = models_courses.MIN_FINISHES
+    typer.echo(f"{len(fitted.courses)} courses with {floor} or more finishes\n")
+    typer.echo(f"{'course':<40}{'fin':>7}{'ed':>4}{'factor':>9}{'95% CI':>17}   implied grade")
+    for measured in sorted(fitted.courses.values(), key=lambda c: -c.factor):
+        record = profiles.get(measured.course_id, {})
+        implied = ""
+        if "climb_m" in record:
+            solved = grade.implied_grade(
+                distance_m=float(record["distance_m"]),
+                climb_m=float(record["climb_m"]),
+                drop_m=float(record["drop_m"]),
+                factor=measured.factor,
+            )
+            implied = (
+                f"{solved:.1%} over {record['climb_m']:.0f} m up"
+                if solved is not None
+                else "the published climb cannot explain it"
+            )
+        interval = f"[{measured.low * 100:+.1f}, {measured.high * 100:+.1f}]"
+        typer.echo(
+            f"{measured.course_id:<40}{measured.finishes:>7,}{measured.editions:>4}"
+            f"{measured.percent:>8.1f}%{interval:>17}   {implied}"
+        )
+
+
 @app.command()
 def backtest(
     scored_from: Annotated[int, typer.Option(help="First year to score.")] = 2024,
@@ -230,6 +287,12 @@ def write_report(
     readme = Path("README.md")
     text = readme.read_text(encoding="utf-8")
     text = report.replace_between(text, "archive", report.archive_table(data))
+    fitted = models_courses.fit(
+        History.before(date.today(), data.races, data.resolved), data.races
+    )
+    text = report.replace_between(
+        text, "courses", report.course_table(fitted, course_profiles())
+    )
     text = report.replace_between(text, "baselines", report.baseline_table(scored, names))
     text = report.replace_between(text, "placing", report.placing_table(scored, names))
     readme.write_text(text, encoding="utf-8", newline="\n")

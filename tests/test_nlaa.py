@@ -232,3 +232,68 @@ def test_the_other_sections_are_still_left_alone() -> None:
     )
     rows = nlaa.parse_index(page, 2031)
     assert [href for href, _e, _w in rows] == ["rr/2031/20311001-b-5km.php"]
+
+
+def test_an_ordinal_and_a_sponsor_do_not_make_a_new_course() -> None:
+    """The 2008 to 2015 pages title a race with its number and whoever paid for it.
+
+    Read literally, Burton's Pond is six courses of one edition each and CHCM is seven.
+    A course effect fitted on one edition is a course effect fitted on nothing, and the
+    thirty-finish floor then drops the course from the table entirely.
+    """
+    burtons = {
+        nlaa.course_id("30th Annual Burton's Pond Timex 5km Road Race", 5000.0),
+        nlaa.course_id("31st Annual Burton's Pond Timex 5km Road Race", 5000.0),
+        nlaa.course_id("35th Annual Burton's Pond Timex 5km Road Race", 5000.0),
+        nlaa.course_id("Burton's Pond 5km", 5000.0),
+    }
+    assert len(burtons) == 1
+
+    harbour = {
+        nlaa.course_id("Harbour Front Timex 10km Road Race", 10000.0),
+        nlaa.course_id("Harbourfront Timex 10km Road Race", 10000.0),
+        nlaa.course_id("Nautilus Harbour Front 10km", 10000.0),
+    }
+    assert len(harbour) == 1
+
+
+def test_a_race_whose_only_name_is_its_sponsor_keeps_it() -> None:
+    """The fallback that stops the merge going too far.
+
+    The Toyota Plaza 15 km and the Nautilus Half-Marathon have no name except the sponsor.
+    Stripping it leaves an empty slug, and empty slugs collapse unrelated races into one
+    course: six different half marathons briefly became a single course called "unknown",
+    carrying 1,041 finishes that had nothing to do with each other.
+    """
+    assert nlaa.course_id("Toyota Plaza 15km Road Race", 15000.0).startswith("toyota-plaza")
+    assert nlaa.course_id("Nautilus Half-Marathon", HALF_MARATHON_M).startswith("nautilus")
+    assert "unknown" not in nlaa.course_id("Nautilus Half-Marathon", HALF_MARATHON_M)
+
+
+def test_the_same_race_at_two_urls_is_read_once() -> None:
+    """The 2014 CHCM 10 km is on the index as both .htm and .php.
+
+    The same 162 finishers, title case on one page and upper case on the other. Counted
+    twice it inflates the archive and, worse, hands 162 people a second result on a day
+    they raced once, which the resolver then has to reconcile and the history depth counts.
+    """
+    page = """<h4>Road Running</h4><ul>
+      <li><a href="rr/2014/20140628chcm.htm">32nd Annual CHCM Timex 10km Road Race</a></li>
+      <li><a href="rr/2014/20140628chcm10k.php">32nd Annual CHCM Timex 10km Road Race</a></li>
+      <li><a href="rr/2024/20241013-trapline-5km.php">Trapline 5km Road Race</a></li>
+      <li><a href="rr/2024/20241013-trapline-5km-U19.php">Trapline 5km - U19</a></li>
+    </ul>"""
+
+    class _Once:
+        def get(self, url: str, *, refetch: bool = False) -> str:
+            return page
+
+    races, skipped = nlaa.catalogue(_Once(), range(2014, 2015))  # type: ignore[arg-type]
+    chcm = [race for race in races if race.course_id.startswith("chcm")]
+    assert len(chcm) == 1, "the duplicated CHCM page was read twice"
+    assert chcm[0].url.endswith(".php"), "the .htm leftover was kept over the .php page"
+    assert any("duplicate" in reason for _, reason in skipped)
+
+    # And the guard against over-merging: two real races on one road on one morning.
+    trapline = [race for race in races if race.course_id.startswith("trapline")]
+    assert len(trapline) == 2, "the Trapline U19 5 km is a different race, not a duplicate"

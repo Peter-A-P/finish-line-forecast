@@ -1,0 +1,47 @@
+# Course profiles: elevation as published, with the source of every number.
+#
+# ⚠️ **These are priors, and the results outrank them.** The course factor this project
+# uses is measured from finishes (see `finishline courses`). What is here exists so that a
+# measured factor can be checked against the hills that are supposed to cause it, and so a
+# course with no history has something to fall back on.
+#
+# Only courses with a figure anyone published are listed. A course with no entry here is
+# not a gap in the model; it is a course whose factor is measured and needs no prior.
+#
+# `graded_fraction` is deliberately absent. Total climb does not determine the penalty
+# without knowing how it is distributed, and nobody publishes that, so the grade is solved
+# for from the measured factor and reported rather than assumed. See metrics/grade.py.
+
+[cape-to-cabot-20000]
+name = "Cape to Cabot"
+distance_m = 20000
+climb_m = 550
+drop_m = 450
+source = """\
+capetocabot.com and the race's press coverage: "four major climbs, a 550-metre elevation \
+gain and a 450-metre drop", with "grades of more than 10 per cent in some parts". The \
+course page publishes an elevation profile image for the 2006 test run only; the certified \
+course added a 1 km out-and-back on the flat of Southside Road, so the image understates \
+the distance and not the climb. No GPX or KML is offered.\
+"""
+independent_climb_m = 519
+independent_source = """\
+Peter Parker's own watch on the 2025 edition. Six percent under the published figure, \
+which is the usual disagreement between a barometric or GPS ascent total and a surveyed \
+one, and it is kept because it brackets the number rather than replacing it.\
+"""
+notes = """\
+Start at Cape Spear, finish at Cabot Tower on Signal Hill, so the course climbs about 100 m \
+net. Named climbs: the height of land before Blackhead, the ridge before Freshwater Bay, \
+the long climb to the top of the Southside Hills, Temperance Street, and the final pull to \
+Cabot Tower.\
+"""
+
+[run-to-remember-11000]
+name = "Run to Remember"
+distance_m = 11000
+notes = """\
+No published elevation figure found. The measured course factor from 1,029 finishes is the \
+only number this project has for it, and it is enough: the interval on it is tighter than \
+any prior derived from a climb total would be.\
+"""

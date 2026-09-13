@@ -170,6 +170,56 @@ COURSE_ALIASES: tuple[tuple[str, str], ...] = (
     ("run to remember", "run-to-remember"),
     ("run 2 remember", "run-to-remember"),
     ("huffin", "huffin-puffin"),
+    # From 2008 to 2015 the index titles races with an ordinal and whichever sponsor held
+    # the naming rights that year, so these courses fragmented into single editions until
+    # the archive was widened. The phrase that survives is the place.
+    ("burton", "burtons-pond"),
+    ("chcm", "chcm"),
+    ("blueberry harvest", "blueberry-harvest"),
+    ("harbour front", "harbour-front"),
+    ("harbourfront", "harbour-front"),
+    ("quidi vidi", "quidi-vidi"),
+    ("commander gander", "commander-gander"),
+    ("carved by the sea", "carved-by-the-sea"),
+    ("figure 8", "prc-figure-8"),
+    ("figure-8", "prc-figure-8"),
+    ("not so hilly", "not-so-hilly"),
+    ("bell island", "bell-island-blast"),
+    ("discovery dash", "discovery-dash"),
+    ("pearlgate", "pearlgate"),
+    ("oceanview", "oceanview"),
+    ("garnish", "garnish"),
+    ("mercury", "mercury"),
+    ("paradise dime", "five-and-dime"),
+    ("paradise five", "five-and-dime"),
+    # ⚠️ Order matters below here. "Provincial 5k championship" has been run under the
+    # NLAA's own name, Nautilus's and Timex's; "open mile" and "ANE mile" are the same
+    # mile. Both must be matched before the generic "provincial" and "mile" slugs are
+    # derived, or the fragments come back.
+    ("open mile", "ane-mile"),
+    ("ane mile", "ane-mile"),
+    ("provincial", "provincial-championship"),
+)
+
+# Boilerplate that says nothing about which road was run, in two tiers.
+#
+# Ordinals are the big one: "30th Annual Burton's Pond" and "31st Annual Burton's Pond" are
+# one course, and treating them as two gives six courses of one edition where there are six
+# editions of one course.
+#
+# ⚠️ **Sponsors are stripped only when something is left.** Some races have no name but
+# their sponsor: the Toyota Plaza 15 km and the Nautilus Half-Marathon are not the Toyota
+# Plaza and the Nautilus anything-else, they are those races. Stripping the sponsor from
+# them leaves an empty slug, and an empty slug collapsed six unrelated half marathons into
+# one course called "unknown". So the tiers are tried hardest first and the first one that
+# leaves a name wins.
+_ALWAYS_BOILERPLATE = re.compile(
+    r"\b(\d+(st|nd|rd|th)|annual|road\s+race|race|results?|individual|open|championships?)\b"
+)
+_SPONSORS = re.compile(
+    r"\b(timex|vocm|nautilus|molson|toyota\s+plaza|boston\s+pizza|capital\s+subaru|"
+    r"penney\s+mazda|the\s+max|coors\s+light|crown\s+&\s+anchor|banished\s+brewing|"
+    r"liveby\s+wealth)\b"
 )
 
 
@@ -185,12 +235,21 @@ def course_id(event: str, metres: float) -> str:
     for phrase, alias in COURSE_ALIASES:
         if phrase in text:
             return f"{alias}-{round(metres)}"
-    stripped = re.sub(r"\d+(\.\d+)?\s*(km|k|mi|mile|miles)\b", " ", text)
-    stripped = re.sub(
-        r"\b(half[- ]marathon|marathon|road race|race|results?|individual)\b", " ", stripped
-    )
-    slug = re.sub(r"[^a-z0-9]+", "-", stripped).strip("-")
-    return f"{slug or 'unknown'}-{round(metres)}"
+    base = re.sub(r"\d+(\.\d+)?\s*(km|k|mi|mile|miles)\b", " ", text)
+    # Hardest strip first, falling back until a name survives. The distance is already part
+    # of the identity, so dropping "half marathon" only costs information when it is the
+    # whole name, which the last tier covers.
+    for strip_distance, strip_sponsor in ((True, True), (True, False), (False, False)):
+        stripped = base
+        if strip_distance:
+            stripped = re.sub(r"\b(half[- ]marathon|marathon)\b", " ", stripped)
+            stripped = _ALWAYS_BOILERPLATE.sub(" ", stripped)
+        if strip_sponsor:
+            stripped = _SPONSORS.sub(" ", stripped)
+        slug = re.sub(r"[^a-z0-9]+", "-", stripped).strip("-")
+        if slug:
+            return f"{slug}-{round(metres)}"
+    return f"unknown-{round(metres)}"
 
 
 def parse_index(page: str, year: int) -> list[tuple[str, str, date | None]]:
@@ -344,4 +403,54 @@ def catalogue(cache: Cache, years: range) -> tuple[list[Race], list[tuple[str, s
                     url=BASE + href,
                 )
             )
-    return races, skipped
+    return _deduplicate(races, skipped)
+
+
+def _deduplicate(
+    races: list[Race], skipped: list[tuple[str, str]]
+) -> tuple[list[Race], list[tuple[str, str]]]:
+    """Drop the same race published at two URLs, and say which copy was dropped.
+
+    ⚠️ **The 2014 CHCM 10 km is on the index twice**, once as `.htm` and once as `.php`,
+    with the same 162 finishers in title case on one page and upper case on the other. Left
+    in, it counts that race twice and hands 162 people a phantom second result on a day
+    they only raced once, which inflates their history depth and gives the resolver two
+    copies of one person to reconcile.
+
+    The test is the course, the date **and** the event name, not the course and date alone.
+    The Trapline runs an open 5 km and a U19 5 km on the same road on the same morning;
+    those are two races and the names say so.
+    """
+    kept: dict[tuple[str, object, str], Race] = {}
+    for race in races:
+        key = (race.course_id, race.date, _name_key(race.name))
+        existing = kept.get(key)
+        if existing is None:
+            kept[key] = race
+            continue
+        # Prefer the .php page: it is the form every other year uses, and the stray .htm
+        # copies are leftovers. Failing that, the shorter URL, so the choice is never
+        # decided by the order the index happened to list them in.
+        better, worse = max(
+            (existing, race), key=_preference
+        ), min((existing, race), key=_preference)
+        kept[key] = better
+        skipped.append(
+            (worse.name, f"the same race is published at {better.url}; this copy is a duplicate")
+        )
+    return list(kept.values()), skipped
+
+
+def _preference(race: Race) -> tuple[bool, int, str]:
+    """Which copy of a duplicated race to keep. Higher wins, and it is total.
+
+    The `.php` page is the form every other year uses and the stray `.htm` copies are
+    leftovers; after that the shorter URL, and then the URL itself so that the choice never
+    depends on the order the index happened to list them in.
+    """
+    return (race.url.endswith(".php"), -len(race.url), race.url)
+
+
+def _name_key(event: str) -> str:
+    """An event name reduced to what distinguishes one race from another that day."""
+    return re.sub(r"[^a-z0-9]+", "", event.lower())

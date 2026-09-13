@@ -286,10 +286,23 @@ eps_ir  ~ StudentT(nu, 0, sigma_eps)              heavy tails: a bad day is not 
 ```
 
 Fitted with PyMC on the CPU; tens of thousands of rows and a few thousand runners is
-minutes, not hours. The target race's `delta` is drawn from its prior alone (the course
-factor from the profile, the conditions factors from the forecast), because the race has
-not happened; the width of that prior is what the backtest's per-course residuals say it
-should be. Runners with no history take `alpha_i` from the group prior, which is the
+minutes, not hours. The target race's `delta` is drawn from its prior alone, because the
+race has not happened; the width of that prior is what the backtest's per-course residuals
+say it should be.
+
+**Amended 2026-09-13, and the amendment is section 13 item 13.** This paragraph used to say
+that prior was "the physics course factor times the conditions factors". It is not. The
+course part is **measured from the results** (`models/courses.py`), because runners cross
+between courses and 5,310 finishes pin Cape to Cabot to +9.3 percent [+9.0, +9.5] while no
+elevation figure can do better than bracket it. The physics (`metrics/grade.py`) is the
+prior for a course with no history and the cross-check on one that has it, and on Cape to
+Cabot the two agree: +9.3 percent implies a 10.3 percent average grade from the published
+550 m of climb, against a race page that says "grades of more than 10 per cent in some
+parts". Only the conditions factors come from the forecast, as they always did.
+
+⚠️ `gamma_i` is not droppable. Fitted without it, edition effects absorb population ageing
+and every course drifts upward at a median of +0.60 percent a year, which reads as Cape to
+Cabot getting ten points harder since 2013. With it the median drift is zero. Runners with no history take `alpha_i` from the group prior, which is the
 category-median baseline with an honest width. Predictions are posterior predictive draws,
 then conformalised.
 
@@ -354,6 +367,17 @@ stay); the wind term (heat and course stay); the participation model, if an entr
 arrives; the dress rehearsal on Turkey Tea, in favour of Trapline. Not droppable: the
 baselines, the normalisation ablation, conformal coverage per stratum, the placing
 simulation, the pre-gun tag, and the honest limitation.
+
+**Added 2026-09-13, and it is not droppable either: the per-runner career trend.** It looks
+like a refinement and it is not. Without it the edition effects absorb population ageing at
++0.60 percent a year and a prediction for 2026 inherits ten points of course inflation that
+does not exist, silently and with a plausible-looking table. Measured in section 13 item 14.
+
+**Also settled early, which frees the elevation work from the critical path.** The course
+factors are measured from the results and are already tight on every course that matters,
+so the profile work in week 2 is a cross-check rather than a dependency. Cape to Cabot has
+its figures (from the race and from Peter's watch) and they agree with the measurement.
+Other courses can acquire a profile when one is offered, and nothing waits for them.
 
 ## 7. Cost
 
@@ -569,3 +593,76 @@ hand.**
     because the command printed its count next to its verdict and the two disagreed. The
     manifest rows written at 00:14Z and 00:28Z are labelled `changed` and are left as they
     are; they were what the tooling believed at the time.
+
+**2026-09-13, week 2 begins: the course layer, and what measuring it first changed.**
+
+13. **Section 5.3 had the course factor the wrong way round.** The plan said the target
+    race's `delta_r` is drawn from a prior that is "the physics course factor times the
+    conditions factors". That treats the elevation model as the source and the results as
+    a check. It is the other way round. Runners cross between courses, so a course's
+    difficulty is identifiable from finishes alone, and on the courses that matter it is
+    identified far more tightly than any elevation figure could manage: **Cape to Cabot is
+    +9.3 percent [+9.0, +9.5] against an equal-VDOT flat time, from 5,310 finishes over 15
+    editions**. No profile, no DEM, no GPX. The physics is now the prior and the check, and
+    it is used where the results cannot answer: a course with no history, a course whose
+    route changed, and the question of whether a measured factor is a hill or an artefact
+    of who turns up.
+
+    **The check passes, and that is the point of doing both.** Peter supplied the
+    elevation: the race publishes 550 m of climb against 450 m of drop, and his own watch
+    recorded 519 m of climb on the 2025 edition. Put through Minetti's cost-of-running
+    curve, +9.3 percent implies an average grade of **10.3 percent on the graded sections**,
+    and the race's own course page says "grades of more than 10 per cent in some parts".
+    Two independent routes, one from physics and one from revealed performance, agreeing on
+    a course nobody has surveyed for this project. `metrics/grade.py` and `data/courses.toml`
+    hold it, and a test asserts the agreement across the whole interval rather than at the
+    point estimate.
+
+    Three notes on what the physics can and cannot do here. The weak input is **not** the
+    elevation, it is the **grade distribution**: 550 m of climb spread over 11 km at 5
+    percent costs 5.9 percent and the same climb packed into 5.5 km at 10 percent costs 9.0
+    percent, so total gain alone does not determine the penalty and `penalty` takes the
+    grade as an explicit argument. `implied_grade` refuses rather than rounding when no
+    grade explains a factor, which is a finding and not a nuisance. And the constant-power
+    idealisation means the result is a floor: a real runner does not hold power up a ten
+    percent wall and braking is not free, both of which push the same way.
+
+14. **A per-runner career trend is load-bearing, and leaving it out produces a finding that
+    is not true.** Fitted with one constant per runner, Cape to Cabot's edition effect
+    climbs almost monotonically from +3.8 percent in 2013 to +14.4 percent in 2025, which
+    reads as a course getting harder every year. It is not. A career-long constant has
+    nowhere to put the fact that runners get slower as they age, so the edition effects
+    absorb it: **all thirteen well-covered courses drift upward, median +0.60 percent a
+    year**. Add a per-runner trend and the **median drift is +0.00 percent** and the signs
+    scatter. Section 5.3's `gamma_i` was already in the plan; this is the measurement that
+    says it cannot be the first thing dropped when time is short. A model fitted the other
+    way and asked for 2026 would extrapolate ten points of course inflation that does not
+    exist, and would do it silently. A test on synthetic runners who age two percent a year
+    on courses that never change pins it.
+
+15. **Eighty courses were really fifty-two, for the same reason eight years went missing.**
+    The 2008 to 2015 index titles a race with its ordinal and whichever sponsor held the
+    naming rights, so Burton's Pond was six courses of one edition each, CHCM was seven, and
+    the ANE Mile, the Harbour Front and the provincial 5 km championship were three apiece.
+    Every fragment then fell under the thirty-finish floor and vanished from the table
+    entirely. `course_id` now strips ordinals and sponsors, and Harbour Front goes from two
+    fragments to 12 editions, CHCM to 9, the ANE Mile to 12.
+
+    ⚠️ **The merge overshot first, and the sign of it was a course called "unknown".**
+    Some races have no name but their sponsor: the Toyota Plaza 15 km and the Nautilus
+    Half-Marathon are those races, not the Toyota Plaza anything-else. Stripping the sponsor
+    left an empty slug, and empty slugs collapsed six unrelated half marathons and 1,041
+    finishes into one course. Boilerplate is now stripped in tiers, hardest first, and the
+    first tier that leaves a name wins.
+
+16. **The 2014 CHCM 10 km was in the archive twice.** It is on the index as both `.htm` and
+    `.php`, the same 162 finishers in title case on one page and upper case on the other.
+    Counted twice it inflated the archive by a race and, worse, gave 162 people a second
+    result on a day they raced once, which inflates their history depth and hands the
+    resolver two copies of one person. The catalogue now drops a race that repeats a
+    course, a date **and** an event name, keeping the `.php` copy and naming the dropped one
+    in the skip list. The name has to be part of the test: the Trapline runs an open 5 km
+    and a U19 5 km on the same road on the same morning, and those are two races.
+
+    Archive after all three: **286 races, 52 courses, 282 read, 74,516 finishes, 23,713
+    runners, 355 held back.**
