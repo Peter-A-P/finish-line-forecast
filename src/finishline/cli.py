@@ -475,6 +475,24 @@ def backtest(
     typer.echo(report.baseline_table(scored, names))
     typer.echo()
     typer.echo(report.placing_table(scored, names))
+    if hierarchical:
+        typer.echo()
+        typer.echo(_coverage(data, scored, "hierarchical"))
+
+
+def _coverage(data: Dataset, scored: list[score.Scored], model: str | None) -> str:
+    """The conformal coverage table for one model's rows, or its absence."""
+    from finishline.conformal import coverage, split
+
+    if model is None:
+        return report.coverage_table({}, None)
+    rows = [row for row in scored if row.model == model]
+    dates = {race_id: race.date for race_id, race in data.races.items()}
+    summaries = {
+        level: coverage.summarise(split.rolling(rows, dates, level), level)
+        for level in (0.80, 0.90)
+    }
+    return report.coverage_table(summaries, model)
 
 
 @app.command(name="report")
@@ -517,6 +535,11 @@ def write_report(
     )
     text = report.replace_between(text, "baselines", report.baseline_table(scored, names))
     text = report.replace_between(text, "placing", report.placing_table(scored, names))
+    text = report.replace_between(
+        text,
+        "coverage",
+        _coverage(data, scored, "hierarchical" if saved_rows is not None else None),
+    )
     readme.write_text(text, encoding="utf-8", newline="\n")
     typer.echo("README.md tables rewritten from the measurement")
 

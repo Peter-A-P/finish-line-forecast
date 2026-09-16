@@ -189,6 +189,14 @@ it.
 | `category-median` | 45 | 96.4 | 0.356 |
 <!-- finishline:end:placing -->
 
+**How often the intervals hold.** A predicted time with an interval is two claims, and the
+second one is checked here: the model's own 80% and 90% intervals, and the same intervals
+after conformal adjustment on the races before each one, by how much history a runner has.
+
+<!-- finishline:coverage -->
+_No saved model run matches the current code and data, so there are no intervals to check yet. `finishline backtest --hierarchical` produces one._
+<!-- finishline:end:coverage -->
+
 **The live prediction tables are empty until there is a prediction.**
 
 **Live: predicted before the gun, scored after** (bootstrap 95% CIs over runners)
