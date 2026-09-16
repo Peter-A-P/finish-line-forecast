@@ -545,6 +545,89 @@ def write_report(
     typer.echo("README.md tables rewritten from the measurement")
 
 
+OPENMETEO = DATA / "cache" / "openmeteo"
+FORECAST_ERROR = DATA / "forecast_error.toml"
+
+
+@app.command(name="forecast-error")
+def forecast_error(
+    notices_sent: Annotated[
+        bool, typer.Option("--notices-sent", help="The courtesy notes have gone out.")
+    ] = False,
+    since: Annotated[int, typer.Option(help="First year of day-ahead forecasts to use.")] = 2024,
+    first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
+    last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+) -> None:
+    """How wrong a day-ahead forecast was on past race mornings, written for `freeze`.
+
+    Pairs Open-Meteo's archived day-ahead forecast with the airport's observation over the
+    same race hours, for every edition near St. John's, and writes the bias and spread to
+    data/forecast_error.toml. One request per year of forecasts.
+    """
+    from datetime import UTC, datetime, timedelta
+
+    from finishline.ingest import openmeteo
+    from finishline.models import weather
+
+    if not (notices_sent or os.environ.get(NOTICES_ENV)):
+        typer.echo(NOTICES, err=True)
+        raise typer.Exit(code=2)
+
+    data = _dataset(first, last)
+    yesterday = date.today() - timedelta(days=1)
+    editions = sorted(
+        (
+            race
+            for race in data.races.values()
+            if race.date.year >= since
+            and race.date <= yesterday
+            and eccc.near_st_johns(race.course_id)
+        ),
+        key=lambda race: race.date,
+    )
+    client = openmeteo.Client(OPENMETEO)
+    forecasts: list[eccc.Observation] = []
+    try:
+        for year in sorted({race.date.year for race in editions}):
+            end = min(date(year, 12, 31), yesterday)
+            body = client.previous_runs(date(year, 1, 1), end)
+            forecasts += openmeteo.readings(body, suffix="_previous_day1")
+    finally:
+        client.close()
+
+    pairs: list[tuple[eccc.Conditions, eccc.Conditions]] = []
+    skipped = 0
+    with eccc.Cache(WEATHER) as observed_cache:
+        for race in editions:
+            try:
+                observed = eccc.conditions(
+                    observed_cache, race.race_id, race.date, race.distance_m
+                )
+                predicted = openmeteo.conditions(
+                    forecasts, race.race_id, race.date, race.distance_m, 9
+                )
+            except eccc.NoObservation:
+                skipped += 1
+                continue
+            pairs.append((predicted, observed))
+
+    error = weather.measure(pairs)
+    typer.echo(f"{error.mornings} race mornings from {since}, {skipped} without both sources")
+    typer.echo(f"  temperature  bias {error.temp_bias:+.2f} C     sd {error.temp_sd:.2f}")
+    typer.echo(f"  wind speed   bias {error.wind_bias:+.2f} km/h  sd {error.wind_sd:.2f}")
+    typer.echo(f"  wind east    bias {error.east_bias:+.2f} km/h  sd {error.east_sd:.2f}")
+    typer.echo(f"  wind north   bias {error.north_bias:+.2f} km/h  sd {error.north_sd:.2f}")
+    weather.save(
+        FORECAST_ERROR,
+        error,
+        "How wrong Open-Meteo's day-ahead forecast was on past race mornings at St. John's\n"
+        "airport, forecast minus the ECCC observation over the same race hours. Written by\n"
+        f"`finishline forecast-error` on {datetime.now(UTC):%Y-%m-%d}, from race editions near\n"
+        f"St. John's since {since}. Read by `finishline freeze`. Do not edit by hand.",
+    )
+    typer.echo(f"written to {FORECAST_ERROR}")
+
+
 LIVE = DATA / "live.toml"
 PREDICTIONS = Path("predictions")
 

@@ -332,14 +332,26 @@ def conditions(
     readings = [o for o in hourly(cache, when) if first <= o.at.hour <= last and o.usable]
     if not readings:
         raise NoObservation(f"no reading between {first}:00 and {last}:00 LST on {when}")
+    return average(race_id, readings, station_for(when.year).name)
+
+
+def average(race_id: str, readings: list[Observation], station: str) -> Conditions:
+    """The mean of a race's hourly readings, with the wind averaged as a vector.
+
+    Shared by the observations and the forecast (`ingest.openmeteo`), because the two have
+    to be averaged identically or the forecast error measured between them is partly the
+    arithmetic.
+    """
+    if not readings:
+        raise NoObservation(f"no readings for {race_id}")
 
     def mean(values: list[float | None]) -> float | None:
         present = [v for v in values if v is not None]
         return sum(present) / len(present) if present else None
 
     temperature = mean([o.temp_c for o in readings])
-    if temperature is None:  # pragma: no cover - `usable` already guarantees one
-        raise NoObservation(f"no temperature between {first}:00 and {last}:00 LST on {when}")
+    if temperature is None:
+        raise NoObservation(f"no temperature in the readings for {race_id}")
 
     # The vector mean. ECCC publishes the direction the wind comes *from*, so the air
     # travels the opposite way and both components carry a minus sign. Getting that
@@ -363,7 +375,7 @@ def conditions(
         wind_kmh=mean([o.wind_kmh for o in readings]),
         wind_east=mean(east),
         wind_north=mean(north),
-        station=station_for(when.year).name,
+        station=station,
     )
 
 
