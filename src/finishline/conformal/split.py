@@ -116,6 +116,43 @@ class Interval:
         return self.low <= self.row.actual <= self.high
 
 
+def shifts(
+    rows: Sequence[Scored],
+    race_dates: Mapping[str, date],
+    level: float,
+    before: date,
+    *,
+    stratum: Callable[[Scored], str] = lambda row: stratum_of(row.depth),
+    min_calibration: int = MIN_CALIBRATION,
+) -> dict[str, float | None]:
+    """Each stratum's log-scale widening for a race on `before`, from every earlier race.
+
+    What a live prediction uses: the same threshold `rolling` would apply to a race on that
+    date, computed once per stratum. None where the stratum has too few earlier scores to be
+    trusted, and the live interval is then the model's own, said so in the file.
+    """
+    pool: dict[str, list[float]] = {}
+    for row in rows:
+        if race_dates[row.race_id] >= before:
+            continue
+        score = conformity(row, level)
+        if score is not None:
+            pool.setdefault(stratum(row), []).append(score)
+    return {
+        label: (threshold(scores, level) if len(scores) >= min_calibration else None)
+        for label, scores in pool.items()
+    }
+
+
+def widen(low: float, high: float, shift: float | None) -> tuple[float, float]:
+    """An interval moved out (or in) by a log-scale shift; unchanged when there is none."""
+    if shift is None:
+        return low, high
+    if not math.isfinite(shift):
+        return 0.0, math.inf
+    return low * math.exp(-shift), high * math.exp(shift)
+
+
 def rolling(
     rows: Sequence[Scored],
     race_dates: Mapping[str, date],

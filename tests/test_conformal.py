@@ -147,6 +147,31 @@ def test_pooling_the_strata_would_have_hidden_both_failures() -> None:
     assert by_depth["4 or more"].conformal > 0.95
 
 
+def test_a_live_shift_is_the_one_rolling_would_have_used_that_day() -> None:
+    """freeze and the backtest must widen a race on a given date by the same amount."""
+    rows, dates = heteroscedastic(races=30, per_race=100)
+    last = max(dates.values())
+    live = split.shifts(rows, dates, 0.80, last)
+    backtest = split.rolling(rows, dates, 0.80)
+    on_the_day = [
+        interval
+        for interval in backtest
+        if dates[interval.row.race_id] == last and interval.row.depth == 0 and interval.adjusted
+    ]
+    assert on_the_day
+    sample = on_the_day[0]
+    assert sample.low is not None
+    expected_low, _ = split.widen(sample.raw_low, sample.raw_high, live["0"])
+    assert sample.low == pytest.approx(expected_low)
+
+
+def test_a_thin_stratum_has_no_live_shift() -> None:
+    rows, dates = heteroscedastic(races=2, per_race=20)
+    live = split.shifts(rows, dates, 0.80, max(dates.values()) + timedelta(days=1))
+    assert live == {"0": None, "4 or more": None}
+    assert split.widen(90.0, 110.0, None) == (90.0, 110.0)
+
+
 def test_the_published_table_carries_the_assumption_beside_the_numbers() -> None:
     """CLAUDE.md: every coverage table has the conformal assumption beside it."""
     rows, dates = heteroscedastic(races=20, per_race=60)

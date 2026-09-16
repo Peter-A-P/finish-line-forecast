@@ -13,7 +13,7 @@ prediction-then-error record. The plan is in [PLAN.md](PLAN.md).
   the code and say why in the commit message.
 - [docs/data-terms.md](docs/data-terms.md): what may be fetched, from where, under what
   terms, and how a runner asks to be removed. Add a source's row before fetching it.
-- **[PLAN.md](PLAN.md) section 13 is the log of designs the data refuted.** Twenty-six entries
+- **[PLAN.md](PLAN.md) section 13 is the log of designs the data refuted.** Twenty-seven entries
   and growing. Read it before changing the parser, the resolver, the course layer or the
   conditions layer: most of what looks like an odd choice in those modules is there because
   the obvious choice was measured and was wrong.
@@ -36,6 +36,7 @@ finishline courses      how hard each course is, against what its hills predict
 finishline conditions   what heat and wind cost, by distance
 finishline backtest     score the baselines at every origin (--hierarchical adds the model)
 finishline report       rewrite the README tables from the measurement
+finishline freeze <race> the prediction file, hashed, refused inside 24 hours of the gun
 ```
 
 `crawl`, `weather` and `snapshot` refuse to run until the courtesy notices have gone out,

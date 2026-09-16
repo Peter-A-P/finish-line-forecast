@@ -11,6 +11,7 @@ The pipeline in the order it runs:
     finishline dataset        parse, resolve runners, write the tables
     finishline backtest       score the baselines at every origin (--hierarchical: the model)
     finishline report         the tables the README publishes
+    finishline freeze <race>  the prediction file, at least 24 hours before the gun
 
 ⚠️ **`crawl` refuses to run until the courtesy notices have gone out.** That is a rail in
 code rather than a line in a document, because this project reads a small volunteer
@@ -542,6 +543,123 @@ def write_report(
     )
     readme.write_text(text, encoding="utf-8", newline="\n")
     typer.echo("README.md tables rewritten from the measurement")
+
+
+LIVE = DATA / "live.toml"
+PREDICTIONS = Path("predictions")
+
+
+@app.command()
+def freeze(
+    race_id: Annotated[str, typer.Argument(help="A race in data/live.toml, e.g. c2c-2026.")],
+    first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
+    last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+) -> None:
+    """Write the prediction file for a race, and print the hash to publish with it.
+
+    Refuses inside 24 hours of the gun, refuses with uncommitted changes to the code (the
+    file names the commit that made it, and that commit has to be the code that ran), and
+    refuses without a saved model backtest to calibrate the intervals on. It never commits
+    or tags: a person does that, and the tag's time is the record.
+    """
+    import subprocess
+    from datetime import UTC, datetime
+
+    from finishline.conformal import split
+    from finishline.identity import link
+    from finishline.models import hierarchical
+    from finishline.publish import freeze as freezing
+    from finishline.publish import predictions
+
+    try:
+        live = freezing.load_live(LIVE, race_id)
+        predictions.check_gun(live.gun, datetime.now(UTC))
+    except (KeyError, ValueError, predictions.FreezeRefused) as refusal:
+        typer.echo(f"refused: {refusal}", err=True)
+        raise typer.Exit(code=2) from refusal
+
+    code = ["src", "pyproject.toml", "uv.lock", "data/live.toml"]
+    dirty = subprocess.run(
+        ["git", "status", "--porcelain", "--", *code],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+    if dirty:
+        typer.echo(f"uncommitted changes to the code; commit them first:\n{dirty}", err=True)
+        raise typer.Exit(code=2)
+    commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True
+    ).stdout.strip()
+
+    snapshot_path = entrants.latest_snapshot(ENTRANTS, live.entrant_list)
+    if snapshot_path is None:
+        typer.echo(f"no snapshot of the {live.entrant_list} list; run `finishline snapshot`")
+        raise typer.Exit(code=2)
+
+    data = _dataset(first, last)
+    saved_rows = _hierarchical_rows(
+        data, 2024, dict(HIERARCHICAL_DEFAULTS), fit_if_missing=False
+    )
+    if saved_rows is None:
+        typer.echo("no saved model backtest matches this code; run `backtest --hierarchical`")
+        raise typer.Exit(code=2)
+    dates = {race_id_: race.date for race_id_, race in data.races.items()}
+    calibration = {
+        level: split.shifts(saved_rows, dates, level, live.race.date)
+        for level in freezing.LEVELS
+    }
+
+    history = History.before(live.race.date, data.races, data.resolved)
+    typer.echo(f"sampling on every result before {live.race.date} ...")
+    posterior = hierarchical.fit(history)
+    if posterior is None:
+        typer.echo("nothing to fit")
+        raise typer.Exit(code=1)
+
+    listed = entrants.load(snapshot_path)
+    doc = freezing.assemble(
+        posterior=posterior,
+        links=link.link(listed, data.runners),
+        history=history,
+        live=live,
+        now=datetime.now(UTC),
+        snapshot={
+            "file": snapshot_path.name,
+            "sha256": predictions.sha256(snapshot_path.read_bytes()),
+        },
+        model={
+            "name": "hierarchical",
+            "commit": commit,
+            "fit_on_results_before": live.race.date.isoformat(),
+            "diagnostics": posterior.diagnostics,
+            "settings": dict(HIERARCHICAL_DEFAULTS),
+        },
+        calibration=calibration,
+        seed=backtest_seed(race_id),
+    )
+    path = PREDICTIONS / f"{race_id}.json"
+    digest = predictions.write(path, doc)
+    counts = doc["entrants"]
+    typer.echo(
+        f"\nwrote {path}: {counts['predicted']} runners predicted, "
+        f"{counts['ambiguous']} excluded as ambiguous, {counts['new']} with no history"
+    )
+    typer.echo(f"sha256 {digest}")
+    typer.echo(
+        "\nNothing is committed or tagged. To make it count, before "
+        f"{(live.gun - predictions.MINIMUM_NOTICE).isoformat()}:\n"
+        f"  git add {path.as_posix()} && git commit -m \"Prediction: {race_id}\"\n"
+        f"  git tag -a predictions/{race_id} -m \"sha256 {digest}\"\n"
+        f"  git push && git push origin predictions/{race_id}"
+    )
+
+
+def backtest_seed(race_id: str) -> int:
+    """A seed fixed by the race, so a re-run of an unchanged freeze draws the same numbers."""
+    import zlib
+
+    return zlib.crc32(race_id.encode())
 
 
 def _dataset(first: int, last: int) -> Dataset:

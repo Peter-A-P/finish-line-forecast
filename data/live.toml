@@ -1,0 +1,14 @@
+# The races this project publishes a prediction for, read by `finishline freeze`.
+#
+# The gun time is written by a person, with its zone, and confirmed with the race: the
+# 24-hour rule is measured from it (publish/freeze.py). `freeze` refuses a race with no gun.
+# Newfoundland is UTC-02:30 until the first Sunday of November and UTC-03:30 after, so
+# Cape to Cabot is on daylight time and Run to Remember is not.
+
+[c2c-2026]
+name = "Cape to Cabot"
+date = "2026-10-18"
+distance_m = 20000
+course_id = "cape-to-cabot-20000"
+entrant_list = "c2c-2026"
+# gun = "2026-10-18T00:00:00-02:30"   # NOT YET CONFIRMED: Peter to confirm the start time

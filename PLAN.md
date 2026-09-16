@@ -1,15 +1,17 @@
 # Plan: Finish Line Forecast
 
 **Written:** 2026-09-12. **Status as of 2026-09-16:** weeks 1 and 2 built, and the
-hierarchical model is built and converges on the real archive; its backtest is not yet run.
+hierarchical model is built and converges on the real archive; its backtest is running.
 The archive is read and resolved, the three baselines are measured, every course's
 difficulty is measured from the results with the physics as a cross-check, and the
-conditions layer is fitted. **Still to build:** the hierarchical model's backtest table,
-the LightGBM challenger, Mondrian conformal intervals, the placing simulation, the
-participation model, and `freeze`/`score`.
+conditions layer is fitted. Built since: Mondrian conformal intervals, the placing
+simulation, the start-list linker, the prediction file and `freeze`. **Still to build:** the
+hierarchical model's backtest table (running), the conditions layer wired into the model's
+race effect (section 13 item 27), the LightGBM challenger, the participation model, and
+`score`.
 
 **Section 13 is the log of what the data refuted**, and it is the first thing to read after
-this line: twenty-six numbered entries, each one a design in this plan that measurement
+this line: twenty-seven numbered entries, each one a design in this plan that measurement
 overturned. What is open and who owns it is in [docs/todo.md](docs/todo.md).
 
 **Build:** an alongside project, so planned in relative weeks. Earliest start: now. It waits
@@ -812,3 +814,12 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     race late in a quarter is predicted without that quarter's earlier results, which the
     baselines beside it do see. The tilt is against the model on purpose, since the other
     direction is a leak, and a test pins that a block fit never sees its own block.
+
+27. **The model does not use the weather yet, and the prediction file says so.** Section 5.3
+    puts the conditions factors into the race effect's prior. As built, the race effect is
+    the course plus an edition deviation the model learns only from past editions, so a
+    predicted race gets its course's average morning and the full spread of mornings as
+    uncertainty. The conditions layer (items 17 to 20) is measured and not yet wired in, and
+    `freeze` writes `"conditions": null` rather than a forecast the model did not use. Wiring
+    it in means fitting the edition effects net of observed weather, which changes the model
+    and therefore needs its backtest rerun; it is next after the first backtest table.
