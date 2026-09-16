@@ -37,6 +37,11 @@ models = [
                            # resolved to a numba beta that cannot import under numpy 2.5; and
                            # because PyTensor 3 compiles through numba, so the model runs at
                            # full speed on a Windows machine with no C compiler.
+  "nutpie>=0.16,<0.17",    # the sampler the model actually uses. PyMC's own NUTS hit maximum
+                           # tree depth with R-hat above 2 on the real archive; nutpie ran the
+                           # same model at depth 6 with no divergences (models/hierarchical.py
+                           # fit). Pre-1.0 and its API moves between minors, so the ceiling is
+                           # the next minor.
   "lightgbm>=4.5,<5.0",    # the quantile challenger (PLAN.md 5.4)
   "scikit-learn>=1.6,<2.0",# LightGBM's sklearn API needs it
 ]
@@ -82,8 +87,9 @@ strict = true
 warn_unreachable = true
 
 [[tool.mypy.overrides]]
-# Ships no py.typed marker.
-module = ["truststore"]
+# Ship no py.typed marker. PyMC is confined to models/hierarchical.py, which hands back plain
+# numpy arrays, so nothing untyped leaks past that module.
+module = ["truststore", "pymc", "pymc.*", "arviz", "arviz.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

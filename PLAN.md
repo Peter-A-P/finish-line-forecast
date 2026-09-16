@@ -1,13 +1,15 @@
 # Plan: Finish Line Forecast
 
-**Written:** 2026-09-12. **Status as of 2026-09-13:** weeks 1 and 2 built. The archive is
-read and resolved, the three baselines are measured, every course's difficulty is measured
-from the results with the physics as a cross-check, and the conditions layer is fitted.
-**Still to build:** the hierarchical model, the LightGBM challenger, Mondrian conformal
-intervals, the placing simulation, the participation model, and `freeze`/`score`.
+**Written:** 2026-09-12. **Status as of 2026-09-16:** weeks 1 and 2 built, and the
+hierarchical model is built and converges on the real archive; its backtest is not yet run.
+The archive is read and resolved, the three baselines are measured, every course's
+difficulty is measured from the results with the physics as a cross-check, and the
+conditions layer is fitted. **Still to build:** the hierarchical model's backtest table,
+the LightGBM challenger, Mondrian conformal intervals, the placing simulation, the
+participation model, and `freeze`/`score`.
 
 **Section 13 is the log of what the data refuted**, and it is the first thing to read after
-this line: twenty numbered entries, each one a design in this plan that measurement
+this line: twenty-six numbered entries, each one a design in this plan that measurement
 overturned. What is open and who owns it is in [docs/todo.md](docs/todo.md).
 
 **Build:** an alongside project, so planned in relative weeks. Earliest start: now. It waits
@@ -314,6 +316,17 @@ Cabot getting ten points harder since 2013. With it the median drift is zero. Ru
 category-median baseline with an honest width. Predictions are posterior predictive draws,
 then conformalised.
 
+**Amended 2026-09-16, and the amendments are section 13 items 21 to 26.** As built in
+`models/hierarchical.py`: the response is the log of a finish time over a VDOT-50 Daniels
+time, so the population's fade over distance is Daniels' curve and `beta_i ~ Normal(0,
+sigma_beta)` is only a runner's departure from it (no `mu_beta`); `gamma_i` has a mean per
+age-sex group; each runner's level is sampled at the middle of their own history; the race
+effect is a zero-sum course effect plus an edition effect that sums to zero within its
+course; courses under thirty finishes are left out of the fit; and it is sampled with
+nutpie, not PyMC's own NUTS. "Minutes, not hours" above was wrong by an order of magnitude
+on the sampler the plan named, and about right on the one that replaced it: eight minutes
+for a fit on 60,379 finishes and 19,488 runners.
+
 ### 5.4 The challenger
 
 LightGBM with pinball loss at the 5th, 10th, 50th, 90th and 95th percentiles on: last
@@ -329,6 +342,12 @@ race's date, predict its field, score. The 2016 to 2023 results are history for 
 origins and never targets. This gives roughly 70 scored editions and the residuals the
 conformal layer calibrates on, stratified by history depth. The live prediction uses every
 result before the target date, which is the same procedure with one more origin.
+
+**Amended 2026-09-16 for the hierarchical model, section 13 item 26.** The baselines still
+run at every origin. The hierarchical model is fitted once per calendar quarter, on the
+history strictly before the quarter's first day, and predicts every race in the quarter
+from that fit. It therefore knows less than the baselines beside it about any race late in
+a quarter, never more.
 
 ### 5.6 Who is running
 
@@ -734,3 +753,62 @@ hand.**
 
     One fact that falls out and is worth the race director's attention: **Cape to Cabot runs
     into a headwind in 13 of its 16 editions**, four of them above 25 km/h against.
+
+**2026-09-16, the hierarchical model: five things the plan said that the sampler refused.**
+
+All measured on one origin, 2025-01-01: 60,386 finishes, 19,488 runners, 250 editions, 47
+courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
+
+21. **PyMC's own NUTS could not sample the model, and the plan named it.** 100 tuning steps
+    and 100 draws took 1,117 seconds, every chain ran to its maximum tree depth (mean 9.4 of
+    10), 314 draws diverged and R-hat on the fitness and noise scales was above 2: four
+    chains that had not agreed how much of a finish time is the runner and how much is the
+    day. **nutpie on the same model: 300 and 300 in 463 seconds, tree depth 6, no
+    divergences.** Its mass-matrix adaptation learns forty thousand scales in the time
+    PyMC's windowed adaptation spends starting to. PyMC stays as the modelling language;
+    nutpie is pinned beside it in `pyproject.toml` with the reason.
+
+22. **Anchoring each runner's level at their first race was the obvious parameterisation and
+    was measured to be no help.** A runner with results from 2012 to 2024 pins their 2018
+    fitness far better than their 2012 fitness, so level and trend trade off along a ridge,
+    and the fix is to sample the level at each runner's own mean year and distance. It was
+    tried first, on PyMC's sampler, because it was the likeliest cause of the tree depth.
+    It did not move it: uncentred, every chain hit maximum tree depth and 100 and 100 took
+    1,187 seconds; centred, every chain still hit it (mean 9.4 of 10) and it took 1,117. It
+    is kept, because it is the right geometry and costs nothing, but the thing that fixed
+    the sampling was item 21.
+
+23. **`mu_beta` is not identifiable here, and the plan had one.** Every course is run at one
+    distance, so a population-wide fade `mu_beta * log(d)` is indistinguishable from course
+    effects that happen to line up with distance. Fitted with both it came back at R-hat
+    1.76. It is gone; the population's fade relative to Daniels lives in the course effects.
+
+24. **Two convergence failures that looked like one, and the first guess at the cause was
+    wrong.** With `mu_beta` fixed, `sigma_course` and `sigma_edition` still sat at R-hat
+    1.56 and 2.11. They were expected to have been dragged by `mu_beta` and were not. The
+    edition effects had a free direction: every edition of a course moving up while the
+    course moves down, which the likelihood cannot see and the prior barely charges for
+    once `sigma_edition` is large. Editions now sum to zero within their course.
+    `sigma_edition` went to 1.21 and a tight 0.043.
+
+25. **One chain in four called a seven-finisher marathon seventy-eight percent fast.**
+    `sigma_course` stayed at 1.57 after item 24, and splitting the course effects by chain
+    showed why: three chains put `eastern-42195` at +0.04, the fourth at -1.50, and because
+    courses sum to zero that moved every other course by 0.035. With tails this heavy (nu
+    near 2) calling seven finishes seven outliers is a local mode a chain can fall into and
+    not leave. The course layer already refuses to publish a course under thirty finishes
+    as "noise dressed as a measurement"; the model now applies the same floor, which
+    removes seven finishes. **Every scale then converged: R-hat 1.02 to 1.07, no
+    divergences, the course effects agreeing across chains to 0.003.**
+
+    Worth the reader's attention: the tails. nu comes back at 2.02 with a residual scale of
+    2.8 percent, which says most runners repeat themselves closely and a minority of
+    results are wildly off (a walk, an injury, a pacing duty, a wrong name match). A normal
+    likelihood would have spent the whole fit explaining those.
+
+26. **The model is fitted per quarter, not per origin.** At eight minutes a fit, a fit at
+    each of seventy-odd origins is ten hours; one per calendar quarter from 2024 is about
+    ten fits. Each is fitted on the history strictly before the quarter's first day, so a
+    race late in a quarter is predicted without that quarter's earlier results, which the
+    baselines beside it do see. The tilt is against the model on purpose, since the other
+    direction is a leak, and a test pins that a block fit never sees its own block.

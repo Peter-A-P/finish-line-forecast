@@ -58,6 +58,7 @@ class Scored:
     predicted: float | None
     actual: float
     depth: int
+    quantiles: tuple[float, ...] = ()
 
     @property
     def error(self) -> float | None:

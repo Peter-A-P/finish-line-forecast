@@ -9,7 +9,7 @@ The pipeline in the order it runs:
     finishline weather        fetch the observed weather for every race month
     finishline conditions     what heat and wind cost, estimated from the editions
     finishline dataset        parse, resolve runners, write the tables
-    finishline backtest       score the baselines at every origin
+    finishline backtest       score the baselines at every origin (--hierarchical: the model)
     finishline report         the tables the README publishes
 
 ⚠️ **`crawl` refuses to run until the courtesy notices have gone out.** That is a rail in
@@ -30,7 +30,7 @@ from typing import Annotated, Any
 import typer
 
 from finishline import report, store
-from finishline.backtest import run
+from finishline.backtest import run, score
 from finishline.history import History
 from finishline.ingest import eccc, entrants, nlaa
 from finishline.metrics import grade
@@ -46,6 +46,7 @@ CACHE = DATA / "cache" / "nlaa"
 EXTERNAL = DATA / "cache" / "raceroster"
 ENTRANTS = DATA / "entrants"
 WEATHER = DATA / "cache" / "eccc"
+BACKTESTS = DATA / "cache" / "backtest"
 COURSES = DATA / "courses.toml"
 
 
@@ -385,16 +386,90 @@ def weather(
     typer.echo("done; nothing here is committed (see .gitignore)")
 
 
+# The settings the published hierarchical run uses. `backtest` can be asked for others to
+# experiment; `report` only ever publishes a run made with these.
+HIERARCHICAL_DEFAULTS: dict[str, int] = {"months": 3, "draws": 300, "tune": 400, "chains": 4}
+
+
+def _hierarchical_key(data: Dataset, scored_from: int, settings: dict[str, int]) -> str:
+    """What a saved hierarchical run has to match to be reused."""
+    from finishline.backtest import saved
+    from finishline.models import hierarchical
+
+    parts: dict[str, object] = {
+        "scored_from": scored_from,
+        "dataset": saved.dataset_fingerprint(data.races, data.results),
+        **settings,
+    }
+    sources = [
+        Path(hierarchical.__file__),
+        Path(run.__file__),
+        Path(__file__).with_name("history.py"),
+    ]
+    return saved.key(parts, sources)
+
+
+def _hierarchical_rows(
+    data: Dataset, scored_from: int, settings: dict[str, int], *, fit_if_missing: bool
+) -> list[score.Scored] | None:
+    """The hierarchical model's scored rows: saved if they match, sampled if asked to."""
+    from finishline.backtest import saved
+    from finishline.models import hierarchical
+
+    path = BACKTESTS / "hierarchical.jsonl"
+    run_key = _hierarchical_key(data, scored_from, settings)
+    rows = saved.load(path, run_key)
+    if rows is not None or not fit_if_missing:
+        return rows
+
+    def fitter(history: History) -> hierarchical.Posterior | None:
+        typer.echo(f"  sampling on history before {history.origin} ...")
+        return hierarchical.fit(
+            history,
+            draws=settings["draws"],
+            tune=settings["tune"],
+            chains=settings["chains"],
+        )
+
+    model = hierarchical.Hierarchical(months=settings["months"], fitter=fitter)
+    rows = run.run(data.races, data.resolved, [model], scored_from=scored_from)
+    for start, diagnostics in model.fits:
+        typer.echo(f"  block {start}: {diagnostics}")
+    saved.save(path, run_key, rows)
+    return rows
+
+
 @app.command()
 def backtest(
     scored_from: Annotated[int, typer.Option(help="First year to score.")] = 2024,
     first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
     last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+    hierarchical: Annotated[
+        bool,
+        typer.Option(help="Score the hierarchical model too. Hours on first run; saved."),
+    ] = False,
+    months: Annotated[
+        int, typer.Option(help="Months of races per model fit.")
+    ] = HIERARCHICAL_DEFAULTS["months"],
+    draws: Annotated[
+        int, typer.Option(help="Posterior draws per chain.")
+    ] = HIERARCHICAL_DEFAULTS["draws"],
+    tune: Annotated[
+        int, typer.Option(help="Tuning steps per chain.")
+    ] = HIERARCHICAL_DEFAULTS["tune"],
+    chains: Annotated[
+        int, typer.Option(help="Chains, one per core.")
+    ] = HIERARCHICAL_DEFAULTS["chains"],
 ) -> None:
     """Score the baselines at every origin and print the tables."""
     data = _dataset(first, last)
     scored = run.run(data.races, data.resolved, baselines.BASELINES, scored_from=scored_from)
     names = [model.name for model in baselines.BASELINES]
+    if hierarchical:
+        settings = {"months": months, "draws": draws, "tune": tune, "chains": chains}
+        rows = _hierarchical_rows(data, scored_from, settings, fit_if_missing=True)
+        scored += rows or []
+        names.append("hierarchical")
     races = len({row.race_id for row in scored})
     typer.echo(f"{races} races scored from {scored_from}, {len(scored):,} predictions\n")
     typer.echo(report.baseline_table(scored, names))
@@ -412,6 +487,16 @@ def write_report(
     data = _dataset(first, last)
     scored = run.run(data.races, data.resolved, baselines.BASELINES, scored_from=scored_from)
     names = [model.name for model in baselines.BASELINES]
+    # Never samples: a report rewrites tables from what was measured, and the model's rows
+    # are only published when a saved run matches today's code and data exactly.
+    saved_rows = _hierarchical_rows(
+        data, scored_from, dict(HIERARCHICAL_DEFAULTS), fit_if_missing=False
+    )
+    if saved_rows is not None:
+        scored += saved_rows
+        names.append("hierarchical")
+    else:
+        typer.echo("no saved hierarchical run matches; its rows are left out of the tables")
 
     readme = Path("README.md")
     text = readme.read_text(encoding="utf-8")

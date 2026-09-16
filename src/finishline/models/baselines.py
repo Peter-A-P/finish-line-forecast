@@ -45,6 +45,9 @@ class Prediction:
     runner_id: str
     seconds: float | None
     basis: str
+    # Finish-time quantiles at `hierarchical.QUANTILES`, for a model that has a distribution.
+    # Empty for the baselines, which give a time and no sense of how sure it is.
+    quantiles: tuple[float, ...] = ()
 
     @property
     def answered(self) -> bool:
