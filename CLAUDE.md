@@ -37,6 +37,7 @@ finishline conditions   what heat and wind cost, by distance
 finishline backtest     score the baselines at every origin (--hierarchical adds the model)
 finishline report       rewrite the README tables from the measurement
 finishline freeze <race> the prediction file, hashed, refused inside 24 hours of the gun
+finishline score <race>  the tagged prediction against the results   (fetches: --notices-sent)
 ```
 
 `crawl`, `weather` and `snapshot` refuse to run until the courtesy notices have gone out,

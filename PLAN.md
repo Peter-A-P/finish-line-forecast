@@ -5,10 +5,10 @@ hierarchical model is built and converges on the real archive; its backtest is r
 The archive is read and resolved, the three baselines are measured, every course's
 difficulty is measured from the results with the physics as a cross-check, and the
 conditions layer is fitted. Built since: Mondrian conformal intervals, the placing
-simulation, the start-list linker, the prediction file and `freeze`. **Still to build:** the
-hierarchical model's backtest table (running), the conditions layer wired into the model's
-race effect (section 13 item 27), the LightGBM challenger, the participation model, and
-`score`.
+simulation, the start-list linker, the prediction file, `freeze` and `score`. **Still to
+build:** the hierarchical model's backtest table (running), the conditions layer wired into
+the model's race effect (section 13 item 27), the LightGBM challenger, and the participation
+model.
 
 **Section 13 is the log of what the data refuted**, and it is the first thing to read after
 this line: twenty-seven numbered entries, each one a design in this plan that measurement
@@ -376,6 +376,25 @@ c2c-2026` fetches the page, resolves the field against the prediction file, writ
 error tables and re-renders the race page with predictions and results side by side.
 Nothing in the prediction file is ever edited; a defect found after the tag is scored as
 it stands and written up.
+
+**Amended 2026-09-16, as built in `publish/scorecard.py`.** Five things the paragraph above
+did not say:
+
+- `score` reads the prediction **from its tag, not the working copy**, and refuses one whose
+  tag message does not publish the file's SHA-256, or whose tag is less than 24 hours before
+  the gun. There is no override.
+- It matches published lines to the results page **by name key, not by the resolver**. The
+  file carries a name and a hometown and nothing else, on purpose. The hometown breaks a tie
+  between results of one name; anything still tied is excluded and counted. A line with no
+  result of its name is "not found", an upper bound on the no-show rate, because a list and a
+  results page can spell one runner two ways.
+- **Runners who did not finish are counted and never named** on the race page. That they did
+  not appear is an inference from absence, and no results page printed it.
+- The carry-forward baseline is recomputed from the archive as it stood the day before, and
+  compared on the runners it could answer for, as a paired difference with an interval.
+- Intervals resample runners, because one race has one morning; the page and the README say
+  what that does and does not cover. `freeze` renders no race page yet; `score` writes it,
+  with every finisher's prediction beside their result.
 
 ## 6. Week by week
 

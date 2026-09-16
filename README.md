@@ -197,14 +197,15 @@ after conformal adjustment on the races before each one, by how much history a r
 _No saved model run matches the current code and data, so there are no intervals to check yet. `finishline backtest --hierarchical` produces one._
 <!-- finishline:end:coverage -->
 
-**The live prediction tables are empty until there is a prediction.**
+**Live: predicted before the gun, scored after.** Cape to Cabot 20 km on 2026-10-18, then Run
+to Remember 11 km on 2026-11-11 on the same frozen model. `finishline score` reads each
+prediction from its tag, refuses one tagged less than 24 hours before the gun, and writes a
+row here and a race page under `docs/predictions/` with every finisher's
+prediction beside their result.
 
-**Live: predicted before the gun, scored after** (bootstrap 95% CIs over runners)
-
-| Race | Runners predicted | Field coverage | MAE, minutes (model) | MAE, minutes (carry-forward baseline) | Coverage at 80% nominal | Coverage at 90% nominal | Median 80% width, minutes | Mean absolute place error | Spearman, predicted vs actual order | Prediction tag and hash |
-|---|---|---|---|---|---|---|---|---|---|---|
-| Cape to Cabot 20 km, 2026-10-18 | _not yet_ | | | | | | | | | |
-| Run to Remember 11 km, 2026-11-11 | | | | | | | | | | |
+<!-- finishline:live -->
+_No prediction has been scored yet. `finishline score <race>` fills a row here once a tagged prediction's official results are posted._
+<!-- finishline:end:live -->
 
 **Who is entered for the first live race.** Cape to Cabot, from the club's published start
 list of 2026-09-12, matched against the archive.

@@ -12,6 +12,7 @@ The pipeline in the order it runs:
     finishline backtest       score the baselines at every origin (--hierarchical: the model)
     finishline report         the tables the README publishes
     finishline freeze <race>  the prediction file, at least 24 hours before the gun
+    finishline score <race>   the tagged prediction against the official results
 
 ⚠️ **`crawl` refuses to run until the courtesy notices have gone out.** That is a rail in
 code rather than a line in a document, because this project reads a small volunteer
@@ -542,6 +543,7 @@ def write_report(
         _coverage(data, scored, "hierarchical" if saved_rows is not None else None),
     )
     readme.write_text(text, encoding="utf-8", newline="\n")
+    _write_live_rows()
     typer.echo("README.md tables rewritten from the measurement")
 
 
@@ -736,6 +738,208 @@ def freeze(
         f"  git tag -a predictions/{race_id} -m \"sha256 {digest}\"\n"
         f"  git push && git push origin predictions/{race_id}"
     )
+
+
+SCORES = Path("scores")
+RACE_PAGES = Path("docs") / "predictions"
+
+
+def _git_bytes(*args: str) -> bytes | None:
+    """A git command's output as bytes, or None when git refuses."""
+    import subprocess
+
+    done = subprocess.run(["git", *args], capture_output=True, check=False)
+    return done.stdout if done.returncode == 0 else None
+
+
+@app.command(name="score")
+def score_race(
+    race_id: Annotated[str, typer.Argument(help="A tagged prediction, e.g. c2c-2026.")],
+    notices_sent: Annotated[
+        bool, typer.Option("--notices-sent", help="The courtesy notes have gone out.")
+    ] = False,
+    results: Annotated[
+        str | None,
+        typer.Option(help="The archive race id of the results page, if the date and course "
+        "match more than one."),
+    ] = None,
+    first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
+    last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+) -> None:
+    """Score a tagged prediction against the official results, and write the race page.
+
+    Reads the prediction file from the tag `predictions/<race>`, never from the working copy,
+    and refuses unless the tag message publishes the file's hash and the tag is at least 24
+    hours before the gun. Finds the results page on the association's index, refreshing that
+    year's index once if the race is not on the cached copy, and fetches the page once.
+    Writes scores/<race>.json, docs/predictions/<race>.md and the README's live rows.
+    """
+    import json
+    from datetime import UTC, datetime
+
+    from finishline.ingest import records
+    from finishline.publish import predictions
+    from finishline.publish import scorecard as cards
+
+    tag = f"predictions/{race_id}"
+    file = f"{PREDICTIONS.as_posix()}/{race_id}.json"
+    ref = f"refs/tags/{tag}"
+    fields = _git_bytes(
+        "for-each-ref", ref, "--format=%(objecttype)%00%(taggerdate:iso-strict)%00%(contents)"
+    )
+    data = _git_bytes("cat-file", "blob", f"{tag}:{file}")
+    if not fields or data is None:
+        typer.echo(f"refused: no tag {tag} holding {file}; an untagged file is not a prediction",
+                   err=True)
+        raise typer.Exit(code=2)
+    kind, tagged_text, message = fields.decode("utf-8").split("\0", 2)
+    if kind != "tag":
+        typer.echo(f"refused: {tag} is a lightweight tag and records no time", err=True)
+        raise typer.Exit(code=2)
+
+    doc = json.loads(data.decode("utf-8"))
+    try:
+        problems = predictions.validate(doc)
+        if problems:
+            raise cards.NotPreRegistered("the tagged file is invalid: " + "; ".join(problems))
+        digest = cards.check_digest(data, message)
+        tagged_at = datetime.fromisoformat(tagged_text)
+        cards.check_tag(tagged_at, datetime.fromisoformat(doc["gun"]))
+    except (cards.NotPreRegistered, ValueError) as refusal:
+        typer.echo(f"refused: {refusal}", err=True)
+        raise typer.Exit(code=2) from refusal
+    working = Path(file)
+    if working.exists() and working.read_bytes() != data:
+        typer.echo(
+            f"warning: {file} in the working copy differs from the tagged file, which is the "
+            "one scored. A prediction file is never edited; find out why.",
+            err=True,
+        )
+
+    target = doc["race"]
+    when = date.fromisoformat(target["date"])
+    with nlaa.Cache(CACHE) as cache:
+
+        def candidates() -> list[Race]:
+            races, _skipped = nlaa.catalogue(cache, range(when.year, when.year + 1))
+            if results is not None:
+                return [race for race in races if race.race_id == results]
+            return [
+                race
+                for race in races
+                if race.date == when and race.course_id == target["course_id"]
+            ]
+
+        found = candidates()
+        if not found:
+            if not (notices_sent or os.environ.get(NOTICES_ENV)):
+                typer.echo(NOTICES, err=True)
+                raise typer.Exit(code=2)
+            typer.echo(f"not on the cached {when.year} index; reading it again, once")
+            cache.get(nlaa.INDEX.format(year=when.year), refetch=True)
+            found = candidates()
+        if not found:
+            typer.echo(f"no results posted yet for {target['course_id']} on {when}")
+            raise typer.Exit(code=1)
+        if len(found) > 1:
+            names = ", ".join(race.race_id for race in found)
+            typer.echo(f"several pages match ({names}); pass --results with one", err=True)
+            raise typer.Exit(code=2)
+        race = found[0]
+        if not cache.cached(race.url) and not (notices_sent or os.environ.get(NOTICES_ENV)):
+            typer.echo(NOTICES, err=True)
+            raise typer.Exit(code=2)
+        page = cache.get(race.url)
+
+    if abs(race.distance_m - float(target["distance_m"])) > 1.0:
+        typer.echo(
+            f"refused: {race.race_id} is {race.distance_m:.0f} m and the prediction was for "
+            f"{target['distance_m']} m",
+            err=True,
+        )
+        raise typer.Exit(code=2)
+
+    rows = records.to_results(page, race.race_id)
+    lines = cards.published(doc)
+    matching = cards.match(lines, rows)
+
+    # Carry-forward from the archive as it stood the day before, as in the backtest.
+    archive = _dataset(first, last)
+    history = History.before(when, archive.races, archive.resolved)
+    runner_of = {
+        result: runner
+        for runner in archive.resolved
+        for result in runner.results
+        if result.race_id == race.race_id
+    }
+    carry = baselines.CarryForward()
+    carry_forward: dict[int, float | None] = {}
+    for item in matching.with_outcome(cards.Outcome.FINISHED):
+        runner = runner_of.get(item.result) if item.result is not None else None
+        carry_forward[item.line.position] = (
+            None if runner is None else carry.predict(runner, race, history).seconds
+        )
+
+    card = cards.evaluate(
+        doc=doc,
+        matching=matching,
+        carry_forward=carry_forward,
+        prediction={
+            "file": file,
+            "sha256": digest,
+            "tag": tag,
+            "tagged_at": tagged_at.isoformat(),
+            "model": doc["model"]["name"],
+            "commit": doc["model"]["commit"],
+        },
+        results={
+            "race_id": race.race_id,
+            "url": race.url,
+            "sha256": predictions.sha256(page.encode("utf-8")),
+        },
+        scored_at=datetime.now(UTC),
+    )
+    SCORES.mkdir(exist_ok=True)
+    (SCORES / f"{race_id}.json").write_bytes(predictions.to_bytes(card))
+    RACE_PAGES.mkdir(parents=True, exist_ok=True)
+    (RACE_PAGES / f"{race_id}.md").write_text(
+        cards.race_page(card, matching), encoding="utf-8", newline="\n"
+    )
+    _write_live_rows()
+
+    field = card["field"]
+    errors = card["error"]["all"]
+    typer.echo(
+        f"{field['finished']} of {field['predicted']} predicted runners finished; "
+        f"{field['unpredicted_finishers']} finishers had no prediction"
+    )
+    typer.echo(f"MAE {cards.ci(errors['mae_minutes'])} minutes")
+    typer.echo(
+        f"model minus carry-forward on {errors['carry_forward']['runners']} runners: "
+        f"{cards.ci(errors['carry_forward']['difference_minutes'])} minutes"
+    )
+    for level in cards.LEVELS:
+        held = card['intervals']['all'][level]['coverage']
+        typer.echo(f"{level}% interval held: {cards.percent(held)}")
+    typer.echo(
+        f"wrote scores/{race_id}.json, docs/predictions/{race_id}.md and the README live rows"
+    )
+
+
+def _write_live_rows() -> None:
+    """The README's live table, from every committed score card."""
+    import json
+
+    from finishline.publish import scorecard as cards
+
+    loaded = [
+        json.loads(path.read_text(encoding="utf-8")) for path in sorted(SCORES.glob("*.json"))
+    ]
+    readme = Path("README.md")
+    text = report.replace_between(
+        readme.read_text(encoding="utf-8"), "live", cards.live_table(loaded)
+    )
+    readme.write_text(text, encoding="utf-8", newline="\n")
 
 
 def backtest_seed(race_id: str) -> int:

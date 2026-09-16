@@ -35,6 +35,12 @@ in a `<pre>` block. Footer reads "Copyright NLAA". There is no terms-of-use page
 pipeline costs zero requests. The SHA-256 and fetch time of every page are recorded in
 `data/cache/nlaa/manifest.jsonl`. The user agent names the project and carries an address.
 
+⚠️ **The one page read twice is a year index, and only by `finishline score`.** A results page
+never changes, but the current year's index grows as races are posted, and the cached copy
+cannot show a race that was posted after it was fetched. When `score` cannot find the race it
+is scoring on the cached index, it reads that one index again, once, then fetches the new
+results page once like any other.
+
 **What is published.** Only what the results already publish about a runner: their name
 and hometown as the page printed them, and the prediction. Never the age, beyond the
 category the page prints. Never anything from an entrant list beyond who is running.
