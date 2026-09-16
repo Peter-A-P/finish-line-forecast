@@ -11,4 +11,4 @@ date = "2026-10-18"
 distance_m = 20000
 course_id = "cape-to-cabot-20000"
 entrant_list = "c2c-2026"
-# gun = "2026-10-18T00:00:00-02:30"   # NOT YET CONFIRMED: Peter to confirm the start time
+gun = "2026-10-18T08:00:00-02:30"   # confirmed by Peter 2026-09-16

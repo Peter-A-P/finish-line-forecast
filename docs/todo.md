@@ -12,14 +12,12 @@ first ran from it at 20:23 that evening (`scripts/register-snapshot-task.ps1`; c
 `data/entrants/snapshot.log`, which every run appends to). If the working copy ever moves to
 another machine, the task and the gitignored `data/` have to move with it; neither is in git.
 
-### 1. Confirm Cape to Cabot's 2026 gun time
+### 1. Run to Remember's 2026 gun time
 
-`finishline freeze c2c-2026` refuses until `data/live.toml` carries the start time, with its
-zone, and it is not guessed from past editions on purpose: the 24-hour rule is measured from
-it, and a start time wrong by an hour moves the deadline by an hour in whichever direction it
-is wrong. Newfoundland is on daylight time for this race, so the line reads, for an 8:00
-start, `gun = "2026-10-18T08:00:00-02:30"`. Run to Remember will need the same, on standard
-time (`-03:30`), before 2026-11-10.
+Cape to Cabot's is confirmed (08:00 on 2026-10-18, NDT) and in `data/live.toml`, which puts
+its freeze deadline at 08:00 on 2026-10-17. `finishline freeze` refuses a race without a
+confirmed gun time, on purpose: the 24-hour rule is measured from it. Run to Remember needs
+the same before 2026-11-10, on standard time (`-03:30`).
 
 ### 2. Elevation figures for the other courses, if and when they are easy to get
 
