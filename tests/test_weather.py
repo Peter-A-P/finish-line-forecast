@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from datetime import date
 from pathlib import Path
 
 import numpy as np
@@ -10,6 +11,7 @@ import pytest
 
 from finishline.ingest.eccc import Conditions
 from finishline.models import weather
+from finishline.schema import Race
 
 
 def met(
@@ -68,6 +70,40 @@ def test_a_drawn_tailwind_is_never_stronger_than_the_drawn_wind() -> None:
     speed = drawn[:, 2] + 20.0
     assert (np.abs(drawn[:, 3]) <= speed + 1e-9).all()
     assert (speed >= 0).all()
+
+
+class _Month:
+    """A station-month cache serving one October day at 12 C with a 30 km/h westerly."""
+
+    def get(self, station: object, year: int, month: int) -> str:
+        header = (
+            '"Longitude (x)","Latitude (y)","Station Name","Climate ID","Date/Time (LST)",'
+            '"Year","Month","Day","Time (LST)","Temp (°C)","Temp Flag",'
+            '"Dew Point Temp (°C)","Rel Hum (%)","Wind Dir (10s deg)","Wind Spd (km/h)"'
+        )
+        rows = [
+            f'"-52.75","47.62","ST JOHN\'S INTL A","8403505","2025-10-19 {h:02d}:30",'
+            f'"2025","10","19","{h:02d}:30","12.0","","8.0","80","27","30"'
+            for h in range(24)
+        ]
+        return "\n".join([header, *rows]) + "\n"
+
+
+def test_editions_get_observed_covariates_and_the_rest_are_counted() -> None:
+    races = [
+        Race("c2c-2025", "c2c", date(2025, 10, 19), 20_000.0, "cape-to-cabot-20000", ""),
+        Race("gander-2025", "g", date(2025, 10, 19), 10_000.0, "gander-10000", ""),
+        Race("c2c-2025-other-day", "c2c", date(2025, 10, 20), 20_000.0, "cape-to-cabot-20000", ""),
+    ]
+    observed, missing = weather.edition_covariates(
+        races, _Month(), {"cape-to-cabot-20000": 321.0}
+    )
+    assert set(observed) == {"c2c-2025"}
+    assert missing == 2, "Gander is too far from the airport, and one day has no reading"
+    temp, _, wind, tail = observed["c2c-2025"]
+    assert temp == pytest.approx(2.0)
+    assert wind == pytest.approx(10.0)
+    assert tail < -15, "a westerly into Cape to Cabot's north-west bearing is a headwind"
 
 
 def test_a_measurement_round_trips_through_its_file(tmp_path: Path) -> None:

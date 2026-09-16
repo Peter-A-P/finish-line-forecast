@@ -26,21 +26,57 @@ from __future__ import annotations
 
 import math
 import tomllib
-from collections.abc import Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Protocol
 
 import numpy as np
 
-from finishline.ingest.eccc import Conditions
+from finishline.ingest.eccc import Conditions, NoObservation, Station, near_st_johns
+from finishline.ingest.eccc import conditions as eccc_conditions
 from finishline.models.conditions import (
     NEUTRAL_TEMP_C,
     NEUTRAL_WIND_KMH,
     REFERENCE_DISTANCE_M,
 )
+from finishline.schema import Race
 
 COLUMNS: tuple[str, ...] = ("temp", "temp_x_log_distance", "wind", "tailwind")
 NEUTRAL: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 0.0)
+
+
+class _Months(Protocol):
+    """What `eccc.conditions` needs from a cache: one station-month's CSV."""
+
+    def get(self, station: Station, year: int, month: int) -> str: ...
+
+
+def edition_covariates(
+    races: Iterable[Race],
+    cache: _Months,
+    bearings: Mapping[str, float],
+) -> tuple[dict[str, tuple[float, float, float, float]], int]:
+    """Every edition's observed covariates, and how many editions had no observation.
+
+    An edition on a course the airport cannot speak for (`eccc.near_st_johns`), or on a
+    morning with no reading, is left out of the mapping and so enters the model at neutral.
+    The count is returned so that the number of editions carrying weather is reported rather
+    than assumed.
+    """
+    observed: dict[str, tuple[float, float, float, float]] = {}
+    missing = 0
+    for race in races:
+        if not near_st_johns(race.course_id):
+            missing += 1
+            continue
+        try:
+            met = eccc_conditions(cache, race.race_id, race.date, race.distance_m)  # type: ignore[arg-type]
+        except NoObservation:
+            missing += 1
+            continue
+        observed[race.race_id] = covariates(met, race.distance_m, bearings.get(race.course_id))
+    return observed, missing
 
 
 def covariates(
