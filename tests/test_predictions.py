@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import copy
+import shutil
+import subprocess
 from datetime import UTC, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -117,6 +119,20 @@ def test_a_written_file_verifies_and_an_edited_one_does_not(tmp_path: Path) -> N
     assert pf.verify(path, digest)
     path.write_bytes(path.read_bytes().replace(b"5100.1", b"5100.2"))
     assert not pf.verify(path, digest)
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="needs git")
+def test_git_never_translates_a_prediction_files_line_endings() -> None:
+    """A CRLF checkout on Windows would break the published hash for every Windows reader."""
+    repository = Path(__file__).resolve().parents[1]
+    answer = subprocess.run(
+        ["git", "check-attr", "text", "predictions/c2c-2026.json"],
+        cwd=repository,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+    assert answer.strip().endswith("text: unset"), answer
 
 
 def test_a_prediction_file_is_never_replaced(tmp_path: Path) -> None:
