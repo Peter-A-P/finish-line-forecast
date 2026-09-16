@@ -25,10 +25,13 @@ jobs:
     name: ruff, mypy, tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # Both on Node 24: checkout@v4 and setup-uv@v5 target Node 20, which GitHub is
+      # retiring and was already forcing onto 24 with a warning on every run. setup-uv
+      # publishes no floating major tag from v10, so it is pinned to the release.
+      - uses: actions/checkout@v7
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v10.1.0
         with:
           enable-cache: true
           cache-dependency-glob: uv.lock
