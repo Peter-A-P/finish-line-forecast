@@ -89,7 +89,7 @@ warn_unreachable = true
 [[tool.mypy.overrides]]
 # Ship no py.typed marker. PyMC is confined to models/hierarchical.py, which hands back plain
 # numpy arrays, so nothing untyped leaks past that module.
-module = ["truststore", "pymc", "pymc.*", "arviz", "arviz.*"]
+module = ["truststore", "pymc", "pymc.*", "arviz", "arviz.*", "pytensor", "pytensor.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
