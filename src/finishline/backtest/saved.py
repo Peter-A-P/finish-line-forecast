@@ -40,10 +40,15 @@ def dataset_fingerprint(races: Mapping[str, Race], results: Iterable[Result]) ->
 
 
 def key(parts: Mapping[str, object], sources: Sequence[Path]) -> str:
-    """The identity of a backtest run: its settings, and the code that ran it."""
+    """The identity of a backtest run: its settings, and the code that ran it.
+
+    ⚠️ **Line endings are normalised before hashing.** On Windows git checks sources out with
+    CRLF and an editor may save them with LF; the code is the same either way, and an hours-long
+    saved run should not go stale because a checkout touched the file.
+    """
     digest = hashlib.sha256(json.dumps(parts, sort_keys=True, default=str).encode())
     for source in sources:
-        digest.update(source.read_bytes())
+        digest.update(source.read_bytes().replace(b"\r\n", b"\n"))
     return digest.hexdigest()
 
 

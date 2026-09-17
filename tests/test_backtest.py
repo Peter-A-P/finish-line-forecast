@@ -100,6 +100,14 @@ def test_the_key_moves_when_the_model_source_moves(tmp_path: Path) -> None:
     assert saved.key({"months": 3}, [source]) != before
 
 
+def test_a_checkout_that_only_changes_line_endings_keeps_the_key(tmp_path: Path) -> None:
+    source = tmp_path / "model.py"
+    source.write_bytes(b"a = 1\nb = 2\n")
+    before = saved.key({"months": 3}, [source])
+    source.write_bytes(b"a = 1\r\nb = 2\r\n")
+    assert saved.key({"months": 3}, [source]) == before
+
+
 def test_the_dataset_fingerprint_moves_with_one_second() -> None:
     finish = [result("target", seconds=2400.0)]
     slower = [result("target", seconds=2401.0)]
