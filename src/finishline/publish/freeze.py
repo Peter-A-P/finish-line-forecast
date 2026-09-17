@@ -31,7 +31,7 @@ import math
 import tomllib
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -86,6 +86,36 @@ def load_live(path: Path, race_id: str) -> LiveRace:
     if gun.date() != race.date:
         raise ValueError(f"{race_id} gun {gun_text} is not on the race date {race.date}")
     return LiveRace(race=race, gun=gun, entrant_list=str(record["entrant_list"]))
+
+
+# How long before a live race the scheduled crawl stops, and how long after it resumes.
+#
+# ⚠️ A crawl that finds a new race makes the saved model backtest stale, and `freeze` refuses
+# without a matching one. The final backtest before a freeze runs about a week out and takes
+# hours, so the weekly crawl stands down ten days before the race and comes back the day
+# after, when the race's own results are what it is waiting for.
+CRAWL_PAUSE_BEFORE = timedelta(days=10)
+CRAWL_PAUSE_AFTER = timedelta(days=1)
+
+
+def crawl_paused(path: Path, today: date) -> str | None:
+    """Why the scheduled crawl should not run today, or None when it may.
+
+    Reads only the dates in the live-race file, so a race whose gun time is not confirmed
+    yet still pauses the crawl around it.
+    """
+    if not path.exists():
+        return None
+    records: dict[str, Any] = tomllib.loads(path.read_text(encoding="utf-8"))
+    for race_id, record in sorted(records.items()):
+        when = date.fromisoformat(str(record["date"]))
+        if when - CRAWL_PAUSE_BEFORE <= today <= when + CRAWL_PAUSE_AFTER:
+            return (
+                f"paused from {when - CRAWL_PAUSE_BEFORE} to {when + CRAWL_PAUSE_AFTER} "
+                f"around {race_id}, so no new race makes the saved backtest stale before "
+                "its freeze"
+            )
+    return None
 
 
 def assemble(

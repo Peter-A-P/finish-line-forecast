@@ -163,3 +163,17 @@ def test_a_live_race_without_a_confirmed_gun_time_is_refused(tmp_path: Path) -> 
     )
     with pytest.raises(ValueError, match="no time zone"):
         freeze.load_live(path, "c2c-2026")
+
+
+def test_the_weekly_crawl_stands_down_around_every_live_race(tmp_path: Path) -> None:
+    path = tmp_path / "live.toml"
+    path.write_text(
+        '[c2c-2026]\ndate = "2026-10-18"\n\n[r2r-2026]\ndate = "2026-11-11"\n', encoding="utf-8"
+    )
+    assert freeze.crawl_paused(path, date(2026, 10, 7)) is None
+    assert freeze.crawl_paused(path, date(2026, 10, 8)) is not None, "ten days before"
+    assert freeze.crawl_paused(path, date(2026, 10, 19)) is not None, "the day after"
+    assert freeze.crawl_paused(path, date(2026, 10, 20)) is None, "back for the results"
+    reason = freeze.crawl_paused(path, date(2026, 11, 5))
+    assert reason is not None and "r2r-2026" in reason, "no gun time needed to pause"
+    assert freeze.crawl_paused(tmp_path / "missing.toml", date(2026, 10, 18)) is None

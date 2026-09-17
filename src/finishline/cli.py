@@ -173,17 +173,31 @@ def crawl(
             help="Read the last year's index again first, to find races posted since.",
         ),
     ] = False,
+    scheduled: Annotated[
+        bool,
+        typer.Option(
+            "--scheduled",
+            help="Run as the weekly task: stand down around a live race in data/live.toml.",
+        ),
+    ] = False,
 ) -> None:
     """Fetch every road-results page in the catalogue, once, one a second.
 
     ⚠️ **A crawl that finds a new race makes the saved model backtest stale.** The saved rows
     are keyed on the dataset, so `report` leaves the model out and `freeze` refuses until
     `backtest --hierarchical` has been run again. Crawl before a backtest, not between one
-    and a freeze.
+    and a freeze; `--scheduled` enforces that around every race in data/live.toml.
     """
     if not (notices_sent or os.environ.get(NOTICES_ENV)):
         typer.echo(NOTICES, err=True)
         raise typer.Exit(code=2)
+    if scheduled:
+        from finishline.publish import freeze as freezing
+
+        reason = freezing.crawl_paused(LIVE, date.today())
+        if reason is not None:
+            typer.echo(reason)
+            return
 
     with nlaa.Cache(CACHE) as cache:
         if refresh_index:

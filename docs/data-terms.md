@@ -42,6 +42,13 @@ cached copy cannot show a race that was posted after it was fetched. `finishline
 same when it cannot find the race it is scoring. New results pages are then fetched once like
 any other.
 
+**Weekly, on a schedule.** `scripts/weekly-crawl.ps1`, registered with Task Scheduler by
+`scripts/register-crawl-task.ps1`, runs `finishline crawl --refresh-index --scheduled` on Sunday
+mornings: one index request plus one per newly posted results page. It stands down from ten
+days before each race in `data/live.toml` to the day after, because a new race makes the saved
+model backtest stale and `freeze` refuses without a matching one. Every run appends to
+`data/cache/nlaa/crawl.log`.
+
 **What is published.** Only what the results already publish about a runner: their name
 and hometown as the page printed them, and the prediction. Never the age, beyond the
 category the page prints. Never anything from an entrant list beyond who is running.

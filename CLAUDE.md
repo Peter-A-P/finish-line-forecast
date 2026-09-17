@@ -32,7 +32,8 @@ finishline catalogue    what races exist, and which are deliberately not read
 finishline crawl        fetch the results pages, once, one a second  (needs --notices-sent;
                         --refresh-index finds races posted since; a new race makes the
                         saved model backtest stale, so crawl before a backtest, never
-                        between one and a freeze)
+                        between one and a freeze; the weekly task runs it with --scheduled,
+                        which pauses around every race in data/live.toml)
 finishline weather      fetch the ECCC observations per race month   (needs --notices-sent)
 finishline dataset      parse, resolve runners, print what came out
 finishline courses      how hard each course is, against what its hills predict

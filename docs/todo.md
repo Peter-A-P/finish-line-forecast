@@ -11,6 +11,8 @@ first ran from it at 20:23 that evening (`scripts/register-snapshot-task.ps1`; c
 `Get-ScheduledTask -TaskName 'FinishLine daily entrant snapshot'`, and read
 `data/entrants/snapshot.log`, which every run appends to). If the working copy ever moves to
 another machine, the task and the gitignored `data/` have to move with it; neither is in git.
+The weekly results crawl is registered the same way (`scripts/register-crawl-task.ps1`, log in
+`data/cache/nlaa/crawl.log`) and moves with it.
 
 ### 1. Run to Remember's 2026 gun time
 
