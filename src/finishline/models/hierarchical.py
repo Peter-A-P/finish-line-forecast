@@ -2,13 +2,18 @@
 
 On the log of a finish time over the time a reference runner would take at that distance:
 
-    y = alpha_i + beta_i * log(d / 10 km) + gamma_i * (years since first race) + delta_r + eps
+    y = alpha_i + beta_i * log(d / 10 km) + walk_i[year] + delta_r + eps
 
-    alpha_i  ~ Normal(mu_group[g_i], sigma_alpha)          fitness when first seen
-    beta_i   ~ Normal(0, sigma_beta)                       fade over distance, beyond Daniels
-    gamma_i  ~ Normal(mu_gamma[g_i], sigma_gamma)          career trend, per year
-    delta_r  = course[c_r] + Normal(0, sigma_edition)      what this morning on this road cost
-    eps      ~ StudentT(nu, 0, sigma_eps)                  a bad day is not Gaussian
+    alpha_i       ~ Normal(mu_group[g_i], sigma_alpha)    fitness in the first year raced
+    beta_i        ~ Normal(0, sigma_beta)                 fade over distance, beyond Daniels
+    walk_i[year]  = walk_i[previous year raced]           form, which carries from year to
+                    + Normal(mu_trend[g_i] * gap,         year and drifts with age
+                             sigma_walk * sqrt(gap))
+    delta_r       = course[c_r] + year[t_r]              what this road, this year and this
+                    + weather . w_r                       morning cost
+                    + Normal(0, sigma_edition)
+    year[t]       = year[t - 1] + Normal(0, sigma_year)  what every race that year shared
+    eps           ~ StudentT(nu, 0, sigma_eps)            a bad day is not Gaussian
 
 PLAN.md 5.3 is the design; what differs from it is here and in section 13.
 
@@ -23,50 +28,65 @@ own `beta`, and it shrinks to zero.
 ⚠️ **There is no `mu_beta`, and the plan had one.** Every course here is run at one distance
 (the distance is part of `course_id`), so a population-wide departure from Daniels'
 curve, `mu_beta * log(d)`, is indistinguishable from a set of course effects that happen to
-line up with distance. Fitted with both, `mu_beta` came back from the 2025-01-01 origin with
-R-hat 1.76, which is what a parameter the data cannot see looks like. Without it, whatever
-the population's fade is relative to Daniels lives in the course effects, which is where a
-course at a distance the archive already races picks it up. A course at a distance the
-archive has never seen would not, and none is on the calendar.
+line up with distance. Fitted with both, `mu_beta` came back with R-hat 1.76 (PLAN.md 13
+item 23).
 
-That fit also had `sigma_course` and `sigma_edition` unconverged, and removing `mu_beta` was
-expected to fix them too. It did not (R-hat 1.56 and 2.11 without it), which is how the
-real cause, in the note in `build` on edition effects, was found.
+WHY FORM IS A RANDOM WALK AND NOT A STRAIGHT LINE
+-------------------------------------------------
+⚠️ **The first version gave each runner a linear trend, and the backtest refuted it** (PLAN.md
+13 items 28 and 29). Runners get faster through their first years, so a line fitted to a
+career and carried to race day predicted years of improvement nobody has: 8.3 percent too
+fast across 49 races, and behind carry-forward at every history depth. The residuals said
+what the line was missing: a runner's miss at one race predicts their miss at the next, by
+about 0.3 to 0.4 within a season and still clearly a year on. Fitness is a state that
+persists and drifts, not a slope.
 
-⚠️ **The trend has a group mean, which the plan did not give it.** PLAN.md 5.3 wrote
-`gamma_i ~ Normal(0, sigma_gamma)`. With a zero mean, a runner with two results has their
-trend shrunk almost to nothing, and the ageing their results do show has nowhere to go but
-the edition effects: section 13 item 14 all over again, arriving through the prior instead of
-through a missing term. So `mu_gamma` is estimated per age-sex group, because a runner in
-their sixties and a runner in their twenties do not age at the same rate.
+So each runner has a level per calendar year they raced, tied to the previous one by a step
+whose spread grows with the years between them. Races in one year share the year's level,
+which is what lets a result in May inform a prediction in October. A prediction starts from
+the runner's latest year and walks forward to the race's, adding the group's ageing drift
+and the walk's spread for each year skipped, so a runner last seen five years ago gets a
+wide interval centred where they were, not a confident one centred where a line would put
+them. The drift has a mean per age-sex group (`mu_trend`), because without one the edition
+effects absorb population ageing: section 13 item 14.
 
-⚠️ **The group is fixed at a runner's first race.** `alpha_i` is fitness at `t = 0`, their
-first result, so the group that prior belongs to is the one they were in then. The group
-comes from the birth years their printed age bands allow (`identity.resolve.birth_window`),
-not from any single band, so a runner printed as `40-44` at the Tely and `40-49` elsewhere
-lands in one decade. A runner whose pages printed no band at all gets an `unknown` group
-for their sex, estimated from data like any other.
+WHY EVERY YEAR HAS ITS OWN EFFECT
+---------------------------------
+⚠️ **Races have been getting slower, all of them together, and a course average cannot see
+it** (PLAN.md 13 item 29). Fitted with only a course effect and editions summing to zero
+within their course, the 2023 and 2024 editions came out six to eight percent slower than
+their courses' long-run averages, against two to three percent fast in 2011 to 2015. A race
+predicted at its course's average was therefore predicted as if it were run in 2016, and the
+random walk above, with nothing else changed, was still five percent fast on every 2025
+race. So a shared year effect walks from calendar year to calendar year, and a race is
+predicted from the latest year the fit has seen, walked forward to the race's year with the
+spread that implies. What makes recent fields slower (who runs now, or how) is not
+something this model claims to know; it only stops pretending it is not there.
+
+⚠️ **The group is fixed at a runner's first race.** `alpha_i` is fitness in the first year,
+so the group that prior belongs to is the one they were in then. The group comes from the
+birth years their printed age bands allow (`identity.resolve.birth_window`), not from any
+single band, and a runner whose pages printed no band gets an `unknown` group for their sex.
 
 WHAT A PREDICTION IS
 --------------------
 Draws, not a number. Each posterior draw is a complete, mutually consistent version of the
 runner, the course and the noise; pushing each through the equation above with a fresh
 edition effect and a fresh bad-day term gives a distribution of finish times, and the
-median of that is the point prediction the backtest scores. The same draws taken together
-across a field are the placing simulation (PLAN.md 2.7).
+median of that is the point prediction the backtest scores. `Posterior.own` is the runner's
+part and `Posterior.morning` the race's, so the placing simulation can share one morning
+across a field without writing the equation twice.
 
 ⚠️ **A runner the fit has never seen takes their alpha from newcomers, not from everyone.**
-The entrant list gives a sex and no age, so a first-timer's group is unknown and their
-fitness is drawn from a mixture over that sex's groups. The mixture weights are the groups
-of runners whose first result falls in the two years before the origin, because the
-people entering their first race are younger and newer to running than the archive as a
-whole, and weighting by the whole archive would predict them as the average veteran.
+The entrant list gives a sex and no age, so a first-timer's fitness is drawn from a mixture
+over that sex's groups, weighted by the groups of runners whose first result falls in the
+two years before the origin.
 """
 
 from __future__ import annotations
 
 import zlib
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date, timedelta
 from functools import cache
@@ -101,6 +121,10 @@ KEPT_DRAWS = 400
 
 # The quantiles every prediction carries, for the conformal layer to calibrate.
 QUANTILES: tuple[float, ...] = (0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95)
+
+# The weather covariates, in `models.weather.COLUMNS` order.
+WEATHER_TERMS = 4
+Covariates = tuple[float, float, float, float]
 
 YEAR_DAYS = 365.25
 
@@ -137,7 +161,11 @@ def age_group(runner: Runner, races: dict[str, Race], first: date) -> str:
 
 @dataclass(frozen=True, slots=True)
 class Design:
-    """One row per finish in the history, as integer indexes into the things fitted."""
+    """One row per finish in the history, as integer indexes into the things fitted.
+
+    A season is one runner's one calendar year with a finish in it. Seasons are ordered by
+    runner and then year, so each runner's are contiguous and the walk is a cumulative sum.
+    """
 
     origin: date
     runner_ids: tuple[str, ...]
@@ -149,21 +177,36 @@ class Design:
     edition_course: np.ndarray
     runner: np.ndarray
     edition: np.ndarray
+    season: np.ndarray  # row -> season
     y: np.ndarray
     x: np.ndarray
-    since: np.ndarray
     runner_index: dict[str, int]
     course_index: dict[str, int]
-    # Each runner's own mean of `x` and `since`, where their level is sampled; see `build`.
+    # Each runner's own mean `x`, where their level is sampled; see `build`.
     x_centre: np.ndarray
-    since_centre: np.ndarray
+    season_runner: np.ndarray  # season -> runner
+    season_gap: np.ndarray  # years since the runner's previous season; 0 for their first
+    season_first: np.ndarray  # season -> the runner's first season
+    last_season: np.ndarray  # runner -> their latest season
+    last_year: np.ndarray  # runner -> the calendar year of it
+    # Per edition, the observed weather covariates; zeros where unobserved or not asked for.
+    weather: np.ndarray
+    uses_weather: bool
+    edition_year: np.ndarray  # edition -> calendar year
+    first_year: int
+    last_year_fitted: int
 
     @property
     def rows(self) -> int:
         return int(self.y.size)
 
 
-def design(history: History, *, min_finishes: int = MIN_FINISHES) -> Design | None:
+def design(
+    history: History,
+    *,
+    min_finishes: int = MIN_FINISHES,
+    weather: Mapping[str, Covariates] | None = None,
+) -> Design | None:
     """The history as arrays, or None when there is nothing to fit.
 
     Ambiguous runners are left out: their history is two people's, and a fitness estimate
@@ -171,13 +214,12 @@ def design(history: History, *, min_finishes: int = MIN_FINISHES) -> Design | No
 
     ⚠️ **So are courses with fewer than `courses.MIN_FINISHES` finishes**, the same floor the
     course layer publishes at. On the 2025-01-01 origin one chain in four put a seven-finisher
-    marathon (`eastern-42195`) at -1.50, seventy-eight percent faster than an ordinary road,
-    where the other three had it at +0.04. With tails as heavy as this archive's (nu near
-    2), calling seven finishes seven outliers is a local mode the sampler can fall into and
-    not climb out of, and because courses sum to zero it moved every other course by 0.035
-    and left `sigma_course` at R-hat 1.57. A course that small says nothing reliable about
-    its road, so its results are left out of the fit, and a race on it is predicted with a
+    marathon at -1.50, seventy-eight percent faster than an ordinary road, where the other
+    three had it at +0.04 (PLAN.md 13 item 25). A race on such a course is predicted with a
     course effect drawn from the course prior, which is what a road with no history gets.
+
+    `weather` maps an edition to its observed covariates (`models.weather.edition_covariates`).
+    An edition missing from it enters at neutral, and its weather stays in its edition effect.
     """
     runner_ids: list[str] = []
     first_seen: list[date] = []
@@ -187,9 +229,9 @@ def design(history: History, *, min_finishes: int = MIN_FINISHES) -> Design | No
     editions: dict[str, int] = {}
     runner_ix: list[int] = []
     edition_ix: list[int] = []
+    year_of_row: list[int] = []
     y: list[float] = []
     x: list[float] = []
-    since: list[float] = []
 
     def usable(result: Result) -> bool:
         return result.seconds is not None and result.seconds > 0
@@ -226,14 +268,41 @@ def design(history: History, *, min_finishes: int = MIN_FINISHES) -> Design | No
             runner_ix.append(index)
             courses.setdefault(race.course_id, len(courses))
             edition_ix.append(editions.setdefault(race.race_id, len(editions)))
+            year_of_row.append(race.date.year)
             y.append(float(np.log(result.seconds / reference_seconds(race.distance_m))))
             x.append(float(np.log(race.distance_m / REFERENCE_DISTANCE_M)))
-            since.append((race.date - first).days / YEAR_DAYS)
 
     if not y:
         return None
+
+    # Seasons, ordered by runner then year: `runner_ids` is already sorted into index order.
+    keys = sorted(set(zip(runner_ix, year_of_row, strict=True)))
+    season_of = {key: position for position, key in enumerate(keys)}
+    season_runner = np.array([key[0] for key in keys], dtype=np.int64)
+    season_gap = np.zeros(len(keys))
+    season_first = np.zeros(len(keys), dtype=np.int64)
+    last_season = np.zeros(len(runner_ids), dtype=np.int64)
+    for position, (runner_index, year) in enumerate(keys):
+        previous = keys[position - 1] if position else None
+        if previous is not None and previous[0] == runner_index:
+            season_gap[position] = year - previous[1]
+            season_first[position] = season_first[position - 1]
+        else:
+            season_first[position] = position
+        last_season[runner_index] = position
+    last_year = np.array([keys[int(s)][1] for s in last_season], dtype=np.int64)
+
+    covariates = np.zeros((len(editions), WEATHER_TERMS))
+    if weather:
+        for race_id, position in editions.items():
+            if race_id in weather:
+                covariates[position] = weather[race_id]
+
     edition_course = np.array(
         [courses[history.races[race_id].course_id] for race_id in editions], dtype=np.int64
+    )
+    edition_year = np.array(
+        [history.races[race_id].date.year for race_id in editions], dtype=np.int64
     )
     rows = np.array(runner_ix, dtype=np.int64)
     counts = np.bincount(rows, minlength=len(runner_ids)).astype(float)
@@ -248,14 +317,24 @@ def design(history: History, *, min_finishes: int = MIN_FINISHES) -> Design | No
         edition_course=edition_course,
         runner=rows,
         edition=np.array(edition_ix, dtype=np.int64),
+        season=np.array(
+            [season_of[key] for key in zip(runner_ix, year_of_row, strict=True)], dtype=np.int64
+        ),
         y=np.array(y),
         x=np.array(x),
-        since=np.array(since),
         runner_index={runner_id: position for position, runner_id in enumerate(runner_ids)},
         course_index=dict(courses),
         x_centre=np.bincount(rows, weights=np.array(x), minlength=len(runner_ids)) / counts,
-        since_centre=np.bincount(rows, weights=np.array(since), minlength=len(runner_ids))
-        / counts,
+        season_runner=season_runner,
+        season_gap=season_gap,
+        season_first=season_first,
+        last_season=last_season,
+        last_year=last_year,
+        weather=covariates,
+        uses_weather=weather is not None,
+        edition_year=edition_year,
+        first_year=int(edition_year.min()),
+        last_year_fitted=int(edition_year.max()),
     )
 
 
@@ -263,23 +342,15 @@ def build(data: Design) -> pm.Model:
     """The PyMC model. Non-centred throughout, because most runners have one or two rows.
 
     A centred `alpha_i ~ Normal(mu, sigma)` with one observation per runner is the funnel
-    NUTS cannot sample: as `sigma_alpha` shrinks, twenty thousand `alpha`s have to squeeze
-    with it. Written as `mu + sigma * z` with `z ~ Normal(0, 1)` the geometry is flat.
+    NUTS cannot sample. Written as `mu + sigma * z` with `z ~ Normal(0, 1)` the geometry is
+    flat, and the walk's steps are written the same way.
 
     Priors are on the log-ratio scale, where 0.1 is ten percent of a finish time. They are
-    weak on purpose and every one is narrower than nothing only where physiology already
-    says so: nobody's trend is fifty percent a year.
+    weak on purpose.
 
-    ⚠️ **Each runner's level is sampled at the middle of their own history, not at t = 0.**
-    A runner with results from 2012 to 2024 pins their fitness in 2018 far better than in
-    2012, and sampled at 2012 the level and the trend trade off against each other along a
-    long thin ridge, twenty thousand times over: exactly the geometry that sends NUTS to its
-    maximum tree depth. The same holds between the level and the distance fade for anyone
-    who has raced more than one distance. So the level is sampled at each runner's mean
-    `since` and mean `x`, its prior mean moved there by the group's own trend, and
-    `alpha` at t = 0 and 10 km is recovered afterwards. Predictions read `alpha`, so nothing
-    downstream changes. The prior's width now applies at mid-career rather than at the first
-    race, which for the half of the archive with one result is the same place.
+    ⚠️ **The level is sampled at each runner's mean distance**, and `alpha` at 10 km is
+    recovered afterwards: for anyone who has raced more than one distance, the level and the
+    distance fade otherwise trade off along a ridge (PLAN.md 13 item 22).
     """
     import pymc as pm
     import pytensor.tensor as pt
@@ -289,36 +360,30 @@ def build(data: Design) -> pm.Model:
     with pm.Model() as model:
         # No population mean for the fade: see the note on `mu_beta` in the module docstring.
         sigma_beta = pm.HalfNormal("sigma_beta", 0.05)
-        z_beta = pm.Normal("z_beta", 0.0, 1.0, shape=runners)
-        beta = sigma_beta * z_beta
+        beta = sigma_beta * pm.Normal("z_beta", 0.0, 1.0, shape=runners)
 
-        mu_gamma = pm.Normal("mu_gamma", 0.0, 0.02, shape=len(data.groups))
-        sigma_gamma = pm.HalfNormal("sigma_gamma", 0.02)
-        z_gamma = pm.Normal("z_gamma", 0.0, 1.0, shape=runners)
-        gamma = mu_gamma[group] + sigma_gamma * z_gamma
-
-        # Fitness at 10 km when first seen. 0.3 is a typical recreational runner, VDOT 38.
+        # Fitness at 10 km in the first year. 0.3 is a typical recreational runner, VDOT 38.
         mu_group = pm.Normal("mu_group", 0.3, 0.5, shape=len(data.groups))
         sigma_alpha = pm.HalfNormal("sigma_alpha", 0.3)
-        z_alpha = pm.Normal("z_alpha", 0.0, 1.0, shape=runners)
-        level = mu_group[group] + mu_gamma[group] * data.since_centre + sigma_alpha * z_alpha
-        alpha = level - beta * data.x_centre - gamma * data.since_centre
+        level = mu_group[group] + sigma_alpha * pm.Normal("z_alpha", 0.0, 1.0, shape=runners)
+
+        # Form from season to season. A runner's first season is their level, so its step is
+        # zero; every later step drifts by the group's ageing and spreads with the years.
+        mu_trend = pm.Normal("mu_trend", 0.0, 0.02, shape=len(data.groups))
+        sigma_walk = pm.HalfNormal("sigma_walk", 0.05)
+        z_walk = pm.Normal("z_walk", 0.0, 1.0, shape=len(data.season_gap))
+        later = (data.season_gap > 0).astype(float)
+        step = later * (
+            mu_trend[group[data.season_runner]] * data.season_gap
+            + sigma_walk * np.sqrt(data.season_gap) * z_walk
+        )
+        total = pt.cumsum(step)  # type: ignore[no-untyped-call]
+        walk = total - total[data.season_first]
 
         # Zero-sum, because a constant can move from every course to every runner and the
-        # likelihood cannot tell; pinning the courses' sum takes that direction away from
-        # the sampler rather than leaving it to a prior to discourage.
+        # likelihood cannot tell (PLAN.md 13 item 24 for the editions).
         sigma_course = pm.HalfNormal("sigma_course", 0.1)
         course = pm.ZeroSumNormal("course", sigma=sigma_course, shape=len(data.courses))
-        # ⚠️ Edition effects sum to zero within their course, for the same reason. Left free,
-        # every edition of a course can move up together while the course moves down, and
-        # the likelihood cannot tell; the cost of that move is the edition prior, which is
-        # nearly nothing once `sigma_edition` is large. So a chain that drifted to a large
-        # `sigma_edition` could wander the course levels freely, and on the 2025-01-01
-        # origin `sigma_course` and `sigma_edition` came back with R-hat 1.56 and 2.11 while
-        # every other scale had converged. Projecting out each course's mean edition takes
-        # that direction away: the course effect is the course's average morning and an
-        # edition is only how this morning differed. The projected-out mean is left to its
-        # N(0, 1) prior, which the likelihood never touches, so it samples as a free normal.
         sigma_edition = pm.HalfNormal("sigma_edition", 0.05)
         z_edition = pm.Normal("z_edition", 0.0, 1.0, shape=len(data.editions))
         per_course = np.bincount(data.edition_course, minlength=len(data.courses))
@@ -326,20 +391,34 @@ def build(data: Design) -> pm.Model:
         z_within = z_edition - (course_sum / per_course)[data.edition_course]
         delta = course[data.edition_course] + sigma_edition * z_within
 
+        # The shared year effect, a walk anchored at zero in the first year: the level of
+        # every race that year relative to the first, with `mu_group` carrying the rest.
+        sigma_year = pm.HalfNormal("sigma_year", 0.05)
+        z_year = pm.Normal("z_year", 0.0, 1.0, shape=data.last_year_fitted - data.first_year + 1)
+        steps = pt.set_subtensor((sigma_year * z_year)[0], 0.0)  # type: ignore[no-untyped-call]
+        year = pt.cumsum(steps)  # type: ignore[no-untyped-call]
+        delta = delta + year[data.edition_year - data.first_year]
+        pm.Deterministic("latest_year", year[-1])
+        if data.uses_weather:
+            # Per degree, per km/h: a percent a degree would be an extreme heat cost, so the
+            # prior is wide at that scale and the archive does the rest.
+            weather = pm.Normal("weather", 0.0, 0.01, shape=WEATHER_TERMS)
+            delta = delta + pt.dot(data.weather, weather)  # type: ignore[no-untyped-call]
+
         row = data.runner
         mean = (
             level[row]
             + beta[row] * (data.x - data.x_centre[row])
-            + gamma[row] * (data.since - data.since_centre[row])
+            + walk[data.season]
             + delta[data.edition]
         )
         nu = pm.Gamma("nu", 2.0, 0.1)
         sigma_eps = pm.HalfNormal("sigma_eps", 0.1)
         pm.StudentT("y", nu=nu, mu=mean, sigma=sigma_eps, observed=data.y)
 
-        pm.Deterministic("alpha", alpha)
+        pm.Deterministic("alpha", level - beta * data.x_centre)
         pm.Deterministic("beta", beta)
-        pm.Deterministic("gamma", gamma)
+        pm.Deterministic("form", walk[data.last_season])
     return model
 
 
@@ -354,13 +433,18 @@ class Posterior:
     design: Design
     alpha: np.ndarray  # (draws, runners)
     beta: np.ndarray
-    gamma: np.ndarray
+    form: np.ndarray  # (draws, runners): the walk at each runner's latest season
     mu_group: np.ndarray  # (draws, groups)
+    mu_trend: np.ndarray  # (draws, groups)
     sigma_alpha: np.ndarray  # (draws,)
     sigma_beta: np.ndarray
+    sigma_walk: np.ndarray
     course: np.ndarray  # (draws, courses)
     sigma_course: np.ndarray
     sigma_edition: np.ndarray
+    latest_year: np.ndarray  # (draws,): the year effect of the last calendar year fitted
+    sigma_year: np.ndarray
+    weather: np.ndarray  # (draws, WEATHER_TERMS); zeros for a fit without weather
     nu: np.ndarray
     sigma_eps: np.ndarray
     newcomer_share: dict[str, np.ndarray]  # sex -> weights over groups
@@ -370,38 +454,78 @@ class Posterior:
     def draws(self) -> int:
         return int(self.sigma_alpha.size)
 
-    def predict(
+    def own(
         self, runner_id: str, sex: str | None, target: Race, rng: np.random.Generator
     ) -> np.ndarray:
-        """Finish-time draws in seconds for this runner at this race."""
+        """The runner's part of the log ratio at this race: fitness, fade and form."""
         data = self.design
         n = self.draws
+        x = float(np.log(target.distance_m / REFERENCE_DISTANCE_M))
         index = data.runner_index.get(runner_id)
-        if index is not None:
-            alpha = self.alpha[:, index].astype(float)
-            beta = self.beta[:, index].astype(float)
-            years = (target.date - data.first_seen[index]).days / YEAR_DAYS
-            trend = self.gamma[:, index].astype(float) * years
-        else:
+        if index is None:
             weights = self.newcomer_share.get(sex or "U")
             if weights is None:
                 weights = np.ones(len(data.groups)) / len(data.groups)
             chosen = rng.choice(len(data.groups), size=n, p=weights)
-            alpha = self.mu_group[np.arange(n), chosen] + self.sigma_alpha * rng.standard_normal(n)
-            beta = self.sigma_beta * rng.standard_normal(n)
-            trend = np.zeros(n)
+            return np.asarray(
+                self.mu_group[np.arange(n), chosen]
+                + self.sigma_alpha * rng.standard_normal(n)
+                + self.sigma_beta * rng.standard_normal(n) * x
+            )
+        years = max(target.date.year - int(data.last_year[index]), 0)
+        group = int(data.runner_group[index])
+        return np.asarray(
+            self.alpha[:, index].astype(float)
+            + self.beta[:, index].astype(float) * x
+            + self.form[:, index].astype(float)
+            + self.mu_trend[:, group] * years
+            + self.sigma_walk * np.sqrt(years) * rng.standard_normal(n)
+        )
 
+    def morning(
+        self, target: Race, rng: np.random.Generator, conditions: np.ndarray | None = None
+    ) -> np.ndarray:
+        """The race's part: its course, its weather and the rest of its morning.
+
+        `conditions` is the target's four weather covariates, either one row for an observed
+        morning or one row per draw for a forecast. None is a neutral morning.
+        """
+        data = self.design
+        n = self.draws
         course_index = data.course_index.get(target.course_id)
         if course_index is not None:
             course = self.course[:, course_index]
         else:
             course = self.sigma_course * rng.standard_normal(n)
-        edition = self.sigma_edition * rng.standard_normal(n)
-        # A Student-t draw: a normal over the root of a scaled chi-squared.
-        noise = self.sigma_eps * rng.standard_normal(n) / np.sqrt(rng.chisquare(self.nu) / self.nu)
+        years = max(target.date.year - data.last_year_fitted, 0)
+        year = self.latest_year + self.sigma_year * np.sqrt(years) * rng.standard_normal(n)
+        effect = course + year + self.sigma_edition * rng.standard_normal(n)
+        if conditions is not None:
+            covariates = np.broadcast_to(np.asarray(conditions, dtype=float), (n, WEATHER_TERMS))
+            effect = effect + np.einsum("dk,dk->d", covariates, self.weather)
+        return np.asarray(effect)
 
-        x = float(np.log(target.distance_m / REFERENCE_DISTANCE_M))
-        log_ratio = alpha + beta * x + trend + course + edition + noise
+    def noise(self, rng: np.random.Generator) -> np.ndarray:
+        """A bad-day draw per posterior draw: a normal over the root of a scaled chi-squared."""
+        n = self.draws
+        return np.asarray(
+            self.sigma_eps * rng.standard_normal(n) / np.sqrt(rng.chisquare(self.nu) / self.nu)
+        )
+
+    def predict(
+        self,
+        runner_id: str,
+        sex: str | None,
+        target: Race,
+        rng: np.random.Generator,
+        conditions: np.ndarray | None = None,
+    ) -> np.ndarray:
+        """Finish-time draws in seconds for this runner at this race."""
+        log_ratio = (
+            self.own(runner_id, sex, target, rng)
+            + self.morning(target, rng, conditions)
+            + self.noise(rng)
+        )
         return np.asarray(np.exp(log_ratio) * reference_seconds(target.distance_m))
 
 
@@ -431,24 +555,28 @@ def fit(
     tune: int = 400,
     chains: int = 4,
     seed: int = 20261018,
+    weather: Mapping[str, Covariates] | None = None,
 ) -> Posterior | None:
     """Sample the model on everything in this history, or None with nothing to fit.
 
     ⚠️ **nutpie, not PyMC's own NUTS, and the difference is not a tuning detail.** On the
-    2025-01-01 origin (60,386 finishes, 19,488 runners) PyMC's sampler ran every chain to its
-    maximum tree depth, took 1,117 seconds for 100 tuning steps and 100 draws, diverged 314
-    times and finished with R-hat above 2 on the noise and fitness scales: four chains that
-    had not agreed on how much of a finish time is the runner and how much is the day.
-    nutpie, on the same model, took 463 seconds for 300 and 300 at tree depth 6 with no
-    divergences, because its mass-matrix adaptation learns forty thousand scales quickly
-    where PyMC's windowed adaptation had not started to.
+    2025-01-01 origin PyMC's sampler ran every chain to its maximum tree depth, diverged 314
+    times and finished with R-hat above 2 on the noise and fitness scales; nutpie, on the same
+    model, sampled cleanly (PLAN.md 13 item 21).
     """
-    data = design(history)
+    data = design(history, weather=weather)
     if data is None:
         return None
     import pymc as pm
 
     model = build(data)
+    names = [
+        "alpha", "beta", "form", "mu_group", "mu_trend", "sigma_alpha", "sigma_beta",
+        "sigma_walk", "course", "sigma_course", "sigma_edition", "latest_year", "sigma_year",
+        "nu", "sigma_eps",
+    ]
+    if data.uses_weather:
+        names.append("weather")
     with model:
         trace: Any = pm.sample(
             draws=draws,
@@ -458,11 +586,7 @@ def fit(
             progressbar=False,
             compute_convergence_checks=False,
             nuts_sampler="nutpie",
-            var_names=[
-                "alpha", "beta", "gamma", "mu_group", "sigma_alpha", "sigma_beta",
-                "mu_gamma", "sigma_gamma", "course", "sigma_course", "sigma_edition",
-                "nu", "sigma_eps",
-            ],
+            var_names=names,
         )
     return _reduce(data, trace, seed)
 
@@ -471,8 +595,8 @@ def fit(
 # parameters number in the tens of thousands and are not individually diagnosed; these are
 # the ones that set every runner's shrinkage.
 HYPERPARAMETERS: tuple[str, ...] = (
-    "sigma_alpha", "sigma_beta", "sigma_gamma", "sigma_course", "sigma_edition", "nu",
-    "sigma_eps", "mu_group", "mu_gamma",
+    "sigma_alpha", "sigma_beta", "sigma_walk", "sigma_course", "sigma_edition", "sigma_year",
+    "nu", "sigma_eps", "mu_group", "mu_trend", "weather",
 )
 
 
@@ -491,17 +615,25 @@ def _reduce(data: Design, trace: Any, seed: int) -> Posterior:
     def kept(name: str, dtype: type = np.float64) -> np.ndarray:
         return np.ascontiguousarray(flat(name)[keep], dtype=dtype)
 
+    weather = (
+        kept("weather") if "weather" in posterior else np.zeros((keep.size, WEATHER_TERMS))
+    )
     return Posterior(
         design=data,
         alpha=kept("alpha", np.float32),
         beta=kept("beta", np.float32),
-        gamma=kept("gamma", np.float32),
+        form=kept("form", np.float32),
         mu_group=kept("mu_group"),
+        mu_trend=kept("mu_trend"),
         sigma_alpha=kept("sigma_alpha"),
         sigma_beta=kept("sigma_beta"),
+        sigma_walk=kept("sigma_walk"),
         course=kept("course"),
         sigma_course=kept("sigma_course"),
         sigma_edition=kept("sigma_edition"),
+        latest_year=kept("latest_year"),
+        sigma_year=kept("sigma_year"),
+        weather=weather,
         nu=kept("nu"),
         sigma_eps=kept("sigma_eps"),
         newcomer_share=newcomer_shares(data),
@@ -553,18 +685,24 @@ class Hierarchical:
     from earlier in that quarter, which the baselines beside it do see. The comparison is
     tilted against this model, on purpose: the other direction would be a leak.
 
-    The history-depth stratum a row is scored under still comes from the race's own
-    history, so a runner whose first result was earlier in the same block is scored as
-    depth one while this model predicts them as a newcomer. That is the price of the tilt,
-    and it lands on exactly the runners the model is meant to help.
+    ⚠️ **With `weather`, a target race is predicted with the weather observed that morning.**
+    That is a perfect forecast, which a live prediction never has; the live prediction
+    carries the measured day-ahead forecast error instead (`models.weather.draws`), and the
+    README says the backtest is the kinder of the two.
     """
 
     def __init__(
-        self, *, months: int = 3, fitter: Fitter | None = None, seed: int = 20261018
+        self,
+        *,
+        months: int = 3,
+        fitter: Fitter | None = None,
+        seed: int = 20261018,
+        weather: Mapping[str, Covariates] | None = None,
     ) -> None:
         self._months = months
         self._fitter: Fitter = fitter if fitter is not None else fit
         self._seed = seed
+        self._weather = weather
         self._block: date | None = None
         self._posterior: Posterior | None = None
         self.fits: list[tuple[date, dict[str, float]]] = []
@@ -586,10 +724,13 @@ class Hierarchical:
         if self._posterior is None:
             return Prediction(runner.runner_id, None, "nothing before this block to fit")
 
+        conditions = None
+        if self._weather is not None and target.race_id in self._weather:
+            conditions = np.asarray(self._weather[target.race_id], dtype=float)
         # Seeded by runner and race, so a rerun draws the same numbers in any order.
         key = zlib.crc32(f"{runner.runner_id}|{target.race_id}".encode())
         rng = np.random.default_rng([self._seed, key])
-        draws = self._posterior.predict(runner.runner_id, runner.sex, target, rng)
+        draws = self._posterior.predict(runner.runner_id, runner.sex, target, rng, conditions)
         quantiles = summarise(draws)
         seen = runner.runner_id in self._posterior.design.runner_index
         basis = (

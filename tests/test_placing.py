@@ -42,13 +42,18 @@ def fitted(draws: int, **values: float) -> hm.Posterior:
         design=data,
         alpha=np.tile(np.array([0.10, 0.20, 0.30], dtype=np.float32), (draws, 1)),
         beta=np.zeros((draws, runners), dtype=np.float32),
-        gamma=np.full((draws, runners), values.get("gamma", 0.0), dtype=np.float32),
+        form=np.full((draws, runners), values.get("form", 0.0), dtype=np.float32),
         mu_group=np.full((draws, groups), 0.25),
+        mu_trend=np.full((draws, groups), values.get("mu_trend", 0.0)),
         sigma_alpha=np.full(draws, values.get("sigma_alpha", 0.0)),
         sigma_beta=np.full(draws, values.get("sigma_beta", 0.0)),
+        sigma_walk=np.full(draws, values.get("sigma_walk", 0.0)),
         course=np.full((draws, courses), 0.05),
         sigma_course=np.full(draws, values.get("sigma_course", 0.0)),
         sigma_edition=np.full(draws, values.get("sigma_edition", 0.0)),
+        latest_year=np.full(draws, values.get("latest_year", 0.0)),
+        sigma_year=np.full(draws, values.get("sigma_year", 0.0)),
+        weather=np.tile(np.array([values.get("heat", 0.0), 0.0, 0.0, 0.0]), (draws, 1)),
         nu=np.full(draws, values.get("nu", 5.0)),
         sigma_eps=np.full(draws, values.get("sigma_eps", 0.0)),
         newcomer_share=hm.newcomer_shares(data),
@@ -87,21 +92,27 @@ def test_drawing_the_morning_per_runner_would_invent_place_noise() -> None:
 
 @pytest.mark.parametrize("runner_id", ["p1", "stranger"])
 def test_each_runners_draws_match_the_models_own_prediction(runner_id: str) -> None:
-    """The equation is written twice; this is what stops the copies drifting apart."""
+    """One equation, assembled two ways; this pins that the two assemblies agree."""
     draws = 40_000
     posterior = fitted(
         draws,
         sigma_edition=0.04,
         sigma_eps=0.03,
         nu=4.0,
-        gamma=0.01,
+        form=0.02,
+        mu_trend=0.01,
+        sigma_walk=0.03,
+        heat=0.004,
+        latest_year=0.03,
+        sigma_year=0.02,
         sigma_alpha=0.15,
         sigma_beta=0.02,
     )
+    morning = np.array([8.0, 8.0 * np.log(2.0), 0.0, 0.0])
     field = simulate.field_draws(
-        posterior, [simulate.Entrant(runner_id, "F")], TARGET, np.random.default_rng(3)
+        posterior, [simulate.Entrant(runner_id, "F")], TARGET, np.random.default_rng(3), morning
     )[:, 0]
-    alone = posterior.predict(runner_id, "F", TARGET, np.random.default_rng(4))
+    alone = posterior.predict(runner_id, "F", TARGET, np.random.default_rng(4), morning)
     for q in (0.10, 0.50, 0.90):
         assert np.quantile(field, q) == pytest.approx(np.quantile(alone, q), rel=0.01)
 

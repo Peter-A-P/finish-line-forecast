@@ -11,7 +11,7 @@ the model's race effect (section 13 item 27), the LightGBM challenger, and the p
 model.
 
 **Section 13 is the log of what the data refuted**, and it is the first thing to read after
-this line: twenty-eight numbered entries, each one a design in this plan that measurement
+this line: twenty-nine numbered entries, each one a design in this plan that measurement
 overturned. What is open and who owns it is in [docs/todo.md](docs/todo.md).
 
 **Build:** an alongside project, so planned in relative weeks. Earliest start: now. It waits
@@ -328,6 +328,14 @@ course; courses under thirty finishes are left out of the fit; and it is sampled
 nutpie, not PyMC's own NUTS. "Minutes, not hours" above was wrong by an order of magnitude
 on the sampler the plan named, and about right on the one that replaced it: eight minutes
 for a fit on 60,379 finishes and 19,488 runners.
+
+**Amended 2026-09-17, and the amendment is section 13 item 29.** The per-runner linear
+trend is gone. Each runner's form is a random walk over the calendar years they raced, with
+a drift per age-sex group; every race shares a year effect that walks from year to year; and
+the observed weather at the airport enters the race effect through four coefficients (heat,
+heat by distance, wind, tailwind), so item 27 is closed. A prediction walks the runner's form
+and the year effect forward from the last year the fit saw, and a live prediction draws the
+weather from the corrected forecast (`models.weather.draws`).
 
 ### 5.4 The challenger
 
@@ -843,6 +851,9 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     it in means fitting the edition effects net of observed weather, which changes the model
     and therefore needs its backtest rerun; it is next after the first backtest table.
 
+    **Closed 2026-09-17 by item 29:** the observed weather is in the race effect, the backtest
+    is run with and without it, and `freeze` records the corrected forecast it used.
+
 28. **The first model backtest lost to carry-forward, and most of the loss is one line of
     `predict`.** Measured 2026-09-16 over 49 races from 2024: MAE 9.3 minutes against
     carry-forward's 7.4 for runners with four or more prior results, 10.9 against 9.2 with
@@ -885,3 +896,38 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     of 14.0 minutes became 24.3. The place error of 54.5 against carry-forward's 25.8 is not
     a like-for-like comparison: places are ranked among the runners each model answered,
     and the model answered for the newcomers too.
+
+29. **Form is a random walk and every year has its own level, because the line and the
+    course average were both wrong.** Tested on history before 2025-01-01 against the 4,469
+    finishes of twenty 2025 races (mean absolute log error, then median error; posterior
+    means; carry-forward from each race's own history):
+
+    | Model | Error | Median | Race-centred |
+    |---|---:|---:|---:|
+    | Linear trend (item 28's model) | 0.1007 | -6.9% | 0.0750 |
+    | Linear trend, level held at the middle of history, half the last residual added | 0.0816 | +0.7% | 0.0800 |
+    | Random walk on form | 0.0888 | -5.0% | 0.0737 |
+    | Random walk, mean-reverting (AR(1)) | 0.0885 | -5.0% | 0.0736 |
+    | **Random walk and a year effect** | **0.0766** | **+1.6%** | 0.0738 |
+    | Random walk and a year effect, no group drift | 0.0790 | +2.5% | 0.0744 |
+    | Carry-forward | 0.0912 | +1.6% | 0.0786 |
+
+    Three findings, each of which refuted the one before. First, residuals persist: a
+    runner's miss at one race predicts their miss at the next by 0.3 to 0.4 within a season,
+    so fitness is a state, not a slope, and the walk fixed the ordering (race-centred error
+    0.074 against carry-forward's 0.079). Second, the remaining five percent was not
+    regression to the mean: fitted with mean reversion, the persistence came back at 0.99.
+    Third, it was the calendar. Edition effects, measured against their course's long-run
+    average, run from two to three percent fast in 2011 to 2015 to six to eight percent slow
+    in 2023 and 2024, in every course and group, so a course average predicts a 2025 race as
+    if it were run a decade ago. A shared year effect, walked forward, took the bias to
+    carry-forward's and the error to sixteen percent below it. Why recent fields are slower
+    (who runs, or how) is not something this model claims to know.
+
+    ⚠️ **The year effect is not well identified, and the diagnostics say so.** Years since a
+    runner's first race and the calendar year rise together for every runner, the age,
+    period and cohort problem, so the group drift, the year effect and the group levels trade
+    off along a ridge: worst R-hat 1.68 with the drift, 1.40 without it, bulk ESS near ten on
+    `sigma_year`. Predictions are made along the ridge's invariant (form plus the latest year)
+    and were the most accurate of all, so the model with the drift is used, and every fit's
+    diagnostics are published with the backtest rather than presented as converged.

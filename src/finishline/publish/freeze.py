@@ -129,8 +129,15 @@ def assemble(
     model: dict[str, Any],
     calibration: Mapping[float, Mapping[str, float | None]],
     seed: int,
+    conditions: np.ndarray | None = None,
+    conditions_record: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """The prediction file for this race, validated by the caller's `write`."""
+    """The prediction file for this race, validated by the caller's `write`.
+
+    `conditions` is one row of weather covariates per posterior draw, from the corrected
+    forecast (`models.weather.draws`), and `conditions_record` is what the file says about
+    it. Both None predict an average morning, and the file says `null`.
+    """
     check_gun(live.gun, now)
     race = live.race
     rng = np.random.default_rng(seed)
@@ -146,12 +153,13 @@ def assemble(
         for runner_id, item in zip(ids, predicted, strict=True)
     ]
     places = {
-        place.runner_id: place for place in simulate.simulate(posterior, field, race, rng)
+        place.runner_id: place
+        for place in simulate.simulate(posterior, field, race, rng, conditions)
     }
 
     lines: list[RunnerPrediction] = []
     for runner_id, item in zip(ids, predicted, strict=True):
-        draws = posterior.predict(runner_id, item.entrant.sex, race, rng)
+        draws = posterior.predict(runner_id, item.entrant.sex, race, rng, conditions)
         quantiles = summarise(draws)
         median = quantiles[QUANTILES.index(0.50)]
         depth = len(history.results_of(runner_id)) if item.runner is not None else 0
@@ -204,7 +212,7 @@ def assemble(
                 for level in LEVELS
             },
         },
-        conditions=None,
+        conditions=conditions_record,
         entrants={
             "listed": len(links),
             "linked": tally[Status.LINKED.value],

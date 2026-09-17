@@ -438,22 +438,60 @@ def weather(
 
 
 # The settings the published hierarchical run uses. `backtest` can be asked for others to
-# experiment; `report` only ever publishes a run made with these.
-HIERARCHICAL_DEFAULTS: dict[str, int] = {"months": 3, "draws": 300, "tune": 400, "chains": 4}
+# experiment; `report` only ever publishes a run made with these, and the same run without
+# weather beside it as the ablation.
+HIERARCHICAL_DEFAULTS: dict[str, int] = {
+    "months": 3, "draws": 300, "tune": 400, "chains": 4, "weather": 1,
+}
+NO_WEATHER = "hierarchical-no-weather"
+
+Weather = dict[str, tuple[float, float, float, float]]
 
 
-def _hierarchical_key(data: Dataset, scored_from: int, settings: dict[str, int]) -> str:
-    """What a saved hierarchical run has to match to be reused."""
+def bearings() -> dict[str, float]:
+    """Each point-to-point course's bearing, from data/courses.toml."""
+    return {
+        course_id: float(record["bearing_deg"])
+        for course_id, record in course_profiles().items()
+        if "bearing_deg" in record
+    }
+
+
+def _edition_weather(data: Dataset) -> tuple[Weather, int]:
+    """Every edition's observed weather covariates, from the cached airport observations."""
+    from finishline.models import weather as weather_model
+
+    with eccc.Cache(WEATHER) as cache:
+        return weather_model.edition_covariates(data.races.values(), cache, bearings())
+
+
+def _hierarchical_key(
+    data: Dataset, scored_from: int, settings: dict[str, int], covariates: Weather
+) -> str:
+    """What a saved hierarchical run has to match to be reused.
+
+    A run with weather also has to match the covariates, because a weather month fetched
+    again (`eccc.Cache.get`) changes the model's inputs as surely as a new race does.
+    """
+    import hashlib
+    import json
+
     from finishline.backtest import saved
     from finishline.models import hierarchical
+    from finishline.models import weather as weather_model
 
     parts: dict[str, object] = {
         "scored_from": scored_from,
         "dataset": saved.dataset_fingerprint(data.races, data.results),
         **settings,
     }
+    if settings.get("weather"):
+        parts["covariates"] = hashlib.sha256(
+            json.dumps(sorted(covariates.items())).encode()
+        ).hexdigest()
     sources = [
         Path(hierarchical.__file__),
+        Path(weather_model.__file__),
         Path(run.__file__),
         Path(__file__).with_name("history.py"),
     ]
@@ -461,33 +499,50 @@ def _hierarchical_key(data: Dataset, scored_from: int, settings: dict[str, int])
 
 
 def _hierarchical_rows(
-    data: Dataset, scored_from: int, settings: dict[str, int], *, fit_if_missing: bool
+    data: Dataset,
+    scored_from: int,
+    settings: dict[str, int],
+    covariates: Weather,
+    *,
+    fit_if_missing: bool,
 ) -> list[score.Scored] | None:
-    """The hierarchical model's scored rows: saved if they match, sampled if asked to."""
+    """The hierarchical model's scored rows: saved if they match, sampled if asked to.
+
+    The run without weather is saved to its own file and its rows are named `NO_WEATHER`,
+    so the two runs sit side by side in every table as the ablation.
+    """
+    from dataclasses import replace
+
     from finishline.backtest import saved
     from finishline.models import hierarchical
 
-    path = BACKTESTS / "hierarchical.jsonl"
-    run_key = _hierarchical_key(data, scored_from, settings)
+    uses_weather = bool(settings.get("weather"))
+    path = BACKTESTS / ("hierarchical.jsonl" if uses_weather else f"{NO_WEATHER}.jsonl")
+    run_key = _hierarchical_key(data, scored_from, settings, covariates)
     rows = saved.load(path, run_key)
-    if rows is not None or not fit_if_missing:
-        return rows
+    if rows is None and fit_if_missing:
+        weather = covariates if uses_weather else None
 
-    def fitter(history: History) -> hierarchical.Posterior | None:
-        typer.echo(f"  sampling on history before {history.origin} ...")
-        return hierarchical.fit(
-            history,
-            draws=settings["draws"],
-            tune=settings["tune"],
-            chains=settings["chains"],
+        def fitter(history: History) -> hierarchical.Posterior | None:
+            typer.echo(f"  sampling on history before {history.origin} ...")
+            return hierarchical.fit(
+                history,
+                draws=settings["draws"],
+                tune=settings["tune"],
+                chains=settings["chains"],
+                weather=weather,
+            )
+
+        model = hierarchical.Hierarchical(
+            months=settings["months"], fitter=fitter, weather=weather
         )
-
-    model = hierarchical.Hierarchical(months=settings["months"], fitter=fitter)
-    rows = run.run(data.races, data.resolved, [model], scored_from=scored_from)
-    for start, diagnostics in model.fits:
-        typer.echo(f"  block {start}: {diagnostics}")
-    saved.save(path, run_key, rows)
-    return rows
+        rows = run.run(data.races, data.resolved, [model], scored_from=scored_from)
+        for start, diagnostics in model.fits:
+            typer.echo(f"  block {start}: {diagnostics}")
+        saved.save(path, run_key, rows)
+    if rows is None or uses_weather:
+        return rows
+    return [replace(row, model=NO_WEATHER) for row in rows]
 
 
 @app.command()
@@ -499,6 +554,10 @@ def backtest(
         bool,
         typer.Option(help="Score the hierarchical model too. Hours on first run; saved."),
     ] = False,
+    weather: Annotated[
+        bool,
+        typer.Option(help="Fit and predict with each morning's observed weather."),
+    ] = bool(HIERARCHICAL_DEFAULTS["weather"]),
     months: Annotated[
         int, typer.Option(help="Months of races per model fit.")
     ] = HIERARCHICAL_DEFAULTS["months"],
@@ -516,19 +575,27 @@ def backtest(
     data = _dataset(first, last)
     scored = run.run(data.races, data.resolved, baselines.BASELINES, scored_from=scored_from)
     names = [model.name for model in baselines.BASELINES]
+    model_name = None
     if hierarchical:
-        settings = {"months": months, "draws": draws, "tune": tune, "chains": chains}
-        rows = _hierarchical_rows(data, scored_from, settings, fit_if_missing=True)
+        settings = {
+            "months": months, "draws": draws, "tune": tune, "chains": chains,
+            "weather": int(weather),
+        }
+        covariates, missing = _edition_weather(data)
+        if weather:
+            typer.echo(f"{len(covariates)} editions with observed weather, {missing} without")
+        rows = _hierarchical_rows(data, scored_from, settings, covariates, fit_if_missing=True)
         scored += rows or []
-        names.append("hierarchical")
+        model_name = "hierarchical" if weather else NO_WEATHER
+        names.append(model_name)
     races = len({row.race_id for row in scored})
     typer.echo(f"{races} races scored from {scored_from}, {len(scored):,} predictions\n")
     typer.echo(report.baseline_table(scored, names))
     typer.echo()
     typer.echo(report.placing_table(scored, names))
-    if hierarchical:
+    if model_name is not None:
         typer.echo()
-        typer.echo(_coverage(data, scored, "hierarchical"))
+        typer.echo(_coverage(data, scored, model_name))
 
 
 def _coverage(data: Dataset, scored: list[score.Scored], model: str | None) -> str:
@@ -558,14 +625,25 @@ def write_report(
     names = [model.name for model in baselines.BASELINES]
     # Never samples: a report rewrites tables from what was measured, and the model's rows
     # are only published when a saved run matches today's code and data exactly.
+    covariates, _missing = _edition_weather(data)
     saved_rows = _hierarchical_rows(
-        data, scored_from, dict(HIERARCHICAL_DEFAULTS), fit_if_missing=False
+        data, scored_from, dict(HIERARCHICAL_DEFAULTS), covariates, fit_if_missing=False
     )
     if saved_rows is not None:
         scored += saved_rows
         names.append("hierarchical")
     else:
         typer.echo("no saved hierarchical run matches; its rows are left out of the tables")
+    ablation = _hierarchical_rows(
+        data,
+        scored_from,
+        {**HIERARCHICAL_DEFAULTS, "weather": 0},
+        covariates,
+        fit_if_missing=False,
+    )
+    if ablation is not None:
+        scored += ablation
+        names.append(NO_WEATHER)
 
     readme = Path("README.md")
     text = readme.read_text(encoding="utf-8")
@@ -732,8 +810,9 @@ def freeze(
         raise typer.Exit(code=2)
 
     data = _dataset(first, last)
+    covariates, _missing = _edition_weather(data)
     saved_rows = _hierarchical_rows(
-        data, 2024, dict(HIERARCHICAL_DEFAULTS), fit_if_missing=False
+        data, 2024, dict(HIERARCHICAL_DEFAULTS), covariates, fit_if_missing=False
     )
     if saved_rows is None:
         typer.echo("no saved model backtest matches this code; run `backtest --hierarchical`")
@@ -746,10 +825,11 @@ def freeze(
 
     history = History.before(live.race.date, data.races, data.resolved)
     typer.echo(f"sampling on every result before {live.race.date} ...")
-    posterior = hierarchical.fit(history)
+    posterior = hierarchical.fit(history, weather=covariates)
     if posterior is None:
         typer.echo("nothing to fit")
         raise typer.Exit(code=1)
+    conditions, conditions_record = _forecast(live, posterior.draws, backtest_seed(race_id))
 
     listed = entrants.load(snapshot_path)
     doc = freezing.assemble(
@@ -771,6 +851,8 @@ def freeze(
         },
         calibration=calibration,
         seed=backtest_seed(race_id),
+        conditions=conditions,
+        conditions_record=conditions_record,
     )
     path = PREDICTIONS / f"{race_id}.json"
     digest = predictions.write(path, doc)
@@ -787,6 +869,71 @@ def freeze(
         f"  git tag -a predictions/{race_id} -m \"sha256 {digest}\"\n"
         f"  git push && git push origin predictions/{race_id}"
     )
+
+
+def _forecast(
+    live: Any, draws: int, seed: int
+) -> tuple[Any, dict[str, Any] | None]:
+    """Covariate draws from today's forecast for the race, corrected, and what to record.
+
+    The forecast is Open-Meteo's for the airport over the hours the field is running, taken
+    at freeze time, corrected by the bias measured on past race mornings and spread by their
+    error (`models.weather.draws`). A course the airport cannot speak for, or a forecast that
+    cannot be had, predicts an average morning, and the file says which and why.
+    """
+    import httpx
+    import numpy as np
+
+    from finishline.ingest import openmeteo
+    from finishline.models import weather as weather_model
+
+    race = live.race
+    if not eccc.near_st_johns(race.course_id):
+        return None, {"used": False, "reason": "the airport cannot speak for this course"}
+    client = openmeteo.Client(OPENMETEO)
+    try:
+        body = client.forecast(race.date)
+        met = openmeteo.conditions(
+            openmeteo.readings(body), race.race_id, race.date, race.distance_m, live.gun.hour
+        )
+    except (OSError, ValueError, eccc.NoObservation, httpx.HTTPError) as failure:
+        typer.echo(f"no usable forecast ({failure}); predicting an average morning", err=True)
+        return None, {"used": False, "reason": f"no usable forecast: {failure}"}
+    finally:
+        client.close()
+
+    error = weather_model.load(FORECAST_ERROR)
+    bearing = bearings().get(race.course_id)
+    drawn = weather_model.draws(
+        met, error, race.distance_m, bearing, draws, np.random.default_rng(seed)
+    )
+    typer.echo(
+        f"forecast {met.temp_c:.1f} C, wind {met.wind_kmh} km/h over {met.hours} hours; "
+        f"corrected by {-error.temp_bias:+.1f} C and {-error.wind_bias:+.1f} km/h"
+    )
+    return drawn, {
+        "used": True,
+        "source": openmeteo.STATION,
+        "hours": met.hours,
+        "forecast": {
+            "temp_c": round(met.temp_c, 2),
+            "wind_kmh": None if met.wind_kmh is None else round(met.wind_kmh, 2),
+            "wind_east_kmh": None if met.wind_east is None else round(met.wind_east, 2),
+            "wind_north_kmh": None if met.wind_north is None else round(met.wind_north, 2),
+        },
+        "bearing_deg": bearing,
+        "forecast_error": {
+            key: round(value, 4) if isinstance(value, float) else value
+            for key, value in error.as_record().items()
+        },
+        "covariates_mean": dict(
+            zip(
+                weather_model.COLUMNS,
+                (round(float(v), 4) for v in drawn.mean(axis=0)),
+                strict=True,
+            )
+        ),
+    }
 
 
 SCORES = Path("scores")

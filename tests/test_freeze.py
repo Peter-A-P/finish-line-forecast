@@ -54,13 +54,18 @@ def setup(
         design=data,
         alpha=np.tile(np.array([0.05, 0.30][:runners], dtype=np.float32), (draws, 1)),
         beta=np.zeros((draws, runners), dtype=np.float32),
-        gamma=np.zeros((draws, runners), dtype=np.float32),
+        form=np.zeros((draws, runners), dtype=np.float32),
         mu_group=np.full((draws, groups), 0.35),
+        mu_trend=np.zeros((draws, groups)),
         sigma_alpha=np.full(draws, 0.15),
         sigma_beta=np.zeros(draws),
+        sigma_walk=np.full(draws, 0.03),
         course=np.full((draws, courses), 0.09),
         sigma_course=np.full(draws, 0.06),
         sigma_edition=np.full(draws, 0.04),
+        latest_year=np.full(draws, 0.02),
+        sigma_year=np.full(draws, 0.02),
+        weather=np.zeros((draws, hm.WEATHER_TERMS)),
         nu=np.full(draws, 3.0),
         sigma_eps=np.full(draws, sigma_eps),
         newcomer_share=hm.newcomer_shares(data),
@@ -177,3 +182,38 @@ def test_the_weekly_crawl_stands_down_around_every_live_race(tmp_path: Path) -> 
     reason = freeze.crawl_paused(path, date(2026, 11, 5))
     assert reason is not None and "r2r-2026" in reason, "no gun time needed to pause"
     assert freeze.crawl_paused(tmp_path / "missing.toml", date(2026, 10, 18)) is None
+
+
+def test_the_forecast_used_is_recorded_and_moves_the_prediction() -> None:
+    posterior, links, history = setup()
+    hot = hm.Posterior(
+        **{
+            **{name: getattr(posterior, name) for name in hm.Posterior.__slots__},
+            "weather": np.tile(np.array([0.01, 0.0, 0.0, 0.0]), (posterior.draws, 1)),
+        }
+    )
+    record = {"used": True, "source": "test", "covariates_mean": {"temp": 10.0}}
+
+    def freeze_with(conditions: np.ndarray | None) -> dict[str, Any]:
+        return freeze.assemble(
+            posterior=hot,
+            links=links,
+            history=history,
+            live=LIVE,
+            now=NOW,
+            snapshot={},
+            model={"name": "hierarchical", "commit": "0" * 40},
+            calibration={},
+            seed=3,
+            conditions=conditions,
+            conditions_record=record if conditions is not None else None,
+        )
+
+    neutral = freeze_with(None)
+    warm = freeze_with(np.tile(np.array([10.0, 0.0, 0.0, 0.0]), (posterior.draws, 1)))
+    assert neutral["conditions"] is None
+    assert warm["conditions"] == record
+    assert pf.validate(warm) == []
+    by_name = {runner["name"]: runner["seconds"] for runner in neutral["runners"]}
+    for runner in warm["runners"]:
+        assert runner["seconds"] > by_name[runner["name"]], "ten degrees warm is slower"

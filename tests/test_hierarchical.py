@@ -102,8 +102,10 @@ def test_the_design_is_the_equation_on_the_page() -> None:
     first, second = 0, 1
     assert data.y[first] == pytest.approx(math.log(2400.0 / hm.reference_seconds(10_000.0)))
     assert data.x[second] == pytest.approx(math.log(0.5))
-    assert data.since[first] == 0.0
-    assert data.since[second] == pytest.approx((date(2022, 6, 1) - date(2020, 6, 1)).days / 365.25)
+    assert data.season[first] != data.season[second], "two calendar years, two seasons"
+    assert data.season_gap[data.season[first]] == 0.0, "a first season has no step"
+    assert data.season_gap[data.season[second]] == 2.0
+    assert int(data.last_year[0]) == 2022
     assert data.courses[int(data.edition_course[data.edition[second]])] == "hilly"
 
 
@@ -156,13 +158,18 @@ def posterior(data: hm.Design, **overrides: object) -> hm.Posterior:
         design=data,
         alpha=np.full((draws, runners), 0.10, dtype=np.float32),
         beta=np.full((draws, runners), 0.02, dtype=np.float32),
-        gamma=np.full((draws, runners), 0.01, dtype=np.float32),
+        form=np.full((draws, runners), 0.03, dtype=np.float32),
         mu_group=np.tile(np.arange(groups, dtype=float) * 0.1, (draws, 1)),
+        mu_trend=np.full((draws, groups), 0.01),
         sigma_alpha=np.zeros(draws),
         sigma_beta=np.zeros(draws),
+        sigma_walk=np.zeros(draws),
         course=np.tile(np.linspace(0.05, -0.05, courses), (draws, 1)),
         sigma_course=np.zeros(draws),
         sigma_edition=np.zeros(draws),
+        latest_year=np.zeros(draws),
+        sigma_year=np.zeros(draws),
+        weather=np.zeros((draws, hm.WEATHER_TERMS)),
         nu=np.full(draws, 5.0),
         sigma_eps=np.zeros(draws),
         newcomer_share=hm.newcomer_shares(data),
@@ -187,10 +194,64 @@ def test_a_known_runner_is_the_equation_exactly() -> None:
     target = RACES["target"]
     seconds = fitted.predict("p", "F", target, np.random.default_rng(1))
 
-    years = (target.date - date(2020, 6, 1)).days / 365.25
+    years = 2024 - 2022  # from the runner's latest season to the race's
     hilly = float(fitted.course[0, data.course_index["hilly"]])
-    expected = math.exp(0.10 + 0.02 * math.log(2.0) + 0.01 * years + hilly)
+    expected = math.exp(0.10 + 0.02 * math.log(2.0) + 0.03 + 0.01 * years + hilly)
     assert np.allclose(seconds, expected * hm.reference_seconds(20_000.0), rtol=1e-5)
+
+
+def test_the_walk_widens_with_the_years_since_a_runner_was_last_seen() -> None:
+    """Five years away is a wide interval centred where they were, not a confident guess."""
+    data = two_runner_design()
+    wide = replace(
+        posterior(data),
+        alpha=np.full((20_000, 2), 0.1, dtype=np.float32),
+        beta=np.zeros((20_000, 2), dtype=np.float32),
+        form=np.zeros((20_000, 2), dtype=np.float32),
+        mu_group=np.zeros((20_000, len(data.groups))),
+        mu_trend=np.zeros((20_000, len(data.groups))),
+        sigma_alpha=np.zeros(20_000),
+        sigma_beta=np.zeros(20_000),
+        sigma_walk=np.full(20_000, 0.04),
+        course=np.zeros((20_000, len(data.courses))),
+        sigma_course=np.zeros(20_000),
+        sigma_edition=np.zeros(20_000),
+        latest_year=np.zeros(20_000),
+        sigma_year=np.zeros(20_000),
+        weather=np.zeros((20_000, hm.WEATHER_TERMS)),
+        nu=np.full(20_000, 5.0),
+        sigma_eps=np.zeros(20_000),
+    )
+    same_year = race("soon", date(2022, 9, 1), course="flat")
+    later = race("later", date(2027, 9, 1), course="flat")
+    near = np.log(wide.predict("p", "F", same_year, np.random.default_rng(5)))
+    far = np.log(wide.predict("p", "F", later, np.random.default_rng(6)))
+    assert near.std() == pytest.approx(0.0, abs=1e-9), "the same season carries its form"
+    assert far.std() == pytest.approx(0.04 * math.sqrt(5), rel=0.05)
+    assert np.median(far) == pytest.approx(np.median(near), abs=0.005)
+
+
+def test_observed_weather_moves_the_morning_by_its_coefficients() -> None:
+    data = two_runner_design()
+    coefficients = np.tile(np.array([0.003, 0.001, 0.0005, -0.0002]), (50, 1))
+    fitted = posterior(data, weather=coefficients)
+    target = RACES["target"]
+    hot = np.array([10.0, 10.0 * math.log(2.0), 5.0, -20.0])
+    calm = fitted.predict("p", "F", target, np.random.default_rng(7))
+    warm = fitted.predict("p", "F", target, np.random.default_rng(7), hot)
+    shift = float(np.log(warm / calm)[0])
+    assert shift == pytest.approx(float(coefficients[0] @ hot))
+
+
+def test_editions_carry_their_covariates_and_the_rest_are_neutral() -> None:
+    person = runner("p", [result("a", 2400.0), result("b", 1260.0)])
+    history = History.before(date(2024, 6, 1), RACES, [person])
+    data = hm.design(history, min_finishes=1, weather={"a": (1.0, 2.0, 3.0, 4.0)})
+    assert data is not None and data.uses_weather
+    assert data.weather[data.editions.index("a")].tolist() == [1.0, 2.0, 3.0, 4.0]
+    assert data.weather[data.editions.index("b")].tolist() == [0.0, 0.0, 0.0, 0.0]
+    plain = hm.design(history, min_finishes=1)
+    assert plain is not None and not plain.uses_weather
 
 
 def test_a_course_the_fit_never_saw_is_drawn_from_the_course_prior() -> None:
@@ -235,13 +296,18 @@ def test_the_noise_is_heavy_tailed() -> None:
         nu=np.full(20_000, 3.0),
         alpha=np.full((20_000, 2), 0.1, dtype=np.float32),
         beta=np.zeros((20_000, 2), dtype=np.float32),
-        gamma=np.zeros((20_000, 2), dtype=np.float32),
+        form=np.zeros((20_000, 2), dtype=np.float32),
         mu_group=np.zeros((20_000, len(data.groups))),
+        mu_trend=np.zeros((20_000, len(data.groups))),
         sigma_alpha=np.zeros(20_000),
         sigma_beta=np.zeros(20_000),
+        sigma_walk=np.zeros(20_000),
         course=np.zeros((20_000, len(data.courses))),
         sigma_course=np.zeros(20_000),
         sigma_edition=np.zeros(20_000),
+        latest_year=np.zeros(20_000),
+        sigma_year=np.zeros(20_000),
+        weather=np.zeros((20_000, hm.WEATHER_TERMS)),
     )
     target = race("flat-day", date(2020, 6, 1), metres=10_000.0, course="flat")
     seconds = fitted.predict("p", "F", target, np.random.default_rng(4))
@@ -387,4 +453,37 @@ def test_the_sampler_recovers_what_synthetic_runners_were_given() -> None:
     hilly, flat = design.course_index["hilly"], design.course_index["flat"]
     hard = fitted.course[:, hilly] - fitted.course[:, flat]
     assert float(np.median(hard)) == pytest.approx(0.05, abs=0.01)
-    assert float(np.median(fitted.gamma)) == pytest.approx(0.01, abs=0.003)
+    assert float(np.median(fitted.mu_trend)) == pytest.approx(0.01, abs=0.003)
+
+
+def test_a_race_after_the_last_fitted_year_walks_the_year_effect_forward() -> None:
+    """The latest year's level, carried to the race's year with the spread that implies."""
+    data = two_runner_design()
+    assert data.last_year_fitted == 2023
+    n = 20_000
+    fitted = replace(
+        posterior(data),
+        alpha=np.zeros((n, 2), dtype=np.float32),
+        beta=np.zeros((n, 2), dtype=np.float32),
+        form=np.zeros((n, 2), dtype=np.float32),
+        mu_group=np.zeros((n, len(data.groups))),
+        mu_trend=np.zeros((n, len(data.groups))),
+        sigma_alpha=np.zeros(n),
+        sigma_beta=np.zeros(n),
+        sigma_walk=np.zeros(n),
+        course=np.zeros((n, len(data.courses))),
+        sigma_course=np.zeros(n),
+        sigma_edition=np.zeros(n),
+        latest_year=np.full(n, 0.06),
+        sigma_year=np.full(n, 0.02),
+        weather=np.zeros((n, hm.WEATHER_TERMS)),
+        nu=np.full(n, 5.0),
+        sigma_eps=np.zeros(n),
+    )
+    ten = hm.reference_seconds(10_000.0)
+    rng = np.random.default_rng(8)
+    same = np.log(fitted.predict("p", "F", race("s", date(2023, 9, 1)), rng) / ten)
+    later = np.log(fitted.predict("p", "F", race("l", date(2027, 9, 1)), rng) / ten)
+    assert np.allclose(same, 0.06), "a race in the last fitted year gets that year's level"
+    assert np.median(later) == pytest.approx(0.06, abs=0.002)
+    assert later.std() == pytest.approx(0.02 * 2.0, rel=0.05)

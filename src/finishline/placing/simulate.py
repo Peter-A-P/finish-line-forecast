@@ -15,10 +15,9 @@ that no race actually has. Here the course and edition effects are drawn once pe
 shared by every runner in it; only each runner's own fitness uncertainty and bad-day term
 are independent.
 
-⚠️ **This repeats the prediction equation of `models.hierarchical.Posterior.predict`**,
-because the shared-morning version cannot be assembled from that function's output. A test
-pins that one runner's draws here have the same distribution as `predict`'s, so the two
-cannot drift apart silently.
+⚠️ **The equation is written once.** A runner's part comes from `Posterior.own` and the
+morning from `Posterior.morning`, the same two functions `Posterior.predict` adds up; a test
+still pins that one runner's draws here match `predict`'s distribution.
 """
 
 from __future__ import annotations
@@ -28,12 +27,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from finishline.models.hierarchical import (
-    REFERENCE_DISTANCE_M,
-    YEAR_DAYS,
-    Posterior,
-    reference_seconds,
-)
+from finishline.models.hierarchical import Posterior, reference_seconds
 from finishline.schema import Race
 
 # The place range published beside the median: the middle 80 percent of simulated places.
@@ -75,57 +69,31 @@ def places(times: np.ndarray) -> np.ndarray:
 
 
 def field_draws(
-    posterior: Posterior, entrants: Sequence[Entrant], target: Race, rng: np.random.Generator
+    posterior: Posterior,
+    entrants: Sequence[Entrant],
+    target: Race,
+    rng: np.random.Generator,
+    conditions: np.ndarray | None = None,
 ) -> np.ndarray:
     """Finish-time draws in seconds, (draws, entrants), with one morning per draw."""
-    data = posterior.design
-    n = posterior.draws
-    field = len(entrants)
-
-    course_index = data.course_index.get(target.course_id)
-    if course_index is not None:
-        course = posterior.course[:, course_index]
-    else:
-        course = posterior.sigma_course * rng.standard_normal(n)
-    morning = course + posterior.sigma_edition * rng.standard_normal(n)
-
-    x = float(np.log(target.distance_m / REFERENCE_DISTANCE_M))
-    log_ratio = np.empty((n, field))
+    morning = posterior.morning(target, rng, conditions)
+    log_ratio = np.empty((posterior.draws, len(entrants)))
     for column, entrant in enumerate(entrants):
-        index = data.runner_index.get(entrant.runner_id)
-        if index is not None:
-            years = (target.date - data.first_seen[index]).days / YEAR_DAYS
-            own = (
-                posterior.alpha[:, index].astype(float)
-                + posterior.beta[:, index].astype(float) * x
-                + posterior.gamma[:, index].astype(float) * years
-            )
-        else:
-            weights = posterior.newcomer_share.get(entrant.sex or "U")
-            if weights is None:
-                weights = np.ones(len(data.groups)) / len(data.groups)
-            chosen = rng.choice(len(data.groups), size=n, p=weights)
-            own = (
-                posterior.mu_group[np.arange(n), chosen]
-                + posterior.sigma_alpha * rng.standard_normal(n)
-                + posterior.sigma_beta * rng.standard_normal(n) * x
-            )
-        noise = (
-            posterior.sigma_eps
-            * rng.standard_normal(n)
-            / np.sqrt(rng.chisquare(posterior.nu) / posterior.nu)
-        )
-        log_ratio[:, column] = own + morning + noise
+        own = posterior.own(entrant.runner_id, entrant.sex, target, rng)
+        log_ratio[:, column] = own + morning + posterior.noise(rng)
     return np.asarray(np.exp(log_ratio) * reference_seconds(target.distance_m))
 
-
 def simulate(
-    posterior: Posterior, entrants: Sequence[Entrant], target: Race, rng: np.random.Generator
+    posterior: Posterior,
+    entrants: Sequence[Entrant],
+    target: Race,
+    rng: np.random.Generator,
+    conditions: np.ndarray | None = None,
 ) -> list[Place]:
     """Every entrant's simulated place: median and the middle 80 percent."""
     if not entrants:
         return []
-    placed = places(field_draws(posterior, entrants, target, rng))
+    placed = places(field_draws(posterior, entrants, target, rng, conditions))
     low, median, high = np.quantile(placed, [PLACE_RANGE[0], 0.5, PLACE_RANGE[1]], axis=0)
     return [
         Place(

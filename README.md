@@ -324,11 +324,14 @@ intersect. That is the only thing allowed to split a name into two runners. The 
 breaks a tie and never splits, because runners move: of the 1,656 names appearing under
 two or more towns, 1,103 show a single clean switch over time. Where a result could belong
 to either of two runners and the page printed no age band, it is held back and counted.
-Every past result is converted to a neutral-condition equivalent using a course factor
-from the route's elevation profile, Daniels' heat correction and a calibrated wind model.
-A Bayesian hierarchical model on log finish time shrinks each runner's fitness, trend and
-endurance exponent toward their group, with a race-day effect whose prior comes from the
-course and the weather forecast; a gradient-boosting quantile model is the challenger.
+Each finish is put on one scale as a ratio to a Daniels reference time. A Bayesian
+hierarchical model on that ratio gives every runner a fitness level and a distance fade shrunk
+toward their age-sex group, and a form that walks from one racing year to the next; every race
+gets its course's measured difficulty, a shared effect for its calendar year, and the heat and
+wind observed at St. John's airport that morning. A live prediction walks each runner's form
+forward to race day and draws the weather from the day-ahead forecast, corrected by how wrong
+that forecast was on past race mornings. The design history, including three models the data
+refuted, is PLAN.md section 13.
 Intervals are conformalised on rolling-origin residuals, stratified by how many results a
 runner has. Placing is simulated from the whole field's predictive distributions. The
 prediction file is committed, tagged and hashed before the gun and scored after.
