@@ -20,6 +20,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Iterable, Mapping, Sequence
+from datetime import date
 from pathlib import Path
 
 from finishline.backtest.score import Scored
@@ -101,3 +102,60 @@ def load(path: Path, run_key: str) -> list[Scored] | None:
     if len(rows) != header.get("rows"):
         return None
     return rows
+
+
+class BlockStore:
+    """Each block's predictions, written as soon as the block is done.
+
+    ⚠️ **A backtest is eight fits and most of a day, and one of them can fail.** The first run
+    of the random-walk model sampled seven blocks and then ran out of memory on the eighth,
+    and every prediction lived in memory until the end, so seven hours went with it. Blocks
+    are now written as they finish, under the run's key, and a rerun of the same code on the
+    same data picks up from the first block that is not on disk.
+    """
+
+    def __init__(self, root: Path, run_key: str) -> None:
+        self.root = root / run_key[:24]
+
+    def _path(self, start: date) -> Path:
+        return self.root / f"{start.isoformat()}.jsonl"
+
+    def load(
+        self, start: date
+    ) -> tuple[dict[str, float], dict[tuple[str, str], tuple[float, ...]]] | None:
+        """The block's diagnostics and predictions, keyed by runner and race, or None."""
+        path = self._path(start)
+        if not path.exists():
+            return None
+        with path.open(encoding="utf-8") as handle:
+            header = json.loads(handle.readline())
+            predictions = {
+                (record["runner_id"], record["race_id"]): tuple(record["quantiles"])
+                for record in map(json.loads, handle)
+            }
+        if len(predictions) != header.get("rows"):
+            return None
+        return dict(header.get("diagnostics", {})), predictions
+
+    def save(
+        self,
+        start: date,
+        diagnostics: Mapping[str, float],
+        predictions: Mapping[tuple[str, str], tuple[float, ...]],
+    ) -> None:
+        """Write one finished block, atomically."""
+        self.root.mkdir(parents=True, exist_ok=True)
+        path = self._path(start)
+        temporary = path.with_suffix(".partial")
+        with temporary.open("w", encoding="utf-8", newline="\n") as handle:
+            handle.write(
+                json.dumps({"rows": len(predictions), "diagnostics": dict(diagnostics)}) + "\n"
+            )
+            for (runner_id, race_id), quantiles in sorted(predictions.items()):
+                handle.write(
+                    json.dumps(
+                        {"runner_id": runner_id, "race_id": race_id, "quantiles": list(quantiles)}
+                    )
+                    + "\n"
+                )
+        temporary.replace(path)

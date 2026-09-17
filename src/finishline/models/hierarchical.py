@@ -85,12 +85,13 @@ two years before the origin.
 
 from __future__ import annotations
 
+import gc
 import zlib
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date, timedelta
 from functools import cache
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol
 
 import numpy as np
 
@@ -588,7 +589,11 @@ def fit(
             nuts_sampler="nutpie",
             var_names=names,
         )
-    return _reduce(data, trace, seed)
+    reduced = _reduce(data, trace, seed)
+    # The full trace is several gigabytes at this size; let it go before the next fit asks.
+    del trace, model
+    gc.collect()
+    return reduced
 
 
 # The parameters whose convergence is checked and logged for every fit. Runner-level
@@ -673,6 +678,22 @@ def block_start(when: date, months: int) -> date:
 
 
 Fitter = Callable[[History], Posterior | None]
+Quantiles = tuple[float, ...]
+
+
+class Checkpoint(Protocol):
+    """Where finished blocks are kept (`backtest.saved.BlockStore`)."""
+
+    def load(
+        self, start: date
+    ) -> tuple[dict[str, float], dict[tuple[str, str], Quantiles]] | None: ...
+
+    def save(
+        self,
+        start: date,
+        diagnostics: Mapping[str, float],
+        predictions: Mapping[tuple[str, str], Quantiles],
+    ) -> None: ...
 
 
 class Hierarchical:
@@ -698,14 +719,26 @@ class Hierarchical:
         fitter: Fitter | None = None,
         seed: int = 20261018,
         weather: Mapping[str, Covariates] | None = None,
+        checkpoint: Checkpoint | None = None,
     ) -> None:
         self._months = months
         self._fitter: Fitter = fitter if fitter is not None else fit
         self._seed = seed
         self._weather = weather
+        self._checkpoint = checkpoint
         self._block: date | None = None
         self._posterior: Posterior | None = None
+        self._restored: dict[tuple[str, str], Quantiles] | None = None
+        self._pending: dict[tuple[str, str], Quantiles] = {}
         self.fits: list[tuple[date, dict[str, float]]] = []
+
+    def finish(self) -> None:
+        """Write the block in progress, if it was sampled here. Call after the last origin."""
+        if self._checkpoint is None or self._block is None or self._restored is not None:
+            return
+        diagnostics = self.fits[-1][1] if self.fits else {}
+        self._checkpoint.save(self._block, diagnostics, self._pending)
+        self._pending = {}
 
     @property
     def name(self) -> str:
@@ -716,22 +749,50 @@ class Hierarchical:
         if start != self._block:
             # Origins arrive in date order, so a block is never revisited and only the
             # current fit is kept; twenty thousand runners' draws are not free.
-            cut = History.before(start, history.races, list(history.runners.values()))
-            self._posterior = self._fitter(cut)
+            self.finish()
             self._block = start
-            diagnostics = self._posterior.diagnostics if self._posterior else {}
-            self.fits.append((start, diagnostics))
+            self._posterior = None
+            self._restored = None
+            restored = self._checkpoint.load(start) if self._checkpoint else None
+            if restored is not None:
+                diagnostics, self._restored = restored
+                self.fits.append((start, {**diagnostics, "restored": 1.0}))
+            else:
+                # The last block's posterior is let go before the next fit allocates its own.
+                gc.collect()
+                cut = History.before(start, history.races, list(history.runners.values()))
+                self._posterior = self._fitter(cut)
+                diagnostics = self._posterior.diagnostics if self._posterior else {}
+                self.fits.append((start, diagnostics))
+
+        key = (runner.runner_id, target.race_id)
+        if self._restored is not None:
+            if key not in self._restored:
+                raise RuntimeError(
+                    f"the saved block {start} has no prediction for {key}; delete it and rerun"
+                )
+            saved = self._restored[key]
+            if not saved:
+                return Prediction(runner.runner_id, None, "nothing before this block to fit")
+            return Prediction(
+                runner.runner_id,
+                saved[QUANTILES.index(0.50)],
+                f"saved block {start.isoformat()}",
+                quantiles=saved,
+            )
         if self._posterior is None:
+            self._pending[key] = ()
             return Prediction(runner.runner_id, None, "nothing before this block to fit")
 
         conditions = None
         if self._weather is not None and target.race_id in self._weather:
             conditions = np.asarray(self._weather[target.race_id], dtype=float)
         # Seeded by runner and race, so a rerun draws the same numbers in any order.
-        key = zlib.crc32(f"{runner.runner_id}|{target.race_id}".encode())
-        rng = np.random.default_rng([self._seed, key])
+        seed = zlib.crc32(f"{runner.runner_id}|{target.race_id}".encode())
+        rng = np.random.default_rng([self._seed, seed])
         draws = self._posterior.predict(runner.runner_id, runner.sex, target, rng, conditions)
         quantiles = summarise(draws)
+        self._pending[key] = quantiles
         seen = runner.runner_id in self._posterior.design.runner_index
         basis = (
             f"fitted on history before {start.isoformat()}"

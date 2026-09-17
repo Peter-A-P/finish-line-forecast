@@ -413,3 +413,15 @@ def test_an_ambiguous_runner_is_never_predicted_for() -> None:
         scored_from=2024,
     )
     assert scored == []
+
+
+def test_a_block_store_round_trips_and_ignores_a_torn_file(tmp_path: Path) -> None:
+    store = saved.BlockStore(tmp_path, "k" * 64)
+    start = date(2025, 7, 1)
+    assert store.load(start) is None
+    block = {("r1", "race"): (1.0, 2.0), ("r2", "race"): ()}
+    store.save(start, {"max_rhat": 1.02}, block)
+    assert store.load(start) == ({"max_rhat": 1.02}, block)
+    path = next(tmp_path.rglob("*.jsonl"))
+    path.write_text(path.read_text(encoding="utf-8").splitlines()[0] + "\n", encoding="utf-8")
+    assert store.load(start) is None, "a block cut short is sampled again, not trusted"

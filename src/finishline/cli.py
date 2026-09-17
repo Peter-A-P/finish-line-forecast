@@ -534,9 +534,13 @@ def _hierarchical_rows(
             )
 
         model = hierarchical.Hierarchical(
-            months=settings["months"], fitter=fitter, weather=weather
+            months=settings["months"],
+            fitter=fitter,
+            weather=weather,
+            checkpoint=saved.BlockStore(BACKTESTS / "blocks", run_key),
         )
         rows = run.run(data.races, data.resolved, [model], scored_from=scored_from)
+        model.finish()
         for start, diagnostics in model.fits:
             typer.echo(f"  block {start}: {diagnostics}")
         saved.save(path, run_key, rows)

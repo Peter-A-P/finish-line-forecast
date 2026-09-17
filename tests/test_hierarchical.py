@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import math
 import os
+from collections.abc import Mapping
 from dataclasses import replace
 from datetime import date
 
@@ -487,3 +488,52 @@ def test_a_race_after_the_last_fitted_year_walks_the_year_effect_forward() -> No
     assert np.allclose(same, 0.06), "a race in the last fitted year gets that year's level"
     assert np.median(later) == pytest.approx(0.06, abs=0.002)
     assert later.std() == pytest.approx(0.02 * 2.0, rel=0.05)
+
+
+Block = tuple[dict[str, float], dict[tuple[str, str], tuple[float, ...]]]
+
+
+class MemoryStore:
+    """A checkpoint that keeps blocks in a dict, as `saved.BlockStore` keeps them on disk."""
+
+    def __init__(self) -> None:
+        self.blocks: dict[date, Block] = {}
+
+    def load(self, start: date) -> Block | None:
+        return self.blocks.get(start)
+
+    def save(
+        self,
+        start: date,
+        diagnostics: Mapping[str, float],
+        predictions: Mapping[tuple[str, str], tuple[float, ...]],
+    ) -> None:
+        self.blocks[start] = (dict(diagnostics), dict(predictions))
+
+
+def test_a_finished_block_is_kept_and_a_rerun_does_not_sample_it_again() -> None:
+    """Seven hours of blocks lost to one out-of-memory error is why this exists."""
+    races = {
+        "spring": race("spring", date(2024, 5, 1)),
+        "july": race("july", date(2024, 7, 6)),
+        "october": race("october", date(2024, 10, 5)),
+    }
+    people = [runner(f"p{i}", [result("spring", 2400.0 + 60 * i)]) for i in range(3)]
+    store = MemoryStore()
+
+    def predictions(model: hm.Hierarchical) -> list[tuple[float, ...]]:
+        out = []
+        for target in ("july", "october"):
+            history = History.before(races[target].date, races, people)
+            out += [model.predict(p, races[target], history).quantiles for p in people]
+        model.finish()
+        return out
+
+    first_fitter = RecordingFitter()
+    first = predictions(hm.Hierarchical(fitter=first_fitter, checkpoint=store))
+    assert set(store.blocks) == {date(2024, 7, 1), date(2024, 10, 1)}
+
+    second_fitter = RecordingFitter()
+    second = predictions(hm.Hierarchical(fitter=second_fitter, checkpoint=store))
+    assert second_fitter.seen == [], "nothing is sampled twice"
+    assert second == first
