@@ -29,7 +29,10 @@ Everything reads from a local cache, so a rerun costs no requests. The order:
 finishline notices      what has to be sent before anything is fetched
 finishline snapshot     today's look at the two live entrant lists   (daily, needs --notices-sent)
 finishline catalogue    what races exist, and which are deliberately not read
-finishline crawl        fetch the results pages, once, one a second  (needs --notices-sent)
+finishline crawl        fetch the results pages, once, one a second  (needs --notices-sent;
+                        --refresh-index finds races posted since; a new race makes the
+                        saved model backtest stale, so crawl before a backtest, never
+                        between one and a freeze)
 finishline weather      fetch the ECCC observations per race month   (needs --notices-sent)
 finishline dataset      parse, resolve runners, print what came out
 finishline courses      how hard each course is, against what its hills predict

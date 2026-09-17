@@ -166,13 +166,30 @@ def crawl(
     ] = False,
     first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
     last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+    refresh_index: Annotated[
+        bool,
+        typer.Option(
+            "--refresh-index",
+            help="Read the last year's index again first, to find races posted since.",
+        ),
+    ] = False,
 ) -> None:
-    """Fetch every road-results page in the catalogue, once, one a second."""
+    """Fetch every road-results page in the catalogue, once, one a second.
+
+    ⚠️ **A crawl that finds a new race makes the saved model backtest stale.** The saved rows
+    are keyed on the dataset, so `report` leaves the model out and `freeze` refuses until
+    `backtest --hierarchical` has been run again. Crawl before a backtest, not between one
+    and a freeze.
+    """
     if not (notices_sent or os.environ.get(NOTICES_ENV)):
         typer.echo(NOTICES, err=True)
         raise typer.Exit(code=2)
 
     with nlaa.Cache(CACHE) as cache:
+        if refresh_index:
+            # A results page never changes; the current year's index grows as races are
+            # posted, and the cached copy cannot show one posted after it was fetched.
+            cache.get(nlaa.INDEX.format(year=last), refetch=True)
         races, _skipped = cache_catalogue(cache, first, last)
         outstanding = [race for race in races if not cache.cached(race.url)]
         typer.echo(
