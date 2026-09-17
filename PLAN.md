@@ -11,7 +11,7 @@ the model's race effect (section 13 item 27), the LightGBM challenger, and the p
 model.
 
 **Section 13 is the log of what the data refuted**, and it is the first thing to read after
-this line: twenty-seven numbered entries, each one a design in this plan that measurement
+this line: twenty-eight numbered entries, each one a design in this plan that measurement
 overturned. What is open and who owns it is in [docs/todo.md](docs/todo.md).
 
 **Build:** an alongside project, so planned in relative weeks. Earliest start: now. It waits
@@ -842,3 +842,46 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     `freeze` writes `"conditions": null` rather than a forecast the model did not use. Wiring
     it in means fitting the edition effects net of observed weather, which changes the model
     and therefore needs its backtest rerun; it is next after the first backtest table.
+
+28. **The first model backtest lost to carry-forward, and most of the loss is one line of
+    `predict`.** Measured 2026-09-16 over 49 races from 2024: MAE 9.3 minutes against
+    carry-forward's 7.4 for runners with four or more prior results, 10.9 against 9.2 with
+    two or three, 10.9 against 9.6 with one, and level with the category median (18.6
+    against 18.5) for runners with none. The tables above are published as measured.
+
+    **The order is right and the level is wrong.** On the saved rows, the model's
+    predictions are 8.3 percent too fast on average (95% CI 6.7 to 9.6, resampling races),
+    where carry-forward's are off by 0.4 percent (-2.6 to +2.0). With each race's median error
+    taken out, the two are level: mean absolute log error 0.0773 for the model against 0.0780,
+    a difference of -0.0007 (-0.0040 to +0.0019). The bias grows with the time between the
+    middle of a runner's history and the race: 3.8 percent within six months, 11.6 percent
+    past eight years.
+
+    **The cause is the trend, carried to race day.** `gamma_i` is a straight line in years
+    since a runner's first race, and runners get faster through their first years (the mean
+    runner trend is -0.5 percent a year), so extending that line to the race predicts years
+    of improvement nobody has. Tested on the 2025-01-01 posterior against the 4,469 finishes
+    of twenty 2025 races, at posterior means (mean absolute log error, then median error):
+    the trend carried to race day, 0.1011 and -6.4 percent; the trend held at the runner's
+    last result, 0.0919 and -5.2; the level at the middle of the runner's history, 0.0871
+    and -3.1; carry-forward, 0.0968 and +3.8. `gamma_i` stays in the fit, because without it
+    the edition effects absorb ageing (section 5.3); the change is to how far a prediction
+    extends it.
+
+    ⚠️ **About three percent is not explained yet.** The leading suspect is the likelihood:
+    with nu near 2 the Student-t location sits nearer the mode than the median, and race
+    errors are skewed (a bad day is slow; nobody has a wildly fast one), so the model aims
+    for a good day.
+
+    ⚠️ **Item 25's convergence claim did not hold across the backtest.** Over the eight
+    quarterly fits the largest R-hat on the hyperparameters, `mu_group` and `mu_gamma`
+    included, is 1.24 to 1.37 and the smallest bulk ESS 9 to 13, with no divergences. Item 25
+    looked at the scales at one origin, where they were fine; the group means were not
+    checked there.
+
+    **The conformal layer did its job on a biased model.** For runners with four or more
+    results the model's own 80 percent interval held 46 percent of the time and the
+    adjusted one 79 percent, which is the calibration working, paid for in width: a median
+    of 14.0 minutes became 24.3. The place error of 54.5 against carry-forward's 25.8 is not
+    a like-for-like comparison: places are ranked among the runners each model answered,
+    and the model answered for the newcomers too.

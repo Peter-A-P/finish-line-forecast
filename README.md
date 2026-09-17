@@ -168,16 +168,31 @@ it.
 | 0 | 5594 | `carry-forward` | 0% | - | - | baseline |
 |  |  | `best-equal-vdot` | 0% | - | - | - |
 |  |  | `category-median` | 96% | 18.5 (18.0 to 18.9) | 18% | - |
+|  |  | `hierarchical` | 100% | 18.6 (18.1 to 19.1) | 17% | - |
 | 1 | 2650 | `carry-forward` | 100% | 9.6 (9.2 to 10.0) | 10% | baseline |
 |  |  | `best-equal-vdot` | 63% | 7.5 (7.2 to 7.9) | 8% | 22% |
 |  |  | `category-median` | 97% | 16.1 (15.5 to 16.8) | 16% | -68% |
+|  |  | `hierarchical` | 100% | 10.9 (10.5 to 11.4) | 11% | -14% |
 | 2 to 3 | 2831 | `carry-forward` | 100% | 9.2 (8.9 to 9.7) | 9% | baseline |
 |  |  | `best-equal-vdot` | 73% | 7.7 (7.2 to 8.0) | 8% | 17% |
 |  |  | `category-median` | 97% | 15.9 (15.3 to 16.5) | 16% | -72% |
+|  |  | `hierarchical` | 100% | 10.9 (10.5 to 11.4) | 11% | -18% |
 | 4 or more | 7233 | `carry-forward` | 100% | 7.4 (7.2 to 7.6) | 8% | baseline |
 |  |  | `best-equal-vdot` | 87% | 7.1 (6.9 to 7.3) | 7% | 4% |
 |  |  | `category-median` | 97% | 14.1 (13.8 to 14.4) | 18% | -90% |
+|  |  | `hierarchical` | 100% | 9.3 (9.1 to 9.6) | 10% | -26% |
 <!-- finishline:end:baselines -->
+
+⚠️ **The first run of the model loses to carry-forward, and the cause is known.** Its
+predictions are 8.3% too fast on average (95% CI 6.7 to 9.6), where carry-forward's are off
+by 0.4% (-2.6 to +2.0); the intervals resample races. With each race's typical error taken
+out, the two are level (the model's mean absolute error is 0.07 percentage points lower, 95% CI -0.40 to
++0.19), so the model has the order of a
+field about right and the level wrong. Most of the gap is a runner's improvement trend being
+carried all the way to race day: runners get faster in their first years of racing, and
+extending that straight line predicts years of improvement nobody has. The diagnosis and the
+test are in [PLAN.md](PLAN.md) section 13 item 28; the fix and a rerun come before any
+prediction is frozen.
 
 **Getting the order right**, which is the number a race director actually plans from.
 
@@ -187,6 +202,7 @@ it.
 | `carry-forward` | 49 | 25.8 | 0.836 |
 | `best-equal-vdot` | 48 | 18.3 | 0.836 |
 | `category-median` | 45 | 96.4 | 0.356 |
+| `hierarchical` | 49 | 54.5 | 0.709 |
 <!-- finishline:end:placing -->
 
 **How often the intervals hold.** A predicted time with an interval is two claims, and the
@@ -194,7 +210,20 @@ second one is checked here: the model's own 80% and 90% intervals, and the same 
 after conformal adjustment on the races before each one, by how much history a runner has.
 
 <!-- finishline:coverage -->
-_No saved model run matches the current code and data, so there are no intervals to check yet. `finishline backtest --hierarchical` produces one._
+`hierarchical`, every race from 2024 on. Each race's intervals are adjusted using only races dated before it, separately for each history depth. Coverage is the share of runners whose finish fell inside; the 95% CI resamples races, not runners, because runners in one race share its morning.
+
+| Prior results | Level | Runners checked | Races | Model's own interval | After conformal | Median width, minutes (own to conformal) |
+|---|---:|---:|---:|---|---|---|
+| 0 | 80% | 5,532 | 47 | 76% (74 to 79) | 78% (73 to 83) | 51.9 to 53.3 |
+| 1 | 80% | 2,591 | 43 | 70% (66 to 76) | 75% (69 to 83) | 22.4 to 24.9 |
+| 2 to 3 | 80% | 2,762 | 43 | 61% (55 to 68) | 78% (73 to 83) | 19.6 to 27.7 |
+| 4 or more | 80% | 7,133 | 46 | 46% (40 to 53) | 79% (75 to 83) | 14.0 to 24.3 |
+| 0 | 90% | 5,532 | 47 | 87% (85 to 90) | 88% (83 to 93) | 67.8 to 70.6 |
+| 1 | 90% | 2,591 | 43 | 83% (80 to 87) | 87% (83 to 92) | 30.7 to 35.5 |
+| 2 to 3 | 90% | 2,762 | 43 | 77% (72 to 82) | 89% (85 to 93) | 26.4 to 36.6 |
+| 4 or more | 90% | 7,133 | 46 | 64% (59 to 70) | 90% (87 to 92) | 18.9 to 31.0 |
+
+**The assumption.** Conformal coverage is guaranteed on average over races within a history-depth group, provided a new race's errors look like the earlier races' errors (exchangeability). It is not a promise about any one runner or any one race, and it fails when a race meets conditions or a field the earlier races did not: a gale on Signal Hill is exactly that. The first races of the backtest have too few earlier errors to calibrate on (under 50 per group) and are left out of this table rather than given an interval nobody could trust.
 <!-- finishline:end:coverage -->
 
 **Live: predicted before the gun, scored after.** Cape to Cabot 20 km on 2026-10-18, then Run
