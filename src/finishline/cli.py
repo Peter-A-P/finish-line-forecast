@@ -191,13 +191,8 @@ def crawl(
     if not (notices_sent or os.environ.get(NOTICES_ENV)):
         typer.echo(NOTICES, err=True)
         raise typer.Exit(code=2)
-    if scheduled:
-        from finishline.publish import freeze as freezing
-
-        reason = freezing.crawl_paused(LIVE, date.today())
-        if reason is not None:
-            typer.echo(reason)
-            return
+    if scheduled and _scheduled_pause():
+        return
 
     with nlaa.Cache(CACHE) as cache:
         if refresh_index:
@@ -215,6 +210,16 @@ def crawl(
             cache.get(race.url)
             typer.echo(f"  [{index:>3}/{len(outstanding)}] {race.race_id}")
     typer.echo("done; nothing here is committed (see .gitignore)")
+
+
+def _scheduled_pause() -> bool:
+    """Whether a scheduled fetch should stand down today, saying why if so."""
+    from finishline.publish import freeze as freezing
+
+    reason = freezing.crawl_paused(LIVE, date.today())
+    if reason is not None:
+        typer.echo(reason)
+    return reason is not None
 
 
 @app.command()
@@ -398,11 +403,24 @@ def weather(
     ] = False,
     first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
     last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+    scheduled: Annotated[
+        bool,
+        typer.Option(
+            "--scheduled",
+            help="Run as the weekly task: stand down around a live race in data/live.toml.",
+        ),
+    ] = False,
 ) -> None:
-    """Fetch the observed weather for every month that holds a race, once, one a second."""
+    """Fetch the observed weather for every month that holds a race, once, one a second.
+
+    A month fetched before it ended is fetched again (`eccc.Cache.get`). New weather changes
+    the model's inputs as a new race does, so `--scheduled` pauses on the same dates.
+    """
     if not (notices_sent or os.environ.get(NOTICES_ENV)):
         typer.echo(NOTICES, err=True)
         raise typer.Exit(code=2)
+    if scheduled and _scheduled_pause():
+        return
 
     with nlaa.Cache(CACHE) as cache:
         races, _skipped = cache_catalogue(cache, first, last)

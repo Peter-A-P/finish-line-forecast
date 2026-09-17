@@ -1,4 +1,6 @@
-﻿# Weekly: read this year's results index again and fetch any results posted since.
+# Weekly: read this year's results index again, fetch any results posted since, and fetch the
+# airport's observations for this year's race months (a month fetched before it ended is
+# fetched again).
 #
 # Registered with Windows Task Scheduler as "FinishLine weekly results crawl"; see
 # scripts/register-crawl-task.ps1 and docs/data-terms.md. Safe to run by hand.
@@ -20,6 +22,10 @@ $stamp = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
 try {
     Push-Location $root
     $output = & $python -m finishline.cli crawl --notices-sent --refresh-index --scheduled 2>&1
+    if ($LASTEXITCODE -eq 0) {
+        $year = (Get-Date).Year
+        $output += & $python -m finishline.cli weather --notices-sent --first $year --last $year --scheduled 2>&1
+    }
     $status = if ($LASTEXITCODE -eq 0) { 'ok' } else { "exit $LASTEXITCODE" }
 } catch {
     $output = $_.Exception.Message

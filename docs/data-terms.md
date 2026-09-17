@@ -46,8 +46,10 @@ any other.
 `scripts/register-crawl-task.ps1`, runs `finishline crawl --refresh-index --scheduled` on Sunday
 mornings: one index request plus one per newly posted results page. It stands down from ten
 days before each race in `data/live.toml` to the day after, because a new race makes the saved
-model backtest stale and `freeze` refuses without a matching one. Every run appends to
-`data/cache/nlaa/crawl.log`.
+model backtest stale and `freeze` refuses without a matching one. It then fetches this year's
+airport observations the same way (`finishline weather --scheduled`); a month fetched before
+it ended is fetched again, so a race late in a month is not left without weather. Every run
+appends to `data/cache/nlaa/crawl.log`.
 
 **What is published.** Only what the results already publish about a runner: their name
 and hometown as the page printed them, and the prediction. Never the age, beyond the

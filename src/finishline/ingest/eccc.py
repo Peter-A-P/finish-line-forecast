@@ -161,6 +161,13 @@ def station_for(year: int) -> Station:
     raise NoObservation(f"no St. John's station carries hourly observations for {year}")
 
 
+def _complete(path: Path, year: int, month: int) -> bool:
+    """Whether this month's file was written after the month ended, local time."""
+    written = datetime.fromtimestamp(path.stat().st_mtime).date()
+    following = date(year + month // 12, month % 12 + 1, 1)
+    return written >= following
+
+
 class Cache:
     """Station-months on disk, fetched at most once, with a manifest of what came from where.
 
@@ -191,8 +198,15 @@ class Cache:
         return self.months / f"{station.station_id}_{year}{month:02d}.csv"
 
     def get(self, station: Station, year: int, month: int) -> str:
+        """The month's CSV, from disk if it was fetched after the month was over.
+
+        ⚠️ **A month fetched while it was still running is fetched again.** The weekly crawl
+        reads the weather for a race a few days after it, which caches a month that is half
+        written; kept forever, it would leave every later race that month with no
+        observation, silently entering the model at neutral weather.
+        """
         path = self.path_for(station, year, month)
-        if path.exists():
+        if path.exists() and _complete(path, year, month):
             return path.read_text(encoding="utf-8")
         body = self._fetch(BULK.format(station=station.station_id, year=year, month=month))
         path.parent.mkdir(parents=True, exist_ok=True)
