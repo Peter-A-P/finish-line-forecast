@@ -957,29 +957,43 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     four divergences in its 2025-04-01 fit. This is the single-origin ridge again, unchanged
     at every origin, and the predictions are still read along its invariant.
 
-    ⚠️ **The weather coefficients are a null result and the row stays in the README.** The
-    same eight fits without them give 17.9, 9.6, 8.6 and 5.5 minutes, inside the full model's
-    confidence interval at every depth. Paired on the 18,278 predictions both runs make, the
-    weather model's mean absolute log error is lower by 0.0003 (95% CI -0.0008 to +0.0002,
-    resampling races), which is three hundredths of a percent of a finish time.
+    ⚠️ **The weather ablation is a null and the coefficients are not, which took three
+    measurements and two wrong conclusions to establish.** The same eight fits without the
+    weather terms give 17.9, 9.6, 8.6 and 5.5 minutes, inside the full model's interval at
+    every depth; paired on the 18,278 predictions both runs make, the gain is 0.0003 (95% CI
+    -0.0008 to +0.0002). Nor is that the weak form of the test: every target race falls after
+    its block's origin, so neither model has an edition effect for it, and `predict` is handed
+    the airport's observed temperature and wind for that morning rather than a forecast, which
+    is the position a freeze is in with better information than a freeze has.
 
-    ⚠️ **And the ablation is the strong form of the test, not the weak one.** Every target
-    race in the backtest is after its block's origin, so the model has no edition effect for
-    it and draws one from the prior, exactly as a frozen prediction does; the weather
-    covariates handed to `predict` are the airport's *observed* temperature and wind for that
-    morning, not a forecast. So this measures a model that knew the weather perfectly against
-    one that did not, in the same position a freeze is in, and it found nothing. Splitting by
-    how far the morning sat from neutral does not rescue it: at nine degrees or more from
-    neutral, six races and 5,031 runners, the gain is 0.0004 (-0.0051 to +0.0001), and on the
-    four windiest races the weather model is very slightly worse. The one race where it
-    behaves as the physics says it should is the 2025 USR half marathon, fourteen degrees
-    above neutral, where 275 runners are predicted better by 0.0079 of log error.
+    The first conclusion drawn from that, that observed weather carries no signal, was wrong.
+    Fitted on the whole archive (`scratch/weather_coefficients.py`), the four coefficients are:
 
-    The terms stay in anyway, on three grounds that are worth stating plainly because they
-    are judgement and not measurement: the sign is right where heat is extreme, the cost is
-    indistinguishable from zero, and without them a live forecast has no way into the
-    prediction at all, so a Cape to Cabot morning at 20 C would be predicted as if it were
-    neutral. If the freeze needs a reason to drop them, this entry is it.
+    | Term | Per unit | 95% interval | ESS bulk | R-hat |
+    |---|---:|---|---:|---:|
+    | temperature above neutral | +0.120% | +0.074 to +0.164 | 18 | 1.17 |
+    | temperature x log distance | +0.209% | +0.143 to +0.275 | 34 | 1.11 |
+    | wind speed above neutral | +0.0247% | +0.0087 to +0.0425 | 14 | 1.24 |
+    | tailwind along the bearing | +0.001% | -0.040 to +0.038 | 9 | 1.35 |
+
+    which is a degree costing -0.02% at 5 km, +0.12% at 10 km, +0.27% on Cape to Cabot and
+    +0.42% at a marathon, all but the tailwind with the whole posterior on one side of zero.
+    A weather term that moves the level of a field by one to three percent cannot show up in
+    a mean absolute error of ten percent per runner. The ablation measured the wrong quantity
+    for the question, and the README now says so.
+
+    ⚠️ **What is genuinely open: the fit applies about half the weather its own residuals
+    still want.** The conditions layer, fitted on edition effects alone, puts a degree at
+    10 km at +0.233% (+0.129 to +0.342), about twice the joint fit's +0.120%. Race-level
+    median bias across the 32 backtest races with an observation slopes -0.69 (+/- 0.27)
+    against the conditions adjustment, and -0.68 (+/- 0.28) with calendar year and a summer
+    indicator in the regression, so it is not the year effect wearing a hat. The 2025 USR half
+    marathon at 13.6 degrees above neutral came out 3.7% too fast and the 2026 Tely 10 at 10.1
+    above 3.4% too fast. Two candidates, neither settled: bulk ESS of 14 to 34 on these terms
+    is thin enough that the posterior mean may sit below the truth, and one multiplicative
+    coefficient assumes heat costs the front and the back of a field the same fraction, which
+    a hot race does not look like. Owed before Cape to Cabot is frozen. The scripts are
+    `scratch/weather_posthoc.py` and `scratch/weather_confound.py`.
 
     ⚠️ **The placing table is not a like-for-like comparison and must not be read as one.**
     Places are scored among the runners each model answered for, so carry-forward is ranked

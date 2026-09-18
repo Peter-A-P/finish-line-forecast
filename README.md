@@ -212,20 +212,31 @@ predictions use only the combination that is invariant along that ridge, which i
 are accurate anyway, but no individual coefficient from this fit should be read on its own.
 PLAN.md section 13 item 29 has the comparison and the caveat in full.
 
-⚠️ **The weather terms buy nothing measurable, and the row is printed anyway.**
-`hierarchical-no-weather` is the same model fitted without the four weather coefficients, and
-it lands within a rounding error of the full model at every history depth: 5.5 against 5.5
-minutes at four or more prior results, 8.6 against 8.5 at two or three, 9.6 against 9.5 at
-one. Paired on the 18,278 predictions both runs make, the gain is 0.0003 of absolute log
-error (95% CI -0.0008 to +0.0002), three hundredths of a percent of a finish time. This is
-the strong form of the test: the target race is always after the fit, so neither model has an
-edition effect for it, and the weather model was handed the airport's observed temperature
-and wind for that morning rather than a forecast. Nine degrees or more from neutral does not
-rescue it either. Heat and wind do cost a race real minutes, which the conditions layer
-measures, but the edition effect was already carrying that, and naming it changes nothing
-measurable. The terms stay in for a reason that is judgement rather than measurement: without
-them a live forecast has no way into the prediction, so a 20 C morning on Signal Hill would
-be predicted as a neutral one. The null is reported rather than dropped quietly.
+⚠️ **The weather terms move the tables by nothing, and that is not the same as measuring
+nothing.** `hierarchical-no-weather` is the same model without the four weather coefficients,
+and it lands within a rounding error at every depth: paired on the 18,278 predictions both
+runs make, the gain is 0.0003 of absolute log error (95% CI -0.0008 to +0.0002). But the
+coefficients themselves are not zero. Fitted on the whole archive they put a degree above
+neutral at +0.120% at 10 km (95% CI +0.074 to +0.164), +0.265% on Cape to Cabot and +0.421%
+at a marathon, and a km/h of wind at +0.0247% (+0.0087 to +0.0425), each with the whole
+posterior on one side of zero. The tailwind term remains the null it always was, +0.001%
+(-0.040 to +0.038), because only two courses carry a bearing.
+
+Both things are true because they answer different questions. Weather moves the level of a
+whole field by one to three percent; individual error is around ten percent, so a correct
+level shift is invisible in mean absolute error per runner. It is not invisible to a race
+director planning a finish-line clock.
+
+⚠️ **The model applies about half the weather its own errors still want, and that is
+unfinished business.** The conditions layer, fitted on edition effects alone, puts a degree
+at 10 km at +0.233% (+0.129 to +0.342), roughly twice what the joint fit applies. Race-level
+bias in the backtest still slopes -0.69 (+/- 0.27) against the conditions adjustment after
+controlling for calendar year and season, which is what a model applying half an effect looks
+like: the 2025 USR half marathon, 13.6 degrees above neutral, was predicted 3.7% too fast,
+and the 2026 Tely 10 3.4% too fast. Two candidates, neither settled: these coefficients come
+out of a fit whose bulk ESS on them is 14 to 34, which is thin; and a single multiplicative
+term assumes heat costs the front and the back of a field the same fraction, which a hot race
+does not look like. Measured before Cape to Cabot is frozen, not after.
 
 **Getting the order right**, which is the number a race director actually plans from.
 
