@@ -7,8 +7,11 @@ staffing planned from expected finish times rather than guesses; for a runner it
 time with an honest interval instead of a hunch.
 
 **Status: week 2 of 5.** Eighteen years of Newfoundland road results are read, 23,713
-runners resolved out of them, the three baselines are measured on every race since 2024, and
-every course's difficulty is measured from the results. No prediction has been made yet. The first live race is the Cape to Cabot 20 km in St. John's
+runners resolved out of them, the three baselines are measured on every race since 2024,
+every course's difficulty is measured from the results, and the hierarchical model now beats
+the strongest of those baselines by 26% for the runners with four or more prior results, 5.5
+minutes of mean absolute error against carry-forward's 7.4, with no bias left to speak of. No
+prediction has been made yet. The first live race is the Cape to Cabot 20 km in St. John's
 on 2026-10-18, with a second on a frozen model on 2026-11-11; predictions are committed,
 tagged and hashed in this repository before each race and scored against the official
 results after it. Build plan: [PLAN.md](PLAN.md).
@@ -168,31 +171,56 @@ it.
 | 0 | 5594 | `carry-forward` | 0% | - | - | baseline |
 |  |  | `best-equal-vdot` | 0% | - | - | - |
 |  |  | `category-median` | 96% | 18.5 (18.0 to 18.9) | 18% | - |
-|  |  | `hierarchical` | 100% | 18.6 (18.1 to 19.1) | 17% | - |
+|  |  | `hierarchical` | 100% | 17.9 (17.5 to 18.4) | 18% | - |
+|  |  | `hierarchical-no-weather` | 100% | 17.9 (17.5 to 18.4) | 18% | - |
 | 1 | 2650 | `carry-forward` | 100% | 9.6 (9.2 to 10.0) | 10% | baseline |
 |  |  | `best-equal-vdot` | 63% | 7.5 (7.2 to 7.9) | 8% | 22% |
 |  |  | `category-median` | 97% | 16.1 (15.5 to 16.8) | 16% | -68% |
-|  |  | `hierarchical` | 100% | 10.9 (10.5 to 11.4) | 11% | -14% |
+|  |  | `hierarchical` | 100% | 9.5 (9.1 to 9.9) | 10% | 1% |
+|  |  | `hierarchical-no-weather` | 100% | 9.6 (9.2 to 10.0) | 10% | 1% |
 | 2 to 3 | 2831 | `carry-forward` | 100% | 9.2 (8.9 to 9.7) | 9% | baseline |
 |  |  | `best-equal-vdot` | 73% | 7.7 (7.2 to 8.0) | 8% | 17% |
 |  |  | `category-median` | 97% | 15.9 (15.3 to 16.5) | 16% | -72% |
-|  |  | `hierarchical` | 100% | 10.9 (10.5 to 11.4) | 11% | -18% |
+|  |  | `hierarchical` | 100% | 8.5 (8.2 to 9.0) | 9% | 8% |
+|  |  | `hierarchical-no-weather` | 100% | 8.6 (8.2 to 9.0) | 9% | 7% |
 | 4 or more | 7233 | `carry-forward` | 100% | 7.4 (7.2 to 7.6) | 8% | baseline |
 |  |  | `best-equal-vdot` | 87% | 7.1 (6.9 to 7.3) | 7% | 4% |
 |  |  | `category-median` | 97% | 14.1 (13.8 to 14.4) | 18% | -90% |
-|  |  | `hierarchical` | 100% | 9.3 (9.1 to 9.6) | 10% | -26% |
+|  |  | `hierarchical` | 100% | 5.5 (5.3 to 5.6) | 6% | 26% |
+|  |  | `hierarchical-no-weather` | 100% | 5.5 (5.3 to 5.7) | 6% | 26% |
 <!-- finishline:end:baselines -->
 
-⚠️ **The first run of the model loses to carry-forward, and the cause is known.** Its
-predictions are 8.3% too fast on average (95% CI 6.7 to 9.6), where carry-forward's are off
-by 0.4% (-2.6 to +2.0); the intervals resample races. With each race's typical error taken
-out, the two are level (the model's mean absolute error is 0.07 percentage points lower, 95% CI -0.40 to
-+0.19), so the model has the order of a
-field about right and the level wrong. Most of the gap is a runner's improvement trend being
-carried all the way to race day: runners get faster in their first years of racing, and
-extending that straight line predicts years of improvement nobody has. The diagnosis and the
-test are in [PLAN.md](PLAN.md) section 13 item 28; the fix and a rerun come before any
-prediction is frozen.
+⚠️ **The first run of this model lost to carry-forward. This is the second run, and what
+changed is in [PLAN.md](PLAN.md) section 13 items 28 and 29.** Two things were wrong at once:
+each runner's improvement trend was carried in a straight line to race day, which predicts
+years of improvement nobody has, and the race-edition effects were quietly absorbing a
+calendar drift, so that 2023 and 2024 races came out 6 to 8% slower than their own course
+averages. Form is now a random walk over the years a runner actually races, and a shared
+year effect walks the whole province from one calendar year to the next. The bias is gone:
+predictions are 0.4% too fast on average (95% CI 2.0% too fast to 1.2% too slow), against
+carry-forward's 0.4% too fast (2.7% too fast to 2.0% too slow), the intervals resampling
+races rather than runners. With each race's typical error removed the model is now ahead rather than level, by
+0.59 percentage points of absolute log error (95% CI 0.32 to 0.93), so it has both the level
+and the order of a field better than the baseline it lost to before.
+
+⚠️ **It still samples badly, and the tables above are what that badly-sampled model
+predicts.** Across the eight quarterly fits the worst R-hat runs from 1.35 to 1.87 and the
+smallest bulk ESS is about 6, with no divergences. The cause is identification, not tuning:
+years since a runner's first race and the calendar year move together, so the group drift,
+the year effect and the group means trade off along a ridge that the sampler wanders. The
+predictions use only the combination that is invariant along that ridge, which is why they
+are accurate anyway, but no individual coefficient from this fit should be read on its own.
+PLAN.md section 13 item 29 has the comparison and the caveat in full.
+
+⚠️ **The weather terms buy nothing measurable, and the row is printed anyway.**
+`hierarchical-no-weather` is the same model fitted without the four weather coefficients, and
+it lands within a rounding error of the full model at every history depth: 5.5 against 5.5
+minutes at four or more prior results, 8.6 against 8.5 at two or three, 9.6 against 9.5 at
+one. Heat and wind do cost a race real minutes, which the conditions layer measures, but the
+edition effect was already absorbing most of that, and moving it into named coefficients
+mostly relabels it. The terms stay in because a frozen prediction needs something to apply a
+forecast to on a morning nobody has raced yet, and the null result is reported rather than
+dropped quietly.
 
 **Getting the order right**, which is the number a race director actually plans from.
 
@@ -202,8 +230,18 @@ prediction is frozen.
 | `carry-forward` | 49 | 25.8 | 0.836 |
 | `best-equal-vdot` | 48 | 18.3 | 0.836 |
 | `category-median` | 45 | 96.4 | 0.356 |
-| `hierarchical` | 49 | 54.5 | 0.709 |
+| `hierarchical` | 49 | 53.4 | 0.716 |
+| `hierarchical-no-weather` | 49 | 53.3 | 0.716 |
 <!-- finishline:end:placing -->
+
+⚠️ **The model predicts times better than it predicts places, and this table flatters the
+baselines.** Places are computed among the runners each model answered for, so carry-forward
+is ranked over the 12,714 runners who have a prior result, while the model is ranked over the
+whole field, the 5,594 entrants with no history included, and ordering those is close to
+guessing. The two columns are therefore not measuring the same race. It is printed this way
+because the alternative, scoring each model on the subset that suits it, is how a table
+stops being checkable. Scoring the model on the runners carry-forward can also answer is the
+next measurement, and it belongs beside this one rather than instead of it.
 
 **How often the intervals hold.** A predicted time with an interval is two claims, and the
 second one is checked here: the model's own 80% and 90% intervals, and the same intervals
@@ -214,14 +252,14 @@ after conformal adjustment on the races before each one, by how much history a r
 
 | Prior results | Level | Runners checked | Races | Model's own interval | After conformal | Median width, minutes (own to conformal) |
 |---|---:|---:|---:|---|---|---|
-| 0 | 80% | 5,532 | 47 | 76% (74 to 79) | 78% (73 to 83) | 51.9 to 53.3 |
-| 1 | 80% | 2,591 | 43 | 70% (66 to 76) | 75% (69 to 83) | 22.4 to 24.9 |
-| 2 to 3 | 80% | 2,762 | 43 | 61% (55 to 68) | 78% (73 to 83) | 19.6 to 27.7 |
-| 4 or more | 80% | 7,133 | 46 | 46% (40 to 53) | 79% (75 to 83) | 14.0 to 24.3 |
-| 0 | 90% | 5,532 | 47 | 87% (85 to 90) | 88% (83 to 93) | 67.8 to 70.6 |
-| 1 | 90% | 2,591 | 43 | 83% (80 to 87) | 87% (83 to 92) | 30.7 to 35.5 |
-| 2 to 3 | 90% | 2,762 | 43 | 77% (72 to 82) | 89% (85 to 93) | 26.4 to 36.6 |
-| 4 or more | 90% | 7,133 | 46 | 64% (59 to 70) | 90% (87 to 92) | 18.9 to 31.0 |
+| 0 | 80% | 5,532 | 47 | 77% (75 to 80) | 78% (73 to 84) | 54.6 to 55.5 |
+| 1 | 80% | 2,591 | 43 | 72% (70 to 75) | 77% (74 to 78) | 21.0 to 23.5 |
+| 2 to 3 | 80% | 2,762 | 43 | 71% (68 to 75) | 79% (76 to 83) | 18.5 to 22.9 |
+| 4 or more | 80% | 7,133 | 46 | 76% (73 to 79) | 77% (74 to 79) | 13.5 to 13.6 |
+| 0 | 90% | 5,532 | 47 | 87% (86 to 89) | 89% (87 to 91) | 71.2 to 74.8 |
+| 1 | 90% | 2,591 | 43 | 83% (81 to 85) | 88% (87 to 89) | 28.7 to 34.1 |
+| 2 to 3 | 90% | 2,762 | 43 | 82% (80 to 85) | 88% (86 to 89) | 24.8 to 30.2 |
+| 4 or more | 90% | 7,133 | 46 | 86% (84 to 89) | 88% (86 to 90) | 18.3 to 19.2 |
 
 **The assumption.** Conformal coverage is guaranteed on average over races within a history-depth group, provided a new race's errors look like the earlier races' errors (exchangeability). It is not a promise about any one runner or any one race, and it fails when a race meets conditions or a field the earlier races did not: a gale on Signal Hill is exactly that. The first races of the backtest have too few earlier errors to calibrate on (under 50 per group) and are left out of this table rather than given an interval nobody could trust.
 <!-- finishline:end:coverage -->

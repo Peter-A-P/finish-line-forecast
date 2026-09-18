@@ -931,3 +931,50 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     `sigma_year`. Predictions are made along the ridge's invariant (form plus the latest year)
     and were the most accurate of all, so the model with the drift is used, and every fit's
     diagnostics are published with the backtest rather than presented as converged.
+
+    **The full backtest, run overnight on 2026-09-17 to 18, and the README tables carry it.**
+    Eight quarterly fits, 49 races from 2024 on, 73,232 predictions, each race predicted only
+    from results dated strictly before it. Mean absolute error in minutes:
+
+    | Prior results | Runners | Carry-forward | Model | Skill |
+    |---|---:|---:|---:|---:|
+    | 0 | 5,594 | not answered | 17.9 | against the category median's 18.5 |
+    | 1 | 2,650 | 9.6 | 9.5 | 1% |
+    | 2 to 3 | 2,831 | 9.2 | 8.5 | 8% |
+    | 4 or more | 7,233 | 7.4 | 5.5 | 26% |
+
+    On the 12,714 runners both models answer for, mean absolute log error is 0.0751 against
+    carry-forward's 0.0881, and with each race's median error removed 0.0722 against 0.0780,
+    a paired difference of -0.0059 (95% CI -0.0093 to -0.0032, resampling races). Bias is
+    -0.4% (-2.0 to +1.2) against carry-forward's -0.4% (-2.7 to +2.0), so item 28's 8.3% is
+    gone. The intervals moved as much as the point predictions: own-interval coverage at four
+    or more prior results went from 46% to 76% at the 80% level, and conformal now widens the
+    median interval from 13.5 to 13.6 minutes where it had to stretch 14.0 to 24.3.
+
+    Per-fit diagnostics, published as promised rather than summarised away: no divergences in
+    any of the eight fits, worst R-hat by block 1.35, 1.51, 1.51, 1.67, 1.71, 1.73, 1.74 and
+    1.84, smallest bulk ESS about 6. The ablation without weather is the same picture, with
+    four divergences in its 2025-04-01 fit. This is the single-origin ridge again, unchanged
+    at every origin, and the predictions are still read along its invariant.
+
+    ⚠️ **The weather coefficients are a null result and the row stays in the README.** The
+    same eight fits without them give 17.9, 9.6, 8.6 and 5.5 minutes, inside the full model's
+    confidence interval at every depth. Observed weather at the edition level is mostly what
+    the edition effect was already absorbing, so naming it moves nothing. The terms stay
+    because a frozen prediction applies a forecast to a morning that has no edition effect to
+    borrow, which is the one case the ablation cannot test.
+
+    ⚠️ **The placing table is not a like-for-like comparison and must not be read as one.**
+    Places are scored among the runners each model answered for, so carry-forward is ranked
+    over the 12,714 runners with a prior result and the model over the whole field, the 5,594
+    entrants with no history included, which is why its mean absolute place error is 53.4
+    against carry-forward's 25.8. Scoring the model on carry-forward's subset is the missing
+    measurement; it belongs beside the current table, not instead of it, and it is owed before
+    the first freeze.
+
+    **One operational note, because it cost a night.** A fit on the whole archive commits
+    about 27 GB on this machine, and the eighth block failed three times on a 216 MiB
+    allocation with the Windows commit limit at 48 GB. Blocks are now written as they finish
+    (`backtest/saved.py`, `BlockStore`), so a failed run resumes instead of restarting, and
+    the pagefile was raised to a fixed 64 GB. The freeze fit is the same size as that eighth
+    block, so this is a constraint on October 17, not a one-off.
