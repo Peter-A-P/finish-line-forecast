@@ -6,7 +6,7 @@ published once the results are in. For a race director that is pacing, corral an
 staffing planned from expected finish times rather than guesses; for a runner it is a goal
 time with an honest interval instead of a hunch.
 
-**Status: week 2 of 5.** Eighteen years of Newfoundland road results are read, 23,713
+**Status: building.** Eighteen years of Newfoundland road results are read, 23,713
 runners resolved out of them, the three baselines are measured on every race since 2024, and
 every course's difficulty is measured from the results. No prediction has been made yet. The first live race is the Cape to Cabot 20 km in St. John's
 on 2026-10-18, with a second on a frozen model on 2026-11-11; predictions are committed,
