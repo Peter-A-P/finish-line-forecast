@@ -58,6 +58,7 @@ class Scored:
     predicted: float | None
     actual: float
     depth: int
+    quantiles: tuple[float, ...] = ()
 
     @property
     def error(self) -> float | None:
@@ -173,23 +174,23 @@ def place_error(scored: Sequence[Scored], model: str) -> tuple[float | None, flo
         return None, None
     predicted = np.asarray([row.predicted for row in mine], dtype=float)
     actual = np.asarray([row.actual for row in mine], dtype=float)
-    predicted_rank = _ranks(predicted)
-    actual_rank = _ranks(actual)
+    predicted_rank = ranks(predicted)
+    actual_rank = ranks(actual)
     gap = float(np.abs(predicted_rank - actual_rank).mean())
     correlation = float(np.corrcoef(predicted_rank, actual_rank)[0, 1])
     return gap, correlation
 
 
-def _ranks(values: np.ndarray) -> np.ndarray:
+def ranks(values: np.ndarray) -> np.ndarray:
     """Ranks from 1, ties averaged, which is what Spearman needs.
 
     Ties are real here: a chip-timed field has dozens of runners sharing a second, and
     breaking those ties by array order would invent a placing the race did not make.
     """
     order = values.argsort(kind="stable")
-    ranks = np.empty(len(values), dtype=float)
-    ranks[order] = np.arange(1, len(values) + 1, dtype=float)
+    positions = np.empty(len(values), dtype=float)
+    positions[order] = np.arange(1, len(values) + 1, dtype=float)
     _unique, inverse, counts = np.unique(values, return_inverse=True, return_counts=True)
     totals = np.zeros(len(counts), dtype=float)
-    np.add.at(totals, inverse, ranks)
+    np.add.at(totals, inverse, positions)
     return (totals / counts)[inverse]

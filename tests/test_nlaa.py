@@ -297,3 +297,21 @@ def test_the_same_race_at_two_urls_is_read_once() -> None:
     # And the guard against over-merging: two real races on one road on one morning.
     trapline = [race for race in races if race.course_id.startswith("trapline")]
     assert len(trapline) == 2, "the Trapline U19 5 km is a different race, not a duplicate"
+
+
+def test_refreshing_the_index_is_still_behind_the_courtesy_notices(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The one page read twice goes through the same rail as every other fetch."""
+    from typer.testing import CliRunner
+
+    from finishline import cli
+
+    monkeypatch.delenv(cli.NOTICES_ENV, raising=False)
+
+    def no_network(*_args: object, **_kwargs: object) -> str:
+        raise AssertionError("fetched before the notices were acknowledged")
+
+    monkeypatch.setattr(nlaa.Cache, "get", no_network)
+    outcome = CliRunner().invoke(cli.app, ["crawl", "--refresh-index"])
+    assert outcome.exit_code == 2

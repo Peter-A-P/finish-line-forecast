@@ -9,8 +9,10 @@ The pipeline in the order it runs:
     finishline weather        fetch the observed weather for every race month
     finishline conditions     what heat and wind cost, estimated from the editions
     finishline dataset        parse, resolve runners, write the tables
-    finishline backtest       score the baselines at every origin
+    finishline backtest       score the baselines at every origin (--hierarchical: the model)
     finishline report         the tables the README publishes
+    finishline freeze <race>  the prediction file, at least 24 hours before the gun
+    finishline score <race>   the tagged prediction against the official results
 
 ⚠️ **`crawl` refuses to run until the courtesy notices have gone out.** That is a rail in
 code rather than a line in a document, because this project reads a small volunteer
@@ -30,7 +32,7 @@ from typing import Annotated, Any
 import typer
 
 from finishline import report, store
-from finishline.backtest import run
+from finishline.backtest import run, score
 from finishline.history import History
 from finishline.ingest import eccc, entrants, nlaa
 from finishline.metrics import grade
@@ -46,6 +48,7 @@ CACHE = DATA / "cache" / "nlaa"
 EXTERNAL = DATA / "cache" / "raceroster"
 ENTRANTS = DATA / "entrants"
 WEATHER = DATA / "cache" / "eccc"
+BACKTESTS = DATA / "cache" / "backtest"
 COURSES = DATA / "courses.toml"
 
 
@@ -163,13 +166,39 @@ def crawl(
     ] = False,
     first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
     last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+    refresh_index: Annotated[
+        bool,
+        typer.Option(
+            "--refresh-index",
+            help="Read the last year's index again first, to find races posted since.",
+        ),
+    ] = False,
+    scheduled: Annotated[
+        bool,
+        typer.Option(
+            "--scheduled",
+            help="Run as the weekly task: stand down around a live race in data/live.toml.",
+        ),
+    ] = False,
 ) -> None:
-    """Fetch every road-results page in the catalogue, once, one a second."""
+    """Fetch every road-results page in the catalogue, once, one a second.
+
+    ⚠️ **A crawl that finds a new race makes the saved model backtest stale.** The saved rows
+    are keyed on the dataset, so `report` leaves the model out and `freeze` refuses until
+    `backtest --hierarchical` has been run again. Crawl before a backtest, not between one
+    and a freeze; `--scheduled` enforces that around every race in data/live.toml.
+    """
     if not (notices_sent or os.environ.get(NOTICES_ENV)):
         typer.echo(NOTICES, err=True)
         raise typer.Exit(code=2)
+    if scheduled and _scheduled_pause():
+        return
 
     with nlaa.Cache(CACHE) as cache:
+        if refresh_index:
+            # A results page never changes; the current year's index grows as races are
+            # posted, and the cached copy cannot show one posted after it was fetched.
+            cache.get(nlaa.INDEX.format(year=last), refetch=True)
         races, _skipped = cache_catalogue(cache, first, last)
         outstanding = [race for race in races if not cache.cached(race.url)]
         typer.echo(
@@ -181,6 +210,16 @@ def crawl(
             cache.get(race.url)
             typer.echo(f"  [{index:>3}/{len(outstanding)}] {race.race_id}")
     typer.echo("done; nothing here is committed (see .gitignore)")
+
+
+def _scheduled_pause() -> bool:
+    """Whether a scheduled fetch should stand down today, saying why if so."""
+    from finishline.publish import freeze as freezing
+
+    reason = freezing.crawl_paused(LIVE, date.today())
+    if reason is not None:
+        typer.echo(reason)
+    return reason is not None
 
 
 @app.command()
@@ -364,11 +403,24 @@ def weather(
     ] = False,
     first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
     last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+    scheduled: Annotated[
+        bool,
+        typer.Option(
+            "--scheduled",
+            help="Run as the weekly task: stand down around a live race in data/live.toml.",
+        ),
+    ] = False,
 ) -> None:
-    """Fetch the observed weather for every month that holds a race, once, one a second."""
+    """Fetch the observed weather for every month that holds a race, once, one a second.
+
+    A month fetched before it ended is fetched again (`eccc.Cache.get`). New weather changes
+    the model's inputs as a new race does, so `--scheduled` pauses on the same dates.
+    """
     if not (notices_sent or os.environ.get(NOTICES_ENV)):
         typer.echo(NOTICES, err=True)
         raise typer.Exit(code=2)
+    if scheduled and _scheduled_pause():
+        return
 
     with nlaa.Cache(CACHE) as cache:
         races, _skipped = cache_catalogue(cache, first, last)
@@ -385,21 +437,184 @@ def weather(
     typer.echo("done; nothing here is committed (see .gitignore)")
 
 
+# The settings the published hierarchical run uses. `backtest` can be asked for others to
+# experiment; `report` only ever publishes a run made with these, and the same run without
+# weather beside it as the ablation.
+HIERARCHICAL_DEFAULTS: dict[str, int] = {
+    "months": 3, "draws": 300, "tune": 400, "chains": 4, "weather": 1,
+}
+NO_WEATHER = "hierarchical-no-weather"
+
+Weather = dict[str, tuple[float, float, float, float]]
+
+
+def bearings() -> dict[str, float]:
+    """Each point-to-point course's bearing, from data/courses.toml."""
+    return {
+        course_id: float(record["bearing_deg"])
+        for course_id, record in course_profiles().items()
+        if "bearing_deg" in record
+    }
+
+
+def _edition_weather(data: Dataset) -> tuple[Weather, int]:
+    """Every edition's observed weather covariates, from the cached airport observations."""
+    from finishline.models import weather as weather_model
+
+    with eccc.Cache(WEATHER) as cache:
+        return weather_model.edition_covariates(data.races.values(), cache, bearings())
+
+
+def _hierarchical_key(
+    data: Dataset, scored_from: int, settings: dict[str, int], covariates: Weather
+) -> str:
+    """What a saved hierarchical run has to match to be reused.
+
+    A run with weather also has to match the covariates, because a weather month fetched
+    again (`eccc.Cache.get`) changes the model's inputs as surely as a new race does.
+    """
+    import hashlib
+    import json
+
+    from finishline.backtest import saved
+    from finishline.models import hierarchical
+    from finishline.models import weather as weather_model
+
+    parts: dict[str, object] = {
+        "scored_from": scored_from,
+        "dataset": saved.dataset_fingerprint(data.races, data.results),
+        **settings,
+    }
+    if settings.get("weather"):
+        parts["covariates"] = hashlib.sha256(
+            json.dumps(sorted(covariates.items())).encode()
+        ).hexdigest()
+    sources = [
+        Path(hierarchical.__file__),
+        Path(weather_model.__file__),
+        Path(run.__file__),
+        Path(__file__).with_name("history.py"),
+    ]
+    return saved.key(parts, sources)
+
+
+def _hierarchical_rows(
+    data: Dataset,
+    scored_from: int,
+    settings: dict[str, int],
+    covariates: Weather,
+    *,
+    fit_if_missing: bool,
+) -> list[score.Scored] | None:
+    """The hierarchical model's scored rows: saved if they match, sampled if asked to.
+
+    The run without weather is saved to its own file and its rows are named `NO_WEATHER`,
+    so the two runs sit side by side in every table as the ablation.
+    """
+    from dataclasses import replace
+
+    from finishline.backtest import saved
+    from finishline.models import hierarchical
+
+    uses_weather = bool(settings.get("weather"))
+    path = BACKTESTS / ("hierarchical.jsonl" if uses_weather else f"{NO_WEATHER}.jsonl")
+    run_key = _hierarchical_key(data, scored_from, settings, covariates)
+    rows = saved.load(path, run_key)
+    if rows is None and fit_if_missing:
+        weather = covariates if uses_weather else None
+
+        def fitter(history: History) -> hierarchical.Posterior | None:
+            typer.echo(f"  sampling on history before {history.origin} ...")
+            return hierarchical.fit(
+                history,
+                draws=settings["draws"],
+                tune=settings["tune"],
+                chains=settings["chains"],
+                weather=weather,
+            )
+
+        model = hierarchical.Hierarchical(
+            months=settings["months"],
+            fitter=fitter,
+            weather=weather,
+            checkpoint=saved.BlockStore(BACKTESTS / "blocks", run_key),
+        )
+        rows = run.run(data.races, data.resolved, [model], scored_from=scored_from)
+        model.finish()
+        for start, diagnostics in model.fits:
+            typer.echo(f"  block {start}: {diagnostics}")
+        saved.save(path, run_key, rows)
+    if rows is None or uses_weather:
+        return rows
+    return [replace(row, model=NO_WEATHER) for row in rows]
+
+
 @app.command()
 def backtest(
     scored_from: Annotated[int, typer.Option(help="First year to score.")] = 2024,
     first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
     last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+    hierarchical: Annotated[
+        bool,
+        typer.Option(help="Score the hierarchical model too. Hours on first run; saved."),
+    ] = False,
+    weather: Annotated[
+        bool,
+        typer.Option(help="Fit and predict with each morning's observed weather."),
+    ] = bool(HIERARCHICAL_DEFAULTS["weather"]),
+    months: Annotated[
+        int, typer.Option(help="Months of races per model fit.")
+    ] = HIERARCHICAL_DEFAULTS["months"],
+    draws: Annotated[
+        int, typer.Option(help="Posterior draws per chain.")
+    ] = HIERARCHICAL_DEFAULTS["draws"],
+    tune: Annotated[
+        int, typer.Option(help="Tuning steps per chain.")
+    ] = HIERARCHICAL_DEFAULTS["tune"],
+    chains: Annotated[
+        int, typer.Option(help="Chains, one per core.")
+    ] = HIERARCHICAL_DEFAULTS["chains"],
 ) -> None:
     """Score the baselines at every origin and print the tables."""
     data = _dataset(first, last)
     scored = run.run(data.races, data.resolved, baselines.BASELINES, scored_from=scored_from)
     names = [model.name for model in baselines.BASELINES]
+    model_name = None
+    if hierarchical:
+        settings = {
+            "months": months, "draws": draws, "tune": tune, "chains": chains,
+            "weather": int(weather),
+        }
+        covariates, missing = _edition_weather(data)
+        if weather:
+            typer.echo(f"{len(covariates)} editions with observed weather, {missing} without")
+        rows = _hierarchical_rows(data, scored_from, settings, covariates, fit_if_missing=True)
+        scored += rows or []
+        model_name = "hierarchical" if weather else NO_WEATHER
+        names.append(model_name)
     races = len({row.race_id for row in scored})
     typer.echo(f"{races} races scored from {scored_from}, {len(scored):,} predictions\n")
     typer.echo(report.baseline_table(scored, names))
     typer.echo()
     typer.echo(report.placing_table(scored, names))
+    if model_name is not None:
+        typer.echo()
+        typer.echo(_coverage(data, scored, model_name))
+
+
+def _coverage(data: Dataset, scored: list[score.Scored], model: str | None) -> str:
+    """The conformal coverage table for one model's rows, or its absence."""
+    from finishline.conformal import coverage, split
+
+    if model is None:
+        return report.coverage_table({}, None)
+    rows = [row for row in scored if row.model == model]
+    dates = {race_id: race.date for race_id, race in data.races.items()}
+    summaries = {
+        level: coverage.summarise(split.rolling(rows, dates, level), level)
+        for level in (0.80, 0.90)
+    }
+    return report.coverage_table(summaries, model)
 
 
 @app.command(name="report")
@@ -412,6 +627,27 @@ def write_report(
     data = _dataset(first, last)
     scored = run.run(data.races, data.resolved, baselines.BASELINES, scored_from=scored_from)
     names = [model.name for model in baselines.BASELINES]
+    # Never samples: a report rewrites tables from what was measured, and the model's rows
+    # are only published when a saved run matches today's code and data exactly.
+    covariates, _missing = _edition_weather(data)
+    saved_rows = _hierarchical_rows(
+        data, scored_from, dict(HIERARCHICAL_DEFAULTS), covariates, fit_if_missing=False
+    )
+    if saved_rows is not None:
+        scored += saved_rows
+        names.append("hierarchical")
+    else:
+        typer.echo("no saved hierarchical run matches; its rows are left out of the tables")
+    ablation = _hierarchical_rows(
+        data,
+        scored_from,
+        {**HIERARCHICAL_DEFAULTS, "weather": 0},
+        covariates,
+        fit_if_missing=False,
+    )
+    if ablation is not None:
+        scored += ablation
+        names.append(NO_WEATHER)
 
     readme = Path("README.md")
     text = readme.read_text(encoding="utf-8")
@@ -432,8 +668,485 @@ def write_report(
     )
     text = report.replace_between(text, "baselines", report.baseline_table(scored, names))
     text = report.replace_between(text, "placing", report.placing_table(scored, names))
+    text = report.replace_between(
+        text,
+        "coverage",
+        _coverage(data, scored, "hierarchical" if saved_rows is not None else None),
+    )
     readme.write_text(text, encoding="utf-8", newline="\n")
+    _write_live_rows()
     typer.echo("README.md tables rewritten from the measurement")
+
+
+OPENMETEO = DATA / "cache" / "openmeteo"
+FORECAST_ERROR = DATA / "forecast_error.toml"
+
+
+@app.command(name="forecast-error")
+def forecast_error(
+    notices_sent: Annotated[
+        bool, typer.Option("--notices-sent", help="The courtesy notes have gone out.")
+    ] = False,
+    since: Annotated[int, typer.Option(help="First year of day-ahead forecasts to use.")] = 2024,
+    first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
+    last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+) -> None:
+    """How wrong a day-ahead forecast was on past race mornings, written for `freeze`.
+
+    Pairs Open-Meteo's archived day-ahead forecast with the airport's observation over the
+    same race hours, for every edition near St. John's, and writes the bias and spread to
+    data/forecast_error.toml. One request per year of forecasts.
+    """
+    from datetime import UTC, datetime, timedelta
+
+    from finishline.ingest import openmeteo
+    from finishline.models import weather
+
+    if not (notices_sent or os.environ.get(NOTICES_ENV)):
+        typer.echo(NOTICES, err=True)
+        raise typer.Exit(code=2)
+
+    data = _dataset(first, last)
+    yesterday = date.today() - timedelta(days=1)
+    editions = sorted(
+        (
+            race
+            for race in data.races.values()
+            if race.date.year >= since
+            and race.date <= yesterday
+            and eccc.near_st_johns(race.course_id)
+        ),
+        key=lambda race: race.date,
+    )
+    client = openmeteo.Client(OPENMETEO)
+    forecasts: list[eccc.Observation] = []
+    try:
+        for year in sorted({race.date.year for race in editions}):
+            end = min(date(year, 12, 31), yesterday)
+            body = client.previous_runs(date(year, 1, 1), end)
+            forecasts += openmeteo.readings(body, suffix="_previous_day1")
+    finally:
+        client.close()
+
+    pairs: list[tuple[eccc.Conditions, eccc.Conditions]] = []
+    skipped = 0
+    with eccc.Cache(WEATHER) as observed_cache:
+        for race in editions:
+            try:
+                observed = eccc.conditions(
+                    observed_cache, race.race_id, race.date, race.distance_m
+                )
+                predicted = openmeteo.conditions(
+                    forecasts, race.race_id, race.date, race.distance_m, 9
+                )
+            except eccc.NoObservation:
+                skipped += 1
+                continue
+            pairs.append((predicted, observed))
+
+    error = weather.measure(pairs)
+    typer.echo(f"{error.mornings} race mornings from {since}, {skipped} without both sources")
+    typer.echo(f"  temperature  bias {error.temp_bias:+.2f} C     sd {error.temp_sd:.2f}")
+    typer.echo(f"  wind speed   bias {error.wind_bias:+.2f} km/h  sd {error.wind_sd:.2f}")
+    typer.echo(f"  wind east    bias {error.east_bias:+.2f} km/h  sd {error.east_sd:.2f}")
+    typer.echo(f"  wind north   bias {error.north_bias:+.2f} km/h  sd {error.north_sd:.2f}")
+    weather.save(
+        FORECAST_ERROR,
+        error,
+        "How wrong Open-Meteo's day-ahead forecast was on past race mornings at St. John's\n"
+        "airport, forecast minus the ECCC observation over the same race hours. Written by\n"
+        f"`finishline forecast-error` on {datetime.now(UTC):%Y-%m-%d}, from race editions near\n"
+        f"St. John's since {since}. Read by `finishline freeze`. Do not edit by hand.",
+    )
+    typer.echo(f"written to {FORECAST_ERROR}")
+
+
+LIVE = DATA / "live.toml"
+PREDICTIONS = Path("predictions")
+
+
+@app.command()
+def freeze(
+    race_id: Annotated[str, typer.Argument(help="A race in data/live.toml, e.g. c2c-2026.")],
+    first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
+    last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+) -> None:
+    """Write the prediction file for a race, and print the hash to publish with it.
+
+    Refuses inside 24 hours of the gun, refuses with uncommitted changes to the code (the
+    file names the commit that made it, and that commit has to be the code that ran), and
+    refuses without a saved model backtest to calibrate the intervals on. It never commits
+    or tags: a person does that, and the tag's time is the record.
+    """
+    import subprocess
+    from datetime import UTC, datetime
+
+    from finishline.conformal import split
+    from finishline.identity import link
+    from finishline.models import hierarchical
+    from finishline.publish import freeze as freezing
+    from finishline.publish import predictions
+
+    try:
+        live = freezing.load_live(LIVE, race_id)
+        predictions.check_gun(live.gun, datetime.now(UTC))
+    except (KeyError, ValueError, predictions.FreezeRefused) as refusal:
+        typer.echo(f"refused: {refusal}", err=True)
+        raise typer.Exit(code=2) from refusal
+
+    code = ["src", "pyproject.toml", "uv.lock", "data/live.toml"]
+    dirty = subprocess.run(
+        ["git", "status", "--porcelain", "--", *code],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+    if dirty:
+        typer.echo(f"uncommitted changes to the code; commit them first:\n{dirty}", err=True)
+        raise typer.Exit(code=2)
+    commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True
+    ).stdout.strip()
+
+    snapshot_path = entrants.latest_snapshot(ENTRANTS, live.entrant_list)
+    if snapshot_path is None:
+        typer.echo(f"no snapshot of the {live.entrant_list} list; run `finishline snapshot`")
+        raise typer.Exit(code=2)
+
+    data = _dataset(first, last)
+    covariates, _missing = _edition_weather(data)
+    saved_rows = _hierarchical_rows(
+        data, 2024, dict(HIERARCHICAL_DEFAULTS), covariates, fit_if_missing=False
+    )
+    if saved_rows is None:
+        typer.echo("no saved model backtest matches this code; run `backtest --hierarchical`")
+        raise typer.Exit(code=2)
+    dates = {race_id_: race.date for race_id_, race in data.races.items()}
+    calibration = {
+        level: split.shifts(saved_rows, dates, level, live.race.date)
+        for level in freezing.LEVELS
+    }
+
+    history = History.before(live.race.date, data.races, data.resolved)
+    typer.echo(f"sampling on every result before {live.race.date} ...")
+    posterior = hierarchical.fit(history, weather=covariates)
+    if posterior is None:
+        typer.echo("nothing to fit")
+        raise typer.Exit(code=1)
+    conditions, conditions_record = _forecast(live, posterior.draws, backtest_seed(race_id))
+
+    listed = entrants.load(snapshot_path)
+    doc = freezing.assemble(
+        posterior=posterior,
+        links=link.link(listed, data.runners),
+        history=history,
+        live=live,
+        now=datetime.now(UTC),
+        snapshot={
+            "file": snapshot_path.name,
+            "sha256": predictions.sha256(snapshot_path.read_bytes()),
+        },
+        model={
+            "name": "hierarchical",
+            "commit": commit,
+            "fit_on_results_before": live.race.date.isoformat(),
+            "diagnostics": posterior.diagnostics,
+            "settings": dict(HIERARCHICAL_DEFAULTS),
+        },
+        calibration=calibration,
+        seed=backtest_seed(race_id),
+        conditions=conditions,
+        conditions_record=conditions_record,
+    )
+    path = PREDICTIONS / f"{race_id}.json"
+    digest = predictions.write(path, doc)
+    counts = doc["entrants"]
+    typer.echo(
+        f"\nwrote {path}: {counts['predicted']} runners predicted, "
+        f"{counts['ambiguous']} excluded as ambiguous, {counts['new']} with no history"
+    )
+    typer.echo(f"sha256 {digest}")
+    typer.echo(
+        "\nNothing is committed or tagged. To make it count, before "
+        f"{(live.gun - predictions.MINIMUM_NOTICE).isoformat()}:\n"
+        f"  git add {path.as_posix()} && git commit -m \"Prediction: {race_id}\"\n"
+        f"  git tag -a predictions/{race_id} -m \"sha256 {digest}\"\n"
+        f"  git push && git push origin predictions/{race_id}"
+    )
+
+
+def _forecast(
+    live: Any, draws: int, seed: int
+) -> tuple[Any, dict[str, Any] | None]:
+    """Covariate draws from today's forecast for the race, corrected, and what to record.
+
+    The forecast is Open-Meteo's for the airport over the hours the field is running, taken
+    at freeze time, corrected by the bias measured on past race mornings and spread by their
+    error (`models.weather.draws`). A course the airport cannot speak for, or a forecast that
+    cannot be had, predicts an average morning, and the file says which and why.
+    """
+    import httpx
+    import numpy as np
+
+    from finishline.ingest import openmeteo
+    from finishline.models import weather as weather_model
+
+    race = live.race
+    if not eccc.near_st_johns(race.course_id):
+        return None, {"used": False, "reason": "the airport cannot speak for this course"}
+    client = openmeteo.Client(OPENMETEO)
+    try:
+        body = client.forecast(race.date)
+        met = openmeteo.conditions(
+            openmeteo.readings(body), race.race_id, race.date, race.distance_m, live.gun.hour
+        )
+    except (OSError, ValueError, eccc.NoObservation, httpx.HTTPError) as failure:
+        typer.echo(f"no usable forecast ({failure}); predicting an average morning", err=True)
+        return None, {"used": False, "reason": f"no usable forecast: {failure}"}
+    finally:
+        client.close()
+
+    error = weather_model.load(FORECAST_ERROR)
+    bearing = bearings().get(race.course_id)
+    drawn = weather_model.draws(
+        met, error, race.distance_m, bearing, draws, np.random.default_rng(seed)
+    )
+    typer.echo(
+        f"forecast {met.temp_c:.1f} C, wind {met.wind_kmh} km/h over {met.hours} hours; "
+        f"corrected by {-error.temp_bias:+.1f} C and {-error.wind_bias:+.1f} km/h"
+    )
+    return drawn, {
+        "used": True,
+        "source": openmeteo.STATION,
+        "hours": met.hours,
+        "forecast": {
+            "temp_c": round(met.temp_c, 2),
+            "wind_kmh": None if met.wind_kmh is None else round(met.wind_kmh, 2),
+            "wind_east_kmh": None if met.wind_east is None else round(met.wind_east, 2),
+            "wind_north_kmh": None if met.wind_north is None else round(met.wind_north, 2),
+        },
+        "bearing_deg": bearing,
+        "forecast_error": {
+            key: round(value, 4) if isinstance(value, float) else value
+            for key, value in error.as_record().items()
+        },
+        "covariates_mean": dict(
+            zip(
+                weather_model.COLUMNS,
+                (round(float(v), 4) for v in drawn.mean(axis=0)),
+                strict=True,
+            )
+        ),
+    }
+
+
+SCORES = Path("scores")
+RACE_PAGES = Path("docs") / "predictions"
+
+
+def _git_bytes(*args: str) -> bytes | None:
+    """A git command's output as bytes, or None when git refuses."""
+    import subprocess
+
+    done = subprocess.run(["git", *args], capture_output=True, check=False)
+    return done.stdout if done.returncode == 0 else None
+
+
+@app.command(name="score")
+def score_race(
+    race_id: Annotated[str, typer.Argument(help="A tagged prediction, e.g. c2c-2026.")],
+    notices_sent: Annotated[
+        bool, typer.Option("--notices-sent", help="The courtesy notes have gone out.")
+    ] = False,
+    results: Annotated[
+        str | None,
+        typer.Option(help="The archive race id of the results page, if the date and course "
+        "match more than one."),
+    ] = None,
+    first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
+    last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+) -> None:
+    """Score a tagged prediction against the official results, and write the race page.
+
+    Reads the prediction file from the tag `predictions/<race>`, never from the working copy,
+    and refuses unless the tag message publishes the file's hash and the tag is at least 24
+    hours before the gun. Finds the results page on the association's index, refreshing that
+    year's index once if the race is not on the cached copy, and fetches the page once.
+    Writes scores/<race>.json, docs/predictions/<race>.md and the README's live rows.
+    """
+    import json
+    from datetime import UTC, datetime
+
+    from finishline.ingest import records
+    from finishline.publish import predictions
+    from finishline.publish import scorecard as cards
+
+    tag = f"predictions/{race_id}"
+    file = f"{PREDICTIONS.as_posix()}/{race_id}.json"
+    ref = f"refs/tags/{tag}"
+    fields = _git_bytes(
+        "for-each-ref", ref, "--format=%(objecttype)%00%(taggerdate:iso-strict)%00%(contents)"
+    )
+    data = _git_bytes("cat-file", "blob", f"{tag}:{file}")
+    if not fields or data is None:
+        typer.echo(f"refused: no tag {tag} holding {file}; an untagged file is not a prediction",
+                   err=True)
+        raise typer.Exit(code=2)
+    kind, tagged_text, message = fields.decode("utf-8").split("\0", 2)
+    if kind != "tag":
+        typer.echo(f"refused: {tag} is a lightweight tag and records no time", err=True)
+        raise typer.Exit(code=2)
+
+    doc = json.loads(data.decode("utf-8"))
+    try:
+        problems = predictions.validate(doc)
+        if problems:
+            raise cards.NotPreRegistered("the tagged file is invalid: " + "; ".join(problems))
+        digest = cards.check_digest(data, message)
+        tagged_at = datetime.fromisoformat(tagged_text)
+        cards.check_tag(tagged_at, datetime.fromisoformat(doc["gun"]))
+    except (cards.NotPreRegistered, ValueError) as refusal:
+        typer.echo(f"refused: {refusal}", err=True)
+        raise typer.Exit(code=2) from refusal
+    working = Path(file)
+    if working.exists() and working.read_bytes() != data:
+        typer.echo(
+            f"warning: {file} in the working copy differs from the tagged file, which is the "
+            "one scored. A prediction file is never edited; find out why.",
+            err=True,
+        )
+
+    target = doc["race"]
+    when = date.fromisoformat(target["date"])
+    with nlaa.Cache(CACHE) as cache:
+
+        def candidates() -> list[Race]:
+            races, _skipped = nlaa.catalogue(cache, range(when.year, when.year + 1))
+            if results is not None:
+                return [race for race in races if race.race_id == results]
+            return [
+                race
+                for race in races
+                if race.date == when and race.course_id == target["course_id"]
+            ]
+
+        found = candidates()
+        if not found:
+            if not (notices_sent or os.environ.get(NOTICES_ENV)):
+                typer.echo(NOTICES, err=True)
+                raise typer.Exit(code=2)
+            typer.echo(f"not on the cached {when.year} index; reading it again, once")
+            cache.get(nlaa.INDEX.format(year=when.year), refetch=True)
+            found = candidates()
+        if not found:
+            typer.echo(f"no results posted yet for {target['course_id']} on {when}")
+            raise typer.Exit(code=1)
+        if len(found) > 1:
+            names = ", ".join(race.race_id for race in found)
+            typer.echo(f"several pages match ({names}); pass --results with one", err=True)
+            raise typer.Exit(code=2)
+        race = found[0]
+        if not cache.cached(race.url) and not (notices_sent or os.environ.get(NOTICES_ENV)):
+            typer.echo(NOTICES, err=True)
+            raise typer.Exit(code=2)
+        page = cache.get(race.url)
+
+    if abs(race.distance_m - float(target["distance_m"])) > 1.0:
+        typer.echo(
+            f"refused: {race.race_id} is {race.distance_m:.0f} m and the prediction was for "
+            f"{target['distance_m']} m",
+            err=True,
+        )
+        raise typer.Exit(code=2)
+
+    rows = records.to_results(page, race.race_id)
+    lines = cards.published(doc)
+    matching = cards.match(lines, rows)
+
+    # Carry-forward from the archive as it stood the day before, as in the backtest.
+    archive = _dataset(first, last)
+    history = History.before(when, archive.races, archive.resolved)
+    runner_of = {
+        result: runner
+        for runner in archive.resolved
+        for result in runner.results
+        if result.race_id == race.race_id
+    }
+    carry = baselines.CarryForward()
+    carry_forward: dict[int, float | None] = {}
+    for item in matching.with_outcome(cards.Outcome.FINISHED):
+        runner = runner_of.get(item.result) if item.result is not None else None
+        carry_forward[item.line.position] = (
+            None if runner is None else carry.predict(runner, race, history).seconds
+        )
+
+    card = cards.evaluate(
+        doc=doc,
+        matching=matching,
+        carry_forward=carry_forward,
+        prediction={
+            "file": file,
+            "sha256": digest,
+            "tag": tag,
+            "tagged_at": tagged_at.isoformat(),
+            "model": doc["model"]["name"],
+            "commit": doc["model"]["commit"],
+        },
+        results={
+            "race_id": race.race_id,
+            "url": race.url,
+            "sha256": predictions.sha256(page.encode("utf-8")),
+        },
+        scored_at=datetime.now(UTC),
+    )
+    SCORES.mkdir(exist_ok=True)
+    (SCORES / f"{race_id}.json").write_bytes(predictions.to_bytes(card))
+    RACE_PAGES.mkdir(parents=True, exist_ok=True)
+    (RACE_PAGES / f"{race_id}.md").write_text(
+        cards.race_page(card, matching), encoding="utf-8", newline="\n"
+    )
+    _write_live_rows()
+
+    field = card["field"]
+    errors = card["error"]["all"]
+    typer.echo(
+        f"{field['finished']} of {field['predicted']} predicted runners finished; "
+        f"{field['unpredicted_finishers']} finishers had no prediction"
+    )
+    typer.echo(f"MAE {cards.ci(errors['mae_minutes'])} minutes")
+    typer.echo(
+        f"model minus carry-forward on {errors['carry_forward']['runners']} runners: "
+        f"{cards.ci(errors['carry_forward']['difference_minutes'])} minutes"
+    )
+    for level in cards.LEVELS:
+        held = card['intervals']['all'][level]['coverage']
+        typer.echo(f"{level}% interval held: {cards.percent(held)}")
+    typer.echo(
+        f"wrote scores/{race_id}.json, docs/predictions/{race_id}.md and the README live rows"
+    )
+
+
+def _write_live_rows() -> None:
+    """The README's live table, from every committed score card."""
+    import json
+
+    from finishline.publish import scorecard as cards
+
+    loaded = [
+        json.loads(path.read_text(encoding="utf-8")) for path in sorted(SCORES.glob("*.json"))
+    ]
+    readme = Path("README.md")
+    text = report.replace_between(
+        readme.read_text(encoding="utf-8"), "live", cards.live_table(loaded)
+    )
+    readme.write_text(text, encoding="utf-8", newline="\n")
+
+
+def backtest_seed(race_id: str) -> int:
+    """A seed fixed by the race, so a re-run of an unchanged freeze draws the same numbers."""
+    import zlib
+
+    return zlib.crc32(race_id.encode())
 
 
 def _dataset(first: int, last: int) -> Dataset:

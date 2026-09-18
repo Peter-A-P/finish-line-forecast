@@ -11,6 +11,7 @@ from collections.abc import Mapping, Sequence
 from typing import Any
 
 from finishline.backtest import score
+from finishline.conformal import coverage, split
 from finishline.metrics import grade
 from finishline.models import conditions, courses
 from finishline.store import Dataset
@@ -201,6 +202,62 @@ def placing_table(scored: Sequence[score.Scored], models: Sequence[str]) -> str:
             f"| `{model}` | {len(gaps)} | {sum(gaps) / len(gaps):.1f} | "
             f"{sum(correlations) / len(correlations):.3f} |"
         )
+    return "\n".join(lines)
+
+
+def coverage_table(
+    summaries: Mapping[float, Sequence[coverage.Coverage]], model: str | None
+) -> str:
+    """How often the model's intervals held, raw and after conformal adjustment.
+
+    The assumption goes in the table's own text, because a coverage number read without it
+    is a promise the method does not make.
+    """
+    if model is None:
+        return (
+            "_No saved model run matches the current code and data, so there are no intervals "
+            "to check yet. `finishline backtest --hierarchical` produces one._"
+        )
+    lines = [
+        f"`{model}`, every race from 2024 on. Each race's intervals are adjusted using only "
+        "races dated before it, separately for each history depth. Coverage is the share of "
+        "runners whose finish fell inside; the 95% CI resamples races, not runners, because "
+        "runners in one race share its morning.",
+        "",
+        "| Prior results | Level | Runners checked | Races | Model's own interval | "
+        "After conformal | Median width, minutes (own to conformal) |",
+        "|---|---:|---:|---:|---|---|---|",
+    ]
+
+    def rate(point: float | None, low: float | None, high: float | None) -> str:
+        if point is None or low is None or high is None:
+            return "-"
+        return f"{point * 100:.0f}% ({low * 100:.0f} to {high * 100:.0f})"
+
+    for level in sorted(summaries):
+        for summary in summaries[level]:
+            checked = summary.rows - summary.unadjusted
+            width = (
+                "-"
+                if summary.raw_width is None or summary.conformal_width is None
+                else f"{summary.raw_width / 60:.1f} to {summary.conformal_width / 60:.1f}"
+            )
+            lines.append(
+                f"| {summary.stratum} | {level * 100:.0f}% | {checked:,} | {summary.races} | "
+                f"{rate(summary.raw, summary.raw_low, summary.raw_high)} | "
+                f"{rate(summary.conformal, summary.conformal_low, summary.conformal_high)} | "
+                f"{width} |"
+            )
+    lines += [
+        "",
+        "**The assumption.** Conformal coverage is guaranteed on average over races within a "
+        "history-depth group, provided a new race's errors look like the earlier races' "
+        "errors (exchangeability). It is not a promise about any one runner or any one race, "
+        "and it fails when a race meets conditions or a field the earlier races did not: a "
+        "gale on Signal Hill is exactly that. The first races of the backtest have too few "
+        f"earlier errors to calibrate on (under {split.MIN_CALIBRATION} per group) and are "
+        "left out of this table rather than given an interval nobody could trust.",
+    ]
     return "\n".join(lines)
 
 

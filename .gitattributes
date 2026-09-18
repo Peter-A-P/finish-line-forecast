@@ -6,3 +6,8 @@ tests/fixtures/*.html text eol=lf
 # Everything else is ordinary source; let git normalise it in the repository and give each
 # machine its own endings in the working tree.
 * text=auto
+
+# ⚠️ Except prediction files, which are never touched. Their SHA-256 is published before the
+# gun, and a checkout that turned LF into CRLF would hand every Windows reader a file that no
+# longer matches its own published hash. After `* text=auto`, because the last match wins.
+predictions/*.json -text

@@ -1,13 +1,17 @@
 # Plan: Finish Line Forecast
 
-**Written:** 2026-09-12. **Status as of 2026-09-13:** weeks 1 and 2 built. The archive is
-read and resolved, the three baselines are measured, every course's difficulty is measured
-from the results with the physics as a cross-check, and the conditions layer is fitted.
-**Still to build:** the hierarchical model, the LightGBM challenger, Mondrian conformal
-intervals, the placing simulation, the participation model, and `freeze`/`score`.
+**Written:** 2026-09-12. **Status as of 2026-09-16:** weeks 1 and 2 built, and the
+hierarchical model is built and converges on the real archive; its backtest is running.
+The archive is read and resolved, the three baselines are measured, every course's
+difficulty is measured from the results with the physics as a cross-check, and the
+conditions layer is fitted. Built since: Mondrian conformal intervals, the placing
+simulation, the start-list linker, the prediction file, `freeze` and `score`. **Still to
+build:** the hierarchical model's backtest table (running), the conditions layer wired into
+the model's race effect (section 13 item 27), the LightGBM challenger, and the participation
+model.
 
 **Section 13 is the log of what the data refuted**, and it is the first thing to read after
-this line: twenty numbered entries, each one a design in this plan that measurement
+this line: twenty-nine numbered entries, each one a design in this plan that measurement
 overturned. What is open and who owns it is in [docs/todo.md](docs/todo.md).
 
 **Build:** an alongside project, so planned in relative weeks. Earliest start: now. It waits
@@ -314,6 +318,25 @@ Cabot getting ten points harder since 2013. With it the median drift is zero. Ru
 category-median baseline with an honest width. Predictions are posterior predictive draws,
 then conformalised.
 
+**Amended 2026-09-16, and the amendments are section 13 items 21 to 26.** As built in
+`models/hierarchical.py`: the response is the log of a finish time over a VDOT-50 Daniels
+time, so the population's fade over distance is Daniels' curve and `beta_i ~ Normal(0,
+sigma_beta)` is only a runner's departure from it (no `mu_beta`); `gamma_i` has a mean per
+age-sex group; each runner's level is sampled at the middle of their own history; the race
+effect is a zero-sum course effect plus an edition effect that sums to zero within its
+course; courses under thirty finishes are left out of the fit; and it is sampled with
+nutpie, not PyMC's own NUTS. "Minutes, not hours" above was wrong by an order of magnitude
+on the sampler the plan named, and about right on the one that replaced it: eight minutes
+for a fit on 60,379 finishes and 19,488 runners.
+
+**Amended 2026-09-17, and the amendment is section 13 item 29.** The per-runner linear
+trend is gone. Each runner's form is a random walk over the calendar years they raced, with
+a drift per age-sex group; every race shares a year effect that walks from year to year; and
+the observed weather at the airport enters the race effect through four coefficients (heat,
+heat by distance, wind, tailwind), so item 27 is closed. A prediction walks the runner's form
+and the year effect forward from the last year the fit saw, and a live prediction draws the
+weather from the corrected forecast (`models.weather.draws`).
+
 ### 5.4 The challenger
 
 LightGBM with pinball loss at the 5th, 10th, 50th, 90th and 95th percentiles on: last
@@ -329,6 +352,12 @@ race's date, predict its field, score. The 2016 to 2023 results are history for 
 origins and never targets. This gives roughly 70 scored editions and the residuals the
 conformal layer calibrates on, stratified by history depth. The live prediction uses every
 result before the target date, which is the same procedure with one more origin.
+
+**Amended 2026-09-16 for the hierarchical model, section 13 item 26.** The baselines still
+run at every origin. The hierarchical model is fitted once per calendar quarter, on the
+history strictly before the quarter's first day, and predicts every race in the quarter
+from that fit. It therefore knows less than the baselines beside it about any race late in
+a quarter, never more.
 
 ### 5.6 Who is running
 
@@ -355,6 +384,25 @@ c2c-2026` fetches the page, resolves the field against the prediction file, writ
 error tables and re-renders the race page with predictions and results side by side.
 Nothing in the prediction file is ever edited; a defect found after the tag is scored as
 it stands and written up.
+
+**Amended 2026-09-16, as built in `publish/scorecard.py`.** Five things the paragraph above
+did not say:
+
+- `score` reads the prediction **from its tag, not the working copy**, and refuses one whose
+  tag message does not publish the file's SHA-256, or whose tag is less than 24 hours before
+  the gun. There is no override.
+- It matches published lines to the results page **by name key, not by the resolver**. The
+  file carries a name and a hometown and nothing else, on purpose. The hometown breaks a tie
+  between results of one name; anything still tied is excluded and counted. A line with no
+  result of its name is "not found", an upper bound on the no-show rate, because a list and a
+  results page can spell one runner two ways.
+- **Runners who did not finish are counted and never named** on the race page. That they did
+  not appear is an inference from absence, and no results page printed it.
+- The carry-forward baseline is recomputed from the archive as it stood the day before, and
+  compared on the runners it could answer for, as a paired difference with an interval.
+- Intervals resample runners, because one race has one morning; the page and the README say
+  what that does and does not cover. `freeze` renders no race page yet; `score` writes it,
+  with every finisher's prediction beside their result.
 
 ## 6. Week by week
 
@@ -734,3 +782,230 @@ hand.**
 
     One fact that falls out and is worth the race director's attention: **Cape to Cabot runs
     into a headwind in 13 of its 16 editions**, four of them above 25 km/h against.
+
+**2026-09-16, the hierarchical model: five things the plan said that the sampler refused.**
+
+All measured on one origin, 2025-01-01: 60,386 finishes, 19,488 runners, 250 editions, 47
+courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
+
+21. **PyMC's own NUTS could not sample the model, and the plan named it.** 100 tuning steps
+    and 100 draws took 1,117 seconds, every chain ran to its maximum tree depth (mean 9.4 of
+    10), 314 draws diverged and R-hat on the fitness and noise scales was above 2: four
+    chains that had not agreed how much of a finish time is the runner and how much is the
+    day. **nutpie on the same model: 300 and 300 in 463 seconds, tree depth 6, no
+    divergences.** Its mass-matrix adaptation learns forty thousand scales in the time
+    PyMC's windowed adaptation spends starting to. PyMC stays as the modelling language;
+    nutpie is pinned beside it in `pyproject.toml` with the reason.
+
+22. **Anchoring each runner's level at their first race was the obvious parameterisation and
+    was measured to be no help.** A runner with results from 2012 to 2024 pins their 2018
+    fitness far better than their 2012 fitness, so level and trend trade off along a ridge,
+    and the fix is to sample the level at each runner's own mean year and distance. It was
+    tried first, on PyMC's sampler, because it was the likeliest cause of the tree depth.
+    It did not move it: uncentred, every chain hit maximum tree depth and 100 and 100 took
+    1,187 seconds; centred, every chain still hit it (mean 9.4 of 10) and it took 1,117. It
+    is kept, because it is the right geometry and costs nothing, but the thing that fixed
+    the sampling was item 21.
+
+23. **`mu_beta` is not identifiable here, and the plan had one.** Every course is run at one
+    distance, so a population-wide fade `mu_beta * log(d)` is indistinguishable from course
+    effects that happen to line up with distance. Fitted with both it came back at R-hat
+    1.76. It is gone; the population's fade relative to Daniels lives in the course effects.
+
+24. **Two convergence failures that looked like one, and the first guess at the cause was
+    wrong.** With `mu_beta` fixed, `sigma_course` and `sigma_edition` still sat at R-hat
+    1.56 and 2.11. They were expected to have been dragged by `mu_beta` and were not. The
+    edition effects had a free direction: every edition of a course moving up while the
+    course moves down, which the likelihood cannot see and the prior barely charges for
+    once `sigma_edition` is large. Editions now sum to zero within their course.
+    `sigma_edition` went to 1.21 and a tight 0.043.
+
+25. **One chain in four called a seven-finisher marathon seventy-eight percent fast.**
+    `sigma_course` stayed at 1.57 after item 24, and splitting the course effects by chain
+    showed why: three chains put `eastern-42195` at +0.04, the fourth at -1.50, and because
+    courses sum to zero that moved every other course by 0.035. With tails this heavy (nu
+    near 2) calling seven finishes seven outliers is a local mode a chain can fall into and
+    not leave. The course layer already refuses to publish a course under thirty finishes
+    as "noise dressed as a measurement"; the model now applies the same floor, which
+    removes seven finishes. **Every scale then converged: R-hat 1.02 to 1.07, no
+    divergences, the course effects agreeing across chains to 0.003.**
+
+    Worth the reader's attention: the tails. nu comes back at 2.02 with a residual scale of
+    2.8 percent, which says most runners repeat themselves closely and a minority of
+    results are wildly off (a walk, an injury, a pacing duty, a wrong name match). A normal
+    likelihood would have spent the whole fit explaining those.
+
+26. **The model is fitted per quarter, not per origin.** At eight minutes a fit, a fit at
+    each of seventy-odd origins is ten hours; one per calendar quarter from 2024 is about
+    ten fits. Each is fitted on the history strictly before the quarter's first day, so a
+    race late in a quarter is predicted without that quarter's earlier results, which the
+    baselines beside it do see. The tilt is against the model on purpose, since the other
+    direction is a leak, and a test pins that a block fit never sees its own block.
+
+27. **The model does not use the weather yet, and the prediction file says so.** Section 5.3
+    puts the conditions factors into the race effect's prior. As built, the race effect is
+    the course plus an edition deviation the model learns only from past editions, so a
+    predicted race gets its course's average morning and the full spread of mornings as
+    uncertainty. The conditions layer (items 17 to 20) is measured and not yet wired in, and
+    `freeze` writes `"conditions": null` rather than a forecast the model did not use. Wiring
+    it in means fitting the edition effects net of observed weather, which changes the model
+    and therefore needs its backtest rerun; it is next after the first backtest table.
+
+    **Closed 2026-09-17 by item 29:** the observed weather is in the race effect, the backtest
+    is run with and without it, and `freeze` records the corrected forecast it used.
+
+28. **The first model backtest lost to carry-forward, and most of the loss is one line of
+    `predict`.** Measured 2026-09-16 over 49 races from 2024: MAE 9.3 minutes against
+    carry-forward's 7.4 for runners with four or more prior results, 10.9 against 9.2 with
+    two or three, 10.9 against 9.6 with one, and level with the category median (18.6
+    against 18.5) for runners with none. The tables above are published as measured.
+
+    **The order is right and the level is wrong.** On the saved rows, the model's
+    predictions are 8.3 percent too fast on average (95% CI 6.7 to 9.6, resampling races),
+    where carry-forward's are off by 0.4 percent (-2.6 to +2.0). With each race's median error
+    taken out, the two are level: mean absolute log error 0.0773 for the model against 0.0780,
+    a difference of -0.0007 (-0.0040 to +0.0019). The bias grows with the time between the
+    middle of a runner's history and the race: 3.8 percent within six months, 11.6 percent
+    past eight years.
+
+    **The cause is the trend, carried to race day.** `gamma_i` is a straight line in years
+    since a runner's first race, and runners get faster through their first years (the mean
+    runner trend is -0.5 percent a year), so extending that line to the race predicts years
+    of improvement nobody has. Tested on the 2025-01-01 posterior against the 4,469 finishes
+    of twenty 2025 races, at posterior means (mean absolute log error, then median error):
+    the trend carried to race day, 0.1011 and -6.4 percent; the trend held at the runner's
+    last result, 0.0919 and -5.2; the level at the middle of the runner's history, 0.0871
+    and -3.1; carry-forward, 0.0968 and +3.8. `gamma_i` stays in the fit, because without it
+    the edition effects absorb ageing (section 5.3); the change is to how far a prediction
+    extends it.
+
+    ⚠️ **About three percent is not explained yet.** The leading suspect is the likelihood:
+    with nu near 2 the Student-t location sits nearer the mode than the median, and race
+    errors are skewed (a bad day is slow; nobody has a wildly fast one), so the model aims
+    for a good day.
+
+    ⚠️ **Item 25's convergence claim did not hold across the backtest.** Over the eight
+    quarterly fits the largest R-hat on the hyperparameters, `mu_group` and `mu_gamma`
+    included, is 1.24 to 1.37 and the smallest bulk ESS 9 to 13, with no divergences. Item 25
+    looked at the scales at one origin, where they were fine; the group means were not
+    checked there.
+
+    **The conformal layer did its job on a biased model.** For runners with four or more
+    results the model's own 80 percent interval held 46 percent of the time and the
+    adjusted one 79 percent, which is the calibration working, paid for in width: a median
+    of 14.0 minutes became 24.3. The place error of 54.5 against carry-forward's 25.8 is not
+    a like-for-like comparison: places are ranked among the runners each model answered,
+    and the model answered for the newcomers too.
+
+29. **Form is a random walk and every year has its own level, because the line and the
+    course average were both wrong.** Tested on history before 2025-01-01 against the 4,469
+    finishes of twenty 2025 races (mean absolute log error, then median error; posterior
+    means; carry-forward from each race's own history):
+
+    | Model | Error | Median | Race-centred |
+    |---|---:|---:|---:|
+    | Linear trend (item 28's model) | 0.1007 | -6.9% | 0.0750 |
+    | Linear trend, level held at the middle of history, half the last residual added | 0.0816 | +0.7% | 0.0800 |
+    | Random walk on form | 0.0888 | -5.0% | 0.0737 |
+    | Random walk, mean-reverting (AR(1)) | 0.0885 | -5.0% | 0.0736 |
+    | **Random walk and a year effect** | **0.0766** | **+1.6%** | 0.0738 |
+    | Random walk and a year effect, no group drift | 0.0790 | +2.5% | 0.0744 |
+    | Carry-forward | 0.0912 | +1.6% | 0.0786 |
+
+    Three findings, each of which refuted the one before. First, residuals persist: a
+    runner's miss at one race predicts their miss at the next by 0.3 to 0.4 within a season,
+    so fitness is a state, not a slope, and the walk fixed the ordering (race-centred error
+    0.074 against carry-forward's 0.079). Second, the remaining five percent was not
+    regression to the mean: fitted with mean reversion, the persistence came back at 0.99.
+    Third, it was the calendar. Edition effects, measured against their course's long-run
+    average, run from two to three percent fast in 2011 to 2015 to six to eight percent slow
+    in 2023 and 2024, in every course and group, so a course average predicts a 2025 race as
+    if it were run a decade ago. A shared year effect, walked forward, took the bias to
+    carry-forward's and the error to sixteen percent below it. Why recent fields are slower
+    (who runs, or how) is not something this model claims to know.
+
+    ⚠️ **The year effect is not well identified, and the diagnostics say so.** Years since a
+    runner's first race and the calendar year rise together for every runner, the age,
+    period and cohort problem, so the group drift, the year effect and the group levels trade
+    off along a ridge: worst R-hat 1.68 with the drift, 1.40 without it, bulk ESS near ten on
+    `sigma_year`. Predictions are made along the ridge's invariant (form plus the latest year)
+    and were the most accurate of all, so the model with the drift is used, and every fit's
+    diagnostics are published with the backtest rather than presented as converged.
+
+    **The full backtest, run overnight on 2026-09-17 to 18, and the README tables carry it.**
+    Eight quarterly fits, 49 races from 2024 on, 73,232 predictions, each race predicted only
+    from results dated strictly before it. Mean absolute error in minutes:
+
+    | Prior results | Runners | Carry-forward | Model | Skill |
+    |---|---:|---:|---:|---:|
+    | 0 | 5,594 | not answered | 17.9 | against the category median's 18.5 |
+    | 1 | 2,650 | 9.6 | 9.5 | 1% |
+    | 2 to 3 | 2,831 | 9.2 | 8.5 | 8% |
+    | 4 or more | 7,233 | 7.4 | 5.5 | 26% |
+
+    On the 12,714 runners both models answer for, mean absolute log error is 0.0751 against
+    carry-forward's 0.0881, and with each race's median error removed 0.0722 against 0.0780,
+    a paired difference of -0.0059 (95% CI -0.0093 to -0.0032, resampling races). Bias is
+    -0.4% (-2.0 to +1.2) against carry-forward's -0.4% (-2.7 to +2.0), so item 28's 8.3% is
+    gone. The intervals moved as much as the point predictions: own-interval coverage at four
+    or more prior results went from 46% to 76% at the 80% level, and conformal now widens the
+    median interval from 13.5 to 13.6 minutes where it had to stretch 14.0 to 24.3.
+
+    Per-fit diagnostics, published as promised rather than summarised away: no divergences in
+    any of the eight fits, worst R-hat by block 1.35, 1.51, 1.51, 1.67, 1.71, 1.73, 1.74 and
+    1.84, smallest bulk ESS about 6. The ablation without weather is the same picture, with
+    four divergences in its 2025-04-01 fit. This is the single-origin ridge again, unchanged
+    at every origin, and the predictions are still read along its invariant.
+
+    ⚠️ **The weather ablation is a null and the coefficients are not, which took three
+    measurements and two wrong conclusions to establish.** The same eight fits without the
+    weather terms give 17.9, 9.6, 8.6 and 5.5 minutes, inside the full model's interval at
+    every depth; paired on the 18,278 predictions both runs make, the gain is 0.0003 (95% CI
+    -0.0008 to +0.0002). Nor is that the weak form of the test: every target race falls after
+    its block's origin, so neither model has an edition effect for it, and `predict` is handed
+    the airport's observed temperature and wind for that morning rather than a forecast, which
+    is the position a freeze is in with better information than a freeze has.
+
+    The first conclusion drawn from that, that observed weather carries no signal, was wrong.
+    Fitted on the whole archive (`scratch/weather_coefficients.py`), the four coefficients are:
+
+    | Term | Per unit | 95% interval | ESS bulk | R-hat |
+    |---|---:|---|---:|---:|
+    | temperature above neutral | +0.120% | +0.074 to +0.164 | 18 | 1.17 |
+    | temperature x log distance | +0.209% | +0.143 to +0.275 | 34 | 1.11 |
+    | wind speed above neutral | +0.0247% | +0.0087 to +0.0425 | 14 | 1.24 |
+    | tailwind along the bearing | +0.001% | -0.040 to +0.038 | 9 | 1.35 |
+
+    which is a degree costing -0.02% at 5 km, +0.12% at 10 km, +0.27% on Cape to Cabot and
+    +0.42% at a marathon, all but the tailwind with the whole posterior on one side of zero.
+    A weather term that moves the level of a field by one to three percent cannot show up in
+    a mean absolute error of ten percent per runner. The ablation measured the wrong quantity
+    for the question, and the README now says so.
+
+    ⚠️ **What is genuinely open: the fit applies about half the weather its own residuals
+    still want.** The conditions layer, fitted on edition effects alone, puts a degree at
+    10 km at +0.233% (+0.129 to +0.342), about twice the joint fit's +0.120%. Race-level
+    median bias across the 32 backtest races with an observation slopes -0.69 (+/- 0.27)
+    against the conditions adjustment, and -0.68 (+/- 0.28) with calendar year and a summer
+    indicator in the regression, so it is not the year effect wearing a hat. The 2025 USR half
+    marathon at 13.6 degrees above neutral came out 3.7% too fast and the 2026 Tely 10 at 10.1
+    above 3.4% too fast. Two candidates, neither settled: bulk ESS of 14 to 34 on these terms
+    is thin enough that the posterior mean may sit below the truth, and one multiplicative
+    coefficient assumes heat costs the front and the back of a field the same fraction, which
+    a hot race does not look like. Owed before Cape to Cabot is frozen. The scripts are
+    `scratch/weather_posthoc.py` and `scratch/weather_confound.py`.
+
+    ⚠️ **The placing table is not a like-for-like comparison and must not be read as one.**
+    Places are scored among the runners each model answered for, so carry-forward is ranked
+    over the 12,714 runners with a prior result and the model over the whole field, the 5,594
+    entrants with no history included, which is why its mean absolute place error is 53.4
+    against carry-forward's 25.8. Scoring the model on carry-forward's subset is the missing
+    measurement; it belongs beside the current table, not instead of it, and it is owed before
+    the first freeze.
+
+    **One operational note, because it cost a night.** A fit on the whole archive commits
+    about 27 GB on this machine, and the eighth block failed three times on a 216 MiB
+    allocation with the Windows commit limit at 48 GB. Blocks are now written as they finish
+    (`backtest/saved.py`, `BlockStore`), so a failed run resumes instead of restarting, and
+    the pagefile was raised to a fixed 64 GB. The freeze fit is the same size as that eighth
+    block, so this is a constraint on October 17, not a one-off.

@@ -7,8 +7,11 @@ staffing planned from expected finish times rather than guesses; for a runner it
 time with an honest interval instead of a hunch.
 
 **Status: building.** Eighteen years of Newfoundland road results are read, 23,713
-runners resolved out of them, the three baselines are measured on every race since 2024, and
-every course's difficulty is measured from the results. No prediction has been made yet. The first live race is the Cape to Cabot 20 km in St. John's
+runners resolved out of them, the three baselines are measured on every race since 2024,
+every course's difficulty is measured from the results, and the hierarchical model now beats
+the strongest of those baselines by 26% for the runners with four or more prior results, 5.5
+minutes of mean absolute error against carry-forward's 7.4, with no bias left to speak of. No
+prediction has been made yet. The first live race is the Cape to Cabot 20 km in St. John's
 on 2026-10-18, with a second on a frozen model on 2026-11-11; predictions are committed,
 tagged and hashed in this repository before each race and scored against the official
 results after it. Build plan: [PLAN.md](PLAN.md).
@@ -168,16 +171,72 @@ it.
 | 0 | 5594 | `carry-forward` | 0% | - | - | baseline |
 |  |  | `best-equal-vdot` | 0% | - | - | - |
 |  |  | `category-median` | 96% | 18.5 (18.0 to 18.9) | 18% | - |
+|  |  | `hierarchical` | 100% | 17.9 (17.5 to 18.4) | 18% | - |
+|  |  | `hierarchical-no-weather` | 100% | 17.9 (17.5 to 18.4) | 18% | - |
 | 1 | 2650 | `carry-forward` | 100% | 9.6 (9.2 to 10.0) | 10% | baseline |
 |  |  | `best-equal-vdot` | 63% | 7.5 (7.2 to 7.9) | 8% | 22% |
 |  |  | `category-median` | 97% | 16.1 (15.5 to 16.8) | 16% | -68% |
+|  |  | `hierarchical` | 100% | 9.5 (9.1 to 9.9) | 10% | 1% |
+|  |  | `hierarchical-no-weather` | 100% | 9.6 (9.2 to 10.0) | 10% | 1% |
 | 2 to 3 | 2831 | `carry-forward` | 100% | 9.2 (8.9 to 9.7) | 9% | baseline |
 |  |  | `best-equal-vdot` | 73% | 7.7 (7.2 to 8.0) | 8% | 17% |
 |  |  | `category-median` | 97% | 15.9 (15.3 to 16.5) | 16% | -72% |
+|  |  | `hierarchical` | 100% | 8.5 (8.2 to 9.0) | 9% | 8% |
+|  |  | `hierarchical-no-weather` | 100% | 8.6 (8.2 to 9.0) | 9% | 7% |
 | 4 or more | 7233 | `carry-forward` | 100% | 7.4 (7.2 to 7.6) | 8% | baseline |
 |  |  | `best-equal-vdot` | 87% | 7.1 (6.9 to 7.3) | 7% | 4% |
 |  |  | `category-median` | 97% | 14.1 (13.8 to 14.4) | 18% | -90% |
+|  |  | `hierarchical` | 100% | 5.5 (5.3 to 5.6) | 6% | 26% |
+|  |  | `hierarchical-no-weather` | 100% | 5.5 (5.3 to 5.7) | 6% | 26% |
 <!-- finishline:end:baselines -->
+
+⚠️ **The first run of this model lost to carry-forward. This is the second run, and what
+changed is in [PLAN.md](PLAN.md) section 13 items 28 and 29.** Two things were wrong at once:
+each runner's improvement trend was carried in a straight line to race day, which predicts
+years of improvement nobody has, and the race-edition effects were quietly absorbing a
+calendar drift, so that 2023 and 2024 races came out 6 to 8% slower than their own course
+averages. Form is now a random walk over the years a runner actually races, and a shared
+year effect walks the whole province from one calendar year to the next. The bias is gone:
+predictions are 0.4% too fast on average (95% CI 2.0% too fast to 1.2% too slow), against
+carry-forward's 0.4% too fast (2.7% too fast to 2.0% too slow), the intervals resampling
+races rather than runners. With each race's typical error removed the model is now ahead rather than level, by
+0.59 percentage points of absolute log error (95% CI 0.32 to 0.93), so it has both the level
+and the order of a field better than the baseline it lost to before.
+
+⚠️ **It still samples badly, and the tables above are what that badly-sampled model
+predicts.** Across the eight quarterly fits the worst R-hat runs from 1.35 to 1.87 and the
+smallest bulk ESS is about 6, with no divergences. The cause is identification, not tuning:
+years since a runner's first race and the calendar year move together, so the group drift,
+the year effect and the group means trade off along a ridge that the sampler wanders. The
+predictions use only the combination that is invariant along that ridge, which is why they
+are accurate anyway, but no individual coefficient from this fit should be read on its own.
+PLAN.md section 13 item 29 has the comparison and the caveat in full.
+
+⚠️ **The weather terms move the tables by nothing, and that is not the same as measuring
+nothing.** `hierarchical-no-weather` is the same model without the four weather coefficients,
+and it lands within a rounding error at every depth: paired on the 18,278 predictions both
+runs make, the gain is 0.0003 of absolute log error (95% CI -0.0008 to +0.0002). But the
+coefficients themselves are not zero. Fitted on the whole archive they put a degree above
+neutral at +0.120% at 10 km (95% CI +0.074 to +0.164), +0.265% on Cape to Cabot and +0.421%
+at a marathon, and a km/h of wind at +0.0247% (+0.0087 to +0.0425), each with the whole
+posterior on one side of zero. The tailwind term remains the null it always was, +0.001%
+(-0.040 to +0.038), because only two courses carry a bearing.
+
+Both things are true because they answer different questions. Weather moves the level of a
+whole field by one to three percent; individual error is around ten percent, so a correct
+level shift is invisible in mean absolute error per runner. It is not invisible to a race
+director planning a finish-line clock.
+
+⚠️ **The model applies about half the weather its own errors still want, and that is
+unfinished business.** The conditions layer, fitted on edition effects alone, puts a degree
+at 10 km at +0.233% (+0.129 to +0.342), roughly twice what the joint fit applies. Race-level
+bias in the backtest still slopes -0.69 (+/- 0.27) against the conditions adjustment after
+controlling for calendar year and season, which is what a model applying half an effect looks
+like: the 2025 USR half marathon, 13.6 degrees above neutral, was predicted 3.7% too fast,
+and the 2026 Tely 10 3.4% too fast. Two candidates, neither settled: these coefficients come
+out of a fit whose bulk ESS on them is 14 to 34, which is thin; and a single multiplicative
+term assumes heat costs the front and the back of a field the same fraction, which a hot race
+does not look like. Measured before Cape to Cabot is frozen, not after.
 
 **Getting the order right**, which is the number a race director actually plans from.
 
@@ -187,16 +246,49 @@ it.
 | `carry-forward` | 49 | 25.8 | 0.836 |
 | `best-equal-vdot` | 48 | 18.3 | 0.836 |
 | `category-median` | 45 | 96.4 | 0.356 |
+| `hierarchical` | 49 | 53.4 | 0.716 |
+| `hierarchical-no-weather` | 49 | 53.3 | 0.716 |
 <!-- finishline:end:placing -->
 
-**The live prediction tables are empty until there is a prediction.**
+⚠️ **The model predicts times better than it predicts places, and this table flatters the
+baselines.** Places are computed among the runners each model answered for, so carry-forward
+is ranked over the 12,714 runners who have a prior result, while the model is ranked over the
+whole field, the 5,594 entrants with no history included, and ordering those is close to
+guessing. The two columns are therefore not measuring the same race. It is printed this way
+because the alternative, scoring each model on the subset that suits it, is how a table
+stops being checkable. Scoring the model on the runners carry-forward can also answer is the
+next measurement, and it belongs beside this one rather than instead of it.
 
-**Live: predicted before the gun, scored after** (bootstrap 95% CIs over runners)
+**How often the intervals hold.** A predicted time with an interval is two claims, and the
+second one is checked here: the model's own 80% and 90% intervals, and the same intervals
+after conformal adjustment on the races before each one, by how much history a runner has.
 
-| Race | Runners predicted | Field coverage | MAE, minutes (model) | MAE, minutes (carry-forward baseline) | Coverage at 80% nominal | Coverage at 90% nominal | Median 80% width, minutes | Mean absolute place error | Spearman, predicted vs actual order | Prediction tag and hash |
-|---|---|---|---|---|---|---|---|---|---|---|
-| Cape to Cabot 20 km, 2026-10-18 | _not yet_ | | | | | | | | | |
-| Run to Remember 11 km, 2026-11-11 | | | | | | | | | | |
+<!-- finishline:coverage -->
+`hierarchical`, every race from 2024 on. Each race's intervals are adjusted using only races dated before it, separately for each history depth. Coverage is the share of runners whose finish fell inside; the 95% CI resamples races, not runners, because runners in one race share its morning.
+
+| Prior results | Level | Runners checked | Races | Model's own interval | After conformal | Median width, minutes (own to conformal) |
+|---|---:|---:|---:|---|---|---|
+| 0 | 80% | 5,532 | 47 | 77% (75 to 80) | 78% (73 to 84) | 54.6 to 55.5 |
+| 1 | 80% | 2,591 | 43 | 72% (70 to 75) | 77% (74 to 78) | 21.0 to 23.5 |
+| 2 to 3 | 80% | 2,762 | 43 | 71% (68 to 75) | 79% (76 to 83) | 18.5 to 22.9 |
+| 4 or more | 80% | 7,133 | 46 | 76% (73 to 79) | 77% (74 to 79) | 13.5 to 13.6 |
+| 0 | 90% | 5,532 | 47 | 87% (86 to 89) | 89% (87 to 91) | 71.2 to 74.8 |
+| 1 | 90% | 2,591 | 43 | 83% (81 to 85) | 88% (87 to 89) | 28.7 to 34.1 |
+| 2 to 3 | 90% | 2,762 | 43 | 82% (80 to 85) | 88% (86 to 89) | 24.8 to 30.2 |
+| 4 or more | 90% | 7,133 | 46 | 86% (84 to 89) | 88% (86 to 90) | 18.3 to 19.2 |
+
+**The assumption.** Conformal coverage is guaranteed on average over races within a history-depth group, provided a new race's errors look like the earlier races' errors (exchangeability). It is not a promise about any one runner or any one race, and it fails when a race meets conditions or a field the earlier races did not: a gale on Signal Hill is exactly that. The first races of the backtest have too few earlier errors to calibrate on (under 50 per group) and are left out of this table rather than given an interval nobody could trust.
+<!-- finishline:end:coverage -->
+
+**Live: predicted before the gun, scored after.** Cape to Cabot 20 km on 2026-10-18, then Run
+to Remember 11 km on 2026-11-11 on the same frozen model. `finishline score` reads each
+prediction from its tag, refuses one tagged less than 24 hours before the gun, and writes a
+row here and a race page under `docs/predictions/` with every finisher's
+prediction beside their result.
+
+<!-- finishline:live -->
+_No prediction has been scored yet. `finishline score <race>` fills a row here once a tagged prediction's official results are posted._
+<!-- finishline:end:live -->
 
 **Who is entered for the first live race.** Cape to Cabot, from the club's published start
 list of 2026-09-12, matched against the archive.
@@ -286,11 +378,14 @@ intersect. That is the only thing allowed to split a name into two runners. The 
 breaks a tie and never splits, because runners move: of the 1,656 names appearing under
 two or more towns, 1,103 show a single clean switch over time. Where a result could belong
 to either of two runners and the page printed no age band, it is held back and counted.
-Every past result is converted to a neutral-condition equivalent using a course factor
-from the route's elevation profile, Daniels' heat correction and a calibrated wind model.
-A Bayesian hierarchical model on log finish time shrinks each runner's fitness, trend and
-endurance exponent toward their group, with a race-day effect whose prior comes from the
-course and the weather forecast; a gradient-boosting quantile model is the challenger.
+Each finish is put on one scale as a ratio to a Daniels reference time. A Bayesian
+hierarchical model on that ratio gives every runner a fitness level and a distance fade shrunk
+toward their age-sex group, and a form that walks from one racing year to the next; every race
+gets its course's measured difficulty, a shared effect for its calendar year, and the heat and
+wind observed at St. John's airport that morning. A live prediction walks each runner's form
+forward to race day and draws the weather from the day-ahead forecast, corrected by how wrong
+that forecast was on past race mornings. The design history, including three models the data
+refuted, is PLAN.md section 13.
 Intervals are conformalised on rolling-origin residuals, stratified by how many results a
 runner has. Placing is simulated from the whole field's predictive distributions. The
 prediction file is committed, tagged and hashed before the gun and scored after.

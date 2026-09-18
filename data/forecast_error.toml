@@ -1,0 +1,14 @@
+# How wrong Open-Meteo's day-ahead forecast was on past race mornings at St. John's
+# airport, forecast minus the ECCC observation over the same race hours. Written by
+# `finishline forecast-error` on 2026-09-16, from race editions near
+# St. John's since 2024. Read by `finishline freeze`. Do not edit by hand.
+
+mornings = 32
+temp_bias = -1.3802083333333335
+temp_sd = 2.3530177280070403
+wind_bias = -7.672604166666666
+wind_sd = 5.330958055367012
+east_bias = -4.614556161691192
+east_sd = 8.679724766049475
+north_bias = -0.9662853537917694
+north_sd = 8.334506003843526

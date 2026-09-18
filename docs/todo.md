@@ -6,31 +6,20 @@ because it is waiting on a person or on an outside event.
 
 ## Waiting on Peter
 
-### 1. Register the daily entrant-list snapshot with Task Scheduler
+The daily entrant-list snapshot is registered with Task Scheduler as of 2026-09-13 and
+first ran from it at 20:23 that evening (`scripts/register-snapshot-task.ps1`; check it with
+`Get-ScheduledTask -TaskName 'FinishLine daily entrant snapshot'`, and read
+`data/entrants/snapshot.log`, which every run appends to). If the working copy ever moves to
+another machine, the task and the gitignored `data/` have to move with it; neither is in git.
+The weekly results crawl is registered the same way (`scripts/register-crawl-task.ps1`, log in
+`data/cache/nlaa/crawl.log`) and moves with it.
 
-```
-pwsh -File scripts\register-snapshot-task.ps1
-```
+### 1. Run to Remember's 2026 gun time
 
-**Why it cannot wait.** The two Athletics NorthEAST lists are live pages and are archived
-nowhere, not by the club and not by the Wayback Machine. A day not observed is a day gone,
-and the growth curve of the field, the no-show rate and the late-entry rate are all
-differences between snapshots. There are about five weeks to Cape to Cabot.
-
-**What the command does.** Registers "FinishLine daily entrant snapshot" to run
-`scripts/daily-snapshot.ps1` at 20:23 local, with `StartWhenAvailable` so a laptop that was
-closed at 20:23 takes the snapshot when it next wakes rather than skipping the day, and
-allowed to run on battery. Every run appends a line to `data/entrants/snapshot.log` whether
-it worked or not.
-
-**To check it:** `Get-ScheduledTask -TaskName 'FinishLine daily entrant snapshot'`
-**To remove it:** `Unregister-ScheduledTask -TaskName 'FinishLine daily entrant snapshot' -Confirm:$false`
-
-Until it is registered, `finishline snapshot --notices-sent` by hand does the same job for
-that one day. Snapshots taken so far: 2026-09-12 16:03Z, 2026-09-13 00:14Z and 00:28Z.
-
-⚠️ The assistant cannot register this: the sandbox refuses to create scheduled tasks, which
-is the correct behaviour and not something to work around.
+Cape to Cabot's is confirmed (08:00 on 2026-10-18, NDT) and in `data/live.toml`, which puts
+its freeze deadline at 08:00 on 2026-10-17. `finishline freeze` refuses a race without a
+confirmed gun time, on purpose: the 24-hour rule is measured from it. Run to Remember needs
+the same before 2026-11-10, on standard time (`-03:30`).
 
 ### 2. Elevation figures for the other courses, if and when they are easy to get
 

@@ -142,3 +142,22 @@ def test_a_month_is_fetched_once(tmp_path: Path) -> None:
     cache.path_for(station, 2025, 10).parent.mkdir(parents=True, exist_ok=True)
     cache.path_for(station, 2025, 10).write_text(FULL, encoding="utf-8")
     assert cache.get(station, 2025, 10) == FULL
+
+
+def test_a_month_fetched_before_it_ended_is_fetched_again(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A race on the 13th, read on the 20th, must not leave the 27th with no weather."""
+    import os
+    from datetime import datetime
+
+    cache = eccc.Cache(tmp_path)
+    station = eccc.station_for(2025)
+    path = cache.path_for(station, 2025, 10)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("half a month", encoding="utf-8")
+    written = datetime(2025, 10, 20, 12, 0).timestamp()
+    os.utime(path, (written, written))
+    monkeypatch.setattr(cache, "_fetch", lambda url: FULL)
+    assert cache.get(station, 2025, 10) == FULL
+    assert cache.get(station, 2025, 10) == FULL, "and kept once the month is over"

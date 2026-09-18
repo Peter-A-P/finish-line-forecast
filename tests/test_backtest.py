@@ -8,10 +8,11 @@ the history refuses to carry the future, and the harness refuses to score if it 
 from __future__ import annotations
 
 from datetime import date
+from pathlib import Path
 
 import pytest
 
-from finishline.backtest import run, score
+from finishline.backtest import run, saved, score
 from finishline.history import History
 from finishline.identity.resolve import Runner
 from finishline.models import baselines
@@ -66,6 +67,51 @@ RACES = {
     "same_day": race("same_day", date(2025, 6, 1), metres=5000.0, course="flat-5000"),
     "later": race("later", date(2026, 6, 1)),
 }
+
+
+# --- saved rows ------------------------------------------------------------------
+
+
+def test_saved_rows_come_back_exactly(tmp_path: Path) -> None:
+    rows = [
+        score.Scored("hierarchical", "target", "a", 2410.5, 2400.0, 3, (2300.0, 2410.5, 2550.0)),
+        score.Scored("hierarchical", "target", "b", None, 3000.0, 0),
+    ]
+    path = tmp_path / "hierarchical.jsonl"
+    saved.save(path, "k1", rows)
+    assert saved.load(path, "k1") == rows
+
+
+def test_saved_rows_from_a_different_run_are_ignored(tmp_path: Path) -> None:
+    """Last week's model must not be published under this week's name."""
+    path = tmp_path / "hierarchical.jsonl"
+    saved.save(path, "k1", [score.Scored("hierarchical", "target", "a", 1.0, 1.0, 0)])
+    assert saved.load(path, "k2") is None
+    assert saved.load(tmp_path / "absent.jsonl", "k1") is None
+
+
+def test_the_key_moves_when_the_model_source_moves(tmp_path: Path) -> None:
+    source = tmp_path / "model.py"
+    source.write_text("a = 1\n", encoding="utf-8")
+    before = saved.key({"months": 3}, [source])
+    assert saved.key({"months": 3}, [source]) == before
+    assert saved.key({"months": 6}, [source]) != before
+    source.write_text("a = 2\n", encoding="utf-8")
+    assert saved.key({"months": 3}, [source]) != before
+
+
+def test_a_checkout_that_only_changes_line_endings_keeps_the_key(tmp_path: Path) -> None:
+    source = tmp_path / "model.py"
+    source.write_bytes(b"a = 1\nb = 2\n")
+    before = saved.key({"months": 3}, [source])
+    source.write_bytes(b"a = 1\r\nb = 2\r\n")
+    assert saved.key({"months": 3}, [source]) == before
+
+
+def test_the_dataset_fingerprint_moves_with_one_second() -> None:
+    finish = [result("target", seconds=2400.0)]
+    slower = [result("target", seconds=2401.0)]
+    assert saved.dataset_fingerprint(RACES, finish) != saved.dataset_fingerprint(RACES, slower)
 
 
 # --- the cut ---------------------------------------------------------------------
@@ -367,3 +413,15 @@ def test_an_ambiguous_runner_is_never_predicted_for() -> None:
         scored_from=2024,
     )
     assert scored == []
+
+
+def test_a_block_store_round_trips_and_ignores_a_torn_file(tmp_path: Path) -> None:
+    store = saved.BlockStore(tmp_path, "k" * 64)
+    start = date(2025, 7, 1)
+    assert store.load(start) is None
+    block = {("r1", "race"): (1.0, 2.0), ("r2", "race"): ()}
+    store.save(start, {"max_rhat": 1.02}, block)
+    assert store.load(start) == ({"max_rhat": 1.02}, block)
+    path = next(tmp_path.rglob("*.jsonl"))
+    path.write_text(path.read_text(encoding="utf-8").splitlines()[0] + "\n", encoding="utf-8")
+    assert store.load(start) is None, "a block cut short is sampled again, not trusted"

@@ -102,6 +102,7 @@ def run(
                         predicted=prediction.seconds,
                         actual=actual.seconds,
                         depth=depth,
+                        quantiles=prediction.quantiles,
                     )
                 )
     return scored
