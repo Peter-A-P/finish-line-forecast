@@ -216,11 +216,16 @@ PLAN.md section 13 item 29 has the comparison and the caveat in full.
 `hierarchical-no-weather` is the same model fitted without the four weather coefficients, and
 it lands within a rounding error of the full model at every history depth: 5.5 against 5.5
 minutes at four or more prior results, 8.6 against 8.5 at two or three, 9.6 against 9.5 at
-one. Heat and wind do cost a race real minutes, which the conditions layer measures, but the
-edition effect was already absorbing most of that, and moving it into named coefficients
-mostly relabels it. The terms stay in because a frozen prediction needs something to apply a
-forecast to on a morning nobody has raced yet, and the null result is reported rather than
-dropped quietly.
+one. Paired on the 18,278 predictions both runs make, the gain is 0.0003 of absolute log
+error (95% CI -0.0008 to +0.0002), three hundredths of a percent of a finish time. This is
+the strong form of the test: the target race is always after the fit, so neither model has an
+edition effect for it, and the weather model was handed the airport's observed temperature
+and wind for that morning rather than a forecast. Nine degrees or more from neutral does not
+rescue it either. Heat and wind do cost a race real minutes, which the conditions layer
+measures, but the edition effect was already carrying that, and naming it changes nothing
+measurable. The terms stay in for a reason that is judgement rather than measurement: without
+them a live forecast has no way into the prediction, so a 20 C morning on Signal Hill would
+be predicted as a neutral one. The null is reported rather than dropped quietly.
 
 **Getting the order right**, which is the number a race director actually plans from.
 

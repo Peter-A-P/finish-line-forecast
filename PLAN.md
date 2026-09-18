@@ -959,10 +959,27 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
 
     ⚠️ **The weather coefficients are a null result and the row stays in the README.** The
     same eight fits without them give 17.9, 9.6, 8.6 and 5.5 minutes, inside the full model's
-    confidence interval at every depth. Observed weather at the edition level is mostly what
-    the edition effect was already absorbing, so naming it moves nothing. The terms stay
-    because a frozen prediction applies a forecast to a morning that has no edition effect to
-    borrow, which is the one case the ablation cannot test.
+    confidence interval at every depth. Paired on the 18,278 predictions both runs make, the
+    weather model's mean absolute log error is lower by 0.0003 (95% CI -0.0008 to +0.0002,
+    resampling races), which is three hundredths of a percent of a finish time.
+
+    ⚠️ **And the ablation is the strong form of the test, not the weak one.** Every target
+    race in the backtest is after its block's origin, so the model has no edition effect for
+    it and draws one from the prior, exactly as a frozen prediction does; the weather
+    covariates handed to `predict` are the airport's *observed* temperature and wind for that
+    morning, not a forecast. So this measures a model that knew the weather perfectly against
+    one that did not, in the same position a freeze is in, and it found nothing. Splitting by
+    how far the morning sat from neutral does not rescue it: at nine degrees or more from
+    neutral, six races and 5,031 runners, the gain is 0.0004 (-0.0051 to +0.0001), and on the
+    four windiest races the weather model is very slightly worse. The one race where it
+    behaves as the physics says it should is the 2025 USR half marathon, fourteen degrees
+    above neutral, where 275 runners are predicted better by 0.0079 of log error.
+
+    The terms stay in anyway, on three grounds that are worth stating plainly because they
+    are judgement and not measurement: the sign is right where heat is extreme, the cost is
+    indistinguishable from zero, and without them a live forecast has no way into the
+    prediction at all, so a Cape to Cabot morning at 20 C would be predicted as if it were
+    neutral. If the freeze needs a reason to drop them, this entry is it.
 
     ⚠️ **The placing table is not a like-for-like comparison and must not be read as one.**
     Places are scored among the runners each model answered for, so carry-forward is ranked
