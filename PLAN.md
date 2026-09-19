@@ -1003,6 +1003,15 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     measurement; it belongs beside the current table, not instead of it, and it is owed before
     the first freeze.
 
+    **Measured 2026-09-19, on item 30's backtest** (`score.paired_placing`, a second table
+    `finishline report` writes under the first). Ranked among the runners both answered for,
+    race by race, in the 47 races with at least ten of them (12,682 runners), the model's mean
+    absolute place error is 24.9 against carry-forward's 26.8, a paired difference of -1.9
+    places (95% CI -3.4 to -0.8, resampling races), and Spearman 0.858 against 0.850 (+0.008,
+    -0.005 to +0.023). So on the same runners the model orders a field better than the
+    baseline, if by less than it times one, and the 53.4 was the newcomers. Best equal-VDOT on
+    its own shared runners is -1.3 (-2.6 to -0.2) against carry-forward.
+
     **One operational note, because it cost a night.** A fit on the whole archive commits
     about 27 GB on this machine, and the eighth block failed three times on a 216 MiB
     allocation with the Windows commit limit at 48 GB. Blocks are now written as they finish

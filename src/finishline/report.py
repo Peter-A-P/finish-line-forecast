@@ -202,6 +202,42 @@ def placing_table(scored: Sequence[score.Scored], models: Sequence[str]) -> str:
             f"| `{model}` | {len(gaps)} | {sum(gaps) / len(gaps):.1f} | "
             f"{sum(correlations) / len(correlations):.3f} |"
         )
+    lines += ["", paired_placing_table(scored, models)]
+    return "\n".join(lines)
+
+
+def paired_placing_table(scored: Sequence[score.Scored], models: Sequence[str]) -> str:
+    """Each model against the first, ranked over the runners both answered for.
+
+    The table above ranks every model among its own runners, which puts the whole field,
+    newcomers included, in front of a model that answers for everybody and only the runners
+    with a history in front of carry-forward. This one is the like-for-like comparison.
+    """
+    baseline = models[0]
+    lines = [
+        f"The same runners: each model against `{baseline}`, both ranked among the runners "
+        f"both answered for in each race (races with at least "
+        f"{score.PAIRED_PLACING_MINIMUM} of them). Negative place error and positive "
+        "Spearman differences favour the model; the 95% CI resamples races.",
+        "",
+        f"| Model | Races | Runners | Place error, model vs `{baseline}` | Difference (95% CI) "
+        f"| Spearman, model vs `{baseline}` | Difference (95% CI) |",
+        "|---|---:|---:|---|---|---|---|",
+    ]
+    for model in models[1:]:
+        paired = score.paired_placing(scored, model, baseline)
+        if paired is None:
+            lines.append(f"| `{model}` | 0 | 0 | - | - | - | - |")
+            continue
+        gap, gap_low, gap_high = paired.gap_difference
+        rho, rho_low, rho_high = paired.spearman_difference
+        lines.append(
+            f"| `{model}` | {paired.races} | {paired.runners:,} "
+            f"| {paired.gap:.1f} vs {paired.baseline_gap:.1f} "
+            f"| {gap:+.1f} ({gap_low:+.1f} to {gap_high:+.1f}) "
+            f"| {paired.spearman:.3f} vs {paired.baseline_spearman:.3f} "
+            f"| {rho:+.3f} ({rho_low:+.3f} to {rho_high:+.3f}) |"
+        )
     return "\n".join(lines)
 
 

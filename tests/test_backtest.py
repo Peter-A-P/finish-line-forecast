@@ -376,6 +376,35 @@ def test_an_order_predicted_backwards_scores_as_such() -> None:
     assert correlation == pytest.approx(-1.0)
 
 
+def test_placing_is_compared_on_the_runners_both_models_answered_for() -> None:
+    """A newcomer only the model answers for must not count against it, or for it."""
+    rows = []
+    for race in ("r1", "r2"):
+        for k in range(10):
+            actual = 2000.0 + 60.0 * k
+            rows.append(score.Scored("cf", race, f"p{k}", 2000.0 + 60.0 * (9 - k), actual, 2))
+            rows.append(score.Scored("m", race, f"p{k}", actual, actual, 2))
+        # A newcomer the model places badly and carry-forward cannot place at all.
+        rows.append(score.Scored("cf", race, "new", None, 1900.0, 0))
+        rows.append(score.Scored("m", race, "new", 9000.0, 1900.0, 0))
+    paired = score.paired_placing(rows, "m", "cf")
+    assert paired is not None
+    assert (paired.races, paired.runners) == (2, 20)
+    assert paired.gap == pytest.approx(0.0), "the newcomer is not ranked"
+    assert paired.spearman == pytest.approx(1.0)
+    assert paired.baseline_spearman == pytest.approx(-1.0)
+    assert paired.gap_difference[0] < 0.0
+
+
+def test_a_race_with_too_few_shared_runners_is_left_out() -> None:
+    rows = [
+        score.Scored(model, "r", f"p{k}", 2000.0 + k, 2000.0 + k, 2)
+        for model in ("m", "cf")
+        for k in range(score.PAIRED_PLACING_MINIMUM - 1)
+    ]
+    assert score.paired_placing(rows, "m", "cf") is None
+
+
 # --- end to end ------------------------------------------------------------------
 
 

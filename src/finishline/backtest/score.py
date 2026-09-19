@@ -181,6 +181,103 @@ def place_error(scored: Sequence[Scored], model: str) -> tuple[float | None, flo
     return gap, correlation
 
 
+# A race contributes to the paired placing comparison only if the two models share at least
+# this many runners in it: a Spearman over three runners is one of a handful of values and
+# says nothing about a field.
+PAIRED_PLACING_MINIMUM = 10
+
+
+@dataclass(frozen=True, slots=True)
+class PairedPlacing:
+    """Two models ranked over the same runners in each race, averaged over races.
+
+    Each interval resamples races, because the runners in one race share its morning.
+    """
+
+    model: str
+    baseline: str
+    races: int
+    runners: int
+    gap: float
+    baseline_gap: float
+    gap_difference: tuple[float, float, float]
+    spearman: float
+    baseline_spearman: float
+    spearman_difference: tuple[float, float, float]
+
+
+def paired_placing(
+    scored: Sequence[Scored],
+    model: str,
+    baseline: str,
+    *,
+    minimum: int = PAIRED_PLACING_MINIMUM,
+    seed: int = BOOTSTRAP_SEED,
+    draws: int = BOOTSTRAP_DRAWS,
+) -> PairedPlacing | None:
+    """Place error and Spearman for two models on the runners both answered for.
+
+    `place_error` ranks each model among its own answered runners, so a model that answers
+    for the whole field is ranked over newcomers a baseline never has to place, and the two
+    numbers are not about the same race. Here both are ranked among the runners they share,
+    race by race, and the difference is the paired one.
+    """
+    by_race: dict[str, dict[str, dict[str, Scored]]] = {}
+    for row in scored:
+        if row.predicted is None or row.model not in (model, baseline):
+            continue
+        by_race.setdefault(row.race_id, {}).setdefault(row.model, {})[row.runner_id] = row
+
+    gaps: list[tuple[float, float]] = []
+    correlations: list[tuple[float, float]] = []
+    runners = 0
+    for race_id in sorted(by_race):
+        mine = by_race[race_id].get(model, {})
+        theirs = by_race[race_id].get(baseline, {})
+        shared = sorted(set(mine) & set(theirs))
+        if len(shared) < minimum:
+            continue
+        actual = ranks(np.asarray([mine[r].actual for r in shared], dtype=float))
+        pair = []
+        for rows in (mine, theirs):
+            predicted = ranks(np.asarray([rows[r].predicted for r in shared], dtype=float))
+            pair.append(
+                (
+                    float(np.abs(predicted - actual).mean()),
+                    float(np.corrcoef(predicted, actual)[0, 1]),
+                )
+            )
+        gaps.append((pair[0][0], pair[1][0]))
+        correlations.append((pair[0][1], pair[1][1]))
+        runners += len(shared)
+    if not gaps:
+        return None
+
+    gap_array = np.asarray(gaps)
+    rho_array = np.asarray(correlations)
+    rng = np.random.default_rng(seed)
+    picks = rng.integers(0, len(gaps), size=(draws, len(gaps)))
+    tail = (1.0 - CONFIDENCE) / 2.0
+
+    def difference(values: np.ndarray) -> tuple[float, float, float]:
+        diffs = values[:, 0] - values[:, 1]
+        low, high = np.quantile(diffs[picks].mean(axis=1), [tail, 1.0 - tail])
+        return float(diffs.mean()), float(low), float(high)
+
+    return PairedPlacing(
+        model=model,
+        baseline=baseline,
+        races=len(gaps),
+        runners=runners,
+        gap=float(gap_array[:, 0].mean()),
+        baseline_gap=float(gap_array[:, 1].mean()),
+        gap_difference=difference(gap_array),
+        spearman=float(rho_array[:, 0].mean()),
+        baseline_spearman=float(rho_array[:, 1].mean()),
+        spearman_difference=difference(rho_array),
+    )
+
+
 def ranks(values: np.ndarray) -> np.ndarray:
     """Ranks from 1, ties averaged, which is what Spearman needs.
 

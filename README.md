@@ -257,16 +257,25 @@ measured against, and why the knee is fixed at 12 C rather than fitted.
 | `category-median` | 45 | 96.4 | 0.356 |
 | `hierarchical` | 49 | 53.4 | 0.717 |
 | `hierarchical-no-weather` | 49 | 53.4 | 0.715 |
+
+The same runners: each model against `carry-forward`, both ranked among the runners both answered for in each race (races with at least 10 of them). Negative place error and positive Spearman differences favour the model; the 95% CI resamples races.
+
+| Model | Races | Runners | Place error, model vs `carry-forward` | Difference (95% CI) | Spearman, model vs `carry-forward` | Difference (95% CI) |
+|---|---:|---:|---|---|---|---|
+| `best-equal-vdot` | 47 | 10,003 | 18.6 vs 19.9 | -1.3 (-2.6 to -0.2) | 0.849 vs 0.845 | +0.003 (-0.005 to +0.011) |
+| `category-median` | 43 | 12,291 | 69.5 vs 28.2 | +41.3 (+20.5 to +68.7) | 0.376 vs 0.851 | -0.475 (-0.529 to -0.434) |
+| `hierarchical` | 47 | 12,682 | 24.9 vs 26.8 | -1.9 (-3.4 to -0.8) | 0.858 vs 0.850 | +0.008 (-0.005 to +0.023) |
+| `hierarchical-no-weather` | 47 | 12,682 | 24.9 vs 26.8 | -1.9 (-3.3 to -0.7) | 0.858 vs 0.850 | +0.008 (-0.005 to +0.022) |
 <!-- finishline:end:placing -->
 
-⚠️ **The model predicts times better than it predicts places, and this table flatters the
-baselines.** Places are computed among the runners each model answered for, so carry-forward
-is ranked over the 12,714 runners who have a prior result, while the model is ranked over the
-whole field, the 5,594 entrants with no history included, and ordering those is close to
-guessing. The two columns are therefore not measuring the same race. It is printed this way
-because the alternative, scoring each model on the subset that suits it, is how a table
-stops being checkable. Scoring the model on the runners carry-forward can also answer is the
-next measurement, and it belongs beside this one rather than instead of it.
+⚠️ **Read the second table, not the first.** The first ranks each model among the runners it
+answered for, so carry-forward is ranked over the 12,714 runners who have a prior result and
+the model over the whole field, the 5,594 entrants with no history included, whose order is
+close to a guess. That is where its 53.4 comes from. The second ranks both over the same
+runners, race by race: there the model is 1.9 places better than carry-forward (95% CI 0.8 to
+3.4), 24.9 against 26.8, with Spearman 0.858 against 0.850. It orders a field better than the
+baseline, by less than it times one. Both tables stay, because scoring each model only on the
+subset that suits it is how a table stops being checkable.
 
 **How often the intervals hold.** A predicted time with an interval is two claims, and the
 second one is checked here: the model's own 80% and 90% intervals, and the same intervals
