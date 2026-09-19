@@ -44,6 +44,7 @@ finishline freeze <race> the prediction file, hashed, refused inside 24 hours of
                         (--daily from seven days out: only entrants no earlier file had)
 finishline due          which live races want a daily or final file today
 finishline page <race>  the race page, rendered from the published prediction files
+finishline site         the public website, from data/live.toml and the prediction files
 finishline score <race>  the tagged prediction against the results   (fetches: --notices-sent)
 ```
 

@@ -1,0 +1,60 @@
+name: Website
+
+# The public website (`finishline site`), rebuilt on every push to main, so the prediction
+# file the morning task commits is on the website a few minutes later. It reads only what is
+# committed: data/live.toml and predictions/. Nothing is fetched and no cache is needed.
+#
+# ⚠️ Off until the repository is public and Pages is switched on. To switch it on: Settings,
+# Pages, Source "GitHub Actions"; then Settings, Secrets and variables, Actions, Variables,
+# add PAGES = on. Until then every run skips rather than failing.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  UV_FROZEN: "1"
+
+jobs:
+  build:
+    if: ${{ vars.PAGES == 'on' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.1.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install Python 3.13 and the project
+        run: uv sync
+
+      - name: Build the website
+        run: uv run finishline site --out site
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    if: ${{ vars.PAGES == 'on' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

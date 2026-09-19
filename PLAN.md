@@ -428,6 +428,13 @@ Scheduler, to commit, tag and push the files and the page; it commits nothing el
 `freeze` still refuses with uncommitted code. Consequence: the repository has to be public
 seven days before the rehearsal, 2026-09-27, rather than the day before.
 
+**The website, added the same day.** `finishline site` renders every live race from
+data/live.toml and the committed prediction files into static pages: the predicted top 20
+with placeholders for expected newcomers at the biggest races, every runner with a name
+search, and every file with its hash. No framework, no tracking, no third-party request. The
+Pages workflow rebuilds it on every push, so the morning task's commit refreshes it; it stays
+off until the repository is public and Pages is switched on.
+
 ## 6. Week by week
 
 Relative weeks, anchored to the first live race. Evenings and weekends.

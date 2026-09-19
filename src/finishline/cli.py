@@ -1133,6 +1133,20 @@ def due() -> None:
             typer.echo(f"{race_id} daily")
 
 
+@app.command(name="site")
+def site(
+    out: Annotated[Path, typer.Option(help="Where to write the website.")] = Path("site"),
+) -> None:
+    """Build the public website from data/live.toml and the committed prediction files.
+
+    Run by the Pages workflow on every push, so it reads nothing that is not committed.
+    """
+    from finishline.publish import site as website
+
+    pages = website.build(out, LIVE, PREDICTIONS, SCORES, date.today())
+    typer.echo(f"wrote {len(pages)} pages to {out}")
+
+
 @app.command(name="page")
 def race_page(
     race_id: Annotated[str, typer.Argument(help="A race in data/live.toml, e.g. tt-2026.")],

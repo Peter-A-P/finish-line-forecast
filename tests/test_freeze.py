@@ -420,3 +420,28 @@ def test_the_race_page_holds_places_for_runners_with_no_results_here() -> None:
     assert f"| 1 | {racepage.UNSEEN} |" in page
     assert "| 2 | Ann Hynes |" in page or "| 2 | Bea Power |" in page
     assert "1.2 of the top 10" in page
+
+
+def test_the_website_is_built_from_the_committed_files_alone(tmp_path: Path) -> None:
+    from finishline.publish import site
+
+    doc = build([Entrant("Ann <Hynes>", "F")], only_new=True)
+    publish(tmp_path / "predictions", "daily-2026-10-11.json", doc)
+    live = tmp_path / "live.toml"
+    live.write_text(
+        '[c2c-2026]\nname = "Cape to Cabot"\ndate = "2026-10-18"\n'
+        'gun = "2026-10-18T08:00:00-02:30"\n'
+        '[r2r-2026]\nname = "Run to Remember"\ndate = "2026-11-11"\n',
+        encoding="utf-8",
+    )
+    pages = site.build(
+        tmp_path / "site", live, tmp_path / "predictions", tmp_path / "scores", date(2026, 10, 12)
+    )
+    assert {page.name for page in pages} == {"index.html", "c2c-2026.html", "r2r-2026.html"}
+    race = (tmp_path / "site" / "c2c-2026.html").read_text(encoding="utf-8")
+    assert "Ann &lt;Hynes&gt;" in race and "<Hynes>" not in race, "names are escaped"
+    assert 'id="find"' in race and "daily-2026-10-11.json" in race
+    assert "http" not in race.replace(site.REPOSITORY, ""), "no third-party request"
+    front = (tmp_path / "site" / "index.html").read_text(encoding="utf-8")
+    assert "Prediction week: 1 daily file(s)" in front
+    assert "Daily predictions start" in front, "Run to Remember is weeks away"

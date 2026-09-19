@@ -406,12 +406,18 @@ hierarchical model on that ratio gives every runner a fitness level and a distan
 toward their age-sex group, and a form that walks from one racing year to the next; every race
 gets its course's measured difficulty, a shared effect for its calendar year, and the heat and
 wind observed at St. John's airport that morning. A live prediction walks each runner's form
-forward to race day and draws the weather from the day-ahead forecast, corrected by how wrong
-that forecast was on past race mornings. The design history, including three models the data
-refuted, is PLAN.md section 13.
+forward to race day and draws the weather from the forecast, corrected by how wrong that
+forecast was on past race mornings at the same lead. The design history, including the models
+the data refuted, is PLAN.md section 13; [docs/methods.md](docs/methods.md) is the short
+version.
 Intervals are conformalised on rolling-origin residuals, stratified by how many results a
-runner has. Placing is simulated from the whole field's predictive distributions. The
-prediction file is committed, tagged and hashed before the gun and scored after.
+runner has. Placing is simulated from the whole field's predictive distributions, and at the
+biggest races the runners with no results here are drawn from how that course's past
+first-timers finished. From a week before a race, each registered runner is predicted the
+first morning they appear on the entrant list; the day before, the whole field is predicted
+again with the latest forecast and given places. Every file is committed, tagged and hashed
+before the gun and scored after, and the website (`finishline site`, rebuilt on every push)
+shows them with a search box for anyone looking for their own name.
 
 ## Part of a portfolio
 
