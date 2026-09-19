@@ -1185,6 +1185,13 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     -0.0059 (-0.0093 to -0.0036); bias -0.7% (-1.8 to +0.6) against carry-forward's -0.4%
     (-2.6 to +1.9). Coverage and widths as before within a point.
 
+    **Rerun the same day on the data with the 2026 USR results and both route splits** (53
+    backtest races, 184 minutes, weather run only; the ablation reruns when the CPU is free):
+    18.3 at no prior results (the category median 18.4), 9.4 at one, 8.5 at two or three, 5.4
+    at four or more, still 27% skill against carry-forward's 7.4. Paired placing against
+    carry-forward on 13,081 runners in 51 races: 1.8 places better (95% CI 0.7 to 3.1).
+    Nothing that mattered moved.
+
     The test this item was built for is the race level, and it passes. Across the 32 backtest
     races with an observation, median race bias regressed on the weather cost the model
     applied (whole-archive posterior medians, so approximate): the no-weather run leaves

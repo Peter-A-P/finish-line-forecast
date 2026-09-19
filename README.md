@@ -9,7 +9,7 @@ time with an honest interval instead of a hunch.
 **Status: building.** Eighteen years of Newfoundland road results are read, 23,713
 runners resolved out of them, the three baselines are measured on every race since 2024,
 every course's difficulty is measured from the results, and the hierarchical model now beats
-the strongest of those baselines by 26% for the runners with four or more prior results, 5.5
+the strongest of those baselines by 27% for the runners with four or more prior results, 5.4
 minutes of mean absolute error against carry-forward's 7.4, with no bias left to speak of. No
 prediction has been made yet. The first live race is the Cape to Cabot 20 km in St. John's
 on 2026-10-18, with a second on a frozen model on 2026-11-11; predictions are committed,
@@ -52,13 +52,13 @@ every page that would not parse.
 <!-- finishline:archive -->
 | | |
 |---|---:|
-| Races read | 282 |
-| Finishes parsed | 74,516 |
-| Runners resolved | 23,713 |
-| Runners this refuses to tell apart, and will not publish | 355 |
-| Runners with one finish | 12,683 |
-| Runners with two or three | 6,252 |
-| Runners with four or more | 4,751 |
+| Races read | 286 |
+| Finishes parsed | 75,061 |
+| Runners resolved | 23,830 |
+| Runners this refuses to tell apart, and will not publish | 381 |
+| Runners with one finish | 12,737 |
+| Runners with two or three | 6,280 |
+| Runners with four or more | 4,786 |
 | Pages that would not parse | 5 |
 <!-- finishline:end:archive -->
 
@@ -74,22 +74,22 @@ the measured factor, given the climb the race publishes.
 <!-- finishline:courses -->
 | Course | Finishes | Editions | Slower than flat | 95% CI | Grade that would explain it |
 |---|---:|---:|---:|---|---|
-| usr-42195 | 126 | 3 | +13.6% | [+11.6, +15.5] |  |
-| provincial-championship-42195 | 68 | 2 | +9.3% | [+6.4, +12.6] |  |
-| cape-to-cabot-20000 | 5,310 | 15 | +9.3% | [+9.0, +9.5] | 10.3% average, over the published 550 m of climb |
-| run-from-away-42195 | 79 | 1 | +8.0% | [+6.2, +9.7] |  |
-| huffin-puffin-42195 | 149 | 3 | +6.5% | [+5.1, +7.9] |  |
-| trapline-5000 | 138 | 6 | +6.4% | [-2.3, +15.6] |  |
-| bell-island-blast-16093 | 181 | 3 | +4.5% | [+3.7, +5.5] |  |
-| trapline-42195 | 55 | 7 | +4.4% | [+0.5, +8.7] |  |
-| _... 32 more_ | | | | | |
-| five-and-dime-5000 | 1,051 | 10 | -3.0% | [-3.6, -2.4] |  |
+| usr-42195 | 32 | 1 | +11.2% | [+7.5, +14.8] |  |
+| huffin-puffin-42195 | 296 | 7 | +9.6% | [+8.3, +10.8] |  |
+| provincial-championship-42195 | 68 | 2 | +9.4% | [+6.2, +12.1] |  |
+| cape-to-cabot-20000 | 5,311 | 15 | +9.2% | [+9.0, +9.5] | 10.3% average, over the published 550 m of climb |
+| run-from-away-42195 | 79 | 1 | +7.8% | [+6.1, +9.6] |  |
+| trapline-5000 | 138 | 6 | +6.3% | [-1.9, +15.1] |  |
+| bell-island-blast-16093 | 181 | 3 | +4.6% | [+3.8, +5.5] |  |
+| trapline-42195 | 55 | 7 | +4.5% | [+0.5, +8.2] |  |
+| _... 34 more_ | | | | | |
+| five-and-dime-5000 | 1,052 | 10 | -3.0% | [-3.6, -2.4] |  |
 | quidi-vidi-5000 | 334 | 4 | -3.2% | [-3.9, -2.4] |  |
-| ane-mile-1609 | 577 | 12 | -3.7% | [-4.8, -2.3] |  |
-| provincial-championship-5000 | 907 | 8 | -4.0% | [-4.5, -3.6] |  |
-| turkey-tea-10000 | 2,296 | 14 | -5.1% | [-5.4, -4.9] |  |
-| mews-memorial-8000 | 4,891 | 16 | -5.3% | [-5.5, -5.1] |  |
-| pearlgate-5000 | 88 | 1 | -5.7% | [-6.8, -4.8] |  |
+| ane-mile-1609 | 577 | 12 | -3.7% | [-5.0, -2.3] |  |
+| provincial-championship-5000 | 907 | 8 | -4.0% | [-4.5, -3.5] |  |
+| turkey-tea-10000 | 2,296 | 14 | -5.1% | [-5.4, -4.9] | **the published climb cannot explain it** |
+| mews-memorial-8000 | 4,893 | 16 | -5.3% | [-5.5, -5.1] |  |
+| pearlgate-5000 | 88 | 1 | -5.7% | [-6.8, -4.7] |  |
 | oceanview-5000 | 108 | 1 | -6.3% | [-7.2, -5.5] |  |
 <!-- finishline:end:courses -->
 
@@ -116,22 +116,22 @@ with distance, because a 5 km field meets fifteen minutes of weather and a marat
 meets four hours of it.
 
 <!-- finishline:conditions -->
-Fitted on 227 editions near St. John's airport, 55 of 282 excluded as too far from it or without an observation. Explains **33%** of the edition-to-edition variance within a course, leaving sd 2.32%.
+Fitted on 231 editions near St. John's airport, 55 of 286 excluded as too far from it or without an observation. Explains **34%** of the edition-to-edition variance within a course, leaving sd 2.31%.
 
 | Race length | Cost per degree above neutral | What a 20 C morning costs |
 |---|---:|---:|
 | 5 km | -0.05% | -0.5% |
 | 10 km | +0.24% | +2.4% |
-| Tely 10 | +0.44% | +4.4% |
-| Cape to Cabot 20 km | +0.53% | +5.3% |
-| marathon | +0.85% | +8.5% |
+| Tely 10 | +0.45% | +4.5% |
+| Cape to Cabot 20 km | +0.54% | +5.4% |
+| marathon | +0.86% | +8.6% |
 
 Neutral is 10 C and 20 km/h, which is the middle of this archive rather than a laboratory ideal.
 
 | Term | Estimate | 95% CI |
 |---|---:|---|
-| Temperature at 10 km, per degree | +0.242% | [+0.130, +0.369] |
-| Tailwind along the bearing, per km/h | -0.029% | [-0.110, +0.052] |
+| Temperature at 10 km, per degree | +0.245% | [+0.135, +0.372] |
+| Tailwind along the bearing, per km/h | -0.033% | [-0.101, +0.025] |
 <!-- finishline:end:conditions -->
 
 **The check.** The Tely 10 on its own is the cleanest natural experiment in the archive:
@@ -168,26 +168,22 @@ it.
 <!-- finishline:baselines -->
 | Prior results | Runners | Model | Answered | MAE, minutes (95% CI) | Mean % error | Skill vs carry-forward |
 |---|---:|---|---:|---|---:|---:|
-| 0 | 5594 | `carry-forward` | 0% | - | - | baseline |
+| 0 | 5711 | `carry-forward` | 0% | - | - | baseline |
 |  |  | `best-equal-vdot` | 0% | - | - | - |
-|  |  | `category-median` | 96% | 18.5 (18.0 to 18.9) | 18% | - |
-|  |  | `hierarchical` | 100% | 17.8 (17.4 to 18.3) | 18% | - |
-|  |  | `hierarchical-no-weather` | 100% | 17.9 (17.5 to 18.4) | 18% | - |
-| 1 | 2650 | `carry-forward` | 100% | 9.6 (9.2 to 10.0) | 10% | baseline |
-|  |  | `best-equal-vdot` | 63% | 7.5 (7.2 to 7.9) | 8% | 22% |
-|  |  | `category-median` | 97% | 16.1 (15.5 to 16.8) | 16% | -68% |
-|  |  | `hierarchical` | 100% | 9.4 (9.0 to 9.8) | 10% | 2% |
-|  |  | `hierarchical-no-weather` | 100% | 9.6 (9.2 to 10.0) | 10% | 0% |
-| 2 to 3 | 2831 | `carry-forward` | 100% | 9.2 (8.9 to 9.7) | 9% | baseline |
-|  |  | `best-equal-vdot` | 73% | 7.7 (7.2 to 8.0) | 8% | 17% |
-|  |  | `category-median` | 97% | 15.9 (15.3 to 16.5) | 16% | -72% |
-|  |  | `hierarchical` | 100% | 8.5 (8.1 to 8.9) | 9% | 8% |
-|  |  | `hierarchical-no-weather` | 100% | 8.6 (8.2 to 9.0) | 9% | 7% |
-| 4 or more | 7233 | `carry-forward` | 100% | 7.4 (7.2 to 7.6) | 8% | baseline |
-|  |  | `best-equal-vdot` | 87% | 7.1 (6.9 to 7.3) | 7% | 4% |
-|  |  | `category-median` | 97% | 14.1 (13.8 to 14.4) | 18% | -90% |
+|  |  | `category-median` | 95% | 18.4 (17.9 to 18.9) | 18% | - |
+|  |  | `hierarchical` | 100% | 18.3 (17.9 to 18.8) | 18% | - |
+| 1 | 2713 | `carry-forward` | 100% | 9.6 (9.2 to 10.0) | 10% | baseline |
+|  |  | `best-equal-vdot` | 64% | 7.5 (7.1 to 8.0) | 8% | 21% |
+|  |  | `category-median` | 96% | 16.1 (15.5 to 16.7) | 16% | -68% |
+|  |  | `hierarchical` | 100% | 9.4 (9.0 to 9.9) | 10% | 2% |
+| 2 to 3 | 2910 | `carry-forward` | 100% | 9.3 (8.9 to 9.7) | 9% | baseline |
+|  |  | `best-equal-vdot` | 73% | 7.8 (7.4 to 8.2) | 8% | 16% |
+|  |  | `category-median` | 95% | 15.8 (15.2 to 16.4) | 16% | -70% |
+|  |  | `hierarchical` | 100% | 8.5 (8.2 to 8.9) | 9% | 8% |
+| 4 or more | 7490 | `carry-forward` | 100% | 7.4 (7.2 to 7.6) | 8% | baseline |
+|  |  | `best-equal-vdot` | 87% | 7.2 (7.0 to 7.4) | 7% | 2% |
+|  |  | `category-median` | 95% | 14.0 (13.7 to 14.4) | 18% | -90% |
 |  |  | `hierarchical` | 100% | 5.4 (5.2 to 5.6) | 6% | 27% |
-|  |  | `hierarchical-no-weather` | 100% | 5.5 (5.3 to 5.7) | 6% | 25% |
 <!-- finishline:end:baselines -->
 
 ⚠️ **The first run of this model lost to carry-forward. This is the second run, and what
@@ -230,7 +226,8 @@ parameter the data estimates. Fitted on the whole archive, a degree above the kn
 because only six of 281 mornings in the archive had strong sun. The tailwind term stays the
 null it has always been, because only two courses carry a bearing.
 
-Paired on the 18,278 predictions both runs make, weather lowers absolute log error by 0.0010
+Paired on the 18,278 predictions both runs made before the 2026 USR results were added (the
+ablation is rerun overnight, and its rows are missing from the tables until then), weather lowers absolute log error by 0.0010
 (95% CI -0.0019 to +0.0002), better at every depth and clear of zero only for runners with no
 history. That is the size it should be: weather moves the level of a whole field by one to
 five percent, individual error is around ten, and a correct level shift is close to invisible
@@ -257,28 +254,26 @@ measured against, and why the knee is fixed at 12 C rather than fitted.
 <!-- finishline:placing -->
 | Model | Races | Mean absolute place error | Spearman, predicted vs actual |
 |---|---:|---:|---:|
-| `carry-forward` | 49 | 25.8 | 0.836 |
-| `best-equal-vdot` | 48 | 18.3 | 0.836 |
-| `category-median` | 45 | 96.4 | 0.356 |
-| `hierarchical` | 49 | 53.4 | 0.717 |
-| `hierarchical-no-weather` | 49 | 53.4 | 0.715 |
+| `carry-forward` | 53 | 24.6 | 0.836 |
+| `best-equal-vdot` | 52 | 17.6 | 0.838 |
+| `category-median` | 46 | 95.4 | 0.349 |
+| `hierarchical` | 53 | 50.9 | 0.706 |
 
 The same runners: each model against `carry-forward`, both ranked among the runners both answered for in each race (races with at least 10 of them). Negative place error and positive Spearman differences favour the model; the 95% CI resamples races.
 
 | Model | Races | Runners | Place error, model vs `carry-forward` | Difference (95% CI) | Spearman, model vs `carry-forward` | Difference (95% CI) |
 |---|---:|---:|---|---|---|---|
-| `best-equal-vdot` | 47 | 10,003 | 18.6 vs 19.9 | -1.3 (-2.6 to -0.2) | 0.849 vs 0.845 | +0.003 (-0.005 to +0.011) |
-| `category-median` | 43 | 12,291 | 69.5 vs 28.2 | +41.3 (+20.5 to +68.7) | 0.376 vs 0.851 | -0.475 (-0.529 to -0.434) |
-| `hierarchical` | 47 | 12,682 | 24.9 vs 26.8 | -1.9 (-3.4 to -0.8) | 0.858 vs 0.850 | +0.008 (-0.005 to +0.023) |
-| `hierarchical-no-weather` | 47 | 12,682 | 24.9 vs 26.8 | -1.9 (-3.3 to -0.7) | 0.858 vs 0.850 | +0.008 (-0.005 to +0.022) |
+| `best-equal-vdot` | 51 | 10,377 | 17.9 vs 19.0 | -1.1 (-2.4 to -0.1) | 0.849 vs 0.847 | +0.002 (-0.006 to +0.010) |
+| `category-median` | 44 | 12,427 | 68.9 vs 27.9 | +41.1 (+20.3 to +66.9) | 0.368 vs 0.852 | -0.484 (-0.536 to -0.439) |
+| `hierarchical` | 51 | 13,081 | 23.7 vs 25.5 | -1.8 (-3.1 to -0.7) | 0.857 vs 0.849 | +0.008 (-0.005 to +0.023) |
 <!-- finishline:end:placing -->
 
 ⚠️ **Read the second table, not the first.** The first ranks each model among the runners it
-answered for, so carry-forward is ranked over the 12,714 runners who have a prior result and
-the model over the whole field, the 5,594 entrants with no history included, whose order is
-close to a guess. That is where its 53.4 comes from. The second ranks both over the same
-runners, race by race: there the model is 1.9 places better than carry-forward (95% CI 0.8 to
-3.4), 24.9 against 26.8, with Spearman 0.858 against 0.850. It orders a field better than the
+answered for, so carry-forward is ranked over the 13,113 runners who have a prior result and
+the model over the whole field, the 5,711 entrants with no history included, whose order is
+close to a guess. That is where its 50.9 comes from. The second ranks both over the same
+runners, race by race: there the model is 1.8 places better than carry-forward (95% CI 0.7 to
+3.1), 23.7 against 25.5, with Spearman 0.857 against 0.849. It orders a field better than the
 baseline, by less than it times one. Both tables stay, because scoring each model only on the
 subset that suits it is how a table stops being checkable.
 
@@ -291,14 +286,14 @@ after conformal adjustment on the races before each one, by how much history a r
 
 | Prior results | Level | Runners checked | Races | Model's own interval | After conformal | Median width, minutes (own to conformal) |
 |---|---:|---:|---:|---|---|---|
-| 0 | 80% | 5,532 | 47 | 77% (76 to 80) | 79% (74 to 83) | 54.4 to 55.6 |
-| 1 | 80% | 2,591 | 43 | 74% (70 to 76) | 77% (74 to 79) | 20.7 to 23.2 |
-| 2 to 3 | 80% | 2,762 | 43 | 72% (68 to 75) | 78% (76 to 82) | 18.5 to 22.1 |
-| 4 or more | 80% | 7,133 | 46 | 76% (73 to 79) | 77% (74 to 79) | 13.4 to 13.5 |
-| 0 | 90% | 5,532 | 47 | 87% (86 to 90) | 89% (87 to 92) | 70.8 to 74.7 |
-| 1 | 90% | 2,591 | 43 | 84% (81 to 86) | 89% (87 to 90) | 28.3 to 33.7 |
-| 2 to 3 | 90% | 2,762 | 43 | 82% (80 to 84) | 88% (86 to 89) | 24.9 to 30.0 |
-| 4 or more | 90% | 7,133 | 46 | 87% (85 to 89) | 88% (87 to 90) | 18.1 to 19.1 |
+| 0 | 80% | 5,649 | 51 | 77% (75 to 79) | 78% (73 to 82) | 54.4 to 55.2 |
+| 1 | 80% | 2,654 | 47 | 73% (70 to 75) | 77% (73 to 79) | 20.9 to 23.3 |
+| 2 to 3 | 80% | 2,841 | 47 | 71% (68 to 74) | 78% (76 to 82) | 18.4 to 22.8 |
+| 4 or more | 80% | 7,390 | 50 | 77% (74 to 79) | 77% (75 to 79) | 13.4 to 13.6 |
+| 0 | 90% | 5,649 | 51 | 87% (86 to 89) | 89% (86 to 91) | 70.8 to 74.2 |
+| 1 | 90% | 2,654 | 47 | 84% (82 to 85) | 89% (87 to 90) | 28.8 to 34.4 |
+| 2 to 3 | 90% | 2,841 | 47 | 82% (80 to 84) | 88% (86 to 89) | 24.9 to 29.8 |
+| 4 or more | 90% | 7,390 | 50 | 87% (85 to 88) | 88% (87 to 90) | 18.2 to 19.0 |
 
 **The assumption.** Conformal coverage is guaranteed on average over races within a history-depth group, provided a new race's errors look like the earlier races' errors (exchangeability). It is not a promise about any one runner or any one race, and it fails when a race meets conditions or a field the earlier races did not: a gale on Signal Hill is exactly that. The first races of the backtest have too few earlier errors to calibrate on (under 50 per group) and are left out of this table rather than given an interval nobody could trust.
 <!-- finishline:end:coverage -->
