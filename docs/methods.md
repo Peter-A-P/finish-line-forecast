@@ -116,7 +116,12 @@ as each model ranks its own runners and on the runners both models answered for.
 
 ## 10. Freeze and score
 
-`finishline freeze` writes the prediction file, its SHA-256 and the entrant snapshot it used,
+From seven days before the race, `finishline freeze --daily` publishes a file a day with the
+entrants no earlier file predicted, each with that morning's forecast at that lead; the day
+before, the final file holds everyone with places, carrying already-published runners'
+times unchanged (`publish/daily.py`). One fit serves the whole week, and each entrant's random
+numbers are seeded by their name, so a runner's prediction is the same whichever day computes
+it. `finishline freeze` writes each file, its SHA-256 and the entrant snapshot it used,
 and refuses inside 24 hours of the gun. The file is committed and tagged, with the hash in the
 tag message; the tag time is the record. After the results are posted, `finishline score`
 reads the prediction from its tag, never from the working copy, refuses a late or unhashed

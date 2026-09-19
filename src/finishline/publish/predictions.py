@@ -20,6 +20,15 @@ counted in `entrants`.
 
 ⚠️ **`freeze` refuses inside 24 hours of the gun, and there is no flag to override it.** A
 rule with an override is a rule for whoever is not in a hurry.
+
+DAILY FILES
+-----------
+From seven days out, `freeze --daily` publishes a file a day holding only the entrants who
+were not in an earlier one (`publish/daily.py`), so every runner's prediction is fixed the
+first time it is published. Those files have `"kind": "daily"` and no places, because a place
+needs the whole field. The final file, the day before, holds everyone with places; a runner
+already published carries their earlier time unchanged and says which file it came from in
+`first_published`.
 """
 
 from __future__ import annotations
@@ -74,24 +83,30 @@ class RunnerPrediction:
     seconds: float
     interval_80: tuple[float, float]
     interval_90: tuple[float, float]
-    place: float
-    place_low: float
-    place_high: float
+    place: float | None = None
+    place_low: float | None = None
+    place_high: float | None = None
+    # The daily file this runner's time was first published in, when it was carried here.
+    first_published: str | None = None
 
     def as_record(self) -> dict[str, Any]:
-        return {
+        record: dict[str, Any] = {
             "name": self.name,
             "hometown": self.hometown,
             "prior_results": self.prior_results,
             "seconds": _time(self.seconds),
             "interval_80": [_time(self.interval_80[0]), _time(self.interval_80[1])],
             "interval_90": [_time(self.interval_90[0]), _time(self.interval_90[1])],
-            "place": {
+        }
+        if self.place is not None and self.place_low is not None and self.place_high is not None:
+            record["place"] = {
                 "median": round(self.place, 1),
                 "low": round(self.place_low, 1),
                 "high": round(self.place_high, 1),
-            },
-        }
+            }
+        if self.first_published is not None:
+            record["first_published"] = self.first_published
+        return record
 
 
 def _time(seconds: float) -> float:
@@ -108,10 +123,13 @@ def document(
     conditions: dict[str, Any] | None,
     entrants: dict[str, int],
     runners: list[RunnerPrediction],
+    daily: bool = False,
 ) -> dict[str, Any]:
     """The whole file as a plain structure, runners ordered by predicted time then name."""
     ordered = sorted(runners, key=lambda runner: (runner.seconds, runner.name))
+    kind = {"kind": "daily"} if daily else {}
     return {
+        **kind,
         "schema_version": SCHEMA_VERSION,
         "race": race,
         "gun": gun.isoformat(),
@@ -206,8 +224,10 @@ def validate(doc: dict[str, Any]) -> list[str]:
     field = len(runners)
     if doc["entrants"].get("predicted") != field:
         problems.append(f"entrants.predicted is not the {field} runners in the file")
+    daily = doc.get("kind") == "daily"
     allowed = {
         "name", "hometown", "prior_results", "seconds", "interval_80", "interval_90", "place",
+        "first_published",
     }
     for position, runner in enumerate(runners):
         where = f"runners[{position}]"
@@ -221,8 +241,13 @@ def validate(doc: dict[str, Any]) -> list[str]:
             seconds = float(runner["seconds"])
             low80, high80 = (float(v) for v in runner["interval_80"])
             low90, high90 = (float(v) for v in runner["interval_90"])
-            place = runner["place"]
-            median, low, high = (float(place[k]) for k in ("median", "low", "high"))
+            if daily:
+                median = low = high = 1.0
+                if "place" in runner or "first_published" in runner:
+                    problems.append(f"{where} a daily file carries no places and no carried times")
+            else:
+                place = runner["place"]
+                median, low, high = (float(place[k]) for k in ("median", "low", "high"))
         except (KeyError, TypeError, ValueError) as error:
             problems.append(f"{where} incomplete: {error}")
             continue

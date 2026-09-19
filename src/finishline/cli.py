@@ -728,6 +728,8 @@ def write_report(
 
 OPENMETEO = DATA / "cache" / "openmeteo"
 FORECAST_ERROR = DATA / "forecast_error.toml"
+# The same measurement at every lead from one day to a week, for the daily files.
+FORECAST_ERROR_BY_LEAD = DATA / "forecast_error_by_lead.toml"
 
 
 @app.command(name="forecast-error")
@@ -767,33 +769,39 @@ def forecast_error(
         key=lambda race: race.date,
     )
     client = openmeteo.Client(OPENMETEO)
-    forecasts: list[eccc.Observation] = []
+    by_lead: dict[int, list[eccc.Observation]] = {}
     try:
-        for year in sorted({race.date.year for race in editions}):
-            end = min(date(year, 12, 31), yesterday)
-            body = client.previous_runs(date(year, 1, 1), end)
-            forecasts += openmeteo.readings(body, suffix="_previous_day1")
+        for lead in range(1, openmeteo.LONGEST_LEAD_DAYS + 1):
+            by_lead[lead] = []
+            for year in sorted({race.date.year for race in editions}):
+                end = min(date(year, 12, 31), yesterday)
+                body = client.previous_runs(date(year, 1, 1), end, lead)
+                by_lead[lead] += openmeteo.readings(body, suffix=f"_previous_day{lead}")
     finally:
         client.close()
 
-    pairs: list[tuple[eccc.Conditions, eccc.Conditions]] = []
-    skipped = 0
     begins = starts.load()
-    with eccc.Cache(WEATHER) as observed_cache:
-        for race in editions:
-            hour = begins.hour(race)
-            try:
-                observed = eccc.conditions(
-                    observed_cache, race.race_id, race.date, race.distance_m, start_hour=hour
-                )
-                predicted = openmeteo.conditions(
-                    forecasts, race.race_id, race.date, race.distance_m, hour
-                )
-            except eccc.NoObservation:
-                skipped += 1
-                continue
-            pairs.append((predicted, observed))
 
+    def pairs_at(lead: int) -> tuple[list[tuple[eccc.Conditions, eccc.Conditions]], int]:
+        pairs: list[tuple[eccc.Conditions, eccc.Conditions]] = []
+        skipped = 0
+        with eccc.Cache(WEATHER) as observed_cache:
+            for race in editions:
+                hour = begins.hour(race)
+                try:
+                    observed = eccc.conditions(
+                        observed_cache, race.race_id, race.date, race.distance_m, start_hour=hour
+                    )
+                    predicted = openmeteo.conditions(
+                        by_lead[lead], race.race_id, race.date, race.distance_m, hour
+                    )
+                except eccc.NoObservation:
+                    skipped += 1
+                    continue
+                pairs.append((predicted, observed))
+        return pairs, skipped
+
+    pairs, skipped = pairs_at(1)
     error = weather.measure(pairs)
     typer.echo(f"{error.mornings} race mornings from {since}, {skipped} without both sources")
     typer.echo(f"  temperature  bias {error.temp_bias:+.2f} C     sd {error.temp_sd:.2f}")
@@ -810,18 +818,51 @@ def forecast_error(
     )
     typer.echo(f"written to {FORECAST_ERROR}")
 
+    tables = [
+        "# How wrong Open-Meteo's forecast was on past race mornings at St. John's airport, by",
+        "# how many days ahead it was made: forecast minus the ECCC observation over the same",
+        f"# race hours. Written by `finishline forecast-error` on {datetime.now(UTC):%Y-%m-%d},",
+        f"# from race editions near St. John's since {since}. Read by `finishline freeze --daily`,",
+        "# which predicts each entrant with the forecast of the morning they were first",
+        "# published. Do not edit by hand.",
+    ]
+    for lead in sorted(by_lead):
+        at_lead = weather.measure(pairs_at(lead)[0])
+        typer.echo(
+            f"  {lead} day(s) ahead: temperature sd {at_lead.temp_sd:.2f} C, "
+            f"wind sd {at_lead.wind_sd:.2f} km/h, {at_lead.mornings} mornings"
+        )
+        tables += ["", f'["{lead}"]']
+        tables += [f"{name} = {value!r}" for name, value in at_lead.as_record().items()]
+    FORECAST_ERROR_BY_LEAD.write_text(
+        "\n".join(tables) + "\n", encoding="utf-8", newline="\n"
+    )
+    typer.echo(f"written to {FORECAST_ERROR_BY_LEAD}")
+
 
 LIVE = DATA / "live.toml"
+# The fit a prediction week reuses (publish/daily.py). Local: it is every runner's draws.
+FREEZE_FITS = DATA / "cache" / "freeze"
 PREDICTIONS = Path("predictions")
 
 
 @app.command()
 def freeze(
     race_id: Annotated[str, typer.Argument(help="A race in data/live.toml, e.g. c2c-2026.")],
+    daily_file: Annotated[
+        bool,
+        typer.Option(
+            "--daily", help="A daily file: only entrants no earlier daily file predicted."
+        ),
+    ] = False,
     first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
     last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
 ) -> None:
     """Write the prediction file for a race, and print the hash to publish with it.
+
+    With `--daily`, from seven days out: a file of only the entrants in no earlier daily file
+    (`publish/daily.py`). Without it, the day before: the final file with everyone and their
+    places, published runners carried unchanged.
 
     Refuses inside 24 hours of the gun, refuses with uncommitted changes to the code (the
     file names the commit that made it, and that commit has to be the code that ran), and
@@ -834,8 +875,8 @@ def freeze(
     from finishline.conformal import split
     from finishline.identity import link
     from finishline.models import hierarchical
+    from finishline.publish import daily, predictions
     from finishline.publish import freeze as freezing
-    from finishline.publish import predictions
 
     try:
         live = freezing.load_live(LIVE, race_id)
@@ -843,6 +884,15 @@ def freeze(
     except (KeyError, ValueError, predictions.FreezeRefused) as refusal:
         typer.echo(f"refused: {refusal}", err=True)
         raise typer.Exit(code=2) from refusal
+    today = datetime.now(UTC).astimezone(live.gun.tzinfo).date()
+    lead_days = (live.race.date - today).days
+    if daily_file and lead_days > daily.FIRST_LEAD_DAYS:
+        typer.echo(
+            f"refused: daily files start {daily.FIRST_LEAD_DAYS} days out; "
+            f"this race is {lead_days} away",
+            err=True,
+        )
+        raise typer.Exit(code=2)
 
     code = ["src", "pyproject.toml", "uv.lock", "data/live.toml"]
     dirty = subprocess.run(
@@ -878,12 +928,31 @@ def freeze(
     }
 
     history = History.before(live.race.date, data.races, data.resolved)
-    typer.echo(f"sampling on every result before {live.race.date} ...")
-    posterior = hierarchical.fit(history, weather=covariates)
+    # One fit for the whole week (publish/daily.py): made on the first day, reused after, and
+    # refused if the archive or the model code moved in between.
+    fit_meta = {
+        "race_id": race_id,
+        "key": _hierarchical_key(data, 2024, dict(HIERARCHICAL_DEFAULTS), covariates),
+    }
+    saved_fit = daily.posterior_path(FREEZE_FITS, race_id)
+    try:
+        posterior = daily.load_posterior(saved_fit, fit_meta)
+    except ValueError as refusal:
+        typer.echo(f"refused: {refusal}", err=True)
+        raise typer.Exit(code=2) from refusal
     if posterior is None:
-        typer.echo("nothing to fit")
-        raise typer.Exit(code=1)
-    conditions, conditions_record = _forecast(live, posterior.draws, backtest_seed(race_id))
+        typer.echo(f"sampling on every result before {live.race.date} ...")
+        posterior = hierarchical.fit(history, weather=covariates)
+        if posterior is None:
+            typer.echo("nothing to fit")
+            raise typer.Exit(code=1)
+        daily.save_posterior(saved_fit, posterior, {**fit_meta, "commit": commit})
+    else:
+        typer.echo(f"the week's fit, from {saved_fit}")
+    conditions, conditions_record = _forecast(
+        live, posterior.draws, backtest_seed(race_id), lead_days
+    )
+    already = daily.published(PREDICTIONS, race_id)
 
     listed = entrants.load(snapshot_path)
     doc = freezing.assemble(
@@ -907,8 +976,18 @@ def freeze(
         seed=backtest_seed(race_id),
         conditions=conditions,
         conditions_record=conditions_record,
+        already=already,
+        only_new=daily_file,
     )
-    path = PREDICTIONS / f"{race_id}.json"
+    if daily_file:
+        path = daily.daily_path(PREDICTIONS, race_id, today)
+        tag = f"predictions/{race_id}/daily-{today.isoformat()}"
+        if not doc["runners"]:
+            typer.echo("no entrant is new since the last daily file; nothing written")
+            return
+    else:
+        path = PREDICTIONS / f"{race_id}.json"
+        tag = f"predictions/{race_id}"
     digest = predictions.write(path, doc)
     counts = doc["entrants"]
     typer.echo(
@@ -916,17 +995,18 @@ def freeze(
         f"{counts['ambiguous']} excluded as ambiguous, {counts['new']} with no history"
     )
     typer.echo(f"sha256 {digest}")
+    typer.echo(f"tag {tag}")
     typer.echo(
         "\nNothing is committed or tagged. To make it count, before "
         f"{(live.gun - predictions.MINIMUM_NOTICE).isoformat()}:\n"
         f"  git add {path.as_posix()} && git commit -m \"Prediction: {race_id}\"\n"
-        f"  git tag -a predictions/{race_id} -m \"sha256 {digest}\"\n"
-        f"  git push && git push origin predictions/{race_id}"
+        f"  git tag -a {tag} -m \"sha256 {digest}\"\n"
+        f"  git push && git push origin {tag}"
     )
 
 
 def _forecast(
-    live: Any, draws: int, seed: int
+    live: Any, draws: int, seed: int, lead_days: int = 1
 ) -> tuple[Any, dict[str, Any] | None]:
     """Covariate draws from today's forecast for the race, corrected, and what to record.
 
@@ -959,7 +1039,10 @@ def _forecast(
     finally:
         client.close()
 
-    error = weather_model.load(FORECAST_ERROR)
+    from finishline.publish import daily
+
+    # The error measured at this lead: a week out, the forecast is worse than the day before.
+    error = daily.forecast_error_for(FORECAST_ERROR_BY_LEAD, FORECAST_ERROR, lead_days)
     bearing = bearings().get(race.course_id)
     # No forecast sun is treated as none, which never adds sunshine nobody forecast.
     sun = 0.0 if sun_share is None else sun_share
@@ -983,6 +1066,7 @@ def _forecast(
             "sun_share": None if sun_share is None else round(sun_share, 3),
         },
         "bearing_deg": bearing,
+        "lead_days": lead_days,
         "forecast_error": {
             key: round(value, 4) if isinstance(value, float) else value
             for key, value in error.as_record().items()
@@ -1007,6 +1091,62 @@ def _git_bytes(*args: str) -> bytes | None:
 
     done = subprocess.run(["git", *args], capture_output=True, check=False)
     return done.stdout if done.returncode == 0 else None
+
+
+@app.command(name="due")
+def due() -> None:
+    """Which live races want a prediction file today, and which kind: one line per race.
+
+    `daily` from seven days before the race to two, `final` the day before. Read by
+    scripts/daily-predictions.ps1, which runs each morning in the prediction week.
+    """
+    from datetime import UTC, datetime
+
+    from finishline.publish import daily
+    from finishline.publish import freeze as freezing
+
+    records: dict[str, Any] = tomllib.loads(LIVE.read_text(encoding="utf-8"))
+    for race_id in sorted(records):
+        if "entrant_list" not in records[race_id]:
+            continue
+        try:
+            live = freezing.load_live(LIVE, race_id)
+        except (KeyError, ValueError):
+            continue
+        lead = (live.race.date - datetime.now(UTC).astimezone(live.gun.tzinfo).date()).days
+        if lead == 1:
+            typer.echo(f"{race_id} final")
+        elif 2 <= lead <= daily.FIRST_LEAD_DAYS:
+            typer.echo(f"{race_id} daily")
+
+
+@app.command(name="page")
+def race_page(
+    race_id: Annotated[str, typer.Argument(help="A race in data/live.toml, e.g. tt-2026.")],
+) -> None:
+    """Rewrite the race's page from every prediction file published for it so far.
+
+    Reads predictions/<race>/daily-*.json and predictions/<race>.json and nothing else, so the
+    page never says more than the files do. `score` replaces it after the race.
+    """
+    from finishline.publish import daily, predictions, racepage
+
+    paths = sorted((PREDICTIONS / race_id).glob(f"{daily.DAILY_PREFIX}*.json"))
+    final = PREDICTIONS / f"{race_id}.json"
+    if final.exists():
+        paths.append(final)
+    if not paths:
+        typer.echo(f"no prediction file for {race_id} yet")
+        raise typer.Exit(code=2)
+    files = [
+        (path.name, json.loads(path.read_text(encoding="utf-8")),
+         predictions.sha256(path.read_bytes()))
+        for path in paths
+    ]
+    RACE_PAGES.mkdir(parents=True, exist_ok=True)
+    page = RACE_PAGES / f"{race_id}.md"
+    page.write_text(racepage.before_the_gun(files), encoding="utf-8", newline="\n")
+    typer.echo(f"wrote {page} from {len(files)} file(s)")
 
 
 @app.command(name="score")

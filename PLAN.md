@@ -412,6 +412,20 @@ did not say:
   what that does and does not cover. `freeze` renders no race page yet; `score` writes it,
   with every finisher's prediction beside their result.
 
+**Amended 2026-09-19, at Peter's request: a prediction week, not a single file.** From seven
+days before the race, `freeze --daily` publishes a file a day holding only the entrants in no
+earlier file, predicted with that morning's forecast at that lead (the forecast error is now
+measured per lead, one to seven days, in `data/forecast_error_by_lead.toml`). The day before,
+the final file holds the whole field with places; runners already published carry their
+earlier time unchanged and name the file it came from. One fit serves the week and is refused
+if the archive moves under it; each entrant's random numbers are seeded by the race and their
+name, not their place on the list, so the same entrant gets the same numbers on any day
+(`publish/daily.py`). `finishline page` renders the race page from the published files after
+each one. Peter authorised `scripts/daily-predictions.ps1`, run each morning at 06:15 by Task
+Scheduler, to commit, tag and push the files and the page; it commits nothing else, and
+`freeze` still refuses with uncommitted code. Consequence: the repository has to be public
+seven days before the rehearsal, 2026-09-27, rather than the day before.
+
 ## 6. Week by week
 
 Relative weeks, anchored to the first live race. Evenings and weekends.

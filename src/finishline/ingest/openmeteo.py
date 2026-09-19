@@ -108,13 +108,19 @@ def archive_params(year: int, today: date) -> dict[str, str]:
     }
 
 
-def previous_runs_params(start: date, end: date) -> dict[str, str]:
-    """The query for what the forecast said a day ahead, over a range of past days."""
+# The longest lead the daily predictions need: a week before the gun.
+LONGEST_LEAD_DAYS = 7
+
+
+def previous_runs_params(start: date, end: date, lead: int = 1) -> dict[str, str]:
+    """The query for what the forecast said `lead` days ahead, over a range of past days."""
+    if not 1 <= lead <= LONGEST_LEAD_DAYS:
+        raise ValueError(f"a lead of {lead} days is not one the previous-runs API keeps")
     return {
         "latitude": str(LATITUDE),
         "longitude": str(LONGITUDE),
         "timezone": TIMEZONE,
-        "hourly": ",".join(f"{name}_previous_day1" for name in VARIABLES),
+        "hourly": ",".join(f"{name}_previous_day{lead}" for name in VARIABLES),
         "wind_speed_unit": "kmh",
         "start_date": start.isoformat(),
         "end_date": end.isoformat(),
@@ -260,14 +266,14 @@ class Client:
                 return body
         return self._get(ARCHIVE, archive_params(year, today), name, keep=True)
 
-    def previous_runs(self, start: date, end: date) -> dict[str, Any]:
-        """Day-ahead forecasts for past days. History, so fetched once and kept."""
-        name = f"previous-day1-{start.isoformat()}-{end.isoformat()}"
+    def previous_runs(self, start: date, end: date, lead: int = 1) -> dict[str, Any]:
+        """Forecasts made `lead` days ahead for past days. History, so fetched once and kept."""
+        name = f"previous-day{lead}-{start.isoformat()}-{end.isoformat()}"
         cached = self.root / f"{name}.json"
         if cached.exists():
             stored: dict[str, Any] = json.loads(cached.read_text(encoding="utf-8"))["body"]
             return stored
-        return self._get(PREVIOUS_RUNS, previous_runs_params(start, end), name, keep=True)
+        return self._get(PREVIOUS_RUNS, previous_runs_params(start, end, lead), name, keep=True)
 
     def _get(
         self, url: str, params: dict[str, str], name: str, *, keep: bool = False

@@ -43,6 +43,7 @@ from finishline.history import History
 from finishline.identity.link import Link, Status, counts
 from finishline.models.hierarchical import QUANTILES, Posterior, summarise
 from finishline.placing import simulate
+from finishline.publish import daily
 from finishline.publish.predictions import RunnerPrediction, check_gun, document
 from finishline.schema import Race
 
@@ -131,34 +132,72 @@ def assemble(
     seed: int,
     conditions: np.ndarray | None = None,
     conditions_record: dict[str, Any] | None = None,
+    already: daily.Published | None = None,
+    only_new: bool = False,
 ) -> dict[str, Any]:
     """The prediction file for this race, validated by the caller's `write`.
 
     `conditions` is one row of weather covariates per posterior draw, from the corrected
     forecast (`models.weather.draws`), and `conditions_record` is what the file says about
     it. Both None predict an average morning, and the file says `null`.
+
+    `already` is what the daily files have published (`daily.published`). With `only_new`
+    this writes a daily file: the entrants in none of them, and no places. Without it, the
+    final file: everyone, a published runner's line carried unchanged with the file it came
+    from, and places for the whole field.
     """
     check_gun(live.gun, now)
     race = live.race
-    rng = np.random.default_rng(seed)
+    earlier = already or {}
 
     predicted = [item for item in links if item.status is not Status.AMBIGUOUS]
+    _new, carried, streams = daily.split(
+        [daily.entrant_key(item.entrant) for item in predicted], earlier
+    )
     # Newcomers need an id the posterior cannot mistake for an archive runner.
     ids = [
         item.runner.runner_id if item.runner is not None else f"entrant:{position}"
         for position, item in enumerate(predicted)
     ]
-    field = [
-        simulate.Entrant(runner_id, item.entrant.sex)
-        for runner_id, item in zip(ids, predicted, strict=True)
-    ]
-    places = {
-        place.runner_id: place
-        for place in simulate.simulate(posterior, field, race, rng, conditions)
-    }
+    places: dict[str, simulate.Place] = {}
+    if not only_new:
+        field = [
+            simulate.Entrant(runner_id, item.entrant.sex)
+            for runner_id, item in zip(ids, predicted, strict=True)
+        ]
+        places = {
+            place.runner_id: place
+            for place in simulate.simulate(
+                posterior, field, race, np.random.default_rng(seed), conditions
+            )
+        }
 
     lines: list[RunnerPrediction] = []
-    for runner_id, item in zip(ids, predicted, strict=True):
+    for position, (runner_id, item) in enumerate(zip(ids, predicted, strict=True)):
+        place = places.get(runner_id)
+        median_place = None if place is None else place.median
+        low_place = None if place is None else place.low
+        high_place = None if place is None else place.high
+        if position in carried:
+            if only_new:
+                continue
+            source, line = carried[position]
+            lines.append(
+                RunnerPrediction(
+                    name=item.entrant.name,
+                    hometown=line.get("hometown"),
+                    prior_results=int(line["prior_results"]),
+                    seconds=float(line["seconds"]),
+                    interval_80=(float(line["interval_80"][0]), float(line["interval_80"][1])),
+                    interval_90=(float(line["interval_90"][0]), float(line["interval_90"][1])),
+                    place=median_place,
+                    place_low=low_place,
+                    place_high=high_place,
+                    first_published=source,
+                )
+            )
+            continue
+        rng = daily.runner_rng(seed, streams[position])
         draws = posterior.predict(runner_id, item.entrant.sex, race, rng, conditions)
         quantiles = summarise(draws)
         median = quantiles[QUANTILES.index(0.50)]
@@ -178,7 +217,6 @@ def assemble(
         low90, high90 = intervals[0.90]
         intervals[0.90] = (min(low90, low80), max(high90, high80))
 
-        place = places[runner_id]
         lines.append(
             RunnerPrediction(
                 name=item.entrant.name,
@@ -187,13 +225,22 @@ def assemble(
                 seconds=median,
                 interval_80=intervals[0.80],
                 interval_90=intervals[0.90],
-                place=place.median,
-                place_low=place.low,
-                place_high=place.high,
+                place=median_place,
+                place_low=low_place,
+                place_high=high_place,
             )
         )
 
     tally = counts(links)
+    entrants = {
+        "listed": len(links),
+        "linked": tally[Status.LINKED.value],
+        "new": tally[Status.NEW.value],
+        "ambiguous": tally[Status.AMBIGUOUS.value],
+        "predicted": len(lines),
+    }
+    if earlier:
+        entrants["published_before"] = len(carried)
     return document(
         race={
             "race_id": race.race_id,
@@ -213,12 +260,7 @@ def assemble(
             },
         },
         conditions=conditions_record,
-        entrants={
-            "listed": len(links),
-            "linked": tally[Status.LINKED.value],
-            "new": tally[Status.NEW.value],
-            "ambiguous": tally[Status.AMBIGUOUS.value],
-            "predicted": len(lines),
-        },
+        entrants=entrants,
         runners=lines,
+        daily=only_new,
     )

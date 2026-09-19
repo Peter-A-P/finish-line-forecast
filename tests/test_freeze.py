@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -14,7 +15,8 @@ from finishline.identity import link
 from finishline.identity.resolve import Runner
 from finishline.ingest.entrants import Entrant
 from finishline.models import hierarchical as hm
-from finishline.publish import freeze
+from finishline.models import weather
+from finishline.publish import daily, freeze
 from finishline.publish import predictions as pf
 from finishline.schema import Race, Result
 
@@ -219,3 +221,157 @@ def test_the_forecast_used_is_recorded_and_moves_the_prediction() -> None:
     by_name = {runner["name"]: runner["seconds"] for runner in neutral["runners"]}
     for runner in warm["runners"]:
         assert runner["seconds"] > by_name[runner["name"]], "ten degrees warm is slower"
+
+
+# --- the prediction week (publish/daily.py) ----------------------------------------
+
+
+def build(
+    entrants: list[Entrant], already: daily.Published | None = None, only_new: bool = False
+) -> dict[str, Any]:
+    posterior, _links, history = setup()
+    archive = [
+        runner
+        for runner in (
+            history.runners.get("r1"),
+            history.runners.get("r2"),
+            history.runners.get("r3"),
+        )
+        if runner is not None
+    ]
+    return freeze.assemble(
+        posterior=posterior,
+        links=link.link(entrants, archive),
+        history=history,
+        live=LIVE,
+        now=NOW,
+        snapshot={"file": "x.html", "sha256": "ab"},
+        model={"name": "hierarchical", "commit": "0" * 40},
+        calibration={0.80: {}, 0.90: {}},
+        seed=7,
+        already=already,
+        only_new=only_new,
+    )
+
+
+def publish(tmp_path: Path, name: str, doc: dict[str, Any]) -> None:
+    path = tmp_path / "c2c-2026" / name
+    pf.write(path, doc)
+
+
+def test_repeated_names_are_told_apart_by_order() -> None:
+    already: daily.Published = {"ann hynes": [("daily-1.json", {"seconds": 1.0})]}
+    new, carried, streams = daily.split(["ann hynes", "bea power", "ann hynes"], already)
+    assert new == [1, 2], "the second Ann Hynes was not published before"
+    assert carried[0][0] == "daily-1.json"
+    assert streams == ["ann hynes#0", "bea power#0", "ann hynes#1"]
+
+
+def test_a_daily_file_holds_only_the_new_and_no_places(tmp_path: Path) -> None:
+    first = build([Entrant("Ann Hynes", "F"), Entrant("Dee Newcomer", "F")], only_new=True)
+    assert pf.validate(first) == []
+    assert first["kind"] == "daily"
+    assert all("place" not in runner for runner in first["runners"])
+    publish(tmp_path, "daily-2026-10-11.json", first)
+
+    already = daily.published(tmp_path, "c2c-2026")
+    second = build(
+        [Entrant("Ann Hynes", "F"), Entrant("Bea Power", "F"), Entrant("Dee Newcomer", "F")],
+        already,
+        only_new=True,
+    )
+    assert [runner["name"] for runner in second["runners"]] == ["Bea Power"]
+    assert second["entrants"]["published_before"] == 2
+
+
+def test_a_runners_time_does_not_depend_on_who_else_is_on_the_list() -> None:
+    alone = build([Entrant("Dee Newcomer", "F")], only_new=True)
+    crowded = build(
+        [Entrant("Ann Hynes", "F"), Entrant("Bea Power", "F"), Entrant("Dee Newcomer", "F")],
+        only_new=True,
+    )
+
+    def dee(doc: dict[str, Any]) -> dict[str, Any]:
+        return next(r for r in doc["runners"] if r["name"] == "Dee Newcomer")
+
+    assert dee(alone) == dee(crowded)
+
+
+def test_the_final_file_carries_published_times_and_places_everyone(tmp_path: Path) -> None:
+    first = build([Entrant("Ann Hynes", "F")], only_new=True)
+    publish(tmp_path, "daily-2026-10-11.json", first)
+    final = build(
+        [Entrant("Ann Hynes", "F"), Entrant("Bea Power", "F")],
+        daily.published(tmp_path, "c2c-2026"),
+    )
+    assert pf.validate(final) == []
+    by_name = {runner["name"]: runner for runner in final["runners"]}
+    ann = by_name["Ann Hynes"]
+    assert ann["first_published"] == "daily-2026-10-11.json"
+    assert ann["seconds"] == first["runners"][0]["seconds"]
+    assert ann["interval_80"] == first["runners"][0]["interval_80"]
+    assert "first_published" not in by_name["Bea Power"]
+    assert all("place" in runner for runner in final["runners"])
+
+
+def test_a_daily_file_may_not_carry_places() -> None:
+    doc = build([Entrant("Ann Hynes", "F")], only_new=True)
+    doc["runners"][0]["place"] = {"median": 1, "low": 1, "high": 1}
+    assert any("no places" in problem for problem in pf.validate(doc))
+
+
+def test_the_saved_fit_is_refused_once_the_archive_moves(tmp_path: Path) -> None:
+    posterior, _links, _history = setup()
+    path = daily.posterior_path(tmp_path, "c2c-2026")
+    daily.save_posterior(path, posterior, {"race_id": "c2c-2026", "key": "a"})
+    assert daily.load_posterior(path, {"race_id": "c2c-2026", "key": "a"}) is not None
+    with pytest.raises(ValueError, match="archive changed"):
+        daily.load_posterior(path, {"race_id": "c2c-2026", "key": "b"})
+    assert daily.load_posterior(tmp_path / "none.pkl", {}) is None
+
+
+def test_the_forecast_error_is_taken_at_the_lead_and_never_a_shorter_one(tmp_path: Path) -> None:
+    def table(lead: int, sd: float) -> list[str]:
+        record = {
+            "mornings": 30, "temp_bias": 0.0, "temp_sd": sd, "wind_bias": 0.0, "wind_sd": 1.0,
+            "east_bias": 0.0, "east_sd": 1.0, "north_bias": 0.0, "north_sd": 1.0,
+        }
+        return [f'["{lead}"]', *(f"{k} = {v!r}" for k, v in record.items()), ""]
+
+    path = tmp_path / "by_lead.toml"
+    path.write_text("\n".join(table(1, 2.0) + table(3, 3.0) + table(7, 4.0)), encoding="utf-8")
+    fallback = tmp_path / "missing.toml"
+    assert daily.forecast_error_for(path, fallback, 1).temp_sd == 2.0
+    assert daily.forecast_error_for(path, fallback, 5).temp_sd == 3.0
+    assert daily.forecast_error_for(path, fallback, 9).temp_sd == 4.0
+    assert isinstance(daily.forecast_error_for(path, fallback, 2), weather.ForecastError)
+
+
+def test_published_reads_names_back_from_the_files(tmp_path: Path) -> None:
+    doc = build([Entrant("ANN HYNES", "F")], only_new=True)
+    publish(tmp_path, "daily-2026-10-11.json", doc)
+    found = daily.published(tmp_path, "c2c-2026")
+    assert list(found) == [daily.entrant_key(Entrant("Ann Hynes", None))]
+    assert json.loads((tmp_path / "c2c-2026" / "daily-2026-10-11.json").read_text())["kind"] == (
+        "daily"
+    )
+
+
+def test_the_race_page_shows_every_published_runner_once_and_the_top_places(
+    tmp_path: Path,
+) -> None:
+    from finishline.publish import racepage
+
+    first = build([Entrant("Ann Hynes", "F")], only_new=True)
+    publish(tmp_path, "daily-2026-10-11.json", first)
+    final = build(
+        [Entrant("Ann Hynes", "F"), Entrant("Bea Power", "F")],
+        daily.published(tmp_path, "c2c-2026"),
+    )
+    page = racepage.before_the_gun(
+        [("daily-2026-10-11.json", first, "aa"), ("c2c-2026.json", final, "bb")]
+    )
+    assert page.count("| Ann Hynes |") == 2, "once in the top places, once in the full list"
+    assert "Predicted top 20" in page and "`bb`" in page
+    assert "| Bea Power |" in page
+    assert racepage.clock(3725.4) == "1:02:05" and racepage.clock(1500) == "25:00"

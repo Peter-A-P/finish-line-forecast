@@ -1,0 +1,83 @@
+# How wrong Open-Meteo's forecast was on past race mornings at St. John's airport, by
+# how many days ahead it was made: forecast minus the ECCC observation over the same
+# race hours. Written by `finishline forecast-error` on 2026-09-19,
+# from race editions near St. John's since 2024. Read by `finishline freeze --daily`,
+# which predicts each entrant with the forecast of the morning they were first
+# published. Do not edit by hand.
+
+["1"]
+mornings = 36
+temp_bias = -1.5387962962962964
+temp_sd = 2.2432896978389425
+wind_bias = -7.1093518518518515
+wind_sd = 4.693738065574037
+east_bias = -4.2321436151800444
+east_sd = 8.323959678428933
+north_bias = -1.086205601334138
+north_sd = 7.850018137023104
+
+["2"]
+mornings = 36
+temp_bias = -1.4648148148148146
+temp_sd = 2.050118300023614
+wind_bias = -7.7669444444444435
+wind_sd = 5.040275085400392
+east_bias = -4.51948345102454
+east_sd = 8.493891577869846
+north_bias = -1.1413296946607376
+north_sd = 8.335044383700943
+
+["3"]
+mornings = 36
+temp_bias = -1.6101851851851852
+temp_sd = 2.4812303584533946
+wind_bias = -8.242592592592594
+wind_sd = 5.4477851687773
+east_bias = -4.578895578652651
+east_sd = 9.400030013674064
+north_bias = -1.362804709227764
+north_sd = 8.323460143818513
+
+["4"]
+mornings = 36
+temp_bias = -2.0969444444444445
+temp_sd = 2.6659666194221217
+wind_bias = -9.081944444444444
+wind_sd = 6.772304729499873
+east_bias = -5.8608000247095635
+east_sd = 10.723509583942311
+north_bias = -2.6513452288348613
+north_sd = 8.111509889333863
+
+["5"]
+mornings = 36
+temp_bias = -2.4642592592592596
+temp_sd = 2.894666755621844
+wind_bias = -9.07388888888889
+wind_sd = 7.792257105207116
+east_bias = -5.521824785824652
+east_sd = 14.13343162625006
+north_bias = -5.431484109327963
+north_sd = 12.38335212695897
+
+["6"]
+mornings = 36
+temp_bias = -2.295
+temp_sd = 3.515230309237807
+wind_bias = -9.302499999999998
+wind_sd = 7.5556738850444605
+east_bias = -7.185802887161001
+east_sd = 12.362013682275743
+north_bias = -4.832655446610032
+north_sd = 14.94575006713273
+
+["7"]
+mornings = 36
+temp_bias = -1.2522222222222221
+temp_sd = 3.050642607297734
+wind_bias = -10.06685185185185
+wind_sd = 9.449809536820673
+east_bias = -4.657221209776833
+east_sd = 15.405363041518656
+north_bias = -4.3221548208969836
+north_sd = 16.597645558204377

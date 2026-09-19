@@ -85,11 +85,14 @@ club's copy automatically (`store.build`).
 
 ### 3b. The Turkey Tea rehearsal, 2026-10-04 at 08:00
 
-Frozen by 08:00 on 2026-10-03 against the latest Trackie snapshot (`tt-2026`, snapshotted
-daily from 2026-09-19), tagged, and scored when NLAA posts the results. `freeze` needs a saved
-backtest that matches the code and the data on the day, so nothing in `models/`, `history.py`
-or `backtest/run.py` changes after the backtest it will use, and the repository has to be
-public before the tag.
+A prediction week (PLAN.md 5.7): daily files of new entrants from 2026-09-27, the final file
+with places by 08:00 on 2026-10-03, each committed, tagged and pushed by
+`scripts/daily-predictions.ps1` at 06:15 (register it with
+`scripts/register-predictions-task.ps1`), and scored when NLAA posts the results. `freeze`
+needs a saved backtest that matches the code and the data on the day, so nothing in
+`models/`, `history.py` or `backtest/run.py` changes after the backtest it will use, `src/`
+stays committed through the week, and **the repository has to be public by 2026-09-27**,
+when the first daily file is tagged. Cape to Cabot's week starts 2026-10-11.
 
 ## Open questions the assistant should not settle alone
 

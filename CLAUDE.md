@@ -41,6 +41,9 @@ finishline conditions   what heat and wind cost, by distance
 finishline backtest     score the baselines at every origin (--hierarchical adds the model)
 finishline report       rewrite the README tables from the measurement
 finishline freeze <race> the prediction file, hashed, refused inside 24 hours of the gun
+                        (--daily from seven days out: only entrants no earlier file had)
+finishline due          which live races want a daily or final file today
+finishline page <race>  the race page, rendered from the published prediction files
 finishline score <race>  the tagged prediction against the results   (fetches: --notices-sent)
 ```
 
