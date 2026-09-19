@@ -11,7 +11,7 @@ the model's race effect (section 13 item 27), the LightGBM challenger, and the p
 model.
 
 **Section 13 is the log of what the data refuted**, and it is the first thing to read after
-this line: thirty-two numbered entries, each one a design in this plan that measurement
+this line: thirty-three numbered entries, each one a design in this plan that measurement
 overturned. What is open and who owns it is in [docs/todo.md](docs/todo.md).
 
 **Build:** planned in relative weeks. Earliest start: now. The first live target fixes the
@@ -343,6 +343,17 @@ fitted trend, age category midpoint, sex, log distance ratio, course prior, fore
 factors, months of the year. Trained rolling-origin like everything else. Its raw quantiles
 are reported beside their conformalised versions, which is section 10's candidate 3.
 
+**As built, 2026-09-19** (`models/gbm.py`, `finishline backtest --challenger`). Seven
+quantiles, the hierarchical model's own, so the same conformal layer calibrates both. Form is
+the log ratio to a VDOT-50 Daniels time rather than a "neutral VDOT": the conditions enter as
+the six raw weather features the hierarchical model reads, and the trees can learn what they
+cost, which is a fairer test than handing the challenger the other model's weather
+correction. Refitted per calendar quarter on the history before it, like the hierarchical
+model, on every finish since 2010; hyperparameters fixed before the first run and never tuned
+on the backtest. Its rows are saved and keyed like the hierarchical run's, so `report`
+publishes them beside the others and never refits. It is a challenger only: the published
+predictions stay the hierarchical model's.
+
 ### 5.5 Rolling origin
 
 One origin per race edition from 2024 onward: fit on every result strictly before that
@@ -532,7 +543,9 @@ a fourth design, weather as a straight line in temperature (section 13 items 29 
 rejected on two leave-one-year-out tests with intervals that clear zero. That is
 `docs/rejected.md`. Candidate 1 is in the README tables already (best equal-VDOT answers for
 63 to 87% of runners and has no interval); candidate 2 was not refuted, since the Minetti
-check on Cape to Cabot agreed with the measurement; candidate 3 waits on the challenger.
+check on Cape to Cabot agreed with the measurement; candidate 3 now has its evidence (section
+13 item 33: LightGBM's raw quantiles under-cover at every depth and conformal repairs them),
+but it was never tried as a published design, so it is recorded there rather than here.
 
 ## 11. Definition of done
 
@@ -1275,3 +1288,32 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     Cabot by about a third**, whose first-timers are faster than its pooled history says (2021
     alone had three in its top ten). Reported as it stands rather than tuned before the race.
 
+
+33. **The challenger is more accurate than the model it was meant to test.** Section 5.4's
+    LightGBM, backtested 2026-09-19 on the same 53 races (`models/gbm.py`, eight quarterly fits
+    of about a minute each against the hierarchical model's twenty-odd). On the same runners,
+    with the difference in points of a finish time and races resampled (`score.paired_error`):
+    runners with one prior result -0.87 (-1.72 to -0.41), two or three -0.84 (-1.26 to -0.62),
+    four or more -0.25 (-0.47 to -0.07), all favouring LightGBM; first-timers +0.96 (-0.85 to
+    +2.42), level. In minutes: 8.8 against 9.4, 7.9 against 8.5, 5.3 against 5.4, 18.9 against
+    18.3. It also orders a field better: 3.9 places closer than carry-forward on the same
+    runners (1.9 to 6.4) against the hierarchical model's 1.8, Spearman 0.873 against 0.857.
+    Two marginal MAE intervals overlap at every depth, which is why the paired test is the one
+    reported: the same runner's two errors move together.
+
+    Section 10's candidate 3 has its evidence at the same time: LightGBM's own 80% quantile
+    ranges held 68 to 72% of finishes and its 90% ranges 82 to 84%, under-covering at every
+    depth; the conformal layer brings them to 75 to 77% and 87 to 88%, and at four or more
+    prior results its calibrated 80% range is 12.7 minutes wide against the hierarchical
+    model's 13.6. So the challenger's point predictions are better and its raw intervals are
+    worse, which is the result the candidate predicted, and a reason the conformal layer is not
+    optional for either model.
+
+    What it does not settle, and is not settled here: the published predictions are the
+    hierarchical model's, because the placing simulation needs joint draws of a whole field on
+    one shared morning and the forecast's error as noise, which quantile trees do not give. A
+    first look at an average of the two models' medians was better than either at four or more
+    prior results (5.05 minutes) and for first-timers; it is not a published number until it
+    has its own paired interval. Which model or blend publishes Cape to Cabot is decided and
+    written here before that race's model lock on 2026-10-11. Turkey Tea is predicted by the
+    hierarchical model as built.

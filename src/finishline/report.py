@@ -179,6 +179,35 @@ def baseline_table(scored: Sequence[score.Scored], models: Sequence[str]) -> str
     return "\n".join(lines)
 
 
+def paired_error_table(scored: Sequence[score.Scored], model: str, other: str) -> str:
+    """One model against another on the same runners, by history depth.
+
+    Two MAE intervals in the table above can overlap while one model is consistently better
+    on the same runners; this is the paired test, resampling races.
+    """
+    lines = [
+        f"`{model}` against `{other}` on the same runners. The difference is in mean absolute "
+        "error as a percent of each runner's own finish time; negative favours "
+        f"`{model}`, and the 95% CI resamples races.",
+        "",
+        f"| Prior results | Runners | Races | MAE, minutes, `{model}` vs `{other}` "
+        "| Difference, points of a finish time (95% CI) |",
+        "|---|---:|---:|---|---|",
+    ]
+    for label, _low, _high in score.STRATA:
+        rows = [row for row in scored if score.stratum_of(row.depth) == label]
+        paired = score.paired_error(rows, model, other)
+        if paired is None:
+            continue
+        point, low, high = paired.difference
+        lines.append(
+            f"| {label} | {paired.runners:,} | {paired.races} "
+            f"| {_minutes(paired.model_mae_seconds)} vs {_minutes(paired.other_mae_seconds)} "
+            f"| {point:+.2f} ({low:+.2f} to {high:+.2f}) |"
+        )
+    return "\n".join(lines)
+
+
 def placing_table(scored: Sequence[score.Scored], models: Sequence[str]) -> str:
     """How well each model got the finishing order, averaged over races."""
     lines = [
@@ -242,7 +271,10 @@ def paired_placing_table(scored: Sequence[score.Scored], models: Sequence[str]) 
 
 
 def coverage_table(
-    summaries: Mapping[float, Sequence[coverage.Coverage]], model: str | None
+    summaries: Mapping[float, Sequence[coverage.Coverage]],
+    model: str | None,
+    *,
+    assumption: bool = True,
 ) -> str:
     """How often the model's intervals held, raw and after conformal adjustment.
 
@@ -284,6 +316,8 @@ def coverage_table(
                 f"{rate(summary.conformal, summary.conformal_low, summary.conformal_high)} | "
                 f"{width} |"
             )
+    if not assumption:
+        return "\n".join(lines)
     lines += [
         "",
         "**The assumption.** Conformal coverage is guaranteed on average over races within a "

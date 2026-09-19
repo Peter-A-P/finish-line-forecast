@@ -868,6 +868,7 @@ input[type="search"]:disabled { opacity: 0.55; }
 .bar.m-cf { fill: var(--m-cf); }
 .bar.m-vdot { fill: var(--m-vdot); }
 .bar.m-median { fill: var(--m-median); }
+.bar.m-gbm { fill: var(--alt); }
 .bar.m-model { fill: var(--accent); }
 
 /* Legend swatches for the marks above. */
@@ -887,6 +888,7 @@ input[type="search"]:disabled { opacity: 0.55; }
 .sw-cf { background: var(--m-cf); }
 .sw-vdot { background: var(--m-vdot); }
 .sw-median { background: var(--m-median); }
+.sw-gbm { background: var(--alt); }
 .sw-model { background: var(--accent); }
 
 /* ------------------------------------------------------------- how it works */

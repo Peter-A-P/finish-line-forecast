@@ -6,12 +6,14 @@ published once the results are in. For a race director that is pacing, corral an
 staffing planned from expected finish times rather than guesses; for a runner it is a goal
 time with an honest interval instead of a hunch.
 
-**Status: building.** Eighteen years of Newfoundland road results are read, 23,713
+**Status: building.** Eighteen years of Newfoundland road results are read, 23,830
 runners resolved out of them, the three baselines are measured on every race since 2024,
 every course's difficulty is measured from the results, and the hierarchical model now beats
 the strongest of those baselines by 27% for the runners with four or more prior results, 5.4
-minutes of mean absolute error against carry-forward's 7.4, with no bias left to speak of. No
-prediction has been made yet. The first live race is the Cape to Cabot 20 km in St. John's
+minutes of mean absolute error against carry-forward's 7.4, with no bias left to speak of. A
+LightGBM challenger given the same information is slightly more accurate still for every
+runner with a history, and that is published beside it rather than hidden. No prediction has
+been made yet. The first live race is the Cape to Cabot 20 km in St. John's
 on 2026-10-18, with a second on a frozen model on 2026-11-11; predictions are committed,
 tagged and hashed in this repository before each race and scored against the official
 results after it. Build plan: [PLAN.md](PLAN.md).
@@ -175,19 +177,45 @@ it.
 |  |  | `best-equal-vdot` | 0% | - | - | - |
 |  |  | `category-median` | 95% | 18.4 (17.9 to 18.9) | 18% | - |
 |  |  | `hierarchical` | 100% | 18.3 (17.9 to 18.8) | 18% | - |
+|  |  | `lightgbm` | 100% | 18.9 (18.4 to 19.4) | 17% | - |
 | 1 | 2713 | `carry-forward` | 100% | 9.6 (9.2 to 10.0) | 10% | baseline |
 |  |  | `best-equal-vdot` | 64% | 7.5 (7.1 to 8.0) | 8% | 21% |
 |  |  | `category-median` | 96% | 16.1 (15.5 to 16.7) | 16% | -68% |
 |  |  | `hierarchical` | 100% | 9.4 (9.0 to 9.9) | 10% | 2% |
+|  |  | `lightgbm` | 100% | 8.8 (8.4 to 9.2) | 9% | 8% |
 | 2 to 3 | 2910 | `carry-forward` | 100% | 9.3 (8.9 to 9.7) | 9% | baseline |
 |  |  | `best-equal-vdot` | 73% | 7.8 (7.4 to 8.2) | 8% | 16% |
 |  |  | `category-median` | 95% | 15.8 (15.2 to 16.4) | 16% | -70% |
 |  |  | `hierarchical` | 100% | 8.5 (8.2 to 8.9) | 9% | 8% |
+|  |  | `lightgbm` | 100% | 7.9 (7.5 to 8.2) | 8% | 15% |
 | 4 or more | 7490 | `carry-forward` | 100% | 7.4 (7.2 to 7.6) | 8% | baseline |
 |  |  | `best-equal-vdot` | 87% | 7.2 (7.0 to 7.4) | 7% | 2% |
 |  |  | `category-median` | 95% | 14.0 (13.7 to 14.4) | 18% | -90% |
 |  |  | `hierarchical` | 100% | 5.4 (5.2 to 5.6) | 6% | 27% |
+|  |  | `lightgbm` | 100% | 5.3 (5.1 to 5.5) | 6% | 28% |
+
+`lightgbm` against `hierarchical` on the same runners. The difference is in mean absolute error as a percent of each runner's own finish time; negative favours `lightgbm`, and the 95% CI resamples races.
+
+| Prior results | Runners | Races | MAE, minutes, `lightgbm` vs `hierarchical` | Difference, points of a finish time (95% CI) |
+|---|---:|---:|---|---|
+| 0 | 5,703 | 53 | 18.9 vs 18.3 | +0.96 (-0.85 to +2.42) |
+| 1 | 2,707 | 52 | 8.8 vs 9.4 | -0.87 (-1.72 to -0.41) |
+| 2 to 3 | 2,904 | 52 | 7.9 vs 8.5 | -0.84 (-1.26 to -0.62) |
+| 4 or more | 7,480 | 51 | 5.3 vs 5.4 | -0.25 (-0.47 to -0.07) |
 <!-- finishline:end:baselines -->
+
+⚠️ **The LightGBM challenger is more accurate than the hierarchical model for every runner with
+a history.** Gradient-boosted quantile trees on hand-built features (`models/gbm.py`: form on
+the same Daniels scale, history depth and age, course difficulty, the raw weather), refitted
+per quarter on the same history, with hyperparameters fixed before the first run. On the same
+runners, the paired table above: 0.25 to 0.87 points of a finish time better for runners with
+one or more prior results, intervals clear of zero; level for first-timers. It also orders a
+field better, 3.9 places closer than carry-forward against the hierarchical model's 1.8. Its
+own quantile ranges under-cover at every depth (68 to 72% at 80%) and the conformal layer
+repairs them, which is the coverage table below. The published predictions are still the
+hierarchical model's, because the placing simulation needs joint draws of a whole field on one
+morning, which quantile trees do not give; which model or blend publishes Cape to Cabot is
+decided before its model lock on 2026-10-11. PLAN.md section 13 item 33 has the detail.
 
 ⚠️ **The first run of this model lost to carry-forward. This is the second run, and what
 changed is in [PLAN.md](PLAN.md) section 13 items 28 and 29.** Two things were wrong at once:
@@ -261,6 +289,7 @@ measured against, and why the knee is fixed at 12 C rather than fitted.
 | `best-equal-vdot` | 52 | 17.6 | 0.838 |
 | `category-median` | 46 | 95.4 | 0.349 |
 | `hierarchical` | 53 | 50.9 | 0.706 |
+| `lightgbm` | 53 | 49.9 | 0.737 |
 
 The same runners: each model against `carry-forward`, both ranked among the runners both answered for in each race (races with at least 10 of them). Negative place error and positive Spearman differences favour the model; the 95% CI resamples races.
 
@@ -269,6 +298,7 @@ The same runners: each model against `carry-forward`, both ranked among the runn
 | `best-equal-vdot` | 51 | 10,377 | 17.9 vs 19.0 | -1.1 (-2.4 to -0.1) | 0.849 vs 0.847 | +0.002 (-0.006 to +0.010) |
 | `category-median` | 44 | 12,427 | 68.9 vs 27.9 | +41.1 (+20.3 to +66.9) | 0.368 vs 0.852 | -0.484 (-0.536 to -0.439) |
 | `hierarchical` | 51 | 13,081 | 23.7 vs 25.5 | -1.8 (-3.1 to -0.7) | 0.857 vs 0.849 | +0.008 (-0.005 to +0.023) |
+| `lightgbm` | 51 | 13,081 | 21.5 vs 25.5 | -3.9 (-6.4 to -1.9) | 0.873 vs 0.849 | +0.025 (+0.013 to +0.034) |
 <!-- finishline:end:placing -->
 
 ⚠️ **Read the second table, not the first.** The first ranks each model among the runners it
@@ -297,6 +327,19 @@ after conformal adjustment on the races before each one, by how much history a r
 | 1 | 90% | 2,654 | 47 | 84% (82 to 85) | 89% (87 to 90) | 28.8 to 34.4 |
 | 2 to 3 | 90% | 2,841 | 47 | 82% (80 to 84) | 88% (86 to 89) | 24.9 to 29.8 |
 | 4 or more | 90% | 7,390 | 50 | 87% (85 to 88) | 88% (87 to 90) | 18.2 to 19.0 |
+
+`lightgbm`, every race from 2024 on. Each race's intervals are adjusted using only races dated before it, separately for each history depth. Coverage is the share of runners whose finish fell inside; the 95% CI resamples races, not runners, because runners in one race share its morning.
+
+| Prior results | Level | Runners checked | Races | Model's own interval | After conformal | Median width, minutes (own to conformal) |
+|---|---:|---:|---:|---|---|---|
+| 0 | 80% | 5,649 | 51 | 72% (65 to 78) | 77% (71 to 83) | 50.6 to 57.1 |
+| 1 | 80% | 2,654 | 47 | 71% (66 to 77) | 75% (72 to 82) | 19.9 to 22.1 |
+| 2 to 3 | 80% | 2,841 | 47 | 69% (66 to 75) | 76% (72 to 82) | 17.2 to 20.4 |
+| 4 or more | 80% | 7,390 | 50 | 68% (64 to 74) | 77% (72 to 82) | 10.7 to 12.7 |
+| 0 | 90% | 5,649 | 51 | 84% (80 to 87) | 87% (84 to 91) | 67.6 to 69.1 |
+| 1 | 90% | 2,654 | 47 | 82% (79 to 87) | 87% (84 to 90) | 27.5 to 30.8 |
+| 2 to 3 | 90% | 2,841 | 47 | 82% (78 to 86) | 88% (86 to 91) | 24.9 to 29.6 |
+| 4 or more | 90% | 7,390 | 50 | 82% (78 to 85) | 88% (85 to 91) | 16.0 to 18.8 |
 
 **The assumption.** Conformal coverage is guaranteed on average over races within a history-depth group, provided a new race's errors look like the earlier races' errors (exchangeability). It is not a promise about any one runner or any one race, and it fails when a race meets conditions or a field the earlier races did not: a gale on Signal Hill is exactly that. The first races of the backtest have too few earlier errors to calibrate on (under 50 per group) and are left out of this table rather than given an interval nobody could trust.
 <!-- finishline:end:coverage -->

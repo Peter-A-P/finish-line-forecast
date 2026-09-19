@@ -291,3 +291,78 @@ def ranks(values: np.ndarray) -> np.ndarray:
     totals = np.zeros(len(counts), dtype=float)
     np.add.at(totals, inverse, positions)
     return (totals / counts)[inverse]
+
+
+@dataclass(frozen=True, slots=True)
+class PairedError:
+    """Two models' errors on the same runners, and the difference with a race-level interval."""
+
+    model: str
+    other: str
+    races: int
+    runners: int
+    model_mae_seconds: float
+    other_mae_seconds: float
+    # Mean absolute log error, model minus other, in percentage points of a finish time.
+    difference: tuple[float, float, float]
+
+
+def paired_error(
+    scored: Sequence[Scored],
+    model: str,
+    other: str,
+    *,
+    seed: int = BOOTSTRAP_SEED,
+    draws: int = BOOTSTRAP_DRAWS,
+) -> PairedError | None:
+    """Two models on exactly the runners both answered for, resampling races.
+
+    The comparison two overlapping MAE intervals cannot make: the same runner's two errors
+    are strongly correlated, so a real, consistent gap can sit inside both marginal
+    intervals. Here each runner is one pair, the difference is on the log scale (a percent
+    of their own finish time, so a marathoner does not outweigh a 5 km runner), and the
+    interval resamples whole races, because runners in one race share its morning.
+    """
+    by_key: dict[tuple[str, str], dict[str, Scored]] = {}
+    for row in scored:
+        if row.predicted is None or row.model not in (model, other):
+            continue
+        by_key.setdefault((row.race_id, row.runner_id), {})[row.model] = row
+    per_race: dict[str, list[tuple[float, float, float]]] = {}
+    for (race_id, _runner), pair in by_key.items():
+        if len(pair) != 2:
+            continue
+        mine, theirs = pair[model], pair[other]
+        actual = mine.actual
+        per_race.setdefault(race_id, []).append(
+            (
+                abs(float(np.log(float(mine.predicted or 0.0) / actual)))
+                - abs(float(np.log(float(theirs.predicted or 0.0) / actual))),
+                abs(float(mine.predicted or 0.0) - actual),
+                abs(float(theirs.predicted or 0.0) - actual),
+            )
+        )
+    if not per_race:
+        return None
+    races = sorted(per_race)
+    sums = np.asarray([[sum(v[i] for v in per_race[r]) for i in range(3)] for r in races])
+    counts = np.asarray([len(per_race[r]) for r in races], dtype=float)
+    rng = np.random.default_rng(seed)
+    picks = rng.integers(0, len(races), size=(draws, len(races)))
+    resampled = sums[picks, 0].sum(axis=1) / counts[picks].sum(axis=1)
+    tail = (1.0 - CONFIDENCE) / 2.0
+    low, high = np.quantile(resampled, [tail, 1.0 - tail])
+    total = counts.sum()
+    return PairedError(
+        model=model,
+        other=other,
+        races=len(races),
+        runners=int(total),
+        model_mae_seconds=float(sums[:, 1].sum() / total),
+        other_mae_seconds=float(sums[:, 2].sum() / total),
+        difference=(
+            float(sums[:, 0].sum() / total * 100),
+            float(low * 100),
+            float(high * 100),
+        ),
+    )

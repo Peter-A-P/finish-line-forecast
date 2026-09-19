@@ -744,8 +744,9 @@
     ["4 or more", "Four or more", "Four or more past races"]
   ];
 
-  function drawCoverage(rows) {
-    var node = clear(byId("coverage-chart"));
+  function drawCoverage(rows, prefix) {
+    prefix = prefix || "coverage";
+    var node = clear(byId(prefix + "-chart"));
     var H = 290, T = 26, B = H - 46;
     var root = frame(H, "How often the 80% and 90% ranges held, by history depth");
     var y = linear([0.6, 1.0], [B, T]);
@@ -767,21 +768,22 @@
         var text = s[2] + ", " + Math.round(level * 100) + "% range: the model's own range held " + percent(r.raw) +
           " of the time, after calibration " + percent(r.conformal) + " (95% interval " + percent(r.conformal_low) + " to " +
           percent(r.conformal_high) + "), over " + count(r.checked) + " runners; median width " + r.conformal_width_min.toFixed(0) + " minutes";
-        hover(raw, "coverage-caption", text);
-        hover(cal, "coverage-caption", text);
+        hover(raw, prefix + "-caption", text);
+        hover(cal, prefix + "-caption", text);
         root.appendChild(raw);
         root.appendChild(cal);
         root.appendChild(svg("text", { x: cx, y: B + 18, "text-anchor": "middle", "class": "tick" }, s[1]));
       });
     });
     node.appendChild(root);
-    legend("coverage-legend", [["dot raw-sw", "the model's own range"], ["dot cal-sw", "after calibration"], ["dashed sw-faint", "what the range promises"]]);
+    legend(prefix + "-legend", [["dot raw-sw", "the model's own range"], ["dot cal-sw", "after calibration"], ["dashed sw-faint", "what the range promises"]]);
   }
 
   var MODELS = [
     ["carry-forward", "Last time", "m-cf"],
     ["best-equal-vdot", "Race calculator", "m-vdot"],
     ["category-median", "Your category", "m-median"],
+    ["lightgbm", "LightGBM challenger", "m-gbm"],
     ["hierarchical", "This model", "m-model"]
   ];
 
@@ -843,6 +845,9 @@
       drawWeather();
       drawShrink();
       drawCoverage(state.results.backtest.coverage);
+      var challenger = state.results.backtest.challenger_coverage;
+      byId("challenger-ranges").hidden = !(challenger && challenger.length);
+      if (challenger && challenger.length) { drawCoverage(challenger, "coverage-gbm"); }
       drawResults(state.results.backtest.strata);
       drawPlacing(state.results.backtest.placing);
       var wanted = (window.location.hash || "").replace("#", "");

@@ -301,8 +301,11 @@ def tokens(
         f"{date.fromisoformat(str(race['date'])).strftime('%B %Y')}</option>"
         for race in races
     )
+    gbm_verdict, gbm_ranges = challenger_text(results)
     return {
         "repository": REPOSITORY,
+        "gbm_verdict": gbm_verdict,
+        "gbm_ranges": gbm_ranges,
         "mae_model": _number(model.get("mae_min")),
         "mae_cf": _number(baseline.get("mae_min")),
         "mae_new": _number(newcomer.get("mae_min"), 0),
@@ -329,6 +332,86 @@ def tokens(
         "code_lines": f"{code_lines:,}",
         "built": today.isoformat(),
     }
+
+
+def challenger_text(results: Mapping[str, Any]) -> tuple[str, str]:
+    """What the page says about the LightGBM challenger, from its numbers, or that it is owed.
+
+    Worded from the paired comparison on the same runners with a race-level interval
+    (`score.paired_error`), not from two marginal MAE intervals, which overlap even when one
+    model is consistently ahead. A difference whose interval crosses zero is called level.
+    """
+    backtest = results["backtest"]
+    paired = backtest.get("challenger_paired") or []
+    if not paired:
+        owed = "The LightGBM challenger's backtest is not published yet."
+        return owed, owed
+
+    words = {"0": "none", "1": "one", "2 to 3": "two or three", "4 or more": "four or more"}
+    ahead: list[str] = []
+    level: list[str] = []
+    behind: list[str] = []
+    for row in paired:
+        _point, low, high = row["difference"]
+        times = f"{row['challenger_min']:.1f} against {row['model_min']:.1f} minutes"
+        label = f"{words.get(row['label'], row['label'])} ({times}"
+        gap = sorted((abs(low), abs(high)))
+        if high < 0:
+            ahead.append(f"{label}, {gap[0]:.1f} to {gap[1]:.1f} points of a finish time)")
+        elif low > 0:
+            behind.append(f"{label}, {gap[0]:.1f} to {gap[1]:.1f} points of a finish time)")
+        else:
+            who = (
+                "first-timers"
+                if row["label"] == "0"
+                else f"runners with {words.get(row['label'], row['label'])} past races"
+            )
+            level.append(f"{who} ({times})")
+    sentences = []
+    if ahead:
+        sentences.append(
+            "<strong>On the same runners, the LightGBM challenger is more accurate than this "
+            "model</strong> for runners with this many past races: " + "; ".join(ahead) + "."
+        )
+    if behind:
+        sentences.append(
+            "This model is more accurate for runners with this many: " + "; ".join(behind) + "."
+        )
+    if level:
+        sentences.append("The two are level for " + "; ".join(level) + ".")
+    challenger_places = backtest.get("challenger_placing")
+    model_places = backtest.get("placing")
+    if challenger_places and model_places:
+        mine = -challenger_places["difference"][0]
+        theirs = -model_places["difference"][0]
+        sentences.append(
+            f"On the order of a field, it is {mine:.1f} places closer than \"last time\" on the "
+            f"same runners, against this model's {theirs:.1f}."
+        )
+    sentences.append(
+        "That is the point of running a challenger, and it is published as measured. Which "
+        "model, or which blend of the two, publishes the Cape to Cabot predictions is decided "
+        "and written down before that race's model is locked on 11 October."
+    )
+    verdict = " ".join(sentence for sentence in sentences if sentence)
+
+    held = {
+        (row["stratum"], row["level"]): row for row in backtest.get("challenger_coverage", [])
+    }
+
+    def rate(stratum: str, key: str) -> str:
+        row = held.get((stratum, 0.8), {})
+        return _percent(row.get(key))
+
+    ranges = (
+        f"<strong>Its own 80% ranges held {rate('1', 'raw')} of the time for runners with one "
+        f"past race and {rate('4 or more', 'raw')} for runners with four or more; after "
+        f"calibration, {rate('1', 'conformal')} and {rate('4 or more', 'conformal')}.</strong> "
+        "Quantile trees fit each edge of the range on its own and nothing ties the edges to "
+        "how often they hold, which is why no range this project publishes goes out without "
+        "the calibration step."
+    )
+    return verdict, ranges
 
 
 def fill(template: str, values: Mapping[str, str]) -> str:

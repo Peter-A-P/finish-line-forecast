@@ -87,9 +87,12 @@ strict = true
 warn_unreachable = true
 
 [[tool.mypy.overrides]]
-# Ship no py.typed marker. PyMC is confined to models/hierarchical.py, which hands back plain
-# numpy arrays, so nothing untyped leaks past that module.
-module = ["truststore", "pymc", "pymc.*", "arviz", "arviz.*", "pytensor", "pytensor.*"]
+# Ship no py.typed marker. PyMC is confined to models/hierarchical.py and LightGBM to
+# models/gbm.py, each handing back plain numpy arrays, so nothing untyped leaks past them.
+module = [
+  "truststore", "pymc", "pymc.*", "arviz", "arviz.*", "pytensor", "pytensor.*",
+  "lightgbm", "lightgbm.*",
+]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

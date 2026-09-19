@@ -33,6 +33,7 @@ from finishline.store import Dataset
 
 MODEL = "hierarchical"
 BASELINE = "carry-forward"
+CHALLENGER = "lightgbm"
 
 # Written as the words a runner uses, where the course id cannot say it.
 _UPPER = {"usr", "ane", "chcm", "hbc", "prc", "vocm", "nlaa"}
@@ -143,22 +144,32 @@ def backtest(
     if MODEL not in names:
         return payload
 
-    rows = [row for row in scored if row.model == MODEL]
-    for level in (0.80, 0.90):
-        for held in coverage.summarise(split.rolling(rows, race_dates, level), level):
-            payload["coverage"].append({
-                "stratum": held.stratum,
-                "level": level,
-                "checked": held.rows - held.unadjusted,
-                "raw": _round(held.raw),
-                "raw_low": _round(held.raw_low),
-                "raw_high": _round(held.raw_high),
-                "conformal": _round(held.conformal),
-                "conformal_low": _round(held.conformal_low),
-                "conformal_high": _round(held.conformal_high),
-                "raw_width_min": _minutes(held.raw_width),
-                "conformal_width_min": _minutes(held.conformal_width),
+    payload["coverage"] = _coverage(scored, MODEL, race_dates)
+    if CHALLENGER in names:
+        payload["challenger_coverage"] = _coverage(scored, CHALLENGER, race_dates)
+        payload["challenger_paired"] = []
+        for label, _low, _high in score.STRATA:
+            same = [row for row in scored if score.stratum_of(row.depth) == label]
+            both = score.paired_error(same, CHALLENGER, MODEL)
+            if both is None:
+                continue
+            payload["challenger_paired"].append({
+                "label": label,
+                "runners": both.runners,
+                "races": both.races,
+                "challenger_min": _minutes(both.model_mae_seconds),
+                "model_min": _minutes(both.other_mae_seconds),
+                "difference": [round(value, 3) for value in both.difference],
             })
+        placing = score.paired_placing(scored, CHALLENGER, BASELINE)
+        if placing is not None:
+            gap, gap_low, gap_high = placing.gap_difference
+            payload["challenger_placing"] = {
+                "places": round(placing.gap, 2),
+                "baseline": round(placing.baseline_gap, 2),
+                "difference": [round(gap, 2), round(gap_low, 2), round(gap_high, 2)],
+                "spearman": round(placing.spearman, 3),
+            }
     paired = score.paired_placing(scored, MODEL, BASELINE)
     if paired is not None:
         gap, gap_low, gap_high = paired.gap_difference
@@ -174,6 +185,30 @@ def backtest(
             "spearman_difference": [round(rho, 3), round(rho_low, 3), round(rho_high, 3)],
         }
     return payload
+
+
+def _coverage(
+    scored: Sequence[score.Scored], model: str, race_dates: Mapping[str, date]
+) -> list[dict[str, Any]]:
+    """How often one model's intervals held, raw and conformal, by depth and level."""
+    rows = [row for row in scored if row.model == model]
+    out = []
+    for level in (0.80, 0.90):
+        for held in coverage.summarise(split.rolling(rows, race_dates, level), level):
+            out.append({
+                "stratum": held.stratum,
+                "level": level,
+                "checked": held.rows - held.unadjusted,
+                "raw": _round(held.raw),
+                "raw_low": _round(held.raw_low),
+                "raw_high": _round(held.raw_high),
+                "conformal": _round(held.conformal),
+                "conformal_low": _round(held.conformal_low),
+                "conformal_high": _round(held.conformal_high),
+                "raw_width_min": _minutes(held.raw_width),
+                "conformal_width_min": _minutes(held.conformal_width),
+            })
+    return out
 
 
 def course_list(fit: courses.Fit, live_courses: Mapping[str, str]) -> list[dict[str, Any]]:

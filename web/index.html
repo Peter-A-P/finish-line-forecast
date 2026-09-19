@@ -485,6 +485,22 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
         no wider.
       </p>
     </div>
+    <div id="challenger-ranges" hidden>
+      <h3>The same test on the machine-learning challenger</h3>
+      <p>
+        LightGBM predicts a range directly, by fitting one model per edge of the range. Those
+        raw ranges make no promise at all about how often they hold, and the chart shows what
+        that means in practice. The same calibration step repairs them.
+      </p>
+      <figure class="chart-figure">
+        <div id="coverage-gbm-chart" class="chart"></div>
+        <div class="legend" id="coverage-gbm-legend"></div>
+        <figcaption id="coverage-gbm-caption">The LightGBM challenger's ranges in the same backtest. Hollow: its own quantiles. Solid: after the same calibration. Point at a dot for the numbers.</figcaption>
+      </figure>
+      <div class="verdict">
+        <p>{{gbm_ranges}}</p>
+      </div>
+    </div>
     <div class="assumption">
       <p>
         <strong>What the promise is, and is not.</strong> The calibration method, split
@@ -555,12 +571,14 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
     <p class="section-lead">
       Every race from {{bt_first_year}} on was predicted from results dated strictly before it, as
       if it were tomorrow's race, and compared with what actually happened. The model has to
-      beat three simple rules of thumb, which are always shown first.
+      beat three simple rules of thumb, which are always shown first, and a standard
+      machine-learning challenger given the same information.
     </p>
     <dl class="baselines">
       <div><dt><span class="swatch solid sw-cf"></span>Last time</dt><dd>You will run what you ran in your most recent race, adjusted for distance and course. Simple, and hard to beat.</dd></div>
       <div><dt><span class="swatch solid sw-vdot"></span>Race calculator</dt><dd>Your best recent race, converted with Daniels' tables. What most runners use.</dd></div>
       <div><dt><span class="swatch solid sw-median"></span>Your category</dt><dd>The typical time for your age group and sex. All there is for a first-timer.</dd></div>
+      <div><dt><span class="swatch solid sw-gbm"></span>LightGBM challenger</dt><dd>Gradient-boosted trees, the workhorse of applied machine learning, on the same history, course and weather. Is the Bayesian model worth its complexity?</dd></div>
       <div><dt><span class="swatch solid sw-model"></span>This model</dt><dd>Everything above, together.</dd></div>
     </dl>
     <figure class="chart-figure">
@@ -577,6 +595,7 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
         group. That, not the model comparison, is the real size of the problem, and it is why
         every prediction carries a range.
       </p>
+      <p>{{gbm_verdict}}</p>
     </div>
     <details class="disclose">
       <summary>For the technical reader: how the backtest avoids cheating</summary>
@@ -709,7 +728,7 @@ sha256sum predictions/tt-2026.json      # the same hash, or the file was changed
       <div class="stat"><span class="figure">06:15</span><span class="caption">when the morning task publishes each day's predictions in a race week, unattended</span></div>
     </div>
     <ul class="chips" aria-label="Tools and techniques">
-      <li>Python 3.13</li><li>PyMC</li><li>nutpie</li><li>NumPy</li><li>Bayesian hierarchical models</li>
+      <li>Python 3.13</li><li>PyMC</li><li>nutpie</li><li>LightGBM</li><li>NumPy</li><li>Bayesian hierarchical models</li>
       <li>Conformal prediction</li><li>Monte Carlo simulation</li><li>Rolling-origin backtesting</li>
       <li>Bootstrap intervals</li><li>Entity resolution</li><li>mypy --strict</li><li>ruff</li>
       <li>pytest</li><li>uv</li><li>GitHub Actions</li><li>Azure Static Web Apps</li><li>Cloudflare</li>

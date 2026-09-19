@@ -467,6 +467,45 @@ NO_WEATHER = "hierarchical-no-weather"
 Weather = dict[str, tuple[float, ...]]
 
 
+def _challenger_rows(
+    data: Dataset, scored_from: int, covariates: Weather, *, fit_if_missing: bool
+) -> list[score.Scored] | None:
+    """The LightGBM challenger's scored rows: saved if they match, fitted if asked to.
+
+    Keyed like the hierarchical run, on the dataset, the covariates and the source of every
+    module that shapes a prediction, so `report` never publishes rows from other code.
+    """
+    import hashlib
+
+    from finishline.backtest import saved
+    from finishline.metrics import daniels
+    from finishline.models import gbm
+
+    parts: dict[str, object] = {
+        "scored_from": scored_from,
+        "months": HIERARCHICAL_DEFAULTS["months"],
+        "dataset": saved.dataset_fingerprint(data.races, data.results),
+        "covariates": hashlib.sha256(json.dumps(sorted(covariates.items())).encode()).hexdigest(),
+    }
+    sources = [
+        Path(gbm.__file__),
+        Path(models_courses.__file__),
+        Path(daniels.__file__),
+        Path(run.__file__),
+        Path(__file__).with_name("history.py"),
+    ]
+    run_key = saved.key(parts, sources)
+    path = BACKTESTS / f"{gbm.NAME}.jsonl"
+    rows = saved.load(path, run_key)
+    if rows is None and fit_if_missing:
+        model = gbm.Challenger(months=HIERARCHICAL_DEFAULTS["months"], conditions=covariates)
+        rows = run.run(data.races, data.resolved, [model], scored_from=scored_from)
+        for start, fitted in model.fits:
+            typer.echo(f"  block {start}: trained on {fitted:,} finishes")
+        saved.save(path, run_key, rows)
+    return rows
+
+
 def bearings() -> dict[str, float]:
     """Each point-to-point course's bearing, from data/courses.toml."""
     return {
@@ -622,6 +661,10 @@ def backtest(
     chains: Annotated[
         int, typer.Option(help="Chains, one per core.")
     ] = HIERARCHICAL_DEFAULTS["chains"],
+    challenger: Annotated[
+        bool,
+        typer.Option(help="Score the LightGBM challenger too. Minutes on first run; saved."),
+    ] = False,
 ) -> None:
     """Score the baselines at every origin and print the tables."""
     data = _dataset(first, last)
@@ -640,17 +683,25 @@ def backtest(
         scored += rows or []
         model_name = "hierarchical" if weather else NO_WEATHER
         names.append(model_name)
+    if challenger:
+        from finishline.models import gbm
+
+        covariates, _missing = _edition_weather(data)
+        scored += _challenger_rows(data, scored_from, covariates, fit_if_missing=True) or []
+        names.append(gbm.NAME)
     races = len({row.race_id for row in scored})
     typer.echo(f"{races} races scored from {scored_from}, {len(scored):,} predictions\n")
     typer.echo(report.baseline_table(scored, names))
     typer.echo()
     typer.echo(report.placing_table(scored, names))
-    if model_name is not None:
+    for name in names[len(baselines.BASELINES):]:
         typer.echo()
-        typer.echo(_coverage(data, scored, model_name))
+        typer.echo(_coverage(data, scored, name))
 
 
-def _coverage(data: Dataset, scored: list[score.Scored], model: str | None) -> str:
+def _coverage(
+    data: Dataset, scored: list[score.Scored], model: str | None, *, assumption: bool = True
+) -> str:
     """The conformal coverage table for one model's rows, or its absence."""
     from finishline.conformal import coverage, split
 
@@ -662,7 +713,7 @@ def _coverage(data: Dataset, scored: list[score.Scored], model: str | None) -> s
         level: coverage.summarise(split.rolling(rows, dates, level), level)
         for level in (0.80, 0.90)
     }
-    return report.coverage_table(summaries, model)
+    return report.coverage_table(summaries, model, assumption=assumption)
 
 
 @app.command(name="report")
@@ -696,6 +747,14 @@ def write_report(
     if ablation is not None:
         scored += ablation
         names.append(NO_WEATHER)
+    from finishline.models import gbm
+
+    challenger = _challenger_rows(data, scored_from, covariates, fit_if_missing=False)
+    if challenger is not None:
+        scored += challenger
+        names.append(gbm.NAME)
+    else:
+        typer.echo("no saved challenger run matches; `backtest --challenger` makes one")
 
     readme = Path("README.md")
     text = readme.read_text(encoding="utf-8")
@@ -714,12 +773,25 @@ def write_report(
         "conditions",
         report.conditions_table(conditions.fit(rows), len(fitted.editions), skipped),
     )
-    text = report.replace_between(text, "baselines", report.baseline_table(scored, names))
+    baseline_text = report.baseline_table(scored, names)
+    if saved_rows is not None and challenger is not None:
+        baseline_text += "\n\n" + report.paired_error_table(scored, gbm.NAME, "hierarchical")
+    text = report.replace_between(text, "baselines", baseline_text)
     text = report.replace_between(text, "placing", report.placing_table(scored, names))
     text = report.replace_between(
         text,
         "coverage",
-        _coverage(data, scored, "hierarchical" if saved_rows is not None else None),
+        _coverage(
+            data,
+            scored,
+            "hierarchical" if saved_rows is not None else None,
+            assumption=challenger is None,
+        )
+        + (
+            ""
+            if challenger is None
+            else "\n\n" + _coverage(data, scored, gbm.NAME)
+        ),
     )
     readme.write_text(text, encoding="utf-8", newline="\n")
     _write_live_rows()
