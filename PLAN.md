@@ -14,19 +14,17 @@ model.
 this line: thirty-two numbered entries, each one a design in this plan that measurement
 overturned. What is open and who owns it is in [docs/todo.md](docs/todo.md).
 
-**Build:** an alongside project, so planned in relative weeks. Earliest start: now. It waits
-for nothing in the portfolio. The first live target fixes the calendar: **Cape to Cabot 20 km,
-St. John's, Sunday 2026-10-18**, five weeks out, with **Run to Remember 11 km, 2026-11-11** as
+**Build:** planned in relative weeks. Earliest start: now. The first live target fixes the
+calendar: **Cape to Cabot 20 km, St. John's, Sunday 2026-10-18**, five weeks out, with **Run to Remember 11 km, 2026-11-11** as
 the second live race on a frozen model and the **Tely 10 (June 2027, capped at 4,466)** as the
 "field of thousands" race in Part B. **Package:** `finishline`. **Repository:**
 `Peter-A-P/finish-line-forecast`, private until the backtest table is in. **Fed by:** 11 (Overload), whose Daniels,
 heat, wind, course-bearing and age-grading modules are copied across with attribution and
 with every personal calibration detail stripped. **Feeds:** nothing.
 
-This project calls no language model, so neither the 04 gateway nor the 03 gate is on its
-path. Every number below comes either from a rolling-origin backtest over public race
-results, with bootstrap intervals, or from a prediction that was committed, tagged and
-public before the race it predicts.
+This project calls no language model. Every number below comes either from a
+rolling-origin backtest over public race results, with bootstrap intervals, or from a
+prediction that was committed, tagged and public before the race it predicts.
 
 > **The pre-registration is the point.** Every other project in the portfolio proves its
 > number with a backtest a sceptic has to trust. This one commits its predictions to a
@@ -38,19 +36,18 @@ public before the race it predicts.
 
 ## 0. The data-terms check, and what it changed
 
-The project file said to check the Strava API agreement and each results provider's terms
+The brief said to check the Strava API agreement and each results provider's terms
 before any code. Done 2026-09-12; the outcome reshapes step 3 of the original idea.
 
 | Source | Finding (checked 2026-09-12) | Consequence |
 |---|---|---|
-| **Strava** | API Agreement effective 2026-06-01, section 2.3: "Strava Data related to other users, even if such data is publicly viewable on the Strava Platform, may not be displayed or disclosed." Section 5.1 forbids sharing a user's data with other users or third parties without explicit consent. The November 2024 revision, restated in the 2026 developer programme, forbids using API data to train AI or machine-learning models. The Acceptable Use Policy forbids collecting or harvesting information about identifiable individuals and any automated scraping. Public profile pages are being moved behind login. Standard-tier API access now requires a paid Strava subscription (about US$11.99 a month) per developer. | **Scanning registered runners' Strava profiles is out**, by API and by scraping alike. The only compliant use is **opt-in**: a runner authorises the app through OAuth, sees a prediction that uses their own training data, and nobody else does. That is deferred to Part B (section 12) and the public table never uses Strava. The plan's headline model works from public race results, which is the weaker but still checkable model the project file anticipated. |
+| **Strava** | API Agreement effective 2026-06-01, section 2.3: "Strava Data related to other users, even if such data is publicly viewable on the Strava Platform, may not be displayed or disclosed." Section 5.1 forbids sharing a user's data with other users or third parties without explicit consent. The November 2024 revision, restated in the 2026 developer programme, forbids using API data to train AI or machine-learning models. The Acceptable Use Policy forbids collecting or harvesting information about identifiable individuals and any automated scraping. Public profile pages are being moved behind login. Standard-tier API access now requires a paid Strava subscription (about US$11.99 a month) per developer. | **Scanning registered runners' Strava profiles is out**, by API and by scraping alike. The only compliant use is **opt-in**: a runner authorises the app through OAuth, sees a prediction that uses their own training data, and nobody else does. That is deferred to Part B (section 12) and the public table never uses Strava. The plan's headline model works from public race results, which is the weaker but still checkable model the brief anticipated. |
 | **NLAA results** (nlaa.ca) | Public HTML pages under `/results/rr/YYYY/`, one per race, results in a fixed-width `<pre>` block: place, bib, name (club in brackets), time, sex and sex place, age category, category place, hometown. The Tely 10 pages add gun time, chip time and pace per mile. 26 road events in 2025, 25 in 2024, results back to 1978. Footer "Copyright NLAA"; no terms of use page; no `robots.txt`. A Google custom search box, no runner profiles. | Usable as public data, with courtesy. **Peter emails NLAA** (athletics@nlaa.ca) and Athletics NorthEAST (admin@athleticsnortheast.com) before the crawler runs, saying what is fetched and how it is used; the crawl is one request a second, cached locally, never re-fetched once stored, and raw pages are never committed. Predictions publish only what the results already publish: name and hometown as printed. |
 | **Registration lists** | **Athletics NorthEAST publishes live entrant lists** on its Zen Cart store (`athleticsnortheast.com/cart/index.php?main_page=page&id=4` for Cape to Cabot, `id=1` for the Uniformed Services Run), "up-to-the-minute". Cape to Cabot on 2026-09-12: 453 names with gender and shirt size (266 male, 187 female) against a cap of 500. USR on 2026-09-12, by event: marathon 79, half 277, relay 44, 10 km 272, plus kids and family runs; names only, some with a service affiliation. Neither page carries a privacy statement. Run to Remember: no list found. Tely 10: Trackie registration with a per-person confirmation lookup (first name, last name, city), not a list. The Wayback Machine holds no past editions of the ANE lists. | **Entrant-list mode is the primary mode for the two ANE races.** Gender from the Cape to Cabot list helps resolution and the cold-start group prior. Shirt size is a body-size proxy and is **not used**, by decision (section 2.8): it is not something the results publish about a runner. The lists are snapshotted daily from now (first snapshots saved 2026-09-12, gitignored) so the registered-versus-finished rate and the list-to-results name-match rate are measured on the USR of 2026-09-13 for free, before Cape to Cabot needs them. **Field-forecast mode** stays for races with no list (Run to Remember): predict for every runner in the eighteen-month history whose participation probability clears a threshold, and report coverage. |
 | **Weather** | Open-Meteo forecast and archive APIs: free, no key, hourly temperature, wind speed and direction at 10 m, cloud and direct radiation. Already the weather source in 11, **which measured its modelled temperature about 6 °C off at this coast**. Environment and Climate Change Canada publishes hourly observations for St. John's Intl A (station 50089, climate ID 8403505) as a bulk CSV per month, no key; checked 2026-09-12: the 2025 Cape to Cabot morning read 8 °C, 100% humidity, wind 34 to 36 km/h from the north-east at the airport. | ECCC observations are the archive for the backtest's conditions factors, with Open-Meteo's archive as the comparison and the difference reported. The **forecast** (there is no observation of the future) comes from Open-Meteo, pulled at a fixed time before the gun and recorded with the prediction. Both are free for this use; recorded in `docs/data-terms.md`. |
 | **Course profiles** | No official GPX found for the target courses. Cape to Cabot publishes the route (Cape Spear to Cabot Tower) but the elevation page is gone. Elevation from Open-Meteo's elevation API or Open Topo Data (SRTM/Copernicus 30 m) against a route Peter traces once in a mapping tool. | Course geometry is an input file per course, committed, with its provenance. The physics course factor built from it is a **prior**, not the estimate; the race-day effect is estimated from results (section 5.3). |
 
-Everything in this table goes into `docs/data-terms.md` in the repository, with the dates,
-and the project file in the plan records the outcome in one line.
+Everything in this table goes into `docs/data-terms.md` in the repository, with the dates.
 
 ### 0.1 Other sources looked at, with Strava gone
 
@@ -111,9 +108,8 @@ A prediction file per race: one row per runner, predicted time, 80% and 90% inte
 predicted place range, the forecast conditions used, the model version. Committed to the
 public repository and tagged (`predictions/c2c-2026`) no later than 24 hours before the
 start; the SHA-256 of the file goes into the README and the tag message. The repository
-must therefore be public before the first live race, which Rule A allows because the
-backtest table is a measured result. A prediction made or altered after the tag is not a
-prediction and is never reported as one.
+must therefore be public before the first live race. A prediction made or altered after
+the tag is not a prediction and is never reported as one.
 
 ### 2.3 Baselines first
 
@@ -241,7 +237,8 @@ finishline/
   cli.py       finishline crawl | resolve | backtest | predict <race> | freeze <race> |
                score <race> | report
 docs/          data-terms.md, methods.md (the model, the conformal assumption, the grade
-               model), courses.md, rejected.md (Rule C), predictions/<race>.md (the record)
+               model), courses.md, rejected.md (one approach tried and rejected),
+               predictions/<race>.md (the record)
 site/          static output; the race pages, linked from the README
 ```
 
@@ -343,7 +340,7 @@ LightGBM with pinball loss at the 5th, 10th, 50th, 90th and 95th percentiles on:
 neutral VDOT, best neutral VDOT in eighteen months, number of results, days since last,
 fitted trend, age category midpoint, sex, log distance ratio, course prior, forecast
 factors, months of the year. Trained rolling-origin like everything else. Its raw quantiles
-are reported beside their conformalised versions, which is Rule C candidate 3.
+are reported beside their conformalised versions, which is section 10's candidate 3.
 
 ### 5.5 Rolling origin
 
@@ -447,7 +444,7 @@ Relative weeks, anchored to the first live race. Evenings and weekends.
 | 1 | Sep 14 to 20 | `docs/data-terms.md`; courtesy emails to NLAA and Athletics NorthEAST (Peter); daily snapshot of the two entrant lists (a scheduled local fetch, from Sep 12); crawler, cache, parser with golden tests, including the Cape to Cabot archive PDFs and the series standings; name normalisation and resolution with the labelled pairs; the USR list of Sep 12 resolved against the USR results when posted, giving the first no-show and name-match rates; the dataset with checks; the three baselines; the rolling-origin harness with the leakage test | Every 2016 to 2026 road result parsed; resolution precision and recall stated; USR no-show and match rates measured; baseline MAE per stratum in a table with CIs |
 | 2 | Sep 21 to 27 | Course files for Cape to Cabot, Run to Remember and the five or six courses that carry most of the history; Minetti grade model; Open-Meteo archive for every race edition; the neutral-condition layer; the hierarchical model; LightGBM challenger; Mondrian conformal; the backtest table | Backtest tables filled: skill, coverage, width, place error per stratum; ablation of the normalisation; course factors with CIs |
 | 3 | Sep 28 to Oct 4 | Placing simulation; participation model; prediction file, schema, hash, `freeze` and `score`; race page; README with backtest tables and the honest limitation; CI; **repository public**; dress rehearsal: freeze and publish predictions for Turkey Tea 10 km (Oct 4) if the pipeline is ready by Oct 2, else for the Trapline 10 km (Oct 11) | A prediction file for a real race committed and tagged before its gun, and scored after |
-| 4 | Oct 5 to 11 | Fix what the rehearsal broke; freeze the model version for Cape to Cabot; `docs/methods.md`; Rule C evidence and `docs/rejected.md` | Model version tagged; nothing in `models/` changes after this week |
+| 4 | Oct 5 to 11 | Fix what the rehearsal broke; freeze the model version for Cape to Cabot; `docs/methods.md`; the rejected-approach evidence and `docs/rejected.md` | Model version tagged; nothing in `models/` changes after this week |
 | 5 | Oct 12 to 18 | Forecast pull and `freeze c2c-2026` on Oct 17 morning; commit, tag, push; hash in the README; race Oct 18 | The pre-registered prediction exists in public before the gun |
 | 6 | Oct 19 to 25 | `score c2c-2026` when NLAA posts; error tables into the README; race page updated; `v0.1.0` | Live rows of section 1 filled |
 | 7 to 9 | Oct 26 to Nov 15 | Second live race, frozen model: freeze Nov 10, race Nov 11, score when posted; `v0.2.0` | Second set of live rows filled; the two compared |
@@ -484,8 +481,6 @@ files in the repository, served by GitHub or by the portfolio site; no new hosti
 | Strava developer subscription (Part B only, if Part B happens) | About US$12 a month while the opt-in channel is live | 0 in Part A |
 | **Total, Part A** | | **0** |
 
-
-
 ## 8. Handover and reuse
 
 `finishline` v0.1.0 after the first scored race. `metrics/` is the shared running arithmetic
@@ -504,9 +499,9 @@ depends on this project.
 | **The forecast is wrong on the day** | The published prediction shows the neutral time and the conditions used; the scoring reports the error against both, so a weather miss is separable from a fitness miss |
 | **The hierarchical model does not beat carry-forward on one-result runners** | Expected and reported; the honest reading is that one result is one result. The interval width is the product for those runners |
 | **A runner objects to being named** | Removed from every future file within a day; the request path is in `docs/data-terms.md`; the removal is logged without the name |
-| **Wind and course constants from 11 do not transfer** (fitted on one athlete's training runs) | They are priors with stated width, and the race-edition effect is estimated from data; Rule C candidate 2 measures exactly this |
+| **Wind and course constants from 11 do not transfer** (fitted on one athlete's training runs) | They are priors with stated width, and the race-edition effect is estimated from data; section 10's candidate 2 measures exactly this |
 
-## 10. Rule C candidates
+## 10. Candidates for the rejected approach
 
 1. **Equal-VDOT projection from the single best recent result** (what every calculator does)
    against the hierarchical model. Expected: competitive on 5 km to 10 km for runners with
@@ -522,7 +517,7 @@ depends on this project.
    quantiles under-cover on the sparse strata by a wide margin and conformalisation fixes it
    at the cost of width; the coverage table with and without conformal is the evidence.
 
-Whichever produces the clearest evidence becomes `docs/rejected.md`. Strava is not a Rule C
+Whichever produces the clearest evidence becomes `docs/rejected.md`. Strava is not a
 candidate: it was rejected on terms, not on evidence, and belongs in `docs/data-terms.md`.
 
 **Settled 2026-09-19: none of the three.** The clearest evidence the work produced was for
@@ -534,7 +529,7 @@ check on Cape to Cabot agreed with the measurement; candidate 3 waits on the cha
 
 ## 11. Definition of done
 
-- [x] Data-terms check done for Strava and for the results provider, recorded here and in the project file (2026-09-12)
+- [x] Data-terms check done for Strava and for the results provider, recorded here (2026-09-12)
 - [ ] `docs/data-terms.md` in the repository with dates, the NLAA courtesy contact and the removal path
 - [ ] Every NLAA road result 2016 to 2026 parsed; resolution precision and recall stated
 - [ ] Baselines (carry-forward, best equal-VDOT, category median) reported first, with every later result as skill against carry-forward
@@ -546,7 +541,7 @@ check on Cape to Cabot agreed with the measurement; candidate 3 waits on the cha
 - [ ] Predictions for Cape to Cabot 2026 committed, tagged and hashed at least 24 hours before the gun
 - [ ] Error published after Cape to Cabot 2026: finish-time MAE in minutes, coverage, placing error, field coverage
 - [ ] The same for Run to Remember 2026 on the frozen model
-- [ ] One rejected approach documented with evidence (Rule C)
+- [ ] One rejected approach documented with evidence (`docs/rejected.md`)
 - [x] Public name decided (Finish Line Forecast, 2026-09-06)
 - [ ] Repository public before the first live race; `v0.1.0` tagged after the first scored race
 
@@ -621,10 +616,10 @@ Recorded here in the commit that made them, so a reader can tell a decision from
    Section 5.2 made the hometown a splitting key. But 105 of the 159 readable races print
    no hometown column at all, so the key held back one runner in six for a column the page
    never had; and runners move, with 1,103 of the 1,656 multi-town names showing a single
-   clean switch over time. Pat Example settled it: a consistent ageing sequence with times
-   improving throughout, cut into two half-histories by a move to the mainland. The age bands
-   are now the only thing that splits a name, because a runner cannot get younger, and the
-   hometown only breaks a tie. Runners held back fell from 2,608 to 119 and runners with
+   clean switch over time. One runner settled it: a consistent ageing sequence with times
+   improving throughout, cut into two half-histories by a move out of the province. The age
+   bands are now the only thing that splits a name, because a runner cannot get younger, and
+   the hometown only breaks a tie. Runners held back fell from 2,608 to 119 and runners with
    four or more finishes rose from 2,363 to 3,005.
 
 9. **The merge risk that change creates is published rather than argued about.** Two

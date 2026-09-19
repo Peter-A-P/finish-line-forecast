@@ -32,10 +32,10 @@ for a column the page never had.
 
 **And runners move.** Of the 1,656 names that appear under two or more printed towns,
 1,103 show a single clean switch over time, which is what moving house looks like; only
-553 interleave, which is what two people look like. Pat Example is the case that settled
-it: under-20 in 2018, 20-29 from 2021, 20-24 in 2023 and 25-29 in 2025, times improving
-throughout, St. John's in 2023 and Corner Brook in 2025. One runner, one career, one move
-to the mainland, and the hometown rule made him two people with half a history each.
+553 interleave, which is what two people look like. One runner settled it: an unbroken
+run of age bands from under-20 to 25-29 over eight years, times improving throughout, one
+town until 2023 and another off the island by 2025. One runner, one career, one move, and
+the hometown rule made them two people with half a history each.
 
 So the evidence is, in order:
 

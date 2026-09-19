@@ -22,7 +22,7 @@ nobody else does, is the only compliant use and is deferred to Part B. Nothing p
 by this repository will ever contain Strava data.
 
 This is recorded here rather than in `docs/rejected.md` because it was rejected on terms
-and not on evidence. Rule C is about an approach that was tried and measured.
+and not on evidence. `docs/rejected.md` is for an approach that was tried and measured.
 
 ## NLAA road results: the archive this project runs on
 

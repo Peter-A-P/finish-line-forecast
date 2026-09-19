@@ -113,11 +113,11 @@ def test_a_runner_who_got_younger_is_two_runners() -> None:
 
 
 def test_a_runner_who_moved_is_still_one_runner() -> None:
-    """The case the archive settled. Pat Example raced in St. John's and then the mainland.
+    """The case the archive settled: a runner raced in St. John's and then moved away.
 
     Of the 1,656 names in this archive with two or more printed hometowns, 1,103 show a
     single clean switch over time, which is what moving house looks like. Splitting on the
-    town gave him two half-histories and a worse prediction for both.
+    town gave them two half-histories and a worse prediction for both.
     """
     results = [
         result("r2023", "Pat Example", town="St. John's", band="20-24"),

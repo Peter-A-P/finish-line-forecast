@@ -13,15 +13,15 @@ GitHub. Step 4 is automatic after that.
 
 ## 0. Check the subscription before creating anything
 
-Make sure the Azure CLI is signed in to the subscription the site belongs in.
+Make sure the Azure CLI is signed in to the subscription the site belongs in; a CLI can
+hold more than one login. `<subscription>` and `<resource-group>` below are yours to fill
+in.
 
 ```powershell
-az login                                   
+az login
 az account set --subscription <subscription>
-az staticwebapp list -o table              # capacity-peterparker-ca and the others should be listed
+az staticwebapp list -o table              # the subscription's existing apps
 ```
-
-They are in resource group `<resource-group>`. The new app goes beside them.
 
 ## 1. Create the Static Web App
 
@@ -30,7 +30,7 @@ Portal: [Azure Portal](https://portal.azure.com), Create a resource, **Static We
 
 | Setting | Value |
 |---|---|
-| Subscription | <subscription> |
+| Subscription | `<subscription>` |
 | Resource group | `<resource-group>` |
 | Name | `finishline-peterparker-ca` |
 | Plan type | **Free** |
