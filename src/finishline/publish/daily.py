@@ -16,13 +16,13 @@ Three things are held fixed, so the same entrant gets the same numbers on any da
   day, and the final file, loads it and refuses if the archive has changed underneath it.
 - **One stream of random numbers per runner**, seeded by the race and the entrant
   (`runner_rng`), not by their position on a list that grows.
-- **Carried, not recomputed.** The final file copies an already-published runner's time and
-  intervals from the file they first appeared in and names it (`first_published`). Only the
-  places are new, because a place needs the whole field.
-
-What does change from day to day is the weather forecast, and a runner's time is predicted
-with the forecast of the morning it was published, at that lead: a week out, the forecast
-error measured for a week's lead (`forecast_error_for`), which is larger.
+What does change from day to day is the weather forecast. A daily line is predicted with the
+forecast of the morning it was published, at that lead, with the error measured for that
+lead (`forecast_error_for`), which a week out is large. **The final file recomputes everyone
+with the day-before forecast** (Peter, 2026-09-19: a week-old forecast is of poor value by
+then) and names the daily file each runner first appeared in (`first_published`). Since the
+fit and the random numbers are the same, the weather is the only thing that moves a runner's
+time between their daily line and their final one, and both are tagged.
 """
 
 from __future__ import annotations

@@ -297,7 +297,10 @@ def test_a_runners_time_does_not_depend_on_who_else_is_on_the_list() -> None:
     assert dee(alone) == dee(crowded)
 
 
-def test_the_final_file_carries_published_times_and_places_everyone(tmp_path: Path) -> None:
+def test_the_final_file_recomputes_everyone_and_names_where_they_first_appeared(
+    tmp_path: Path,
+) -> None:
+    """Same fit, same random numbers: with the same morning, the same time as the daily line."""
     first = build([Entrant("Ann Hynes", "F")], only_new=True)
     publish(tmp_path, "daily-2026-10-11.json", first)
     final = build(

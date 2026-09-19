@@ -24,11 +24,11 @@ rule with an override is a rule for whoever is not in a hurry.
 DAILY FILES
 -----------
 From seven days out, `freeze --daily` publishes a file a day holding only the entrants who
-were not in an earlier one (`publish/daily.py`), so every runner's prediction is fixed the
-first time it is published. Those files have `"kind": "daily"` and no places, because a place
-needs the whole field. The final file, the day before, holds everyone with places; a runner
-already published carries their earlier time unchanged and says which file it came from in
-`first_published`.
+were not in an earlier one (`publish/daily.py`), so every runner has a prediction on record
+from the day they entered. Those files have `"kind": "daily"` and no places, because a place
+needs the whole field. The final file, the day before, holds everyone with places, every
+runner recomputed with the day-before forecast; `first_published` names the daily file a
+runner first appeared in.
 """
 
 from __future__ import annotations

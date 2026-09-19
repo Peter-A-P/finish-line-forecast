@@ -143,8 +143,11 @@ def assemble(
 
     `already` is what the daily files have published (`daily.published`). With `only_new`
     this writes a daily file: the entrants in none of them, and no places. Without it, the
-    final file: everyone, a published runner's line carried unchanged with the file it came
-    from, and places for the whole field.
+    final file: everyone, recomputed with the day-before forecast (Peter, 2026-09-19: a
+    forecast made a week out is of poor value by then), the daily file each was first
+    published in named beside them, and places for the whole field. The fit and each
+    entrant's random numbers are the same as in the daily files, so the weather is the only
+    thing that moves a runner's time between their daily line and their final one.
     """
     check_gun(live.gun, now)
     race = live.race
@@ -178,25 +181,9 @@ def assemble(
         median_place = None if place is None else place.median
         low_place = None if place is None else place.low
         high_place = None if place is None else place.high
-        if position in carried:
-            if only_new:
-                continue
-            source, line = carried[position]
-            lines.append(
-                RunnerPrediction(
-                    name=item.entrant.name,
-                    hometown=line.get("hometown"),
-                    prior_results=int(line["prior_results"]),
-                    seconds=float(line["seconds"]),
-                    interval_80=(float(line["interval_80"][0]), float(line["interval_80"][1])),
-                    interval_90=(float(line["interval_90"][0]), float(line["interval_90"][1])),
-                    place=median_place,
-                    place_low=low_place,
-                    place_high=high_place,
-                    first_published=source,
-                )
-            )
+        if position in carried and only_new:
             continue
+        source = carried[position][0] if position in carried else None
         rng = daily.runner_rng(seed, streams[position])
         draws = posterior.predict(runner_id, item.entrant.sex, race, rng, conditions)
         quantiles = summarise(draws)
@@ -228,6 +215,7 @@ def assemble(
                 place=median_place,
                 place_low=low_place,
                 place_high=high_place,
+                first_published=source,
             )
         )
 

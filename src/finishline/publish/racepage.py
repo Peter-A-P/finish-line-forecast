@@ -7,7 +7,9 @@ the tagged files do, and each file's hash is printed beside it for anyone who wa
 
 Only what the files publish is shown: the name as the start list printed it, the hometown as
 the results last printed it, how many results the prediction had, the time and its intervals,
-and, once the final file exists, the place.
+and, once the final file exists, the place. The final file recomputes every runner with the
+day-before forecast, so once it exists its times are the ones shown here; each daily file
+keeps its own, and every file is listed with its hash.
 """
 
 from __future__ import annotations
@@ -73,20 +75,26 @@ def before_the_gun(files: Sequence[tuple[str, dict[str, Any], str]]) -> str:
                 f"| {clock(runner['seconds'])} | {clock(low)} to {clock(high)} |"
             )
 
-    seen: dict[str, tuple[str, dict[str, Any]]] = {}
-    for name, doc, _ in files:
-        if doc.get("kind") != "daily":
-            continue
-        for runner in doc["runners"]:
-            seen.setdefault(f"{runner['name']}|{runner['seconds']}", (name, runner))
+    # Before the final file, every daily line; after it, the final file's lines, which
+    # recompute everyone with the day-before forecast, beside the file each first appeared in.
     if final is not None:
-        for runner in final["runners"]:
-            if "first_published" not in runner:
-                seen.setdefault(f"{runner['name']}|{runner['seconds']}", (files[-1][0], runner))
-    everyone = sorted(seen.values(), key=lambda item: (item[1]["seconds"], item[1]["name"]))
+        final_name = next(name for name, doc, _ in files if doc is final)
+        everyone = [
+            (str(runner.get("first_published", final_name)), runner) for runner in final["runners"]
+        ]
+        heading = "Every runner, as the final file predicts them"
+    else:
+        everyone = [
+            (name, runner)
+            for name, doc, _ in files
+            if doc.get("kind") == "daily"
+            for runner in doc["runners"]
+        ]
+        heading = "Every runner predicted so far"
+    everyone.sort(key=lambda item: (item[1]["seconds"], item[1]["name"]))
     lines += [
         "",
-        f"## Every runner predicted, {len(everyone)}",
+        f"## {heading}, {len(everyone)}",
         "",
         "| Name | Hometown | Prior results | Predicted | 80% interval | First published |",
         "|---|---|---:|---:|---|---|",

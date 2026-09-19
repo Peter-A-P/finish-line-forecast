@@ -416,8 +416,10 @@ did not say:
 days before the race, `freeze --daily` publishes a file a day holding only the entrants in no
 earlier file, predicted with that morning's forecast at that lead (the forecast error is now
 measured per lead, one to seven days, in `data/forecast_error_by_lead.toml`). The day before,
-the final file holds the whole field with places; runners already published carry their
-earlier time unchanged and name the file it came from. One fit serves the week and is refused
+the final file recomputes the whole field with the day-before forecast and gives places,
+naming the daily file each runner first appeared in (Peter's correction the same day: a
+forecast a week old is of poor value by then, so the final file is the one that counts for
+the weather). One fit serves the week and is refused
 if the archive moves under it; each entrant's random numbers are seeded by the race and their
 name, not their place on the list, so the same entrant gets the same numbers on any day
 (`publish/daily.py`). `finishline page` renders the race page from the published files after
