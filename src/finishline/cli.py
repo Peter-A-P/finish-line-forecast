@@ -1139,7 +1139,8 @@ def site(
 ) -> None:
     """Build the public website from data/live.toml and the committed prediction files.
 
-    Run by the Website workflow on every push (docs/deploy.md), so it reads nothing that is not committed.
+    Run by the Website workflow on every push (docs/deploy.md), so it reads nothing that is
+    not committed.
     """
     from finishline.publish import site as website
 
