@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finish Line Forecast: your race-day time, written down before the gun</title>
+<meta name="description" content="Predicted finish times and places for every registered runner at Newfoundland road races, from eighteen years of public results. Each prediction is published and hashed before the gun and scored against the official results after it.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <a class="brand" href="https://peterparker.ca"><span class="mono-mark" aria-hidden="true">P</span>Peter Parker</a>
+    <p class="top-nav"><a href="{{repository}}">Project 12: Finish Line Forecast</a></p>
+  </div>
+</header>
+<main>
+
+  <header class="hero">
+    <p class="eyebrow">Predictions published before the gun, scored after it</p>
+    <h1>How fast will you run on race day? Written down before the gun, and checked after.</h1>
+    <p class="lead">
+      Every registered runner at a Newfoundland road race gets a predicted finish time, a range
+      it should land in, and a likely place, worked out from eighteen years of public race
+      results. The predictions are <strong>locked in a public record before the race starts</strong>,
+      so nobody can quietly adjust them afterwards, and once the official results are posted the
+      error is published right beside them. A race director can plan pacers, the finish-line
+      clock and medical staff from expected finishing times rather than guesses, and a runner
+      gets a goal time with an honest range instead of a hunch.
+    </p>
+    <div class="hero-points">
+      <div class="point">
+        <span class="point-figure up">{{mae_model}} min</span>
+        <span class="point-unit">typical error for a runner with four or more past races</span>
+        <span class="point-label">against {{mae_cf}} min for "you will run what you ran last time", the benchmark every model here has to beat</span>
+      </div>
+      <div class="point">
+        <span class="point-figure up">{{skill}}</span>
+        <span class="point-unit">closer than that benchmark</span>
+        <span class="point-label">measured on {{bt_predictions}} predictions across {{bt_races}} real races, each predicted only from races run before it</span>
+      </div>
+      <div class="point">
+        <span class="point-figure">{{cov80_deep}}</span>
+        <span class="point-unit">of finishes landed inside the 80% range</span>
+        <span class="point-label">for runners with four or more past races; a range that promises four in five should hold about four in five</span>
+      </div>
+    </div>
+    <p class="hero-note">
+      {{finishes}} finishes by {{runners}} runners in {{races}} races, {{first_year}} to
+      {{last_year}}. Nothing is modelled in your browser: every number on this page was computed
+      in advance and can be reproduced from <a href="{{repository}}">the public repository</a>,
+      and every one carries a 95% confidence interval there.
+    </p>
+  </header>
+
+  <nav class="toc" aria-label="On this page">
+    <p class="eyebrow">On this page</p>
+    <ol>
+      <li><a href="#races">The races and their predictions</a></li>
+      <li><a href="#picture">The whole idea in one picture</a></li>
+      <li><a href="#data">Eighteen years of results</a></li>
+      <li><a href="#who">Working out who is who</a></li>
+      <li><a href="#scale">A 5 km and a marathon on one scale</a></li>
+      <li><a href="#courses">Some roads are slower than others</a></li>
+      <li><a href="#weather">What the weather costs</a></li>
+      <li><a href="#model">The model: borrowing strength</a></li>
+      <li><a href="#ranges">Ranges that keep their promise</a></li>
+      <li><a href="#places">From times to places</a></li>
+      <li><a href="#results">Does it work?</a></li>
+      <li><a href="#record">Written down before the gun</a></li>
+      <li><a href="#refuted">What the data proved wrong</a></li>
+      <li><a href="#privacy">Real people, handled carefully</a></li>
+      <li><a href="#engineering">How it is engineered</a></li>
+      <li><a href="#built">How this was built</a></li>
+    </ol>
+  </nav>
+
+  <noscript>
+    <p class="warning">
+      The race picker and the charts on this page are drawn in the browser, so they need
+      JavaScript. The words work without it, and every number is also in the repository's
+      README as a table.
+    </p>
+  </noscript>
+
+  <p class="warning" id="failure" hidden></p>
+
+  <!-- ============================================================== the races -->
+
+  <section class="section" id="races">
+    <h2>The races and their predictions</h2>
+    <p class="section-lead">
+      Pick a race. From seven days before it, every runner on the entrant list gets a
+      prediction the first morning they appear; the day before, the whole field is predicted
+      again with the latest weather forecast and given places. Until then, you can see how the
+      same model would have done at this race last year, and what the course and its history
+      look like.
+    </p>
+
+    <div class="controls">
+      <div class="control">
+        <label for="race">Race
+          <span class="hint">the races this project is predicting</span>
+        </label>
+        <select id="race">{{race_options}}</select>
+      </div>
+      <div class="control">
+        <label for="find">Find a runner
+          <span class="hint">a name or a town, once predictions are published</span>
+        </label>
+        <input id="find" type="search" autocomplete="off" placeholder="Name or town" disabled>
+      </div>
+    </div>
+
+    <div id="race-card" class="race-card" aria-live="polite"></div>
+
+    <div id="week" class="week" aria-label="Where this race is in its prediction week"></div>
+
+    <div id="predictions"></div>
+
+    <div id="preview">
+      <h3 id="preview-title">How this model would have done here last time</h3>
+      <p class="section-lead" id="preview-lede"></p>
+      <div class="headline" id="preview-stats"></div>
+      <figure class="chart-figure">
+        <div id="preview-chart" class="chart"></div>
+        <p class="readout" id="preview-readout"></p>
+        <div class="legend" id="preview-legend"></div>
+        <figcaption id="preview-caption"></figcaption>
+      </figure>
+    </div>
+
+    <h3>This race, edition by edition</h3>
+    <figure class="chart-figure">
+      <div id="history-chart" class="chart"></div>
+      <p class="readout" id="history-readout"></p>
+      <div class="legend" id="history-legend"></div>
+      <figcaption id="history-caption"></figcaption>
+    </figure>
+  </section>
+
+  <!-- ============================================================== how it works -->
+
+  <div class="part">
+    <p class="eyebrow">How it was built, and how it works</p>
+    <h2 class="part-title">From a folder of old results pages to a prediction you can hold it to</h2>
+    <p class="lead">
+      The rest of this page is the whole method, in the order it happens. Each part starts in
+      plain language, with a picture. Where there is more to say for someone who builds models
+      for a living, it is folded away under <strong>For the technical reader</strong>, so a
+      reader who only wants the idea can skip it and a reader who wants the detail loses
+      nothing.
+    </p>
+  </div>
+
+  <section class="section" id="picture">
+    <h2>The whole idea in one picture</h2>
+    <p class="section-lead">
+      Seven steps, and the order matters: the prediction is fixed in public before the race
+      exists, so the scoring at the end is a real test rather than a story told afterwards.
+    </p>
+    <ol class="pipeline">
+      <li><span class="step">1</span><strong>Read</strong><span>Every public road-race result in the province since {{first_year}}, fetched once, politely.</span></li>
+      <li><span class="step">2</span><strong>Resolve</strong><span>Join results into people, with no ID number to go on.</span></li>
+      <li><span class="step">3</span><strong>Adjust</strong><span>Put every race on one scale: distance, course, heat, wind.</span></li>
+      <li><span class="step">4</span><strong>Model</strong><span>Estimate each runner's fitness, borrowing strength from similar runners.</span></li>
+      <li><span class="step">5</span><strong>Predict</strong><span>A time, an honest range and a likely place for everyone registered.</span></li>
+      <li><span class="step">6</span><strong>Lock</strong><span>Commit, fingerprint and date-stamp the prediction in public before the gun.</span></li>
+      <li><span class="step">7</span><strong>Score</strong><span>Compare against the official results, and publish the error.</span></li>
+    </ol>
+    <div class="verdict">
+      <p>
+        <strong>Most predictions of this kind are never checked.</strong> A backtest, where a
+        model predicts races that have already happened, is useful and is done here too, but it
+        is always possible to tune a model until its backtest looks good. A prediction locked
+        before the race cannot be tuned afterwards. That is the point of the whole project.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" id="data">
+    <h2>Eighteen years of results</h2>
+    <p class="section-lead">
+      The Newfoundland and Labrador Athletics Association has published the results of nearly
+      every road race in the province for decades, as plain text pages. This project reads
+      {{races}} of them: {{finishes}} finishes by {{runners}} runners over {{courses}} courses.
+      There are no results for 2020, when the races did not run.
+    </p>
+    <figure class="chart-figure">
+      <div id="years-chart" class="chart"></div>
+      <p class="readout" id="years-readout"></p>
+      <figcaption>Finishes read per year. The jumps are the Tely 10, the province's biggest race, in the years its results are in the archive.</figcaption>
+    </figure>
+    <p>
+      Before any of it was read, the two organisations whose pages it uses were told what would
+      be fetched and why, and offered the chance to say no. That is not only a courtesy: the
+      crawler refuses to run until it has been told the notes went out, and the automated
+      checks confirm that it refuses. It fetches one page a second, each page once, and keeps
+      it.
+    </p>
+    <details class="disclose">
+      <summary>For the technical reader: parsing pages with no column contract</summary>
+      <p>
+        The pages are fixed-width text inside a <code>&lt;pre&gt;</code> block, in three layouts
+        across the years, and two thirds of them draw no ruler under the header. Column
+        boundaries are measured from the character positions that are blank in every row, and
+        header words are assigned to a column rather than sliced by it, because several pages
+        centre their headers left of their data. An unrecognised header raises and names
+        itself rather than landing values in the wrong fields; {{unparsed}} pages still refuse,
+        and each is listed in the repository.
+      </p>
+      <p>
+        Two findings from reading it: eight years of the archive were silently missing because
+        older index pages say "Road Race Series" where newer ones say "Road Running", and eighty
+        apparent courses were really {{courses}}, because older pages name a race after its
+        sponsor of the year. Both are regression tests now.
+      </p>
+    </details>
+  </section>
+
+  <section class="section" id="who">
+    <h2>Working out who is who</h2>
+    <p class="section-lead">
+      Results pages print a name, and sometimes an age group and a hometown. There is no
+      runner ID. So before anything can be predicted, the results have to be joined into
+      people, and the obvious way to do it turns out to be wrong.
+    </p>
+    <div class="two-col">
+      <div>
+        <h3>The obvious rule: same name and same town</h3>
+        <p>
+          Runners move, and most pages print no hometown at all. Of the 1,656 names printed
+          under two or more towns, 1,103 show one clean switch over time, which is what moving
+          house looks like. Splitting on the town turned one runner into two people with half a
+          history each.
+        </p>
+      </div>
+      <div>
+        <h3>The rule used: nobody gets younger</h3>
+        <p>
+          Every age group printed on a dated race implies a range of birth years, and one
+          person's ranges must overlap. That is the only thing allowed to split a name. The
+          hometown only breaks a tie.
+        </p>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="example">
+        <caption>An invented example of how the rule works. Two runners called Chris Walsh.</caption>
+        <thead><tr><th>Race</th><th>Name as printed</th><th>Age group</th><th>Birth years this allows</th><th>Assigned to</th></tr></thead>
+        <tbody>
+          <tr><td>2021</td><td>Chris Walsh</td><td>50 to 59</td><td>1961 to 1971</td><td><span class="tag tag-a">Runner A</span></td></tr>
+          <tr><td>2023</td><td>Chris Walsh</td><td>20 to 29</td><td>1993 to 2003</td><td><span class="tag tag-b">Runner B</span></td></tr>
+          <tr><td>2025</td><td>Chris Walsh</td><td>not printed</td><td>could be either</td><td><span class="tag tag-x">held back, counted</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="verdict">
+      <p>
+        <strong>When in doubt, it refuses.</strong> Splitting one runner in two costs some
+        accuracy. Merging two people into one would publish a confident prediction for a real
+        person built from somebody else's results. So {{ambiguous}} runners the archive cannot
+        tell apart are left out of every published prediction and counted, rather than guessed
+        at.
+      </p>
+    </div>
+    <details class="disclose">
+      <summary>For the technical reader: what that trade costs, and how it is bounded</summary>
+      <p>
+        Names are compared on a normalised key (case, accents, apostrophes, spacing, hyphens),
+        never fuzzily: nicknames are deliberately not merged, because Mike and Michael Power
+        are often two people. Within a name key, results are clustered by intersecting
+        birth-year windows; a result compatible with more than one cluster and carrying no
+        age group is held back. Allowing towns to change means two people of one name and a
+        compatible age can merge. That risk is published rather than argued about: the share
+        of resolved runners whose printed town flips back and forth, the pattern two merged
+        people would make, is reported in the README, and reading them shows most are one
+        person spelling their own town differently.
+      </p>
+      <p>
+        For a live race the same rules link each person on the entrant list to at most one
+        history, using the list's sex, and its hometown where it prints one, to break ties.
+      </p>
+    </details>
+  </section>
+
+  <section class="section" id="scale">
+    <h2>A 5 km and a marathon on one scale</h2>
+    <p class="section-lead">
+      A runner's history is a mix of distances. To compare them, every time is converted to a
+      single fitness number using Jack Daniels' running tables, which runners know as
+      <span class="term" tabindex="0" data-note="VDOT is Jack Daniels' index of running fitness. Two performances with the same VDOT are equally good, whatever the distance: a 19:56 5 km and a 41:20 10 km are both VDOT 50.">VDOT</span>.
+      Two performances with the same VDOT are equally good, whatever the distance.
+    </p>
+    <div class="table-wrap">
+      <table class="example">
+        <caption>An invented runner's three races, put on one scale. Computed with this project's own implementation of Daniels' formulas.</caption>
+        <thead><tr><th>Race</th><th class="num">Time</th><th class="num">VDOT</th><th class="num">Worth, as a 10 km</th></tr></thead>
+        <tbody>{{vdot_rows}}</tbody>
+      </table>
+    </div>
+    <p>
+      The model then works on one quantity: how much slower or faster than a reference runner
+      each finish was, as a percentage. That puts every race in the archive on one scale before
+      anything is estimated. What is left for the model is what the tables cannot know: this
+      runner, this road, this year and this morning.
+    </p>
+    <details class="disclose">
+      <summary>For the technical reader: the response variable</summary>
+      <p>
+        The model's outcome is <code>log(time / Daniels time for VDOT 50 at that distance)</code>.
+        On the log scale 0.05 is five percent of a finish time wherever it was run, errors are
+        roughly symmetric, and the population's fade over distance is Daniels' curve. Each
+        runner's own fade departs from it by a coefficient that shrinks to zero for anyone who
+        has raced only one distance. A population-wide departure is not estimated at all: every
+        course is run at one distance, so it cannot be told apart from the course effects, and
+        fitting both left it unidentified.
+      </p>
+    </details>
+  </section>
+
+  <section class="section" id="courses">
+    <h2>Some roads are slower than others</h2>
+    <p class="section-lead">
+      Cape to Cabot climbs Signal Hill at the finish; Turkey Tea runs mostly downhill. Runners
+      cross from course to course, so each course's difficulty can be measured from the results
+      themselves: the same people, on different roads. Each dot is a course; the line through it
+      is how sure the measurement is.
+    </p>
+    <figure class="chart-figure">
+      <div id="courses-chart" class="chart"></div>
+      <p class="readout" id="courses-readout"></p>
+      <div class="legend" id="courses-legend"></div>
+      <figcaption>How much slower than a flat road each course runs, with its 95% interval. Courses with at least 30 finishes; the races on this page are marked.</figcaption>
+    </figure>
+    <div class="verdict">
+      <p>
+        <strong>The measurement agrees with the physics, without being tuned to it.</strong>
+        Cape to Cabot measures about {{c2c_factor}} slower than flat. Run that number backwards
+        through the energy cost of running uphill (Minetti's curve) and the published 550 m of
+        climb implies an average grade of about 10 percent on the hills. The race's own course
+        page says "grades of more than 10 per cent in some parts". Two independent routes to
+        one number.
+      </p>
+    </div>
+    <details class="disclose">
+      <summary>For the technical reader: separating the course from the runners on it</summary>
+      <p>
+        Course and edition effects are estimated jointly with per-runner levels and trends by
+        alternating least squares on the log-ratio scale, with a bootstrap over runners for the
+        intervals; the full model then carries a zero-sum course effect with editions summing
+        to zero within their course. Leaving out the per-runner trend produced a striking false
+        finding: every well-covered course appeared to get harder by about 0.6% a year. It was
+        the field ageing, absorbed into the course. With the trend in, the drift is zero and
+        the signs scatter, and a test plants ageing on unchanged courses to keep it that way.
+      </p>
+    </details>
+  </section>
+
+  <section class="section" id="weather">
+    <h2>What the weather costs</h2>
+    <p class="section-lead">
+      A warm, sunny morning slows a field, and it costs a marathoner far more than a 5 km runner,
+      who is only out in it for twenty minutes. The model reads the hourly weather at St. John's
+      airport for the hours each race was actually running, and learns what heat and wind cost.
+    </p>
+    <figure class="chart-figure">
+      <div id="weather-chart" class="chart"></div>
+      <p class="readout" id="weather-readout"></p>
+      <div class="legend" id="weather-legend"></div>
+      <figcaption>How much slower a field runs as the felt temperature rises, by race length. Below 12 C the model charges nothing; above it, each degree costs more the longer the race. Full sun adds about 2 C of felt heat.</figcaption>
+    </figure>
+    <div class="verdict">
+      <p>
+        <strong>Weather moves a whole field by a few percent, and that is easy to miss.</strong>
+        A few percent of a finish time is small next to how much one person varies from race to
+        race, so adding weather barely changes the average error per runner, and an early version
+        of this project wrongly concluded that weather did not matter here. Measured at the level
+        of a whole race, it clearly does: without it, the model's errors grow with the heat; with
+        it, they do not.
+      </p>
+    </div>
+    <details class="disclose">
+      <summary>For the technical reader: a hinge on felt temperature, and why not a straight line</summary>
+      <p>
+        Heat enters the race effect as <code>max(0, T + s x sun - 12 C) x (h0 + h1 log(d / 5 km))</code>,
+        where <code>sun</code> is the direct radiation over the race hours as a share of a clear
+        noon and <code>s</code>, the degrees a full sun adds, is estimated (posterior median
+        2.1 C, 95% interval 0.1 to 9.2, from a prior on the US National Weather Service's 15 F).
+        Both heat coefficients are constrained positive, so a hot morning never makes a race
+        faster. Wind enters as a speed and, on point-to-point courses with a known bearing, as a
+        signed tailwind.
+      </p>
+      <p>
+        The straight line in temperature that most race models use was built, backtested and
+        rejected: on two leave-one-year-out tests over eighteen years it was the worst shape
+        offered, and on 19,035 runners who ran consecutive editions of the same race it predicted
+        the change between years worse than predicting no change at all. It also hid inside the
+        calendar-year effect. The full write-up is <a href="{{repository}}/blob/main/docs/rejected.md">the rejected approach</a>.
+      </p>
+      <p>
+        For a live race the weather is a forecast, not an observation, so its error was measured
+        on past race mornings at this airport for each lead time from one to seven days, and the
+        forecast is corrected and spread by that error before it enters the prediction.
+      </p>
+    </details>
+  </section>
+
+  <section class="section" id="model">
+    <h2>The model: borrowing strength</h2>
+    <p class="section-lead">
+      Most runners have only one or two results in the archive. One race is a thin basis for a
+      prediction: it might have been a great day or a bad one. So the model does what a good
+      coach does with a new athlete: start from what is typical for someone of that age and sex,
+      and move toward the runner's own results as more of them arrive.
+    </p>
+    <figure class="chart-figure">
+      <div id="shrink-chart" class="chart"></div>
+      <div class="legend" id="shrink-legend"></div>
+      <figcaption>An illustration, not data: three invented runners of one age group. Hollow dots are their past races, the band is what is typical for the group, the solid dot and bar are the prediction and its range. The fewer the results, the more the prediction leans on the group, and the wider its range.</figcaption>
+    </figure>
+    <div class="verdict">
+      <p>
+        <strong>This is what "hierarchical" means.</strong> Every runner has their own fitness,
+        but those fitness levels are estimated together, each pulled toward its group by exactly
+        as much as its own evidence is weak. A runner with eight races is predicted almost
+        entirely from them; a first-timer is predicted from people like them.
+      </p>
+    </div>
+    <details class="disclose">
+      <summary>For the technical reader: the model, as written</summary>
+<pre class="formula">log(time / Daniels time) = alpha_i + beta_i log(d / 10 km) + walk_i[year]
+                           + course[c] + year[t] + heat + wind + edition + noise
+
+alpha_i      ~ Normal(mu_group[g_i], sigma_alpha)        fitness in the first year raced
+beta_i       ~ Normal(0, sigma_beta)                     own fade over distance
+walk_i[y]    = walk_i[y'] + Normal(mu_trend[g_i] gap,    form, carried between racing
+                                   sigma_walk sqrt(gap))  years, drifting with age
+course       ~ ZeroSumNormal(sigma_course)
+year[t]      = year[t-1] + Normal(0, sigma_year)         what every race that year shared
+noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussian</pre>
+      <p>
+        Fitted in PyMC with the nutpie sampler, non-centred throughout. PyMC's default NUTS hit
+        its maximum tree depth with R-hat above 2 on this model; nutpie sampled the same model
+        cleanly. A prediction is not a single number but the full set of posterior draws, each
+        walked forward to race day and given a fresh morning and a fresh bad day; the median is
+        the headline time and the quantiles feed the ranges below.
+      </p>
+      <p>
+        An honest limitation, stated in the repository beside the numbers: years since a
+        runner's first race and the calendar year move together, so the group drift, the year
+        effect and the group means trade off along a ridge the sampler mixes poorly on (worst
+        R-hat 1.41 to 2.15 across fits). The quantities a returning runner's prediction reads
+        converge (median R-hat 1.006); a first-timer's starting level does not fully, which is
+        why first-timers' ranges are calibrated separately, and why a constraint that was tried
+        to fix it, and made every chain disagree, was taken out.
+      </p>
+      <p>
+        The first version gave each runner a straight-line career trend. The backtest refuted
+        it: carried to race day, a line fitted across a runner's improving early years predicts
+        improvement nobody has, 8.3% too fast across 49 races. Form as a random walk replaced it.
+      </p>
+    </details>
+  </section>
+
+  <section class="section" id="ranges">
+    <h2>Ranges that keep their promise</h2>
+    <p class="section-lead">
+      A prediction without a range is an opinion. Each runner gets a range that should contain
+      their finish four times in five (80%) and a wider one for nine in ten (90%). The test of a
+      range is simple: across many runners, does it hold as often as it claims?
+    </p>
+    <figure class="chart-figure">
+      <div id="coverage-chart" class="chart"></div>
+      <div class="legend" id="coverage-legend"></div>
+      <figcaption id="coverage-caption">How often the range held in the backtest, by how many past races a runner had. Hollow: the model's own range. Solid: after calibration on earlier races. The dashed line is the promise. Bars are 95% intervals.</figcaption>
+    </figure>
+    <div class="verdict">
+      <p>
+        <strong>The model's own ranges were a little too narrow for runners with one to three
+        races, and calibration fixes that.</strong> Before each race, the ranges are widened or
+        narrowed by exactly as much as they missed on earlier races, separately for each depth of
+        history. A first-timer's range is wide, around {{width_new}} minutes, and a runner with a
+        long history gets about {{width_deep}}: the range is as wide as the evidence requires and
+        no wider.
+      </p>
+    </div>
+    <div class="assumption">
+      <p>
+        <strong>What the promise is, and is not.</strong> The calibration method, split
+        conformal prediction, guarantees coverage on average over races within a group, provided
+        a new race's errors look like earlier races' errors. It is not a promise about any one
+        runner or any one race, and it will fail on a morning unlike any before it: a gale on
+        Signal Hill is exactly that. This caveat is printed beside every coverage table this
+        project publishes.
+      </p>
+    </div>
+    <details class="disclose">
+      <summary>For the technical reader: Mondrian split conformal, rolled forward in time</summary>
+      <p>
+        Conformalised quantile regression on the log scale. Each scored runner's non-conformity
+        score is how far outside the model's own interval their finish fell; a new race's interval
+        is stretched multiplicatively by the finite-sample quantile of the scores from races
+        dated strictly before it, per history-depth stratum (0, 1, 2 to 3, 4 or more prior
+        results). Two races on the same morning are not each other's calibration. A stratum with
+        fewer than fifty earlier scores is left unadjusted and counted, and coverage intervals
+        resample races rather than runners, because runners in one race share its morning.
+      </p>
+    </details>
+  </section>
+
+  <section class="section" id="places">
+    <h2>From times to places</h2>
+    <p class="section-lead">
+      A place depends on everyone else in the race. So the whole field is simulated together,
+      thousands of times, and each runner's place is read off the simulations: a most likely
+      place and a range.
+    </p>
+    <div class="two-col">
+      <div>
+        <h3>One morning per simulated race</h3>
+        <p>
+          In each simulation every runner shares the same weather and the same course. A hot
+          morning slows the whole field together and barely changes the order, and simulating
+          each runner's morning separately would get that wrong.
+        </p>
+      </div>
+      <div>
+        <h3>Runners from away</h3>
+        <p>
+          At the biggest races, visitors with no results here reach the top ten. The model cannot
+          know which newcomer is a visiting elite runner, so at those races newcomers are drawn from how past
+          first-timers on that course actually finished, and the predicted top 20 shows the
+          places they are expected to take as placeholders rather than handing them to a name.
+        </p>
+      </div>
+    </div>
+    <div class="headline" id="placing-stats"></div>
+    <details class="disclose">
+      <summary>For the technical reader: comparing placing fairly</summary>
+      <p>
+        A naive placing table ranks each model among the runners it answers for, which ranks
+        "last time" only among runners with a history and the model over the whole field,
+        newcomers included, whose order is close to a guess. That comparison made the model look
+        twice as bad as it is. The fair comparison ranks both over exactly the runners both
+        answered for, race by race, with a bootstrap over races for the interval; both tables are
+        published, because scoring each model on the subset that suits it is how a table stops
+        being checkable.
+      </p>
+    </details>
+  </section>
+
+  <section class="section" id="results">
+    <h2>Does it work?</h2>
+    <p class="section-lead">
+      Every race from {{bt_first_year}} on was predicted from results dated strictly before it, as
+      if it were tomorrow's race, and compared with what actually happened. The model has to
+      beat three simple rules of thumb, which are always shown first.
+    </p>
+    <dl class="baselines">
+      <div><dt><span class="swatch solid sw-cf"></span>Last time</dt><dd>You will run what you ran in your most recent race, adjusted for distance and course. Simple, and hard to beat.</dd></div>
+      <div><dt><span class="swatch solid sw-vdot"></span>Race calculator</dt><dd>Your best recent race, converted with Daniels' tables. What most runners use.</dd></div>
+      <div><dt><span class="swatch solid sw-median"></span>Your category</dt><dd>The typical time for your age group and sex. All there is for a first-timer.</dd></div>
+      <div><dt><span class="swatch solid sw-model"></span>This model</dt><dd>Everything above, together.</dd></div>
+    </dl>
+    <figure class="chart-figure">
+      <div id="results-chart" class="chart wide-chart"></div>
+      <p class="readout" id="results-readout"></p>
+      <figcaption>Average error in minutes (lower is better), by how many past races a runner had, with 95% intervals. A missing bar means that rule cannot answer for those runners at all: "last time" has nothing to say about a first-timer.</figcaption>
+    </figure>
+    <div class="verdict">
+      <p>
+        <strong>For runners with a real history, the model is {{skill}} closer than "last time":
+        {{mae_model}} minutes against {{mae_cf}}.</strong> For runners with one or two races the
+        gain is small, which is expected: one result is one result. For first-timers every method
+        is out by about {{mae_new}} minutes, because nothing about them is known but their age
+        group. That, not the model comparison, is the real size of the problem, and it is why
+        every prediction carries a range.
+      </p>
+    </div>
+    <details class="disclose">
+      <summary>For the technical reader: how the backtest avoids cheating</summary>
+      <p>
+        The only way any model sees the archive is through a history object that takes the
+        origin date and keeps nothing dated on or after it, so leakage is something a model
+        cannot reach rather than something to remember; the harness re-checks it at every
+        origin. Two leaks the tests found and closed: races on the same morning are not each
+        other's history, and the runner handed to a model carries only the results the history
+        carries. The model is refitted once per calendar quarter on the history before the
+        quarter, so it knows less about a race late in a quarter than the baselines do, which
+        biases the comparison against it. Errors are reported per history depth with bootstrap
+        intervals, and a baseline that cannot answer for a runner reports nothing rather than
+        falling back to another rule.
+      </p>
+    </details>
+  </section>
+
+  <section class="section" id="record">
+    <h2>Written down before the gun</h2>
+    <p class="section-lead">
+      This is what makes the predictions trustworthy. Each prediction file is saved into the
+      public repository with a fingerprint, and the save is stamped with the time. If a single
+      character were changed later, the fingerprint would no longer match.
+    </p>
+    <ol class="timeline">
+      <li><strong>Seven days out</strong><span>Every runner already registered gets a prediction, using that morning's weather forecast.</span></li>
+      <li><strong>Each morning after</strong><span>Only the runners who registered since are added, so nobody's prediction is published twice.</span></li>
+      <li><strong>The day before</strong><span>The whole field is predicted again with the latest forecast, and given places. This is the final file. After it, nothing changes.</span></li>
+      <li><strong>Race day</strong><span>The gun goes. The system refuses to write a prediction within 24 hours of it.</span></li>
+      <li><strong>Results posted</strong><span>The file is read back from its timestamped record, never from a working copy, and the errors are published beside it.</span></li>
+    </ol>
+    <div class="verdict">
+      <p>
+        <strong>A mistake found after the gun is scored as it stands and written up, not
+        fixed.</strong> That rule is what separates a forecast from a story told afterwards.
+      </p>
+    </div>
+    <details class="disclose">
+      <summary>For the technical reader: check a prediction yourself</summary>
+      <p>
+        Each file is canonical JSON (sorted keys, fixed precision, UTF-8, LF), committed, and
+        tagged with its SHA-256 in the tag message; the tag time is the record. Git is told never
+        to touch the files' line endings, so the bytes on a Windows checkout match the published
+        hash. To verify one:
+      </p>
+<pre class="formula">git clone {{repository}}
+cd finish-line-forecast
+git show predictions/tt-2026            # the tag, its time and the published SHA-256
+sha256sum predictions/tt-2026.json      # the same hash, or the file was changed</pre>
+      <p>
+        During a race's week a scheduled task runs each morning at 06:15: it takes the entrant
+        list, writes the day's file with a model fitted once for the week, commits, tags and
+        pushes it, and the website rebuilds itself from the push. Each entrant's random numbers
+        are seeded by their name, not their position on the list, so a runner's prediction is the
+        same whichever morning computes it.
+      </p>
+    </details>
+  </section>
+
+  <section class="section" id="refuted">
+    <h2>What the data proved wrong</h2>
+    <p class="section-lead">
+      The plan written before any code was reasonable. Measured against the data, {{refuted}} of
+      its designs turned out to be wrong, and every one is logged in the repository with the
+      evidence, so a reader can tell a decision from a guess. A few of them:
+    </p>
+    <div class="cards">
+      <article class="card-note">
+        <h3>"Weather does not matter here"</h3>
+        <p>The first estimate said so. Small races, where the average is mostly noise, were outvoting large ones. Weighted by field size, the effect was clear.</p>
+      </article>
+      <article class="card-note">
+        <h3>Courses getting harder every year</h3>
+        <p>They were not. The runners were getting older, and without a career trend per runner that ageing was blamed on the road.</p>
+      </article>
+      <article class="card-note">
+        <h3>The first model lost</h3>
+        <p>Its first backtest was worse than "last time" by 26%. A straight-line career trend predicted years of improvement nobody has. Replaced, it now wins by {{skill}}.</p>
+      </article>
+      <article class="card-note">
+        <h3>Same name, same town, same person</h3>
+        <p>Runners move. The rule that works is that nobody gets younger.</p>
+      </article>
+      <article class="card-note">
+        <h3>Eight years missing without a sound</h3>
+        <p>Older index pages used different wording, and the parser found nothing and said nothing. It now fails loudly, and a test holds both spellings.</p>
+      </article>
+      <article class="card-note">
+        <h3>The recommended sampler</h3>
+        <p>The standard sampler could not fit the model at all. A different one ran the same model cleanly, and the reason is pinned beside the dependency.</p>
+      </article>
+    </div>
+    <div class="assumption">
+      <p>
+        <strong>One approach is written up in full as rejected:</strong> weather as a straight
+        line in temperature, the design most race models use. It looked fine in the headline
+        table, which is why it is the one worth reading. <a href="{{repository}}/blob/main/docs/rejected.md">Read it here</a>,
+        or the <a href="{{repository}}/blob/main/PLAN.md#13-changes-to-this-plan">whole log</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" id="privacy">
+    <h2>Real people, handled carefully</h2>
+    <p class="section-lead">
+      Every prediction is about a real, named person, so what is published and what is not was
+      decided before anything was built.
+    </p>
+    <ul class="checks">
+      <li><strong>Only what the results already publish.</strong> A name as printed, a hometown as printed, and the prediction. The entrant lists also show shirt sizes; they are never read.</li>
+      <li><strong>No training data, for anyone.</strong> The original idea used runners' public Strava activity. Strava's terms forbid displaying other users' data even when it is public, and forbid training models on it, so the public model uses race results only. It is weaker, and the repository says so first.</li>
+      <li><strong>Not in search engines.</strong> The prediction data asks search engines not to index it, so a person's prediction does not turn up when someone searches their name.</li>
+      <li><strong>Anyone can opt out.</strong> A runner who asks is removed from every future file; the removal is logged without the name. <a href="{{repository}}/blob/main/docs/data-terms.md">How to ask</a>.</li>
+      <li><strong>No tracking.</strong> This page loads nothing from anywhere else: no analytics, no fonts from a third party, no advertising.</li>
+      <li><strong>Ambiguous runners are left out.</strong> If the archive cannot tell two people apart, neither gets a published prediction.</li>
+    </ul>
+  </section>
+
+  <section class="section" id="engineering">
+    <h2>How it is engineered</h2>
+    <p class="section-lead">
+      Built the way production systems should be: typed, tested, reproducible and automated,
+      so that the numbers on this page can be regenerated by anyone from the repository.
+    </p>
+    <div class="headline">
+      <div class="stat"><span class="figure">{{tests}}</span><span class="caption">automated tests, including golden pages for the parser, a leakage test on the backtest, and closed-form checks on the running formulas</span></div>
+      <div class="stat"><span class="figure">{{code_lines}}</span><span class="caption">lines of typed Python, strict type checking and linting clean on every push</span></div>
+      <div class="stat"><span class="figure">1</span><span class="caption">command to rebuild every table in the README from the cached data</span></div>
+      <div class="stat"><span class="figure">06:15</span><span class="caption">when the morning task publishes each day's predictions in a race week, unattended</span></div>
+    </div>
+    <ul class="chips" aria-label="Tools and techniques">
+      <li>Python 3.13</li><li>PyMC</li><li>nutpie</li><li>NumPy</li><li>Bayesian hierarchical models</li>
+      <li>Conformal prediction</li><li>Monte Carlo simulation</li><li>Rolling-origin backtesting</li>
+      <li>Bootstrap intervals</li><li>Entity resolution</li><li>mypy --strict</li><li>ruff</li>
+      <li>pytest</li><li>uv</li><li>GitHub Actions</li><li>Azure Static Web Apps</li><li>Cloudflare</li>
+    </ul>
+    <details class="disclose">
+      <summary>For the technical reader: the choices that are easy to get wrong</summary>
+      <ul>
+        <li><strong>Long runs are checkpointed.</strong> A full backtest is eight quarterly model fits of about twenty minutes each on a desktop CPU. Each fit is saved as it finishes, keyed on a hash of the model's source, the data and the settings, so a crashed run resumes and a stale one is never reported.</li>
+        <li><strong>Reports are generated, never typed.</strong> The README's tables and this page's numbers are written by the same command from the same objects, so they cannot disagree.</li>
+        <li><strong>Refusals are in code, not in documents.</strong> The crawler refuses until the courtesy notes are acknowledged; the freeze refuses inside 24 hours of the gun, with uncommitted code, or without a backtest that matches today's code and data.</li>
+        <li><strong>Time zones are required, not assumed.</strong> 08:00 in St. John's is 10:30 UTC, and a naive comparison passes in exactly the wrong direction, so a gun time without a zone is refused.</li>
+        <li><strong>The website has no framework and makes no outside request.</strong> Charts are hand-built SVG, and the content security policy forbids anything inline or off-site.</li>
+      </ul>
+    </details>
+  </section>
+
+  <section class="section" id="built">
+    <h2>How this was built</h2>
+    <p>
+      Design, methodology, evaluation choices and judgement are Peter Parker's, including years
+      of racing and coaching on these courses: the insight that the Tely's prevailing westerly is
+      a tailwind for almost the whole race, and that the biggest races draw fast visitors the
+      archive has never seen, came from the road before the data confirmed them. AI coding
+      assistants (Claude Code) were used for implementation and drafting, the way a senior
+      engineer uses them in 2026. Every number on this page is reproducible from
+      <a href="{{repository}}">the repository</a>, and every live prediction is verifiable from
+      a timestamp that predates the race it predicts.
+    </p>
+    <p>
+      It reuses the running arithmetic from <a href="https://peterparker.ca/projects/overload/">Overload</a>,
+      an AI coaching team for runners: Daniels' formulas and the heat and wind corrections, here
+      with tests.
+    </p>
+    <details class="disclose">
+      <summary>Glossary</summary>
+      <dl class="glossary">
+        <dt>Backtest</dt><dd>Predicting races that already happened, using only what was known before each one, and scoring the predictions against the results.</dd>
+        <dt>Baseline</dt><dd>A simple rule a model must beat to be worth anything, such as "you will run what you ran last time".</dd>
+        <dt>Bayesian hierarchical model</dt><dd>A statistical model in which each runner's parameters are estimated together with their group's, so runners with little data borrow strength from runners like them.</dd>
+        <dt>Conformal prediction</dt><dd>A way of calibrating prediction ranges on past errors so that they hold as often as they claim, on average, under stated assumptions.</dd>
+        <dt>Coverage</dt><dd>How often a range actually contained the outcome. An 80% range should cover about 80% of finishes.</dd>
+        <dt>Mean absolute error</dt><dd>The average size of a miss, ignoring whether it was too fast or too slow.</dd>
+        <dt>Pre-registration</dt><dd>Publishing a prediction, fixed and dated, before the event it predicts, so it cannot be adjusted after the fact.</dd>
+        <dt>SHA-256</dt><dd>A fingerprint of a file. Change one character and the fingerprint changes completely.</dd>
+        <dt>VDOT</dt><dd>Jack Daniels' single number for running fitness, which puts performances at different distances on one scale.</dd>
+      </dl>
+    </details>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="foot-inner">
+    <p>
+      Source, methods, the full results and every prediction file:
+      <a href="{{repository}}">github.com/Peter-A-P/finish-line-forecast</a>.
+      Runners named on this site are named only as the official results name them;
+      <a href="{{repository}}/blob/main/docs/data-terms.md">to be removed, see the data terms</a>.
+    </p>
+    <ul>
+      <li>Data: road-race results published by the Newfoundland and Labrador Athletics Association; entrant lists from Athletics NorthEAST and Trackie; weather from Environment and Climate Change Canada and Open-Meteo</li>
+      <li>Type: Newsreader and Inter, SIL Open Font License, served from this host</li>
+      <li>Built {{built}}</li>
+    </ul>
+  </div>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

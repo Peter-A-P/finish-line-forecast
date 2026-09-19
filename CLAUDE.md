@@ -39,12 +39,14 @@ finishline dataset      parse, resolve runners, print what came out
 finishline courses      how hard each course is, against what its hills predict
 finishline conditions   what heat and wind cost, by distance
 finishline backtest     score the baselines at every origin (--hierarchical adds the model)
-finishline report       rewrite the README tables from the measurement
+finishline report       rewrite the README tables from the measurement, and
+                        data/site/results.json, the website's numbers, from the same run
 finishline freeze <race> the prediction file, hashed, refused inside 24 hours of the gun
                         (--daily from seven days out: only entrants no earlier file had)
 finishline due          which live races want a daily or final file today
 finishline page <race>  the race page, rendered from the published prediction files
-finishline site         the public website, from data/live.toml and the prediction files
+finishline site         the public website: web/ filled from data/site/results.json,
+                        data/live.toml and the prediction files
 finishline serve        preview it locally with the host's headers (docs/deploy.md)
 finishline score <race>  the tagged prediction against the results   (fetches: --notices-sent)
 ```

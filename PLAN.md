@@ -426,12 +426,18 @@ Scheduler, to commit, tag and push the files and the page; it commits nothing el
 `freeze` still refuses with uncommitted code. Consequence: the repository has to be public
 seven days before the rehearsal, 2026-09-27, rather than the day before.
 
-**The website, added the same day.** `finishline site` renders every live race from
-data/live.toml and the committed prediction files into static pages: the predicted top 20
+**The website, added the same day.** `finishline site` builds one page in the style of the
+other project pages on peterparker.ca: what this is and the headline backtest numbers, a race
+picker (each race's course, history, entrant field by history depth, its prediction week,
+the model's backtest on its last edition, and once published the predicted field, the top 20
 with placeholders for expected newcomers at the biggest races, every runner with a name
-search, and every file with its hash. No framework, no tracking, no third-party request, no
-inline script or style (the host's content security policy refuses them), and race pages
-marked noindex because they name people. Hosted like project 08, on Azure Static Web Apps'
+search, and every file with its hash), then the whole method in sixteen illustrated parts,
+each plain first with the technical detail folded away. Its numbers come from
+data/site/results.json, which `finishline report` writes from the same objects as the
+README's tables, so the two cannot disagree. No framework, no tracking, no third-party
+request, no inline script or style (the host's content security policy refuses them); the
+runners' names are only in data/predictions/, which robots.txt disallows and the host marks
+noindex. Hosted like project 08, on Azure Static Web Apps'
 free plan at finishline.peterparker.ca behind a Cloudflare CNAME, but deployed by the Website
 workflow on every push, as peterparker.ca is, so the morning task's commit refreshes it
 (docs/deploy.md). This is section 7's reserve line, now used, at CA$0.

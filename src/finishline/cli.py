@@ -724,6 +724,66 @@ def write_report(
     readme.write_text(text, encoding="utf-8", newline="\n")
     _write_live_rows()
     typer.echo("README.md tables rewritten from the measurement")
+    _write_showcase(data, scored, names, fitted, rows)
+    typer.echo(f"{SHOWCASE} rewritten from the same measurement, for the website")
+
+
+SHOWCASE = DATA / "site" / "results.json"
+
+
+def _write_showcase(
+    data: Dataset,
+    scored: list[score.Scored],
+    names: list[str],
+    fitted: models_courses.Fit,
+    weather_rows: list[conditions.Observation],
+) -> None:
+    """The website's numbers, from the objects the README's tables were just written from."""
+    from finishline.conformal import split
+    from finishline.identity import link
+    from finishline.publish import showcase
+
+    dates = {race_id: race.date for race_id, race in data.races.items()}
+    live: dict[str, Any] = tomllib.loads(LIVE.read_text(encoding="utf-8"))
+    temperatures = showcase.temperatures(weather_rows)
+    model_rows = [row for row in scored if row.model == showcase.MODEL]
+    intervals = split.rolling(model_rows, dates, 0.80) if model_rows else []
+    profiles = course_profiles()
+    races: dict[str, Any] = {}
+    for race_id, record in live.items():
+        course_id = str(record["course_id"])
+        measured = fitted.courses.get(course_id)
+        profile = profiles.get(course_id, {})
+        story: dict[str, Any] = {
+            "course_id": course_id,
+            "course": showcase.course_name(course_id),
+            "factor": None if measured is None else round(measured.factor, 4),
+            "factor_low": None if measured is None else round(measured.low, 4),
+            "factor_high": None if measured is None else round(measured.high, 4),
+            "climb_m": profile.get("climb_m"),
+            "drop_m": profile.get("drop_m"),
+            "editions": showcase.editions(data, course_id, temperatures),
+            "backtest": showcase.course_backtest(scored, intervals, data, course_id),
+            "entrants": None,
+        }
+        listing = record.get("entrant_list")
+        snapshot = entrants.latest_snapshot(ENTRANTS, str(listing)) if listing else None
+        if snapshot is not None:
+            links = link.link(entrants.load(snapshot), data.runners)
+            as_of = date.fromtimestamp(snapshot.stat().st_mtime).isoformat()
+            story["entrants"] = showcase.entrants(links, as_of)
+        races[race_id] = story
+    showcase.write(
+        SHOWCASE,
+        {
+            "archive": showcase.archive(data),
+            "backtest": showcase.backtest(scored, names, dates),
+            "courses": showcase.course_list(
+                fitted, {str(r["course_id"]): rid for rid, r in live.items()}
+            ),
+            "races": races,
+        },
+    )
 
 
 OPENMETEO = DATA / "cache" / "openmeteo"

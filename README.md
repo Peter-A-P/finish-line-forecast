@@ -16,6 +16,9 @@ on 2026-10-18, with a second on a frozen model on 2026-11-11; predictions are co
 tagged and hashed in this repository before each race and scored against the official
 results after it. Build plan: [PLAN.md](PLAN.md).
 
+**The website: [finishline.peterparker.ca](https://finishline.peterparker.ca)**, every live
+race and its predictions, with the whole method explained in pictures.
+
 Nothing was fetched until the two organisations whose pages this reads had been told, and
 `finishline crawl` refuses until they have. That rail is in code rather than in a
 document: [docs/emails.md](docs/emails.md) carries what was sent.

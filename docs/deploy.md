@@ -1,8 +1,12 @@
 # Putting the website on finishline.peterparker.ca
 
-The website is `site/`: static HTML, one stylesheet and one small script, written by
-`finishline site` from `data/live.toml` and the committed prediction files. There is no
-backend, so hosting it is a file upload and one DNS record. It follows the same path as
+The website is `site/`: one static page, its stylesheet, its script and two fonts, written by
+`finishline site` from `web/` (the page, in the style of the other project pages on
+peterparker.ca), `data/site/results.json` (the measured numbers, written by `finishline
+report` in the same run as the README's tables), `data/live.toml` and the committed
+prediction files. The runners' predictions are served from `data/predictions/`, which
+`robots.txt` disallows and the host marks noindex; the page itself names nobody and is
+indexed. There is no backend, so hosting it is a file upload and one DNS record. It follows the same path as
 project 08's `capacity.peterparker.ca` (its `docs/deploy.md`) with one difference: the upload
 runs in GitHub Actions on every push, as `peterparker.ca` does, rather than from this machine,
 because the prediction week commits a new file every morning and the website has to follow

@@ -1,0 +1,85 @@
+"""The website's numbers: named the way a runner would say them, and never naming a runner."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+import pytest
+
+from finishline.identity.link import Link, Status
+from finishline.identity.resolve import Runner
+from finishline.ingest.entrants import Entrant
+from finishline.publish import showcase
+from finishline.schema import Result
+
+COMMITTED = Path("data/site/results.json")
+
+
+@pytest.mark.parametrize(
+    ("course_id", "name"),
+    [
+        ("cape-to-cabot-20000", "Cape to Cabot 20 km"),
+        ("turkey-tea-10000", "Turkey Tea 10 km"),
+        ("run-to-remember-11000", "Run to Remember 11 km"),
+        ("tely-10-16093", "Tely 10"),
+        ("usr-42195", "USR marathon"),
+        ("run-from-away-21097", "Run from Away half marathon"),
+        ("ane-mile-1609", "ANE Open Mile"),
+    ],
+)
+def test_a_course_is_named_the_way_a_runner_says_it(course_id: str, name: str) -> None:
+    assert showcase.course_name(course_id) == name
+
+
+def test_entrants_are_counted_by_history_and_never_listed() -> None:
+    def runner(depth: int) -> Runner:
+        results = tuple(
+            Result(f"r{i}", 1, 1, "x", None, "F", 1, None, 1, None, 1000.0, None)
+            for i in range(depth)
+        )
+        return Runner(f"id{depth}", "x", None, "F", results, False)
+
+    links = [
+        Link(Entrant("A", "F"), Status.LINKED, runner(5), ""),
+        Link(Entrant("B", "F"), Status.LINKED, runner(1), ""),
+        Link(Entrant("C", "F"), Status.NEW, None, ""),
+        Link(Entrant("D", "F"), Status.AMBIGUOUS, None, ""),
+    ]
+    counted = showcase.entrants(links, "2026-09-19")
+    assert counted == {
+        "as_of": "2026-09-19",
+        "listed": 4,
+        "depth": {"0": 1, "1": 1, "2 to 3": 0, "4 or more": 1},
+        "refused": 1,
+    }
+
+
+def _keys(value: Any) -> set[str]:
+    if isinstance(value, dict):
+        return set(value) | {key for item in value.values() for key in _keys(item)}
+    if isinstance(value, list):
+        return {key for item in value for key in _keys(item)}
+    return set()
+
+
+def test_the_committed_numbers_name_nobody() -> None:
+    if not COMMITTED.exists():
+        pytest.skip("written by `finishline report`")
+    payload = json.loads(COMMITTED.read_text(encoding="utf-8"))
+    assert not _keys(payload) & {"runner_id", "hometown", "runner", "runners_named", "town"}
+    for race in payload["races"].values():
+        backtest = race["backtest"]
+        if backtest is None:
+            continue
+        for point in backtest["points"]:
+            assert all(value is None or isinstance(value, int) for value in point)
+
+
+def test_a_rerun_that_changes_nothing_changes_no_bytes(tmp_path: Path) -> None:
+    path = tmp_path / "results.json"
+    showcase.write(path, {"b": 1, "a": [1.5, None]})
+    first = path.read_bytes()
+    showcase.write(path, {"a": [1.5, None], "b": 1})
+    assert path.read_bytes() == first == b'{"a":[1.5,null],"b":1}\n'

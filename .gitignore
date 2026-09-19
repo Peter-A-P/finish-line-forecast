@@ -33,4 +33,4 @@ data/entrants/snapshot.log
 
 # Observed weather: Open Government Licence data, but a big local cache, not committed
 data/cache/eccc/
-site/
+/site/

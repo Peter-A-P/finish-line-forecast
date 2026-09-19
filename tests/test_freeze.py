@@ -430,23 +430,60 @@ def test_the_website_is_built_from_the_committed_files_alone(tmp_path: Path) -> 
     live = tmp_path / "live.toml"
     live.write_text(
         '[c2c-2026]\nname = "Cape to Cabot"\ndate = "2026-10-18"\n'
+        'course_id = "cape-to-cabot-20000"\nentrant_list = "c2c-2026"\n'
         'gun = "2026-10-18T08:00:00-02:30"\n'
-        '[r2r-2026]\nname = "Run to Remember"\ndate = "2026-11-11"\n',
+        '[r2r-2026]\nname = "Run to Remember"\ndate = "2026-11-11"\n'
+        'course_id = "run-to-remember-11000"\n',
         encoding="utf-8",
     )
-    pages = site.build(
-        tmp_path / "site", live, tmp_path / "predictions", tmp_path / "scores", date(2026, 10, 12)
-    )
-    assert {page.name for page in pages} == {"index.html", "c2c-2026.html", "r2r-2026.html"}
-    race = (tmp_path / "site" / "c2c-2026.html").read_text(encoding="utf-8")
-    assert "Ann &lt;Hynes&gt;" in race and "<Hynes>" not in race, "names are escaped"
-    assert 'id="find"' in race and "daily-2026-10-11.json" in race
-    assert "http" not in race.replace(site.REPOSITORY, ""), "no third-party request"
-    assert "<style" not in race and "<script>" not in race, "the host's policy refuses inline"
-    assert 'name="robots" content="noindex"' in race, "pages that name people are not indexed"
-    for name in ("site.css", "search.js", "staticwebapp.config.json"):
-        assert (tmp_path / "site" / name).exists()
-    front = (tmp_path / "site" / "index.html").read_text(encoding="utf-8")
-    assert "noindex" not in front, "the front page names nobody"
-    assert "Prediction week: 1 daily file(s)" in front
-    assert "Daily predictions start" in front, "Run to Remember is weeks away"
+    out = tmp_path / "site"
+    site.build(out, live, tmp_path / "predictions", tmp_path / "scores", date(2026, 10, 12))
+
+    page = (out / "index.html").read_text(encoding="utf-8")
+    assert "{{" not in page, "every token is filled"
+    assert "<style" not in page and "<script>" not in page, "the host's policy refuses inline"
+    assert "Hynes" not in page, "the indexed page names nobody"
+    for asset in ("style.css", "app.js", "fonts/inter-latin.woff2", "staticwebapp.config.json"):
+        assert (out / asset).exists()
+    assert "innerHTML" not in (out / "app.js").read_text(encoding="utf-8"), "names go in as text"
+
+    races = json.loads((out / "data" / "races.json").read_text(encoding="utf-8"))
+    assert [race["id"] for race in races] == ["c2c-2026", "r2r-2026"], "soonest first"
+    assert races[0]["stage"] == "week" and "1 daily file(s)" in races[0]["status"]
+    assert races[1]["status"] == "Daily predictions start 2026-11-04."
+    assert "Hynes" not in json.dumps(races), "the race list names nobody"
+
+    named = json.loads((out / "data" / "predictions" / "c2c-2026.json").read_text("utf-8"))
+    assert [runner["name"] for runner in named["runners"]] == ["Ann <Hynes>"]
+    assert not (out / "data" / "predictions" / "r2r-2026.json").exists()
+
+    robots = (out / "robots.txt").read_text(encoding="utf-8")
+    assert "Disallow: /data/predictions/" in robots, "crawlers never fetch the names"
+    config = json.loads((out / "staticwebapp.config.json").read_text(encoding="utf-8"))
+    routes = {route["route"]: route.get("headers", {}) for route in config["routes"]}
+    assert routes["/data/predictions/*"]["X-Robots-Tag"] == "noindex"
+    assert "'unsafe-inline'" not in config["globalHeaders"]["Content-Security-Policy"]
+
+
+def test_the_page_template_and_its_values_agree() -> None:
+    from finishline.publish import site
+
+    assert site.fill("a {{x}} b", {"x": "1"}) == "a 1 b"
+    with pytest.raises(KeyError, match="asks for"):
+        site.fill("{{x}} {{y}}", {"x": "1"})
+    with pytest.raises(KeyError, match="never uses"):
+        site.fill("{{x}}", {"x": "1", "y": "2"})
+
+
+def test_a_race_moves_through_its_stages() -> None:
+    from finishline.publish import site
+
+    race_day = date(2026, 10, 18)
+    daily_file = site.Published("daily-2026-10-11.json", {"kind": "daily", "runners": []}, "")
+    final_file = site.Published("c2c-2026.json", {"runners": []}, "")
+    assert site.stage([], False, date(2026, 10, 1), race_day) == "before"
+    assert site.stage([daily_file], False, date(2026, 10, 12), race_day) == "week"
+    assert site.stage([daily_file, final_file], False, date(2026, 10, 17), race_day) == "final"
+    assert site.stage([daily_file, final_file], False, date(2026, 10, 19), race_day) == "run"
+    assert site.stage([daily_file, final_file], True, date(2026, 10, 25), race_day) == "scored"
+    assert "due" in site.status([], False, date(2026, 10, 12), race_day)
