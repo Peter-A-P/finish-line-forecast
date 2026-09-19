@@ -12,8 +12,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+import httpx
+
 from finishline.identity.resolve import Runner, resolve
-from finishline.ingest import nlaa, parse, raceroster, records
+from finishline.ingest import ane, nlaa, parse, raceroster, records
 from finishline.schema import Race, Result
 
 
@@ -51,14 +53,23 @@ class Dataset:
 
 
 def build(
-    cache: nlaa.Cache, races: list[Race], *, external_dir: Path | None = None
+    cache: nlaa.Cache,
+    races: list[Race],
+    *,
+    external_dir: Path | None = None,
+    ane_dir: Path | None = None,
 ) -> Dataset:
     """Parse and resolve everything in the catalogue that the cache already holds.
 
     `external_dir` adds the races that are not on the association's own pages, from
     `ingest/raceroster.REGISTER`. There is one so far, the 2026 Tely 10, and the reason
     it is read from elsewhere is in that module and in `docs/data-terms.md`. Passing None
-    leaves them out, which is what the tests do.
+    leaves them out, which is what the tests do. `ane_dir` adds the finish lists Athletics
+    NorthEAST posts on its own site before the association does (`ingest/ane.REGISTER`).
+
+    ⚠️ **A race read from elsewhere is dropped once nlaa.ca carries the same one**, the same
+    date on the same course, so no edition is ever counted twice and the association's own
+    page wins.
     """
     by_id = {race.race_id: race for race in races}
     results: list[Result] = []
@@ -79,13 +90,25 @@ def build(
             continue
         results.extend(rows)
 
+    posted = {(race.date, race.course_id) for race in races}
     if external_dir is not None:
         for entry in raceroster.REGISTER:
+            if (entry.date, entry.course_id) in posted:
+                continue
             by_id[entry.race_id] = entry.race
             try:
                 results.extend(raceroster.load(entry, external_dir))
             except (OSError, ValueError) as error:
                 failures.append((entry.race, f"external source unavailable: {error}"))
+    if ane_dir is not None:
+        for listed in ane.REGISTER:
+            if (listed.date, listed.course_id) in posted:
+                continue
+            by_id[listed.race_id] = listed.race
+            try:
+                results.extend(ane.load(listed, ane_dir))
+            except (OSError, ValueError, httpx.HTTPError) as error:
+                failures.append((listed.race, f"external source unavailable: {error}"))
 
     return Dataset(
         races=by_id,

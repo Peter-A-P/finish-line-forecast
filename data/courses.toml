@@ -78,3 +78,28 @@ bearing. A 30 km/h westerly projects to +28.5 km/h of tailwind here and to 18.5 
 headwind on Cape to Cabot, which is why one wind-speed number for the whole province was \
 measuring nothing.\
 """
+
+[turkey-tea-10000]
+name = "Turkey Tea 10k"
+distance_m = 10000
+climb_m = 38
+drop_m = 123
+bearing_deg = 79
+bearing_source = """\
+Start and finish read from the map of the public Strava segment "Turkey Day 10K" \
+(segment 10652676, Mount Pearl), which Peter supplied as a screenshot on 2026-09-19: \
+start by Danny Drive in the west, finish near Brookfield Road and the T'Railway in the \
+east-north-east, about 5 km apart. The course first loops north-west before running east \
+and south-east down Old Placentia Road and back north-east to the finish, so the bearing \
+is the net direction and much of the route is not on it.\
+"""
+source = """\
+The same segment page: 10.01 km, 38 m of elevation gain, highest point 183 m, lowest 98 m, \
+an 85 m difference and an average grade of -0.8%, so 38 m up and 123 m down. A segment is a \
+line along public roads, read from the page by Peter; nothing here comes from any runner's \
+activity, and the leaderboard on the same page is not read.\
+"""
+notes = """\
+Net downhill, most of the drop in the second half. The measured course factor from the \
+results is about -5% (faster than flat), which is what a net 85 m descent should produce.\
+"""

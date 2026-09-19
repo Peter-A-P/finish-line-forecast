@@ -72,20 +72,16 @@ Harbour Front 10 km, Turkey Tea 10 km, Run to Remember 11 km, Flat Out 5 km.
 
 ## Waiting on an outside event
 
-### 3. Score the Uniformed Services Run against its start list
+### 3. New results between now and Cape to Cabot
 
-The USR ran on 2026-09-13 with 629 entrants across its four individual road events, and the
-final pre-gun list is saved. When NLAA posts the results, three numbers fall out that Cape
-to Cabot needs a month later: the no-show rate, the late-entry rate, and the
-list-to-results name-match rate. No prediction was made for it, because the gun was inside
-twenty-four hours and `freeze` refuses inside twenty-four hours.
-
-⚠️ **The window is short.** The scheduled crawl stands down from ten days before each live
+The 2026 USR is in, from Athletics NorthEAST's own finish lists (`ingest/ane.py`), and its
+start list is scored: 15.1% of listed entrants not found, 2.0% of finishers not on their
+event's list (PLAN.md 5.6). The scheduled crawl stands down from ten days before each live
 race to the day after, and with the Turkey Tea rehearsal on 2026-10-04 and Cape to Cabot on
 2026-10-18 the only Sunday it runs before 2026-10-25 is 2026-09-20. Results posted after that
 are fetched by hand (`finishline crawl --refresh-index`) before the backtest each freeze uses,
-never between that backtest and the freeze. The 2026 USR marathon is a new route
-(`nlaa.SAME_ROUTE`) and arrives with no course history.
+never between that backtest and the freeze. When nlaa.ca posts the USR, its pages replace the
+club's copy automatically (`store.build`).
 
 ### 3b. The Turkey Tea rehearsal, 2026-10-04 at 08:00
 

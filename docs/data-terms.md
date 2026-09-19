@@ -158,6 +158,21 @@ model a little, and a public finish-time prediction that leaned on somebody's T-
 is not one anyone would thank us for. The rule the project holds to is that it publishes
 only what the results publish, and a results page has never printed a shirt size.
 
+## Athletics NorthEAST finish lists, added 2026-09-19
+
+The club timed the 2026 Uniformed Services Run and posted its overall finish lists on its own
+site (`athleticsnortheast.com`, "USR Marathon Overall", "USR Half Overall", "USR 10k Overall",
+"USR 5k Overall") the week of the race; the association republishes them later. Peter
+pointed to them and wrote to the club before they were read. Four pages, fetched once each
+on 2026-09-19 at one a second under the crawler's user agent, kept in `data/cache/ane/` with
+a manifest, gitignored (`ingest/ane.py`).
+
+**They print a place, a name, a service affiliation, a bib and the times, and nothing else.**
+No sex, no age band and no hometown, so these results join a runner's history on the name
+alone where nothing contradicts it. The affiliation ("Eastern Health", "Canadian Forces") is
+not a hometown and is not read. **When nlaa.ca carries the same race**, the same date on the
+same course, the club's copy is dropped (`store.build`), so no edition is counted twice.
+
 ## Trackie entry lists, added 2026-09-19
 
 The Turkey Tea 10k, this project's dress rehearsal on 2026-10-04, registers through Trackie,

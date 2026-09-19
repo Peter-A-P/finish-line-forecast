@@ -368,6 +368,14 @@ their listed sex, and counted. The no-show rate and the late-entry rate are meas
 USR of 2026-09-13, whose list was saved on 2026-09-12, and reported with the Cape to Cabot
 prediction as the expected gap between the list and the finishers.
 
+**Measured 2026-09-19**, the last list before the gun (00:28Z) against Athletics NorthEAST's
+finish lists, by name key within each event: of 629 entrants in the four road events, 534
+finished under a name on their event's list, so **15.1% were not found** (25% of the
+marathon, 11% of the half, 15% of the 10 km, 19% of the 5 km). That is an upper bound on
+no-shows: it also holds non-finishers and anyone whose name was printed two ways. Of 545
+finishers, **2.0% were not on their event's list**, and 7 of those 11 were on another event's,
+so switches rather than late entries.
+
 **Field-forecast mode** (Run to Remember, any race without a list): a logistic participation
 model on whether a runner ran this race last year, ran any NLAA race in the last six months,
 their series-standings participation this year, their number of results, and the target

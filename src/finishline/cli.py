@@ -47,6 +47,7 @@ app = typer.Typer(add_completion=False, help=__doc__)
 DATA = Path("data")
 CACHE = DATA / "cache" / "nlaa"
 EXTERNAL = DATA / "cache" / "raceroster"
+ANE_RESULTS = DATA / "cache" / "ane"
 ENTRANTS = DATA / "entrants"
 WEATHER = DATA / "cache" / "eccc"
 BACKTESTS = DATA / "cache" / "backtest"
@@ -1209,7 +1210,7 @@ def _dataset(first: int, last: int) -> Dataset:
     """The catalogue, parsed and resolved."""
     with nlaa.Cache(CACHE) as cache:
         races, _skipped = cache_catalogue(cache, first, last)
-        return store.build(cache, races, external_dir=EXTERNAL)
+        return store.build(cache, races, external_dir=EXTERNAL, ane_dir=ANE_RESULTS)
 
 
 def cache_catalogue(
