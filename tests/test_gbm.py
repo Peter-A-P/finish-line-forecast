@@ -80,3 +80,26 @@ def test_crossed_quantiles_come_back_in_order() -> None:
     assert len(quantiles) == len(QUANTILES)
     assert list(quantiles) == sorted(quantiles)
     assert quantiles[QUANTILES.index(0.50)] == pytest.approx(gbm.reference(10_000.0))
+
+
+def test_felt_heat_is_the_hinge_the_model_charges_for() -> None:
+    warm = (1.0, 18.0, 0.5, 0.0, 0.0, 0.0)  # observed, 18 C, half sun
+    cool = (1.0, 8.0, 1.0, 0.0, 0.0, 0.0)
+    row = gbm.features([], TARGET, "F", None, warm)
+    assert column(row, "felt_heat") == pytest.approx(18.0 + 0.5 * gbm.SUN_DEGREES - 12.0)
+    assert column(row, "felt_heat_x_log_distance") == pytest.approx(
+        column(row, "felt_heat") * math.log(TARGET.distance_m / 5_000.0)
+    )
+    assert gbm.features([], TARGET, "F", None, cool)[gbm.FEATURES.index("felt_heat")] == 0.0
+    assert math.isnan(column(gbm.features([], TARGET, "F", None, None), "felt_heat"))
+
+
+def test_the_best_at_this_distance_ignores_other_distances() -> None:
+    fast_5k = (race("a", date(2025, 5, 1), 5_000.0), finish("a", 1080.0))
+    slower_10k = (race("b", date(2025, 6, 1)), finish("b", 2400.0))
+    row = gbm.features([fast_5k, slower_10k], TARGET, "F", None, None)
+    assert column(row, "best_at_distance") == pytest.approx(gbm.log_ratio(slower_10k[0], 2400.0))
+    assert column(row, "best_ever") == pytest.approx(
+        min(gbm.log_ratio(fast_5k[0], 1080.0), gbm.log_ratio(slower_10k[0], 2400.0))
+    )
+    assert column(row, "distinct_courses") == 2.0

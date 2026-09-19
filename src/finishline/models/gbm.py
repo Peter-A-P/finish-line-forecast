@@ -33,9 +33,16 @@ difficulty includes that row's own race among a course's many editions. That is 
 leakage inside training only; a predicted race is never in the history its features come
 from. Said here rather than discovered later.
 
-⚠️ **The hyperparameters are fixed, not tuned.** Choosing them on the backtest would make the
-backtest a validation set and flatter the challenger; the values are LightGBM's ordinary
-defaults for a table this size, chosen before the first run and never changed after it.
+⚠️ **Tuned on 2022 and 2023 only, never on the backtest.** Choosing features or parameters on
+the 2024-onward races would make the backtest a validation set and flatter the challenger. The
+search (`scratch/tune_gbm.py`) predicts the 2022 and 2023 races from history before each
+half-year, exactly as the backtest does, and the 2024+ rows were run once afterwards with what
+it chose. It bought about one percent: a random search over forty parameter sets gained 0.08
+points of a finish time, and the second batch of features below another 0.02. What it refused
+is worth as much as what it kept, and is in PLAN.md section 13 item 34: course-and-edition
+normalised form features (worse), starting the trees from the runner's last result (worse),
+linear-leaf trees (much worse), recency-weighted training rows (worse), training on recent
+years only (worse), averaging several seeds (nothing).
 
 ⚠️ **Quantiles are fitted separately and can cross.** Each row's quantiles are sorted before
 use, which is the standard repair and never widens an interval's claim.
@@ -86,23 +93,45 @@ FEATURES: tuple[str, ...] = (
     "log_distance_5k",
     "wind",
     "tailwind",
+    # The second batch, from the 2022-2023 search: the shapes the hierarchical model is told
+    # about and trees would have to discover, and what a coach reads off a history.
+    "felt_heat",
+    "felt_heat_x_log_distance",
+    "best_ever",
+    "best_at_distance",
+    "gap_to_best",
+    "consistency",
+    "distinct_courses",
+    "improvement_12m",
+    "races_per_year",
+    "form_weighted",
 )
+
+# The half-life of the weighting in `form_weighted`: a result a year old counts half.
+FORM_HALF_LIFE_DAYS = 365.0
+# What a full sun is worth in felt degrees, as the hierarchical model estimates it (PLAN.md
+# 13 item 30), used here only to give the trees the same shape rather than to fit anything.
+SUN_DEGREES = 2.1
 
 # Fixed before the first run (see the module docstring). Deterministic: one thread, a seed.
 PARAMETERS: dict[str, Any] = {
     "objective": "quantile",
-    "learning_rate": 0.05,
-    "num_leaves": 31,
-    "min_data_in_leaf": 50,
+    "learning_rate": 0.03,
+    "num_leaves": 15,
+    "min_data_in_leaf": 20,
     "feature_fraction": 0.9,
-    "bagging_fraction": 0.8,
-    "bagging_freq": 1,
+    "bagging_fraction": 1.0,
+    "lambda_l2": 1.0,
+    "max_bin": 255,
     "seed": 20261018,
+    # Deterministic and row-wise, so a rerun on the same data gives the same model whatever
+    # the machine has spare; `deterministic` alone is not enough once threads vary.
     "deterministic": True,
-    "num_threads": 1,
+    "force_row_wise": True,
+    "num_threads": 4,
     "verbose": -1,
 }
-ROUNDS = 400
+ROUNDS = 1200
 
 Conditions = Mapping[str, tuple[float, ...]]
 
@@ -171,6 +200,49 @@ def features(
         nan if course_factor is None else math.log1p(course_factor),
         float(target.date.month),
         *(float(value) for value in weather),
+        *_second_batch(earlier, ratios, target, conditions),
+    ]
+
+
+def _second_batch(
+    earlier: Sequence[tuple[Race, Result]],
+    ratios: Sequence[float],
+    target: Race,
+    conditions: tuple[float, ...] | None,
+) -> list[float]:
+    """The features the 2022-2023 search kept, in `FEATURES` order after the weather."""
+    nan = math.nan
+    # The felt heat the hierarchical model charges for, handed over as a number rather than
+    # left for the trees to find in a threshold times an interaction.
+    heat = nan
+    if conditions is not None and conditions[0]:
+        heat = max(0.0, conditions[1] + SUN_DEGREES * conditions[2] - 12.0)
+    log_distance_5k = math.log(target.distance_m / 5_000.0)
+    if not earlier:
+        return [heat, heat * log_distance_5k, *([nan] * 8)]
+    values = np.asarray(ratios, dtype=float)
+    ages = np.asarray([(target.date - race.date).days for race, _ in earlier], dtype=float)
+    at_distance = [
+        value
+        for (race, _result), value in zip(earlier, ratios, strict=True)
+        if abs(math.log(target.distance_m / race.distance_m)) < 0.2
+    ]
+    last_year = values[ages <= 365]
+    year_before = values[(ages > 365) & (ages <= 730)]
+    span = max((float(ages.max()) - float(ages.min())) / 365.25, 0.5)
+    return [
+        heat,
+        heat * log_distance_5k,
+        float(values.min()),
+        float(min(at_distance)) if at_distance else nan,
+        float(values[-1] - values.min()),
+        float(values.std()) if values.size >= 2 else nan,
+        float(len({race.course_id for race, _ in earlier})),
+        float(last_year.mean() - year_before.mean())
+        if last_year.size and year_before.size
+        else nan,
+        float(values.size / span),
+        float(np.average(values, weights=0.5 ** (ages / FORM_HALF_LIFE_DAYS))),
     ]
 
 

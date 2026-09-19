@@ -11,7 +11,7 @@ the model's race effect (section 13 item 27), the LightGBM challenger, and the p
 model.
 
 **Section 13 is the log of what the data refuted**, and it is the first thing to read after
-this line: thirty-three numbered entries, each one a design in this plan that measurement
+this line: thirty-four numbered entries, each one a design in this plan that measurement
 overturned. What is open and who owns it is in [docs/todo.md](docs/todo.md).
 
 **Build:** planned in relative weeks. Earliest start: now. The first live target fixes the
@@ -1317,3 +1317,59 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     has its own paired interval. Which model or blend publishes Cape to Cabot is decided and
     written here before that race's model lock on 2026-10-11. Turkey Tea is predicted by the
     hierarchical model as built.
+
+34. **Tuning the challenger bought about one percent, and six of the nine ideas made it
+    worse.** Peter asked whether more could be squeezed out of the challenger, which is fair:
+    item 33's configuration was fixed before its first run and never touched. Doing that on
+    the 2024+ backtest would turn the test set into a validation set, so the search
+    (`scratch/tune_gbm.py`) runs on **2022 and 2023 only**: each half-year's races predicted
+    from history strictly before it, the same block scheme as the backtest, 7,598 finishes
+    scored on mean absolute log error, and the 2024+ rows rerun once afterwards with what the
+    search chose. Numbers below are points of a finish time (0.10 is a tenth of a percent),
+    "all" over every row and "known" over runners with a prior result.
+
+    | Change | All | Known | Against the first configuration (95% CI, races resampled) |
+    |---|---:|---:|---|
+    | The first configuration | 9.705 | 6.913 | baseline |
+    | Random search, 40 parameter sets | 9.625 | 6.845 | -0.079 (-0.148 to +0.007) |
+    | **Search plus a second batch of features** | **9.610** | **6.838** | **-0.095 (-0.170 to -0.012)** |
+    | Course-and-edition normalised form features | 9.989 | 7.280 | worse |
+    | The same, with raw form removed | 10.150 | 7.530 | worse |
+    | Every feature at once | 9.963 | 7.283 | +0.258 (+0.043 to +0.474) |
+    | Trees started from the runner's last result | 9.773 | 6.968 | worse |
+    | Linear-leaf trees | 13.296 | 11.507 | much worse |
+    | Training rows weighted by recency (3 y half-life) | 9.665 | 6.963 | worse |
+    | Training rows from 2014 on only | 9.692 | 7.019 | worse |
+    | Averaging three seeds | 9.622 | 6.846 | nothing |
+    | Huber loss for the median | 9.577 | 6.890 | better overall, worse at depth 1 to 3 |
+
+    What was kept: the parameters the search found (learning rate 0.03, 15 leaves, 20 rows a
+    leaf, L2 1.0, 1,200 rounds) and ten more features, each either a shape the hierarchical
+    model is told about or a number a coach reads off a history: the felt heat above 12 C and
+    its interaction with log distance, the best ever and the best at this distance, the gap
+    from the last result to the best, the spread of a runner's results, distinct courses, the
+    change between the last twelve months and the twelve before, races a year, and a
+    recency-weighted form average.
+
+    What the refusals say. **Normalising form by the course and the edition, which is what the
+    hierarchical model does internally, made the trees worse**, and worse again when it replaced
+    the raw form: the adjustment is itself estimated, and it takes a real part of the signal
+    (a runner's choice of race) out with the noise. **Starting the trees from the last result**
+    (LightGBM `init_score`) is the standard trick for a target this close to one feature, and
+    it lost 0.07: the residual after the last result is less predictable than the whole. And
+    **the huber loss buys accuracy for first-timers and loses it for everyone with a history**,
+    so it was refused: seven pinball quantiles from one objective are a coherent set of
+    intervals, and a centre fitted under a different loss would not be the same prediction the
+    intervals belong to. The kept gain is about one percent, and the challenger's lead over the
+    hierarchical model in item 33 is therefore not a tuning artefact: it was there before any
+    tuning, and tuning moved it by a tenth of what it is.
+
+    **Rerun on the backtest, once, with what the search chose** (2026-09-19, same 53 races):
+    18.6 minutes at no prior results, 8.8 at one, 7.7 at two or three, 5.2 at four or more,
+    against 18.9, 8.8, 7.9 and 5.3 before, and 30% skill against carry-forward at four or more
+    where the first configuration had 28%. Paired against the hierarchical model, in points of
+    a finish time: one prior result -0.91 (-1.65 to -0.57), two or three -1.00 (-1.39 to
+    -0.79), four or more -0.39 (-0.59 to -0.21), first-timers +0.67 (-0.85 to +1.60). Placing
+    4.2 places closer than carry-forward on the same runners, against the hierarchical model's
+    1.8. The tuning window said about one percent and the test set agrees, which is the point
+    of having kept them apart.
