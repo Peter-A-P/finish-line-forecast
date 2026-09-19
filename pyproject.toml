@@ -92,6 +92,15 @@ warn_unreachable = true
 module = ["truststore", "pymc", "pymc.*", "arviz", "arviz.*", "pytensor", "pytensor.*"]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+# The pytensor calls in the model need `type: ignore[no-untyped-call]` where mypy can follow
+# pytensor's untyped source (Windows, here) and flag the same comments as unused where it
+# cannot (the Linux CI runner). Both are the same lockfile; the ignores stay, and are allowed
+# to be unused. Settled here rather than in the module, whose bytes are part of the saved
+# backtest's key.
+module = ["finishline.models.hierarchical"]
+warn_unused_ignores = false
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
