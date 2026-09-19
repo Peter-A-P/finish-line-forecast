@@ -13,7 +13,7 @@ prediction-then-error record. The plan is in [PLAN.md](PLAN.md).
   the code and say why in the commit message.
 - [docs/data-terms.md](docs/data-terms.md): what may be fetched, from where, under what
   terms, and how a runner asks to be removed. Add a source's row before fetching it.
-- **[PLAN.md](PLAN.md) section 13 is the log of designs the data refuted.** Thirty entries
+- **[PLAN.md](PLAN.md) section 13 is the log of designs the data refuted.** Thirty-one entries
   and growing. Read it before changing the parser, the resolver, the course layer or the
   conditions layer: most of what looks like an odd choice in those modules is there because
   the obvious choice was measured and was wrong.

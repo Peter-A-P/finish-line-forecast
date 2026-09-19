@@ -13,11 +13,21 @@ course_id = "cape-to-cabot-20000"
 entrant_list = "c2c-2026"
 gun = "2026-10-18T08:00:00-02:30"   # confirmed by Peter 2026-09-16
 
-# Field-forecast mode: the race publishes no start list. The gun time is not confirmed yet
-# (docs/todo.md), so `freeze` refuses it; the date is here so the weekly crawl pauses
-# around it.
+# The dress rehearsal: a real race, frozen and tagged before its gun and scored after, two
+# weeks before Cape to Cabot. Its entrant list is on Trackie (`ingest.entrants.LISTS`).
+[tt-2026]
+name = "Turkey Tea 10k"
+date = "2026-10-04"
+distance_m = 10000
+course_id = "turkey-tea-10000"
+entrant_list = "tt-2026"
+gun = "2026-10-04T08:00:00-02:30"   # confirmed by Peter 2026-09-19
+
+# Field-forecast mode: the race publishes no start list, so `freeze` cannot run on it until
+# the participation model exists (PLAN.md 5.6). Remembrance Day is after the clocks go back.
 [r2r-2026]
 name = "Run to Remember"
 date = "2026-11-11"
 distance_m = 11000
 course_id = "run-to-remember-11000"
+gun = "2026-11-11T08:00:00-03:30"   # confirmed by Peter 2026-09-19

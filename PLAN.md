@@ -11,7 +11,7 @@ the model's race effect (section 13 item 27), the LightGBM challenger, and the p
 model.
 
 **Section 13 is the log of what the data refuted**, and it is the first thing to read after
-this line: thirty numbered entries, each one a design in this plan that measurement
+this line: thirty-one numbered entries, each one a design in this plan that measurement
 overturned. What is open and who owns it is in [docs/todo.md](docs/todo.md).
 
 **Build:** an alongside project, so planned in relative weeks. Earliest start: now. It waits
@@ -490,6 +490,13 @@ depends on this project.
 
 Whichever produces the clearest evidence becomes `docs/rejected.md`. Strava is not a Rule C
 candidate: it was rejected on terms, not on evidence, and belongs in `docs/data-terms.md`.
+
+**Settled 2026-09-19: none of the three.** The clearest evidence the work produced was for
+a fourth design, weather as a straight line in temperature (section 13 items 29 and 30),
+rejected on two leave-one-year-out tests with intervals that clear zero. That is
+`docs/rejected.md`. Candidate 1 is in the README tables already (best equal-VDOT answers for
+63 to 87% of runners and has no interval); candidate 2 was not refuted, since the Minetti
+check on Cape to Cabot agreed with the measurement; candidate 3 waits on the challenger.
 
 ## 11. Definition of done
 
@@ -1152,8 +1159,12 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     races with an observation, median race bias regressed on the weather cost the model
     applied (whole-archive posterior medians, so approximate): the no-weather run leaves
     +0.42 (+/- 0.30) of each point of heat cost in its errors, the felt-heat run -0.15 (+/-
-    0.30), and -0.14 with calendar year in the regression. Item 29's linear terms left -0.69
-    (+/- 0.27), half the effect unapplied. The 2025 USR, 22 C for the half, moved from 1.0 to
+    0.30), and -0.14 with calendar year in the regression. Item 29's linear run, regressed on
+    the same felt-heat cost (`scratch/rejected_slope.py`), leaves +0.11 (+/- 0.31): the
+    backtest cannot tell the two weather models apart, and item 29's "-0.69, half the effect
+    unapplied" was measured against the conditions layer's own adjustment, a different
+    regressor, so it does not compare with these. The case for the hinge rests on the
+    eighteen-year tests above and is written up in docs/rejected.md. The 2025 USR, 22 C for the half, moved from 1.0 to
     1.4% too fast to 0.6 to 1.2% too slow; the 2025 Tely from 2.2% too slow to 0.7%. The 2026
     Tely is not fixed: 18.4 C, 29% sun, calm with a tailwind, charged 3.1% and still 3.0% too
     fast. Heat does not account for it, and it stays an open question rather than a reason to
@@ -1161,4 +1172,35 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     1.46, 1.77, 1.68, 1.50, 1.58, 1.87 and 2.15, smallest bulk ESS 5 to 9; the ablation has
     13 divergences over two fits and R-hat 1.39 to 1.82. Scripts: `scratch/felt_heat_readme.py`,
     `scratch/model_vs_cf.py`, `scratch/race_bias.py`.
+
+31. **The model's poor mixing reaches first-timers' predictions and not returning runners',
+    and the obvious constraint made it worse everywhere.** Measured 2026-09-19 on the
+    2026-07-01 origin, the backtest's worst fit (R-hat 2.15), with the backtest's settings
+    (`scratch/ridge_check.py`, output `scratch/ridge_check.txt`). Deriving the quantities a
+    prediction actually reads, per chain: a returning runner's level in the last fitted year
+    (fitness, form, ageing and the year effect together) converges, R-hat median 1.006 and
+    worst 1.08 over 600 sampled runners, bulk ESS median 500 to 900. A first-timer's starting
+    level, `mu_group` plus the latest year effect, does not: R-hat up to 1.27, ESS 11. The
+    hyperparameters that mix worst are `sigma_year` (1.32), `sigma_alpha` (1.26), the latest
+    year (1.26) and `mu_group` (up to 1.30). The age-period-cohort line itself, a common
+    shift in every group's ageing drift against a slope in the year walk, mixes acceptably
+    (R-hat 1.05, ESS 129), so the wandering is in the level of the year walk against the
+    group means rather than in its slope.
+
+    **Refuted: removing the year walk's least-squares line, and starting first-timers from
+    recent first-timers' fitted levels.** The constraint pins both the level and the slope of
+    the year walk, which is where the theory put the trouble. Fitted on the same origin with
+    the same settings (`scratch/ridge_check_fixed.txt`; the code is kept as
+    `scratch/hierarchical_item31_refuted.py`), every quantity got worse: returning runners'
+    levels to R-hat median 1.66 and ESS 7, `sigma_course`, `sigma_edition`, `sigma_year` and
+    the latest year to 2.4 to 2.6, `mu_group` to 3.0. The chains no longer agree on anything,
+    which is the signature of a posterior the constraint made harder to move through rather
+    than easier. The model is back as it was, and the backtest numbers in item 30 stand.
+
+    What this leaves: the published predictions for runners with a history rest on quantities
+    that converge; predictions for first-timers carry sampler noise beyond their stated
+    interval, which is one reason their year-to-year bias swings (3.7% too fast in 2024, 2.1%
+    too fast in 2025, 3.3% too slow in 2026). Longer tuning is the untried, cheap next step;
+    the conformal layer, calibrated per history depth, is what keeps first-timers' intervals
+    honest in the meantime, and their coverage table is the check.
 

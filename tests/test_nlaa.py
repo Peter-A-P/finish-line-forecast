@@ -103,6 +103,20 @@ def test_one_event_over_two_distances_is_two_courses() -> None:
     assert len(ids) == 4
 
 
+def test_the_september_marathon_is_one_road_under_three_names_until_it_moved() -> None:
+    """Huffin Puffin, Capital Subaru and the USR ran one route to 2025; 2026 is a new road."""
+
+    def road(event: str, when: date) -> str:
+        return nlaa.route(nlaa.course_id(event, MARATHON_M), when)
+
+    old = road("Huffin Puffin Marathon", date(2019, 9, 22))
+    assert road("Capital Subaru Marathon", date(2022, 9, 18)) == old
+    assert road("USR Marathon", date(2025, 9, 7)) == old
+    assert road("USR Marathon", date(2026, 9, 13)) != old
+    half = nlaa.course_id("USR Half Marathon", HALF_MARATHON_M)
+    assert nlaa.route(half, date(2025, 9, 7)) == half, "only the marathon was said to be one road"
+
+
 def test_the_index_yields_the_road_section_only(index_page: str) -> None:
     """Track and cross-country are on the same page under their own headings."""
     rows = nlaa.parse_index(index_page, 2031)

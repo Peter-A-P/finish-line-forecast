@@ -1,8 +1,9 @@
 """Which runner in the archive, if any, an entrant on a start list is.
 
-The start list prints a name and, for Cape to Cabot, a sex. It prints no age, no town and
-no identifier, so linking an entrant to a history is the resolver's problem with less
-evidence than the resolver had. The rules are the resolver's, made stricter to match.
+The start list prints a name and, for Cape to Cabot and the Trackie lists, a sex; the
+Trackie lists also print a town. None prints an age or an identifier, so linking an entrant
+to a history is the resolver's problem with less evidence than the resolver had. The rules
+are the resolver's, made stricter to match.
 
 **One runner of that name key, of a compatible sex: linked.** The prediction uses their
 history.
@@ -14,6 +15,11 @@ which is the honest answer for somebody the archive has never seen, and counted.
 resolver could split two Chris Walshes because their pages printed ages. The start list
 prints none, so there is nothing to choose between them with, and choosing the one with
 the longer history would publish one person's prediction under another person's entry.
+
+**Unless the list prints a hometown that exactly one of them was ever printed under.**
+Trackie's lists print one. It breaks a tie and nothing else: a single candidate is linked
+whatever town either side printed, because people move and most results pages print no
+town at all, so a mismatch is not evidence of a different person.
 
 ⚠️ **A candidate the resolver already refused (`Runner.ambiguous`) makes the entrant
 ambiguous too**, for the same reason: the archive does not know who that history belongs to.
@@ -33,7 +39,7 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 
-from finishline.identity.normalise import name_key
+from finishline.identity.normalise import name_key, town_key
 from finishline.identity.resolve import Runner
 from finishline.ingest.entrants import Entrant
 
@@ -78,6 +84,10 @@ def link(entrants: Sequence[Entrant], runners: Iterable[Runner]) -> list[Link]:
                     "the archive cannot tell apart the runners of this name",
                 )
             )
+        elif len(candidates) > 1 and (only := _by_town(entrant, candidates)) is not None:
+            first_pass.append(
+                Link(entrant, Status.LINKED, only, "the one runner of this name from this town")
+            )
         elif len(candidates) > 1:
             first_pass.append(
                 Link(
@@ -104,6 +114,19 @@ def link(entrants: Sequence[Entrant], runners: Iterable[Runner]) -> list[Link]:
         else item
         for item in first_pass
     ]
+
+
+def _by_town(entrant: Entrant, candidates: Sequence[Runner]) -> Runner | None:
+    """The one candidate ever printed under the entrant's listed hometown, if exactly one."""
+    if not entrant.hometown:
+        return None
+    town = town_key(entrant.hometown)
+    if not town:
+        return None
+    matching = [
+        runner for runner in candidates if town in {town_key(t) for t in runner.towns}
+    ]
+    return matching[0] if len(matching) == 1 else None
 
 
 def counts(links: Sequence[Link]) -> dict[str, int]:

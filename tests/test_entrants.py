@@ -216,7 +216,7 @@ def test_a_changed_list_never_overwrites_the_earlier_look(
     monkeypatch.setattr(entrants, "_fetch", lambda url: grown)
     # A second snapshot in the same minute would collide on the filename, so the clock is
     # what separates them; the guard here is that nothing is lost, not that it is fast.
-    monkeypatch.setattr(entrants, "_filename", lambda prefix, at: f"{prefix}_later.html")
+    monkeypatch.setattr(entrants, "_filename", lambda prefix, at, url="": f"{prefix}_later.html")
     later = entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
 
     assert later[0].changed
@@ -242,3 +242,34 @@ def test_the_snapshot_command_refuses_before_the_courtesy_notes(
     )
     result = CliRunner().invoke(cli.app, ["snapshot"])
     assert result.exit_code == 2
+
+
+# A Trackie entry list as its data request returns it: the table, then the counts. The names
+# are invented; the layout is the Turkey Tea 10k's of 2026-09-19.
+TRACKIE_LIST = (
+    '<table><tr><th>Full Name</th><th>Gender</th><th>Medal/No Medal</th><th>Hometown</th>'
+    "<th>Team Name</th></tr>"
+    "<tr><td><a href='#'>Sled, Perpetua</a></td><td>Female</td><td>Medal</td>"
+    "<td>Mount Pearl</td><td>Paradise Running Club</td></tr>"
+    "<tr><td>Hale-Ford, Tobias</td><td>Male</td><td>No Medal</td><td>St. John&#39;s</td>"
+    "<td></td></tr></table>^:|:^2^:|:^2^:|:^0^:|:^0"
+)
+
+
+def test_a_trackie_list_reads_name_sex_and_hometown_and_not_the_medal() -> None:
+    field = entrants.parse(TRACKIE_LIST)
+    assert field == [
+        entrants.Entrant("Perpetua Sled", "F", hometown="Mount Pearl"),
+        entrants.Entrant("Tobias Hale-Ford", "M", hometown="St. John's"),
+    ]
+    assert "Medal" not in repr(field)
+
+
+def test_a_trackie_snapshot_is_filed_as_one(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(entrants, "_fetch", lambda url: TRACKIE_LIST)
+    url = "https://www.trackie.com/entry-list/some-race/123/"
+    (seen,) = entrants.snapshot(tmp_path, lists={"tt-2026": url})
+    assert seen.path.name.startswith("tt-2026_trackie-list_")
+    assert seen.entrants == 2

@@ -208,10 +208,14 @@ baseline it lost to before.
 predicts.** Across the eight quarterly fits the worst R-hat runs from 1.41 to 2.15 and the
 smallest bulk ESS is about 5, with no divergences. The cause is identification, not tuning:
 years since a runner's first race and the calendar year move together, so the group drift,
-the year effect and the group means trade off along a ridge that the sampler wanders. The
-predictions use only the combination that is invariant along that ridge, which is why they
-are accurate anyway, but no individual coefficient from this fit should be read on its own.
-PLAN.md section 13 item 29 has the comparison and the caveat in full.
+the year effect and the group means trade off along a ridge that the sampler wanders.
+Checked on the worst fit, the quantity a prediction for a returning runner reads converges
+(R-hat 1.006 median, 1.08 worst, over 600 runners), so those predictions are not sampler
+noise; a first-timer's starting level does not (R-hat up to 1.27), so theirs carry some, and
+the conformal layer calibrating first-timers separately is what keeps their intervals
+honest. The obvious fix, constraining the year effect, made every chain disagree and was
+taken out. No individual coefficient from this fit should be read on its own. PLAN.md
+section 13 items 29 and 31 have the detail.
 
 ⚠️ **Weather is the felt heat above 12 C, with the sun estimated, and it is worth about a
 percent of a field's level, not of a runner's error.** The model reads each morning at St.
@@ -234,8 +238,9 @@ per runner. It is not invisible to a race director planning a finish-line clock,
 that matters is the race level. There, the model without weather leaves bias that climbs with
 the heat, +0.42 (+/- 0.30) of each point of heat cost left in the errors, and the model with
 weather leaves -0.15 (+/- 0.30), which is zero. The previous weather model, linear in
-temperature from 10 C, left -0.69 (+/- 0.27): it applied about half the heat a warm morning
-costs. The 2025 USR, the hottest mornings in the backtest at 22 C, went from 1.0 to 1.4% too
+temperature from 10 C, leaves +0.11 (+/- 0.31) on the same measure, so on three years of
+backtest races the two weather models cannot be told apart; the case for the felt-heat
+shape is eighteen years of editions, in [docs/rejected.md](docs/rejected.md). The 2025 USR, the hottest mornings in the backtest at 22 C, went from 1.0 to 1.4% too
 fast to 0.6 to 1.2% too slow.
 
 ⚠️ **One hot race the heat does not explain: the 2026 Tely 10 is still 3.0% too fast.** 18 C,

@@ -5,6 +5,7 @@ from __future__ import annotations
 from finishline.identity import link
 from finishline.identity.resolve import Runner
 from finishline.ingest.entrants import Entrant
+from finishline.schema import Result
 
 
 def runner(runner_id: str, name: str, sex: str | None = "F", *, ambiguous: bool = False) -> Runner:
@@ -71,3 +72,32 @@ def test_two_entrants_claiming_one_history_are_both_excluded() -> None:
         link.Status.AMBIGUOUS,
     ]
     assert link.counts(links) == {"linked": 0, "new": 1, "ambiguous": 2}
+
+
+def townsperson(runner_id: str, name: str, town: str) -> Runner:
+    printed = Result(
+        race_id="r", place=1, bib=1, name=name, club=None, sex="M", sex_place=1,
+        age_band="40-49", category_place=1, hometown=town, gun_seconds=2400.0,
+        chip_seconds=None,
+    )
+    return Runner(runner_id, name, town, "M", (printed,), False)
+
+
+def test_a_listed_hometown_breaks_a_tie_that_exactly_one_runner_was_printed_under() -> None:
+    archive = [
+        townsperson("r1", "Chris Walsh", "Paradise"),
+        townsperson("r2", "Chris Walsh", "St. John's"),
+    ]
+    (only,) = link.link([Entrant("Chris Walsh", "M", hometown="St Johns")], archive)
+    assert only.status is link.Status.LINKED
+    assert only.runner is not None and only.runner.runner_id == "r2"
+
+
+def test_a_hometown_neither_or_both_were_printed_under_is_still_a_refusal() -> None:
+    archive = [
+        townsperson("r1", "Chris Walsh", "Paradise"),
+        townsperson("r2", "Chris Walsh", "Paradise"),
+    ]
+    for town in ("Paradise", "Gander", None):
+        (only,) = link.link([Entrant("Chris Walsh", "M", hometown=town)], archive)
+        assert only.status is link.Status.AMBIGUOUS

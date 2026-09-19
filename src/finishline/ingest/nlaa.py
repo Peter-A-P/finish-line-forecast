@@ -223,6 +223,29 @@ _SPONSORS = re.compile(
 )
 
 
+# One road under several names, and one name over two roads, which a name cannot say. Each
+# entry is (course the name gives, first date it applies, last date, the road it was).
+#
+# ⚠️ **The marathon of the September series kept one route through three names and then
+# changed it** (Peter, 2026-09-19). The Huffin Puffin (2011 to 2019), the Capital Subaru
+# marathon of 2022 and the Uniformed Services Run marathon of 2023 to 2025 ran the same
+# course, so they share one course effect under the longest-running name; the USR introduced
+# a new marathon route in 2026, which keeps `usr-42195` and starts with no history, as a new
+# road should.
+SAME_ROUTE: tuple[tuple[str, date, date, str], ...] = (
+    ("capital-subaru-42195", date.min, date.max, "huffin-puffin-42195"),
+    ("usr-42195", date.min, date(2025, 12, 31), "huffin-puffin-42195"),
+)
+
+
+def route(course: str, when: date) -> str:
+    """The road this edition was run on, where a name and a road part company."""
+    for name, first, last, road in SAME_ROUTE:
+        if course == name and first <= when <= last:
+            return road
+    return course
+
+
 def course_id(event: str, metres: float) -> str:
     """The course an edition runs on, shared across editions and split by distance.
 
@@ -399,7 +422,7 @@ def catalogue(cache: Cache, years: range) -> tuple[list[Race], list[tuple[str, s
                     name=event,
                     date=when,
                     distance_m=metres,
-                    course_id=course_id(event, metres),
+                    course_id=route(course_id(event, metres), when),
                     url=BASE + href,
                 )
             )

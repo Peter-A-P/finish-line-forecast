@@ -27,8 +27,10 @@ marathon = 7
 # are hourly (the same rule as Trapline's 11:30 below). Nautilus confirmed at 8. The archive
 # holds no 5k of this series.
 "provincial-championship-42195" = 7
+# The marathon route of the Huffin Puffin, the 2022 Capital Subaru and the 2023 to 2025 USR,
+# which the parser files under one course (`nlaa.SAME_ROUTE`); `usr-42195` above is the new
+# route of 2026 on.
 "huffin-puffin-42195" = 7
-"capital-subaru-42195" = 7
 "nautilus-21097" = 8
 "capital-subaru-21097" = 8
 "quidi-vidi-10000" = 7

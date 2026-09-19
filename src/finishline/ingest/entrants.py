@@ -1,8 +1,12 @@
-"""Who is entered: the Athletics NorthEAST registration lists.
+"""Who is entered: the Athletics NorthEAST registration lists, and Trackie's.
 
 The club publishes a live list per race on its store, and it is the difference between
 predicting a field and guessing at one. Cape to Cabot's carries a name and a sex; the
-Uniformed Services Run's carries a name and the event entered.
+Uniformed Services Run's carries a name and the event entered. Races registered through
+Trackie (the Turkey Tea) publish an entry list there, with a name, a sex and a hometown.
+
+⚠️ **The Trackie list also prints whether each entrant bought a medal, and that is not read**,
+for the same reason as the shirt size below.
 
 ⚠️ **The shirt size on the Cape to Cabot list is deliberately not read.** It is on the
 page, it is a body-size proxy, and it would probably help the model a little. It is not
@@ -69,7 +73,14 @@ _STORE = "https://www.athleticsnortheast.com/cart/index.php?main_page=page&id="
 LISTS: dict[str, str] = {
     "c2c-2026": _STORE + "4",
     "usr-2026": _STORE + "1",
+    "tt-2026": "https://www.trackie.com/entry-list/body-quest-turkey-tea-10k-race/1038734/",
 }
+
+# Trackie's list page is a shell; the names arrive from a second request the page makes
+# (`_fetch_trackie`), as fields separated by this marker after the table.
+_TRACKIE_PAGE = re.compile(r"trackie\.com/entry-list/[^/]+/(\d+)")
+_TRACKIE_DATA = "https://www.trackie.com/ajax/filter-entry-list.php"
+_TRACKIE_SPLIT = "^:|:^"
 
 
 @dataclass(frozen=True, slots=True)
@@ -79,6 +90,10 @@ class Entrant:
     name: str
     sex: str | None
     event: str | None = None
+    # As the list printed it. Only Trackie's lists print one. `identity.link` uses it to break
+    # a tie between runners of one name, and nothing publishes it (the prediction file carries
+    # the hometown the results printed).
+    hometown: str | None = None
 
     @property
     def known_before_the_gun(self) -> tuple[str, str | None]:
@@ -117,13 +132,55 @@ def _sex_of(text: str) -> str | None:
     return match.group(1)[0].upper()
 
 
+def _cells(row: str) -> list[str]:
+    return [
+        clean(html.unescape(re.sub(r"<[^>]+>", " ", cell)))
+        for cell in re.findall(r"<td[^>]*>(.*?)</td>", row, re.DOTALL | re.IGNORECASE)
+    ]
+
+
+def parse_trackie(page: str) -> list[Entrant]:
+    """Every entrant on a Trackie entry list, as its data request returns it.
+
+    Names are printed "Surname, Given", and are turned round to read the way a results page
+    prints them, which is what the linker matches against. Columns are found by their
+    headers rather than their position, because an organiser chooses which ones to show.
+    """
+    table = page.split(_TRACKIE_SPLIT, 1)[0]
+    headers = [
+        clean(html.unescape(re.sub(r"<[^>]+>", " ", cell))).lower()
+        for cell in re.findall(r"<th[^>]*>(.*?)</th>", table, re.DOTALL | re.IGNORECASE)
+    ]
+    if "full name" not in headers:
+        return []
+    column = {header: position for position, header in enumerate(headers)}
+    entrants: list[Entrant] = []
+    for row in re.findall(r"<tr[^>]*>(.*?)</tr>", table, re.DOTALL | re.IGNORECASE):
+        cells = _cells(row)
+        if len(cells) < len(headers):
+            continue
+        printed = cells[column["full name"]]
+        surname, _, given = printed.partition(",")
+        name = clean(f"{given} {surname}" if given else printed)
+        if len(name) < 3:
+            continue
+        sex = cells[column["gender"]][:1].upper() if "gender" in column else ""
+        town = cells[column["hometown"]] if "hometown" in column else ""
+        entrants.append(
+            Entrant(name=name, sex=sex if sex in ("M", "F") else None, hometown=town or None)
+        )
+    return entrants
+
+
 def parse(page: str) -> list[Entrant]:
-    """Every entrant on one of the club's list pages.
+    """Every entrant on one of the club's list pages, or on a Trackie entry list.
 
     The USR list groups its entrants under an `<h1>` per event, so the headings are
     tracked as the page is read and each entrant carries the event they entered. The Cape
     to Cabot list is one race and carries none.
     """
+    if _TRACKIE_SPLIT in page:
+        return parse_trackie(page)
     entrants: list[Entrant] = []
     event: str | None = None
     for chunk in re.split(r"(<h1[^>]*>.*?</h1>)", _content(page), flags=re.DOTALL | re.IGNORECASE):
@@ -164,9 +221,43 @@ def _fetch(url: str) -> str:
         follow_redirects=True,
         verify=context,
     ) as client:
+        if _TRACKIE_PAGE.search(url):
+            return _fetch_trackie(client, url)
         response = client.get(url)
         response.raise_for_status()
         return response.text
+
+
+def _fetch_trackie(client: httpx.Client, url: str) -> str:
+    """A Trackie entry list: the page, then the one data request the page itself makes.
+
+    Two requests a second apart, the same two a browser makes to show the list. The page
+    says which of the event's lists to load; the request asks for all of it at once, sorted
+    by name, which is what the page's own "view full list" does.
+    """
+    match = _TRACKIE_PAGE.search(url)
+    assert match is not None
+    shell = client.get(url)
+    shell.raise_for_status()
+    found = re.search(r'id="entry_list_id"\s+value="(\d+)"', shell.text)
+    time.sleep(MIN_INTERVAL)
+    response = client.post(
+        _TRACKIE_DATA,
+        headers={"Referer": url},
+        data={
+            "event_info_id": match.group(1),
+            "entry_list_id": found.group(1) if found else "",
+            "entry_list_page": "1",
+            "max_per_page": "500",
+            "section": "entry_list",
+            "search_filter_activated": "0",
+            "check_registration_still_opened": "1",
+            "show_unique_reg_per_row": "1",
+            "force_page1_load": "0",
+        },
+    )
+    response.raise_for_status()
+    return response.text
 
 
 def snapshot(directory: Path, *, lists: dict[str, str] | None = None) -> list[Snapshot]:
@@ -199,7 +290,7 @@ def snapshot(directory: Path, *, lists: dict[str, str] | None = None) -> list[Sn
         if previous is not None and _listing_digest(load(previous)) == listing:
             path, changed = previous, False
         else:
-            path, changed = directory / _filename(prefix, at), True
+            path, changed = directory / _filename(prefix, at, url), True
             path.write_text(body, encoding="utf-8", newline="\n")
         _record(
             directory,
@@ -217,8 +308,9 @@ def snapshot(directory: Path, *, lists: dict[str, str] | None = None) -> list[Sn
     return seen
 
 
-def _filename(prefix: str, at: datetime) -> str:
-    return f"{prefix}_ane-list_{at.strftime('%Y%m%dT%H%M')}Z.html"
+def _filename(prefix: str, at: datetime, url: str = "") -> str:
+    source = "trackie-list" if _TRACKIE_PAGE.search(url) else "ane-list"
+    return f"{prefix}_{source}_{at.strftime('%Y%m%dT%H%M')}Z.html"
 
 
 def _listing_digest(entered: list[Entrant]) -> str:

@@ -158,6 +158,36 @@ model a little, and a public finish-time prediction that leaned on somebody's T-
 is not one anyone would thank us for. The rule the project holds to is that it publishes
 only what the results publish, and a results page has never printed a shirt size.
 
+## Trackie entry lists, added 2026-09-19
+
+The Turkey Tea 10k, this project's dress rehearsal on 2026-10-04, registers through Trackie,
+whose public entry list for it (event 1038734, pointed to by Peter) prints each entrant's
+name, sex, hometown, club and whether they bought a medal: 306 entrants on 2026-09-19.
+
+**What the terms say.** Trackie's Terms and Conditions (the popup linked from every page,
+"Last updated: August 21st 2025") contain no clause on automated access, and the site
+serves no robots.txt. The clauses that bear on this use: "You may not link to this Site or
+display this Site in such a manner as to make it 'framed' within another website without
+our explicit permission", and a user may not "use or gain access to the identities,
+information or computers of others, through this Site". The first is why this repository
+names the page and does not link to it from anything it publishes, and never displays or
+frames it. The second is read as it is meant, against accessing what is not offered: the
+list is published by the organiser for anyone to read, and this project uses it exactly as
+it uses the club's own lists, for the names of a field that has chosen to be listed.
+
+**How it is read.** The list page is a shell and its names come from one data request the
+page itself makes, so a look is those two requests, a second apart, under the same
+identifying user agent, once a day by the same scheduled `finishline snapshot` as the
+Athletics NorthEAST lists, and with the same refusal to run before the courtesy notes.
+Snapshots go to `data/entrants/`, gitignored, and are never overwritten.
+
+**Name, sex and hometown are read. The medal choice is not**, for the reason the shirt size
+is not: no results page prints it. The hometown is printed by the results too, and the
+linker uses it for one thing only: to break a tie between runners of one name when exactly
+one of them was ever printed under that town (on the 2026-09-19 list, 2 of 7 such ties). The
+prediction file publishes the hometown the results printed, never the list's. The club is not
+used.
+
 ## Course elevation
 
 ⚠️ **Nothing is fetched for this, and nothing needs to be.** The course factor this project

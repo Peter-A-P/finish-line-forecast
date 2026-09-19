@@ -14,14 +14,7 @@ another machine, the task and the gitignored `data/` have to move with it; neith
 The weekly results crawl is registered the same way (`scripts/register-crawl-task.ps1`, log in
 `data/cache/nlaa/crawl.log`) and moves with it.
 
-### 1. Run to Remember's 2026 gun time
-
-Cape to Cabot's is confirmed (08:00 on 2026-10-18, NDT) and in `data/live.toml`, which puts
-its freeze deadline at 08:00 on 2026-10-17. `finishline freeze` refuses a race without a
-confirmed gun time, on purpose: the 24-hour rule is measured from it. Run to Remember needs
-the same before 2026-11-10, on standard time (`-03:30`).
-
-### 2. Elevation figures for the other courses, if and when they are easy to get
+### 1. Elevation figures for the other courses, if and when they are easy to get
 
 **This blocks nothing.** It is worth being clear about that, because it was a dependency in
 the original plan and is not one any more. Course difficulty is measured from the results
@@ -58,7 +51,7 @@ which is the line this project drew for Strava and it does not move because the 
 arrived by a different route. A single published ascent total about a public road is a
 different thing, and is what Cape to Cabot's second figure is.
 
-### 2b. Course bearings, which are now worth more than elevations
+### 2. Course bearings, which are now worth more than elevations
 
 **This is the highest-value thing anyone can add to `data/courses.toml`.** Peter's point
 that the Tely's prevailing westerly is a tailwind for almost the whole race turned out to
@@ -77,19 +70,6 @@ must not be given one**; those courses feel the wind as a cost whichever way it 
 Candidates worth checking, all with real history: Mews Memorial 8 km, Mundy Pond 5 km,
 Harbour Front 10 km, Turkey Tea 10 km, Run to Remember 11 km, Flat Out 5 km.
 
-### 2c. Whether the USR marathon series kept one route
-
-The archive files the series under several course ids: `provincial-championship-42195`,
-`huffin-puffin-42195`, `capital-subaru-42195` and `usr-42195`, with the halves likewise. If the
-route did not change, they are one course and should share one course effect, which pools
-their history; if it did, they stay apart. Only someone who ran it can say.
-
-### 2d. A restart before the Cape to Cabot freeze fit
-
-A fit on the whole archive commits about 27 GB and failed on the old 48 GB commit limit. The
-pagefile was raised to a fixed 64 GB on 2026-09-18 and takes effect only after a restart. The
-freeze fit on 2026-10-17 is that size.
-
 ## Waiting on an outside event
 
 ### 3. Score the Uniformed Services Run against its start list
@@ -99,6 +79,21 @@ final pre-gun list is saved. When NLAA posts the results, three numbers fall out
 to Cabot needs a month later: the no-show rate, the late-entry rate, and the
 list-to-results name-match rate. No prediction was made for it, because the gun was inside
 twenty-four hours and `freeze` refuses inside twenty-four hours.
+
+⚠️ **The window is short.** The scheduled crawl stands down from ten days before each live
+race to the day after, and with the Turkey Tea rehearsal on 2026-10-04 and Cape to Cabot on
+2026-10-18 the only Sunday it runs before 2026-10-25 is 2026-09-20. Results posted after that
+are fetched by hand (`finishline crawl --refresh-index`) before the backtest each freeze uses,
+never between that backtest and the freeze. The 2026 USR marathon is a new route
+(`nlaa.SAME_ROUTE`) and arrives with no course history.
+
+### 3b. The Turkey Tea rehearsal, 2026-10-04 at 08:00
+
+Frozen by 08:00 on 2026-10-03 against the latest Trackie snapshot (`tt-2026`, snapshotted
+daily from 2026-09-19), tagged, and scored when NLAA posts the results. `freeze` needs a saved
+backtest that matches the code and the data on the day, so nothing in `models/`, `history.py`
+or `backtest/run.py` changes after the backtest it will use, and the repository has to be
+public before the tag.
 
 ## Open questions the assistant should not settle alone
 
