@@ -415,8 +415,15 @@ def build(
         encoding="utf-8",
         newline="\n",
     )
+    # Each race had a page of its own before the site became one page; those addresses
+    # still work, and land on the race in the picker.
+    moved = [
+        {"route": f"/{race['id']}.html", "redirect": f"/#{race['id']}", "statusCode": 301}
+        for race in ordered
+    ]
+    host = {**HOST_CONFIG, "routes": [*moved, *HOST_CONFIG["routes"]]}
     config = out / "staticwebapp.config.json"
-    config.write_text(json.dumps(HOST_CONFIG, indent=2) + "\n", encoding="utf-8", newline="\n")
+    config.write_text(json.dumps(host, indent=2) + "\n", encoding="utf-8", newline="\n")
     robots = out / "robots.txt"
     robots.write_text(ROBOTS, encoding="utf-8", newline="\n")
     return [page, config, robots, *written]

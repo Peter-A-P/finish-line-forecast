@@ -462,6 +462,8 @@ def test_the_website_is_built_from_the_committed_files_alone(tmp_path: Path) -> 
     config = json.loads((out / "staticwebapp.config.json").read_text(encoding="utf-8"))
     routes = {route["route"]: route.get("headers", {}) for route in config["routes"]}
     assert routes["/data/predictions/*"]["X-Robots-Tag"] == "noindex"
+    moved = {route["route"]: route.get("redirect") for route in config["routes"]}
+    assert moved["/c2c-2026.html"] == "/#c2c-2026", "the old race pages still land somewhere"
     assert "'unsafe-inline'" not in config["globalHeaders"]["Content-Security-Policy"]
 
 
