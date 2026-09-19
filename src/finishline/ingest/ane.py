@@ -82,8 +82,8 @@ class Posted:
 _USR = date(2026, 9, 13)
 
 # Committed, because which races were read from where is part of the published claim.
-# ⚠️ The 2026 marathon is a new route (`nlaa.SAME_ROUTE`) and keeps `usr-42195`, which has
-# no history before it; the 5k has no earlier edition in the archive at all.
+# ⚠️ The 2026 marathon and half are new routes (`nlaa.SAME_ROUTE`) and keep `usr-42195` and
+# `usr-21097`, which have no history before them; the 5k has no earlier edition at all.
 REGISTER: tuple[Posted, ...] = (
     Posted("20260913-usr-marathon-ane", "USR Marathon", _USR, MARATHON_M, "usr-42195",
            "USR Marathon Overall"),

@@ -232,9 +232,14 @@ _SPONSORS = re.compile(
 # course, so they share one course effect under the longest-running name; the USR introduced
 # a new marathon route in 2026, which keeps `usr-42195` and starts with no history, as a new
 # road should.
+#
+# ⚠️ **The half marathon changed route in 2026 too** (Peter, 2026-09-19), so its earlier
+# editions move to `usr-old-21097` and the new route keeps `usr-21097`. The 10 km and 5 km are
+# believed unchanged, though Peter is not certain, and stay as they are.
 SAME_ROUTE: tuple[tuple[str, date, date, str], ...] = (
     ("capital-subaru-42195", date.min, date.max, "huffin-puffin-42195"),
     ("usr-42195", date.min, date(2025, 12, 31), "huffin-puffin-42195"),
+    ("usr-21097", date.min, date(2025, 12, 31), "usr-old-21097"),
 )
 
 

@@ -17,6 +17,8 @@ marathon = 7
 # 5k 10 am.
 "usr-42195" = 7
 "usr-21097" = 8
+# The half marathon route before 2026 (`nlaa.SAME_ROUTE`), on the same 8 am start.
+"usr-old-21097" = 8
 "usr-10000" = 9
 
 # The same series under its earlier names, which ran on the same schedule (Peter,
