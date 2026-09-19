@@ -431,9 +431,12 @@ seven days before the rehearsal, 2026-09-27, rather than the day before.
 **The website, added the same day.** `finishline site` renders every live race from
 data/live.toml and the committed prediction files into static pages: the predicted top 20
 with placeholders for expected newcomers at the biggest races, every runner with a name
-search, and every file with its hash. No framework, no tracking, no third-party request. The
-Pages workflow rebuilds it on every push, so the morning task's commit refreshes it; it stays
-off until the repository is public and Pages is switched on.
+search, and every file with its hash. No framework, no tracking, no third-party request, no
+inline script or style (the host's content security policy refuses them), and race pages
+marked noindex because they name people. Hosted like project 08, on Azure Static Web Apps'
+free plan at finishline.peterparker.ca behind a Cloudflare CNAME, but deployed by the Website
+workflow on every push, as peterparker.ca is, so the morning task's commit refreshes it
+(docs/deploy.md). This is section 7's reserve line, now used, at CA$0.
 
 ## 6. Week by week
 

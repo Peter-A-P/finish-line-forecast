@@ -70,11 +70,12 @@ must not be given one**; those courses feel the wind as a cost whichever way it 
 Candidates worth checking, all with real history: Mews Memorial 8 km, Mundy Pond 5 km,
 Harbour Front 10 km, Turkey Tea 10 km, Run to Remember 11 km, Flat Out 5 km.
 
-### 2e. Switch the website on once the repository is public
+### 2e. Put the website on finishline.peterparker.ca
 
-Settings, Pages, Source "GitHub Actions"; then Settings, Secrets and variables, Actions,
-Variables, add `PAGES` = `on`. The workflow (`.github/workflows/pages.yml`) skips until
-then. Before 2026-09-27, so the first daily file of the Turkey Tea week is on it.
+Azure Static Web App, Cloudflare CNAME (DNS only), the deploy token into GitHub's secret
+store and the `SITE` variable on: every step is in [deploy.md](deploy.md). After the
+repository is public and before 2026-09-27, so the first daily file of the Turkey Tea week is
+on it.
 
 ## Waiting on an outside event
 

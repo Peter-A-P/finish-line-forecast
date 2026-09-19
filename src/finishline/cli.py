@@ -1139,12 +1139,50 @@ def site(
 ) -> None:
     """Build the public website from data/live.toml and the committed prediction files.
 
-    Run by the Pages workflow on every push, so it reads nothing that is not committed.
+    Run by the Website workflow on every push (docs/deploy.md), so it reads nothing that is not committed.
     """
     from finishline.publish import site as website
 
     pages = website.build(out, LIVE, PREDICTIONS, SCORES, date.today())
     typer.echo(f"wrote {len(pages)} pages to {out}")
+
+
+@app.command(name="serve")
+def serve(
+    port: Annotated[int, typer.Option(help="Port to listen on.")] = 8080,
+    directory: Annotated[Path, typer.Option(help="The built site.")] = Path("site"),
+) -> None:
+    """Serve the built site locally with the headers the host will send.
+
+    A plain file server sends none of the headers in `staticwebapp.config.json`, so it shows
+    a page the content security policy would partly refuse; on project 08 that hid a broken
+    chart on the live site for two weeks. This sends what Azure will send.
+    """
+    from functools import partial
+    from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+
+    config = directory / "staticwebapp.config.json"
+    if not config.exists():
+        typer.echo(f"no {config}; run `finishline site` first")
+        raise typer.Exit(code=1)
+    declared = json.loads(config.read_text(encoding="utf-8"))
+    headers: dict[str, str] = declared.get("globalHeaders", {})
+
+    class Handler(SimpleHTTPRequestHandler):
+        """A file server that adds the host's headers to every response."""
+
+        def end_headers(self) -> None:
+            for key, value in headers.items():
+                self.send_header(key, value)
+            super().end_headers()
+
+    typer.echo(f"serving {directory} on http://localhost:{port} with {len(headers)} headers")
+    handler = partial(Handler, directory=str(directory))
+    with ThreadingHTTPServer(("127.0.0.1", port), handler) as http:
+        try:
+            http.serve_forever()
+        except KeyboardInterrupt:
+            typer.echo("stopped")
 
 
 @app.command(name="page")

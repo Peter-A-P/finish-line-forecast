@@ -1,14 +1,25 @@
 """The public website: every live race, its predictions, and a runner looking themselves up.
 
-Built by `finishline site` into `site/` and published by the Pages workflow on every push, so
-a daily prediction file that the morning task commits is on the website minutes later. Like the
+Built by `finishline site` into `site/` and deployed to Azure Static Web Apps by the Website
+workflow on every push (docs/deploy.md), so a daily prediction file that the morning task
+commits is on the website minutes later. Like the
 race page, it is rendered from the committed prediction files and `data/live.toml` and nothing
 else: the website cannot show a prediction that is not in a tagged file, and each file's
 SHA-256 is printed so anyone can check the one they are reading.
 
-Static HTML with one small inline script, for the name search. No framework, no tracking, no
-third-party request of any kind: the pages name real people, and a reader looking up their own
-prediction should not be announcing it to anybody.
+Static HTML, one stylesheet and one small script for the name search, all served from the
+site itself. No framework, no tracking, no third-party request of any kind: the pages name
+real people, and a reader looking up their own prediction should not be announcing it to
+anybody.
+
+⚠️ **Nothing inline.** The host sends a content security policy (`HOST_CONFIG`, written into
+the site as `staticwebapp.config.json`) that allows scripts and styles from the site's own
+files only, so an inline `<style>` or `<script>` would be refused on the live site while
+looking fine from a plain file server. `finishline serve` sends the same headers locally.
+
+⚠️ **Race pages ask search engines not to index them.** They list real people by name; the
+results pages already do, but a prediction about a named person turning up in a web search is
+a step further than the results go. The front page, which names nobody, may be indexed.
 """
 
 from __future__ import annotations
@@ -60,13 +71,39 @@ code { font-size: .8rem; word-break: break-all; }
 footer { margin-top: 3rem; }
 """
 
+# What Azure Static Web Apps sends with every file (docs/deploy.md), as project 08 does.
+HOST_CONFIG: dict[str, Any] = {
+    "$schema": "https://json.schemastore.org/staticwebapp.config.json",
+    "globalHeaders": {
+        "Content-Security-Policy": (
+            "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; "
+            "font-src 'self'; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; "
+            "base-uri 'none'; form-action 'none'"
+        ),
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "no-referrer",
+        "Permissions-Policy": "geolocation=(), camera=(), microphone=(), interest-cohort=()",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+    },
+    "mimeTypes": {".html": "text/html", ".css": "text/css", ".js": "text/javascript"},
+    "routes": [
+        {"route": "/index.html", "headers": {"Cache-Control": "public, max-age=300"}},
+        {
+            "route": "/*.html",
+            "headers": {"X-Robots-Tag": "noindex", "Cache-Control": "public, max-age=300"},
+        },
+    ],
+}
+
 SEARCH = """
 const box = document.getElementById('find');
-const rows = Array.from(document.querySelectorAll('#everyone tbody tr'));
-box.addEventListener('input', () => {
-  const q = box.value.trim().toLowerCase();
-  for (const row of rows) row.hidden = q !== '' && !row.dataset.key.includes(q);
-});
+if (box) {
+  const rows = Array.from(document.querySelectorAll('#everyone tbody tr'));
+  box.addEventListener('input', () => {
+    const q = box.value.trim().toLowerCase();
+    for (const row of rows) row.hidden = q !== '' && !row.dataset.key.includes(q);
+  });
+}
 """
 
 
@@ -99,12 +136,14 @@ def _e(text: object) -> str:
     return html.escape(str(text), quote=True)
 
 
-def _page(title: str, body: str, script: str = "") -> str:
-    tail = f"<script>{script}</script>" if script else ""
+def _page(title: str, body: str, script: bool = False, index: bool = False) -> str:
+    tail = "<script src=\"search.js\" defer></script>" if script else ""
+    robots = "" if index else "<meta name=\"robots\" content=\"noindex\">"
     return (
         "<!doctype html>\n<html lang=\"en\"><head><meta charset=\"utf-8\">"
         "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
-        f"<title>{_e(title)}</title><style>{STYLE}</style></head>"
+        f"{robots}<title>{_e(title)}</title><link rel=\"stylesheet\" href=\"site.css\">"
+        "</head>"
         f"<body><main>{body}<footer class=\"muted\"><p>Finish Line Forecast predicts finish "
         "times and places from public race results only, publishes each prediction before the "
         "gun and the error after it. Names and hometowns are shown only as the results print "
@@ -202,7 +241,7 @@ def race_page(race_id: str, record: Mapping[str, Any], files: Sequence[Published
         ),
         "</tbody></table></div>",
     ]
-    return _page(name, "".join(parts), SEARCH)
+    return _page(name, "".join(parts), script=True)
 
 
 def _top(final: Mapping[str, Any]) -> str:
@@ -264,7 +303,7 @@ def index(races: Sequence[tuple[str, Mapping[str, Any], str]]) -> str:
         "interval. After the race, the error, published beside the prediction.</p>"
         "<h2>Races</h2><div class=\"cards\">" + "".join(cards) + "</div>"
     )
-    return _page("Finish Line Forecast", body)
+    return _page("Finish Line Forecast", body, index=True)
 
 
 def build(out: Path, live: Path, directory: Path, scores: Path, today: date) -> list[Path]:
@@ -285,5 +324,9 @@ def build(out: Path, live: Path, directory: Path, scores: Path, today: date) -> 
         listed.append((race_id, record, status(files, scored, today, when)))
     front = out / "index.html"
     front.write_text(index(listed), encoding="utf-8", newline="\n")
-    (out / ".nojekyll").write_text("", encoding="utf-8")
+    (out / "site.css").write_text(STYLE.lstrip(), encoding="utf-8", newline="\n")
+    (out / "search.js").write_text(SEARCH.lstrip(), encoding="utf-8", newline="\n")
+    (out / "staticwebapp.config.json").write_text(
+        json.dumps(HOST_CONFIG, indent=2) + "\n", encoding="utf-8", newline="\n"
+    )
     return [front, *written]

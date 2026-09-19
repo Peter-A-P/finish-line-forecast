@@ -1,0 +1,52 @@
+name: Website
+
+# The public website (`finishline site`), rebuilt and deployed to Azure Static Web Apps on
+# every push to main, so the prediction file the morning task commits is on the website a few
+# minutes later. It reads only what is committed, data/live.toml and predictions/; nothing is
+# fetched and no cache is needed. The same deploy path as peterparker.ca: the upload token is
+# the repository secret AZURE_STATIC_WEB_APPS_API_TOKEN, never a file in the repository.
+#
+# ⚠️ Off until the site exists: docs/deploy.md step 4 adds the secret and sets the repository
+# variable SITE = on. Until then every run skips rather than failing.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: website
+  cancel-in-progress: false
+
+env:
+  UV_FROZEN: "1"
+
+jobs:
+  deploy:
+    if: ${{ vars.SITE == 'on' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.1.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install Python 3.13 and the project
+        run: uv sync
+
+      - name: Build the website
+        run: uv run finishline site --out site
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: upload
+          app_location: site
+          skip_app_build: true

@@ -442,6 +442,11 @@ def test_the_website_is_built_from_the_committed_files_alone(tmp_path: Path) -> 
     assert "Ann &lt;Hynes&gt;" in race and "<Hynes>" not in race, "names are escaped"
     assert 'id="find"' in race and "daily-2026-10-11.json" in race
     assert "http" not in race.replace(site.REPOSITORY, ""), "no third-party request"
+    assert "<style" not in race and "<script>" not in race, "the host's policy refuses inline"
+    assert 'name="robots" content="noindex"' in race, "pages that name people are not indexed"
+    for name in ("site.css", "search.js", "staticwebapp.config.json"):
+        assert (tmp_path / "site" / name).exists()
     front = (tmp_path / "site" / "index.html").read_text(encoding="utf-8")
+    assert "noindex" not in front, "the front page names nobody"
     assert "Prediction week: 1 daily file(s)" in front
     assert "Daily predictions start" in front, "Run to Remember is weeks away"
