@@ -18,7 +18,8 @@ overturned. What is open and who owns it is in [docs/todo.md](docs/todo.md).
 calendar: **Cape to Cabot 20 km, St. John's, Sunday 2026-10-18**, five weeks out, with **Run to Remember 11 km, 2026-11-11** as
 the second live race on a frozen model and the **Tely 10 (June 2027, capped at 4,466)** as the
 "field of thousands" race in Part B. **Package:** `finishline`. **Repository:**
-`Peter-A-P/finish-line-forecast`, private until the backtest table is in. **Fed by:** 11 (Overload), whose Daniels,
+`Peter-A-P/finish-line-forecast`, public since 2026-09-19, with the website at
+https://finishline.peterparker.ca. **Fed by:** 11 (Overload), whose Daniels,
 heat, wind, course-bearing and age-grading modules are copied across with attribution and
 with every personal calibration detail stripped. **Feeds:** nothing.
 
@@ -543,7 +544,7 @@ check on Cape to Cabot agreed with the measurement; candidate 3 waits on the cha
 - [ ] The same for Run to Remember 2026 on the frozen model
 - [ ] One rejected approach documented with evidence (`docs/rejected.md`)
 - [x] Public name decided (Finish Line Forecast, 2026-09-06)
-- [ ] Repository public before the first live race; `v0.1.0` tagged after the first scored race
+- [x] Repository public before the first live race (2026-09-19); `v0.1.0` tagged after the first scored race
 
 ## 12. Deferred
 

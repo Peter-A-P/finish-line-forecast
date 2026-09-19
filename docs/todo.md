@@ -70,13 +70,6 @@ must not be given one**; those courses feel the wind as a cost whichever way it 
 Candidates worth checking, all with real history: Mews Memorial 8 km, Mundy Pond 5 km,
 Harbour Front 10 km, Turkey Tea 10 km, Run to Remember 11 km, Flat Out 5 km.
 
-### 2e. Put the website on finishline.peterparker.ca
-
-Azure Static Web App, Cloudflare CNAME (DNS only), the deploy token into GitHub's secret
-store and the `SITE` variable on: every step is in [deploy.md](deploy.md). After the
-repository is public and before 2026-09-27, so the first daily file of the Turkey Tea week is
-on it.
-
 ## Waiting on an outside event
 
 ### 3. New results between now and Cape to Cabot
@@ -98,8 +91,8 @@ with places by 08:00 on 2026-10-03, each committed, tagged and pushed by
 `scripts/register-predictions-task.ps1`), and scored when NLAA posts the results. `freeze`
 needs a saved backtest that matches the code and the data on the day, so nothing in
 `models/`, `history.py` or `backtest/run.py` changes after the backtest it will use, `src/`
-stays committed through the week, and **the repository has to be public by 2026-09-27**,
-when the first daily file is tagged. Cape to Cabot's week starts 2026-10-11.
+stays committed through the week. The repository is public (2026-09-19) and the website
+redeploys on every push (docs/deploy.md). Cape to Cabot's week starts 2026-10-11.
 
 ## Open questions the assistant should not settle alone
 
