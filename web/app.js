@@ -563,7 +563,7 @@
     });
     node.appendChild(root);
     legend("preview-legend", [["dot pt-hit-sw", "finish inside its 80% range"], ["dot pt-miss-sw", "outside it"], ["dashed sw-faint", "a perfect prediction"]]);
-    byId("preview-caption").textContent = "Every finisher in the " + year + " edition who was in the backtest, anonymous. Most misses above the diagonal are runners who ran slower than their history said: a bad day, an injury, or a friend being paced.";
+    byId("preview-caption").textContent = "Every finisher in the " + year + " edition who was in the backtest, shown without names. Most misses above the diagonal are runners who ran slower than their history said: a bad day, an injury, or a friend being paced.";
   }
 
   /* The race's history, edition by edition ---------------------------------------------- */
