@@ -29,7 +29,7 @@ import json
 import tomllib
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -162,9 +162,12 @@ def status(files: Sequence[Published], scored: bool, today: date, race_date: dat
     if files:
         runners = sum(len(item.doc["runners"]) for item in files)
         return f"Prediction week: {len(files)} daily file(s), {runners} runners so far."
+    # A date, not a countdown: the site is rebuilt only when something is pushed, so "in 8
+    # days" would go stale on every morning nothing is.
     days = (race_date - today).days
     if days > daily.FIRST_LEAD_DAYS:
-        return f"Daily predictions start {days - daily.FIRST_LEAD_DAYS} days from now."
+        start = race_date - timedelta(days=daily.FIRST_LEAD_DAYS)
+        return f"Daily predictions start {start.isoformat()}."
     return "Race over; results awaited." if days < 0 else "No prediction yet."
 
 
