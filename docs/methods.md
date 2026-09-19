@@ -95,6 +95,12 @@ shared by every runner in it, and each runner's place is reported as a median an
 (`placing/simulate.py`). A hot day slows a field together and changes its order hardly at
 all, which ranking independent draws would get wrong.
 
+At the few biggest races, where visitors with no results here reach the top ten, a newcomer is
+drawn from how first-timers at earlier editions of the same course finished against the
+returning field, rather than from the group prior (`placing/unseen.py`). It cannot say which
+newcomer will be fast, so the race page shows the places they are expected to take as
+placeholders, with the expected count and its range.
+
 ## 8. Who is running
 
 For a race with a public entrant list (Athletics NorthEAST's, or Trackie's), the list at

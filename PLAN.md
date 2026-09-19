@@ -11,7 +11,7 @@ the model's race effect (section 13 item 27), the LightGBM challenger, and the p
 model.
 
 **Section 13 is the log of what the data refuted**, and it is the first thing to read after
-this line: thirty-one numbered entries, each one a design in this plan that measurement
+this line: thirty-two numbered entries, each one a design in this plan that measurement
 overturned. What is open and who owns it is in [docs/todo.md](docs/todo.md).
 
 **Build:** an alongside project, so planned in relative weeks. Earliest start: now. It waits
@@ -1227,4 +1227,32 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     too fast in 2025, 3.3% too slow in 2026). Longer tuning is the untried, cheap next step;
     the conformal layer, calibrated per history depth, is what keeps first-timers' intervals
     honest in the meantime, and their coverage table is the check.
+
+32. **At the biggest races, a newcomer is not an average newcomer.** Peter's point, 2026-09-19:
+    runners from away, often with no result here at all, take top places at the Tely and Cape
+    to Cabot, and a model that predicts every newcomer from the group prior puts all of them
+    mid-pack, so its predicted top ten misses them and every local runner's place comes out a
+    place or two too good. Measured (`scratch/outsiders.py`): at the Tely about four of the top
+    ten have been from away in recent years, one or two of them with no result here (2nd in
+    2025, 3rd and 4th in 2026); Cape to Cabot has about one a year in its top ten. In the
+    backtest the model's predicted top ten held 5 to 9 of each big race's actual top ten, and
+    first-timers were among the misses.
+
+    The design (`placing/unseen.py`, switched on per race by `newcomers = "course"` in
+    data/live.toml, set for Cape to Cabot and meant for the Tely, not for smaller races): a
+    newcomer's log time is the known field's median in the same simulated draw plus an offset
+    drawn from how this course's first-timers finished against the returning field of their
+    own edition, pooled over editions from 2013 and split by sex. It does not say which
+    newcomer is fast, because the list cannot; it puts the right number of unknowns near the
+    top, and the race page shows those places as placeholders beside the named runners, with
+    the expected count and its range. It lives in the placing and freeze code, so the model and
+    its backtest are untouched.
+
+    Checked against history (`scratch/unseen_check.py`: each edition from 2016, the pool from
+    earlier editions only, returning finishers at their actual times so only the newcomer part
+    is tested): Tely, first-timers in the top ten expected 5.0 over seven editions against 6
+    actual, top twenty 9.0 against 9; Cape to Cabot, top ten 4.0 over nine editions against 7,
+    top twenty 11.5 against 16. So it is about right at the Tely and **still short at Cape to
+    Cabot by about a third**, whose first-timers are faster than its pooled history says (2021
+    alone had three in its top ten). Reported as it stands rather than tuned before the race.
 

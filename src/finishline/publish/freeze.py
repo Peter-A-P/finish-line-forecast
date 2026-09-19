@@ -42,7 +42,7 @@ from finishline.conformal.split import bounds_for, widen
 from finishline.history import History
 from finishline.identity.link import Link, Status, counts
 from finishline.models.hierarchical import QUANTILES, Posterior, summarise
-from finishline.placing import simulate
+from finishline.placing import simulate, unseen
 from finishline.publish import daily
 from finishline.publish.predictions import RunnerPrediction, check_gun, document
 from finishline.schema import Race
@@ -57,6 +57,9 @@ class LiveRace:
     race: Race
     gun: datetime
     entrant_list: str
+    # "course" draws newcomers from this course's past first-timers (`placing.unseen`); set
+    # only for the few biggest races, where visitors with no results here reach the top ten.
+    newcomers: str | None = None
 
 
 def load_live(path: Path, race_id: str) -> LiveRace:
@@ -86,7 +89,15 @@ def load_live(path: Path, race_id: str) -> LiveRace:
     )
     if gun.date() != race.date:
         raise ValueError(f"{race_id} gun {gun_text} is not on the race date {race.date}")
-    return LiveRace(race=race, gun=gun, entrant_list=str(record["entrant_list"]))
+    newcomers = record.get("newcomers")
+    if newcomers not in (None, "course"):
+        raise ValueError(f"{race_id}: newcomers = {newcomers!r} is not a method this knows")
+    return LiveRace(
+        race=race,
+        gun=gun,
+        entrant_list=str(record["entrant_list"]),
+        newcomers=None if newcomers is None else str(newcomers),
+    )
 
 
 # How long before a live race the scheduled crawl stops, and how long after it resumes.
@@ -134,6 +145,7 @@ def assemble(
     conditions_record: dict[str, Any] | None = None,
     already: daily.Published | None = None,
     only_new: bool = False,
+    pool: unseen.Pool | None = None,
 ) -> dict[str, Any]:
     """The prediction file for this race, validated by the caller's `write`.
 
@@ -148,6 +160,12 @@ def assemble(
     published in named beside them, and places for the whole field. The fit and each
     entrant's random numbers are the same as in the daily files, so the weather is the only
     thing that moves a runner's time between their daily line and their final one.
+
+    `pool`, for the biggest races only (`placing.unseen`), draws every newcomer from how
+    first-timers at this course finished against the returning field, in the simulation and
+    in their own line, and the final file says how many top places are expected to go to
+    runners with no results here. A newcomer's interval is then the spread of that pool,
+    which is itself a measurement, and no conformal shift is added to it.
     """
     check_gun(live.gun, now)
     race = live.race
@@ -162,18 +180,41 @@ def assemble(
         item.runner.runner_id if item.runner is not None else f"entrant:{position}"
         for position, item in enumerate(predicted)
     ]
+    field = [
+        simulate.Entrant(runner_id, item.entrant.sex)
+        for runner_id, item in zip(ids, predicted, strict=True)
+    ]
     places: dict[str, simulate.Place] = {}
+    newcomers: dict[str, Any] | None = None
     if not only_new:
-        field = [
-            simulate.Entrant(runner_id, item.entrant.sex)
-            for runner_id, item in zip(ids, predicted, strict=True)
-        ]
-        places = {
-            place.runner_id: place
-            for place in simulate.simulate(
-                posterior, field, race, np.random.default_rng(seed), conditions
+        simulated, placed = simulate.simulate_field(
+            posterior, field, race, np.random.default_rng(seed), conditions, pool
+        )
+        places = {place.runner_id: place for place in simulated}
+        if pool is not None:
+            columns = simulate.newcomer_columns(posterior, field)
+            newcomers = {
+                "method": "course pool",
+                "course_id": pool.course_id,
+                "pool_editions": pool.editions,
+                "pool_first_timers": int(pool.everyone.size),
+                "likely_places_top_20": unseen.likely_places(placed, columns, 20),
+            }
+            for top in (10, 20):
+                mean, fewest, most = unseen.expected_in_top(placed, columns, top)
+                newcomers[f"expected_in_top_{top}"] = {
+                    "mean": round(mean, 2), "low": fewest, "high": most,
+                }
+    # A newcomer drawn from the pool stands against the known field of the same morning.
+    known_field: np.ndarray | None = None
+    if pool is not None:
+        known = [entrant for entrant in field if entrant.runner_id in posterior.design.runner_index]
+        if known:
+            known_field = np.log(
+                simulate.field_draws(
+                    posterior, known, race, daily.runner_rng(seed, "known-field"), conditions
+                )
             )
-        }
 
     lines: list[RunnerPrediction] = []
     for position, (runner_id, item) in enumerate(zip(ids, predicted, strict=True)):
@@ -185,7 +226,14 @@ def assemble(
             continue
         source = carried[position][0] if position in carried else None
         rng = daily.runner_rng(seed, streams[position])
-        draws = posterior.predict(runner_id, item.entrant.sex, race, rng, conditions)
+        from_pool = pool is not None and known_field is not None and item.runner is None
+        if from_pool:
+            assert pool is not None and known_field is not None
+            draws = np.exp(
+                unseen.newcomer_log_times(known_field, [item.entrant.sex], pool, rng)[:, 0]
+            )
+        else:
+            draws = posterior.predict(runner_id, item.entrant.sex, race, rng, conditions)
         quantiles = summarise(draws)
         median = quantiles[QUANTILES.index(0.50)]
         depth = len(history.results_of(runner_id)) if item.runner is not None else 0
@@ -194,9 +242,8 @@ def assemble(
         intervals: dict[float, tuple[float, float]] = {}
         for level in LEVELS:
             lower, upper = bounds_for(level)
-            low, high = widen(
-                quantiles[lower], quantiles[upper], calibration.get(level, {}).get(stratum)
-            )
+            shift = None if from_pool else calibration.get(level, {}).get(stratum)
+            low, high = widen(quantiles[lower], quantiles[upper], shift)
             if not (math.isfinite(low) and math.isfinite(high)):
                 raise ValueError(f"an unbounded {level:.0%} interval for stratum {stratum}")
             intervals[level] = (min(low, median), max(high, median))
@@ -229,7 +276,7 @@ def assemble(
     }
     if earlier:
         entrants["published_before"] = len(carried)
-    return document(
+    doc = document(
         race={
             "race_id": race.race_id,
             "name": race.name,
@@ -252,3 +299,6 @@ def assemble(
         runners=lines,
         daily=only_new,
     )
+    if pool is not None:
+        doc["newcomers"] = newcomers or {"method": "course pool", "course_id": pool.course_id}
+    return doc

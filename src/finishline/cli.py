@@ -953,6 +953,18 @@ def freeze(
         live, posterior.draws, backtest_seed(race_id), lead_days
     )
     already = daily.published(PREDICTIONS, race_id)
+    pool = None
+    if live.newcomers == "course":
+        from finishline.placing import unseen
+
+        pool = unseen.pool(
+            list(history.runners.values()), history.races, live.race.course_id, live.race.date
+        )
+        if pool is not None:
+            typer.echo(
+                f"newcomers drawn from {pool.everyone.size} first-timers over {pool.editions} "
+                f"editions of {pool.course_id}"
+            )
 
     listed = entrants.load(snapshot_path)
     doc = freezing.assemble(
@@ -978,6 +990,7 @@ def freeze(
         conditions_record=conditions_record,
         already=already,
         only_new=daily_file,
+        pool=pool,
     )
     if daily_file:
         path = daily.daily_path(PREDICTIONS, race_id, today)

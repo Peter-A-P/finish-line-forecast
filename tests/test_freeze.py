@@ -378,3 +378,45 @@ def test_the_race_page_shows_every_published_runner_once_and_the_top_places(
     assert "Predicted top 20" in page and "`bb`" in page
     assert "| Bea Power |" in page
     assert racepage.clock(3725.4) == "1:02:05" and racepage.clock(1500) == "25:00"
+
+
+def test_at_a_big_race_the_final_file_says_how_many_top_places_newcomers_take() -> None:
+    from finishline.placing import unseen
+
+    posterior, links, history = setup()
+    source = unseen.Pool("c2c-20000", {}, np.array([-0.5, -0.3, 0.0, 0.2]), 5)
+    doc = freeze.assemble(
+        posterior=posterior,
+        links=links,
+        history=history,
+        live=LIVE,
+        now=NOW,
+        snapshot={"file": "x.html", "sha256": "ab"},
+        model={"name": "hierarchical", "commit": "0" * 40},
+        calibration={0.80: {"0": 0.5}, 0.90: {"0": 0.5}},
+        seed=7,
+        pool=source,
+    )
+    assert pf.validate(doc) == []
+    block = doc["newcomers"]
+    assert block["pool_editions"] == 5 and block["pool_first_timers"] == 4
+    assert 0 <= block["expected_in_top_10"]["mean"] <= 1, "one newcomer on the list"
+    dee = next(r for r in doc["runners"] if r["name"] == "Dee Newcomer")
+    low, high = dee["interval_80"]
+    assert high / low < np.exp(0.8), "the pool's own spread, with no conformal shift on top"
+
+
+def test_the_race_page_holds_places_for_runners_with_no_results_here() -> None:
+    from finishline.publish import racepage
+
+    doc = build([Entrant("Ann Hynes", "F"), Entrant("Bea Power", "F")])
+    doc["newcomers"] = {
+        "pool_editions": 9,
+        "likely_places_top_20": [1],
+        "expected_in_top_10": {"mean": 1.2, "low": 0, "high": 2},
+        "expected_in_top_20": {"mean": 1.9, "low": 1, "high": 3},
+    }
+    page = "\n".join(racepage.top_table(doc))
+    assert f"| 1 | {racepage.UNSEEN} |" in page
+    assert "| 2 | Ann Hynes |" in page or "| 2 | Bea Power |" in page
+    assert "1.2 of the top 10" in page

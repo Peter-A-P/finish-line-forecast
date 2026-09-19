@@ -12,6 +12,9 @@ distance_m = 20000
 course_id = "cape-to-cabot-20000"
 entrant_list = "c2c-2026"
 gun = "2026-10-18T08:00:00-02:30"   # confirmed by Peter 2026-09-16
+# One of the few races where visitors with no results here reach the top ten, so newcomers
+# are drawn from how this course's past first-timers finished (placing/unseen.py).
+newcomers = "course"
 
 # The dress rehearsal: a real race, frozen and tagged before its gun and scored after, two
 # weeks before Cape to Cabot. Its entrant list is on Trackie (`ingest.entrants.LISTS`).

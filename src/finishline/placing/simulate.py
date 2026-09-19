@@ -28,6 +28,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from finishline.models.hierarchical import Posterior, reference_seconds
+from finishline.placing import unseen
 from finishline.schema import Race
 
 # The place range published beside the median: the middle 80 percent of simulated places.
@@ -74,14 +75,37 @@ def field_draws(
     target: Race,
     rng: np.random.Generator,
     conditions: np.ndarray | None = None,
+    pool: unseen.Pool | None = None,
 ) -> np.ndarray:
-    """Finish-time draws in seconds, (draws, entrants), with one morning per draw."""
+    """Finish-time draws in seconds, (draws, entrants), with one morning per draw.
+
+    With a `pool` (`placing.unseen`, the biggest races only), an entrant the archive has never
+    seen is drawn from how first-timers at this course finished against the returning field,
+    rather than from the group prior.
+    """
     morning = posterior.morning(target, rng, conditions)
     log_ratio = np.empty((posterior.draws, len(entrants)))
     for column, entrant in enumerate(entrants):
         own = posterior.own(entrant.runner_id, entrant.sex, target, rng)
         log_ratio[:, column] = own + morning + posterior.noise(rng)
-    return np.asarray(np.exp(log_ratio) * reference_seconds(target.distance_m))
+    seconds = np.exp(log_ratio) * reference_seconds(target.distance_m)
+    new = newcomer_columns(posterior, entrants)
+    if pool is not None and new and len(new) < len(entrants):
+        known = [column for column in range(len(entrants)) if column not in set(new)]
+        drawn = unseen.newcomer_log_times(
+            np.log(seconds[:, known]), [entrants[column].sex for column in new], pool, rng
+        )
+        seconds[:, new] = np.exp(drawn)
+    return np.asarray(seconds)
+
+
+def newcomer_columns(posterior: Posterior, entrants: Sequence[Entrant]) -> list[int]:
+    """The entrants the fit has never seen."""
+    return [
+        column
+        for column, entrant in enumerate(entrants)
+        if entrant.runner_id not in posterior.design.runner_index
+    ]
 
 def simulate(
     posterior: Posterior,
@@ -89,11 +113,24 @@ def simulate(
     target: Race,
     rng: np.random.Generator,
     conditions: np.ndarray | None = None,
+    pool: unseen.Pool | None = None,
 ) -> list[Place]:
     """Every entrant's simulated place: median and the middle 80 percent."""
+    return simulate_field(posterior, entrants, target, rng, conditions, pool)[0]
+
+
+def simulate_field(
+    posterior: Posterior,
+    entrants: Sequence[Entrant],
+    target: Race,
+    rng: np.random.Generator,
+    conditions: np.ndarray | None = None,
+    pool: unseen.Pool | None = None,
+) -> tuple[list[Place], np.ndarray]:
+    """`simulate`, and the (draws, entrants) places it summarised."""
     if not entrants:
-        return []
-    placed = places(field_draws(posterior, entrants, target, rng, conditions))
+        return [], np.empty((posterior.draws, 0), dtype=np.int64)
+    placed = places(field_draws(posterior, entrants, target, rng, conditions, pool))
     low, median, high = np.quantile(placed, [PLACE_RANGE[0], 0.5, PLACE_RANGE[1]], axis=0)
     return [
         Place(
@@ -104,4 +141,4 @@ def simulate(
             field=len(entrants),
         )
         for column, entrant in enumerate(entrants)
-    ]
+    ], placed
