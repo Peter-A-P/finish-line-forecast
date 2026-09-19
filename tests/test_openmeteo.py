@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import date, datetime, timedelta
 from typing import Any
 
@@ -95,3 +96,75 @@ def test_the_queries_ask_for_local_time_and_the_airport() -> None:
         assert query["timezone"] == "America/St_Johns"
         assert query["wind_speed_unit"] == "kmh"
     assert "temperature_2m_previous_day1" in past["hourly"]
+    assert openmeteo.SKY in live["hourly"], "a frozen prediction needs the forecast sun"
+
+
+def sky(beams: list[float | None], day: date = DAY) -> dict[str, Any]:
+    return {
+        "hourly": {
+            "time": [f"{day.isoformat()}T{hour:02d}:00" for hour in range(24)],
+            openmeteo.SKY: beams,
+        }
+    }
+
+
+def test_the_sun_is_averaged_over_the_race_hours_in_wall_clock_time() -> None:
+    beams: list[float | None] = [0.0] * 24
+    beams[8], beams[9], beams[10] = 200.0, 400.0, 600.0  # sun only while the field is out
+    hours = openmeteo.sky_hours(sky(beams))
+    assert openmeteo.sun_share(hours, DAY, 20_000.0, 8) == pytest.approx(0.5)
+    assert openmeteo.sun_share(hours, DAY, 20_000.0, 12) == pytest.approx(0.0)
+
+
+def test_a_share_is_at_most_a_clear_noon() -> None:
+    hours = openmeteo.sky_hours(sky([1_000.0] * 24))
+    assert openmeteo.sun_share(hours, DAY, 10_000.0, 9) == 1.0
+
+
+def test_a_morning_the_archive_does_not_hold_has_no_sun() -> None:
+    """None, so the edition has no sun, rather than a sunny morning out of nothing."""
+    beams: list[float | None] = [None] * 24
+    assert openmeteo.sun_share(openmeteo.sky_hours(sky(beams)), DAY, 10_000.0, 9) is None
+    other = openmeteo.sky_hours(sky([500.0] * 24, DAY + timedelta(days=1)))
+    assert openmeteo.sun_share(other, DAY, 10_000.0, 9) is None
+
+
+def test_the_archive_query_stops_where_the_archive_does() -> None:
+    today = date(2026, 9, 18)
+    this_year = openmeteo.archive_params(2026, today)
+    last_year = openmeteo.archive_params(2025, today)
+    assert this_year["end_date"] == (today - openmeteo.ARCHIVE_LAG).isoformat()
+    assert last_year["end_date"] == "2025-12-31"
+    assert this_year["hourly"] == openmeteo.SKY
+
+
+class _Archive(openmeteo.Client):
+    """A client whose network is a counter and a canned year of hours."""
+
+    def __init__(self, root: Any) -> None:
+        super().__init__(root)
+        self.requests = 0
+
+    def _get(
+        self, url: str, params: dict[str, str], name: str, *, keep: bool = False
+    ) -> dict[str, Any]:
+        self.requests += 1
+        end = date.fromisoformat(params["end_date"])
+        body = {"hourly": {"time": [f"{end.isoformat()}T23:00"], openmeteo.SKY: [0.0]}}
+        (self.root / f"{name}.json").parent.mkdir(parents=True, exist_ok=True)
+        (self.root / f"{name}.json").write_text(json.dumps({"body": body}), encoding="utf-8")
+        return body
+
+
+def test_a_year_fetched_before_it_ended_is_fetched_again(tmp_path: Any) -> None:
+    september = date(2026, 9, 18)
+    client = _Archive(tmp_path)
+    client.archive(2026, september)
+    client.archive(2026, september)
+    assert client.requests == 1, "the same day asks nothing new"
+    client.archive(2026, date(2026, 11, 30))
+    assert client.requests == 2, "two months later the autumn has landed and is fetched"
+    client.archive(2025, september)
+    client.archive(2025, date(2026, 11, 30))
+    assert client.requests == 3, "a finished year is fetched once, ever"
+    client.close()

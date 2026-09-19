@@ -10,8 +10,9 @@ On the log of a finish time over the time a reference runner would take at that 
                     + Normal(mu_trend[g_i] * gap,         year and drifts with age
                              sigma_walk * sqrt(gap))
     delta_r       = course[c_r] + year[t_r]              what this road, this year and this
-                    + weather . w_r                       morning cost
-                    + Normal(0, sigma_edition)
+                    + heat_r (h0 + h1 log(d / 5 km))      morning cost; heat_r is felt heat
+                    + wind terms                          above 12 C, the sun's share of it
+                    + Normal(0, sigma_edition)            estimated (`models.weather`)
     year[t]       = year[t - 1] + Normal(0, sigma_year)  what every race that year shared
     eps           ~ StudentT(nu, 0, sigma_eps)            a bad day is not Gaussian
 
@@ -98,6 +99,7 @@ import numpy as np
 from finishline.history import History
 from finishline.identity.resolve import Runner, birth_window
 from finishline.metrics import daniels
+from finishline.models import weather as weather_model
 from finishline.models.baselines import Prediction
 from finishline.models.courses import MIN_FINISHES, REFERENCE_VDOT
 from finishline.schema import Race, Result
@@ -123,9 +125,11 @@ KEPT_DRAWS = 400
 # The quantiles every prediction carries, for the conformal layer to calibrate.
 QUANTILES: tuple[float, ...] = (0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95)
 
-# The weather covariates, in `models.weather.COLUMNS` order.
-WEATHER_TERMS = 4
-Covariates = tuple[float, float, float, float]
+# The weather parameters, in `models.weather.PARAMETERS` order (the heat pair, the wind pair
+# and the sun boost), and one edition's raw conditions, in `models.weather.CONDITIONS` order.
+WEATHER_TERMS = len(weather_model.PARAMETERS)
+CONDITION_TERMS = len(weather_model.CONDITIONS)
+Covariates = tuple[float, ...]
 
 YEAR_DAYS = 365.25
 
@@ -190,7 +194,7 @@ class Design:
     season_first: np.ndarray  # season -> the runner's first season
     last_season: np.ndarray  # runner -> their latest season
     last_year: np.ndarray  # runner -> the calendar year of it
-    # Per edition, the observed weather covariates; zeros where unobserved or not asked for.
+    # Per edition, the raw conditions (`models.weather.CONDITIONS`); zeros where unobserved.
     weather: np.ndarray
     uses_weather: bool
     edition_year: np.ndarray  # edition -> calendar year
@@ -293,7 +297,7 @@ def design(
         last_season[runner_index] = position
     last_year = np.array([keys[int(s)][1] for s in last_season], dtype=np.int64)
 
-    covariates = np.zeros((len(editions), WEATHER_TERMS))
+    covariates = np.zeros((len(editions), CONDITION_TERMS))
     if weather:
         for race_id, position in editions.items():
             if race_id in weather:
@@ -401,10 +405,35 @@ def build(data: Design) -> pm.Model:
         delta = delta + year[data.edition_year - data.first_year]
         pm.Deterministic("latest_year", year[-1])
         if data.uses_weather:
-            # Per degree, per km/h: a percent a degree would be an extreme heat cost, so the
-            # prior is wide at that scale and the archive does the rest.
-            weather = pm.Normal("weather", 0.0, 0.01, shape=WEATHER_TERMS)
-            delta = delta + pt.dot(data.weather, weather)  # type: ignore[no-untyped-call]
+            # Per degree of felt heat, per km/h: a percent a degree would be an extreme cost,
+            # so the prior is wide at that scale and the archive does the rest.
+            #
+            # ⚠️ **The two heat coefficients are positive by construction, and that is a claim
+            # about the world, not a convenience.** Heat can slow a race and cannot speed one,
+            # and its cost cannot fall as the race gets longer. Fitted free, the same editions
+            # will buy a better fit to a hot marathon by asserting that a hot 5 km is quick,
+            # because summer short races are also fast for reasons that have nothing to do with
+            # the weather. The scaling column is zero at 5 km (`weather.HEAT_PIVOT_M`), so a
+            # positive pair means non-negative and non-decreasing in distance, everywhere.
+            heat = pm.HalfNormal("heat", 0.01, shape=2)
+            air = pm.Normal("air", 0.0, 0.01, shape=2)
+            # What a full sun adds to the felt temperature, in degrees, estimated rather than
+            # set: a grid over 227 editions and 121 same-runner pairs could not pin it on a
+            # reanalysis sky (PLAN.md 13 item 30), and the whole field of every race can.
+            # HalfNormal on the scale of the NWS figure, so nothing and twice that are both in
+            # reach and the posterior is the data's answer.
+            boost = pm.HalfNormal("sun_boost", weather_model.SUN_PRIOR_SCALE_C)
+            pm.Deterministic(
+                "weather",
+                pt.concatenate([heat, air, pt.stack([boost])]),  # type: ignore[no-untyped-call]
+            )
+            observed, temp, sun, log_distance, wind, tailwind = (
+                data.weather[:, k] for k in range(CONDITION_TERMS)
+            )
+            hot = observed * pt.maximum(temp + boost * sun - weather_model.HEAT_THRESHOLD_C, 0.0)
+            delta = delta + (
+                hot * (heat[0] + heat[1] * log_distance) + air[0] * wind + air[1] * tailwind
+            )
 
         row = data.runner
         mean = (
@@ -445,7 +474,7 @@ class Posterior:
     sigma_edition: np.ndarray
     latest_year: np.ndarray  # (draws,): the year effect of the last calendar year fitted
     sigma_year: np.ndarray
-    weather: np.ndarray  # (draws, WEATHER_TERMS); zeros for a fit without weather
+    weather: np.ndarray  # (draws, WEATHER_TERMS), `models.weather.PARAMETERS`; zeros without
     nu: np.ndarray
     sigma_eps: np.ndarray
     newcomer_share: dict[str, np.ndarray]  # sex -> weights over groups
@@ -488,8 +517,8 @@ class Posterior:
     ) -> np.ndarray:
         """The race's part: its course, its weather and the rest of its morning.
 
-        `conditions` is the target's four weather covariates, either one row for an observed
-        morning or one row per draw for a forecast. None is a neutral morning.
+        `conditions` is the target's raw conditions (`models.weather.CONDITIONS`), either one
+        row for an observed morning or one row per draw for a forecast. None is a neutral one.
         """
         data = self.design
         n = self.draws
@@ -502,8 +531,8 @@ class Posterior:
         year = self.latest_year + self.sigma_year * np.sqrt(years) * rng.standard_normal(n)
         effect = course + year + self.sigma_edition * rng.standard_normal(n)
         if conditions is not None:
-            covariates = np.broadcast_to(np.asarray(conditions, dtype=float), (n, WEATHER_TERMS))
-            effect = effect + np.einsum("dk,dk->d", covariates, self.weather)
+            rows = np.broadcast_to(np.asarray(conditions, dtype=float), (n, CONDITION_TERMS))
+            effect = effect + weather_model.effect(rows, self.weather)
         return np.asarray(effect)
 
     def noise(self, rng: np.random.Generator) -> np.ndarray:

@@ -1,0 +1,54 @@
+# When each race starts, on the wall clock (Newfoundland time).
+#
+# No results page in the archive prints a start time, and the weather a field meets depends on
+# it: a marathon from 7 am and one from 9 am are two hours apart on a warming morning. These
+# are the organisers' published start times, supplied by Peter on 2026-09-18.
+#
+# A course not listed starts at the default for its distance: 7 am for a marathon, 8 am for
+# everything else, which is the standard here. Only courses whose time differs from that
+# default, or that are named because they were confirmed, are listed.
+
+[default]
+standard = 8
+marathon = 7
+
+[courses]
+# Uniformed Services Run: marathon and relay 7 am, half 8 am, Quidi Vidi Brewery 10k 9 am,
+# 5k 10 am.
+"usr-42195" = 7
+"usr-21097" = 8
+"usr-10000" = 9
+
+# The same series under its earlier names, which ran on the same schedule (Peter,
+# 2026-09-18). The Newfoundland Provincial Marathon (2008, 2009) and the Huffin Puffin
+# Marathon (2011 to 2019) ran with the Nautilus half marathon on the same morning; in 2022 it
+# was the Capital Subaru marathon and half, and its 10k is filed under Quidi Vidi, the
+# brewery that named it; that 10k started at 7:30, taken as the 7:00 hour since the readings
+# are hourly (the same rule as Trapline's 11:30 below). Nautilus confirmed at 8. The archive
+# holds no 5k of this series.
+"provincial-championship-42195" = 7
+"huffin-puffin-42195" = 7
+"capital-subaru-42195" = 7
+"nautilus-21097" = 8
+"capital-subaru-21097" = 8
+"quidi-vidi-10000" = 7
+
+# Confirmed at the standard 8 am.
+"tely-10-16093" = 8
+"cape-to-cabot-20000" = 8
+"five-and-dime-5000" = 8
+"mundy-pond-5000" = 8
+"flat-out-5000" = 8
+"mews-memorial-8000" = 8
+"turkey-tea-10000" = 8
+
+# Paradise Five and Dime: the 10k goes an hour after the 5k.
+"five-and-dime-10000" = 9
+
+# Trapline is its own schedule. It is also too far from St. John's airport for the weather to
+# be read (`eccc.near_st_johns`), so these times are recorded for completeness rather than
+# used. The 5k starts at 11:30, taken as the 11:00 hour, since the readings are hourly.
+"trapline-42195" = 8
+"trapline-21097" = 10
+"trapline-10000" = 11
+"trapline-5000" = 11

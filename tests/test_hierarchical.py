@@ -20,6 +20,7 @@ import pytest
 from finishline.history import History
 from finishline.identity.resolve import Runner
 from finishline.models import hierarchical as hm
+from finishline.models import weather
 from finishline.schema import Race, Result
 
 
@@ -234,23 +235,56 @@ def test_the_walk_widens_with_the_years_since_a_runner_was_last_seen() -> None:
 
 def test_observed_weather_moves_the_morning_by_its_coefficients() -> None:
     data = two_runner_design()
-    coefficients = np.tile(np.array([0.003, 0.001, 0.0005, -0.0002]), (50, 1))
+    # heat, heat x log distance, wind, tailwind, and a full sun worth 6 degrees
+    coefficients = np.tile(np.array([0.003, 0.001, 0.0005, -0.0002, 6.0]), (50, 1))
     fitted = posterior(data, weather=coefficients)
     target = RACES["target"]
-    hot = np.array([10.0, 10.0 * math.log(2.0), 5.0, -20.0])
+    log_distance = math.log(2.0)
+    # 18 C in half a clear noon's sun: felt 21, nine degrees of heat over the 12 C knee.
+    hot = np.array([1.0, 18.0, 0.5, log_distance, 5.0, -20.0])
     calm = fitted.predict("p", "F", target, np.random.default_rng(7))
     warm = fitted.predict("p", "F", target, np.random.default_rng(7), hot)
     shift = float(np.log(warm / calm)[0])
-    assert shift == pytest.approx(float(coefficients[0] @ hot))
+    expected = 9.0 * (0.003 + 0.001 * log_distance) + 0.0005 * 5.0 - 0.0002 * -20.0
+    assert shift == pytest.approx(expected)
+
+
+def test_the_parameters_the_model_stores_are_the_ones_the_prediction_reads() -> None:
+    """`build` stores the weather parameters in one order and `weather.effect` reads them in
+    one order; a swap would put the sun boost where a heat cost goes, silently."""
+    pytensor = pytest.importorskip("pytensor")
+
+    person = runner("p", [result("a", 2400.0), result("b", 1260.0)])
+    history = History.before(date(2024, 6, 1), RACES, [person])
+    rows = {"a": (1.0, 21.0, 0.8, 0.5, 3.0, -4.0), "b": (1.0, 9.0, 1.0, 0.0, -2.0, 0.0)}
+    data = hm.design(history, min_finishes=1, weather=rows)
+    assert data is not None
+    model = hm.build(data)
+    # The values replace the random variables, as they do when sampling; the positive
+    # parameters are sampled on the log scale.
+    values = [model.rvs_to_values[model[name]] for name in ("heat", "air", "sun_boost")]
+    (output,) = model.replace_rvs_by_values([model["weather"]])
+    compute = pytensor.function(values, output)
+    stored = np.asarray(
+        compute(np.log([0.004, 0.002]), np.array([0.001, -0.0005]), np.log(7.0))
+    )
+    assert stored.tolist() == pytest.approx([0.004, 0.002, 0.001, -0.0005, 7.0])
+    for race_id, conditions in rows.items():
+        read = float(weather.effect(np.array([conditions]), np.array([stored]))[0])
+        _, temp, sun, log_distance, wind, tail = conditions
+        heat = max(0.0, temp + 7.0 * sun - weather.HEAT_THRESHOLD_C)
+        by_hand = heat * (0.004 + 0.002 * log_distance) + 0.001 * wind - 0.0005 * tail
+        assert read == pytest.approx(by_hand), race_id
 
 
 def test_editions_carry_their_covariates_and_the_rest_are_neutral() -> None:
     person = runner("p", [result("a", 2400.0), result("b", 1260.0)])
     history = History.before(date(2024, 6, 1), RACES, [person])
-    data = hm.design(history, min_finishes=1, weather={"a": (1.0, 2.0, 3.0, 4.0)})
+    conditions = (1.0, 18.0, 0.5, 1.2, 3.0, 4.0)
+    data = hm.design(history, min_finishes=1, weather={"a": conditions})
     assert data is not None and data.uses_weather
-    assert data.weather[data.editions.index("a")].tolist() == [1.0, 2.0, 3.0, 4.0]
-    assert data.weather[data.editions.index("b")].tolist() == [0.0, 0.0, 0.0, 0.0]
+    assert data.weather[data.editions.index("a")].tolist() == list(conditions)
+    assert data.weather[data.editions.index("b")].tolist() == [0.0] * hm.CONDITION_TERMS
     plain = hm.design(history, min_finishes=1)
     assert plain is not None and not plain.uses_weather
 

@@ -23,6 +23,7 @@ acknowledgement, and `finishline notices` prints what has to be sent first.
 
 from __future__ import annotations
 
+import json
 import os
 import tomllib
 from datetime import date
@@ -31,7 +32,7 @@ from typing import Annotated, Any
 
 import typer
 
-from finishline import report, store
+from finishline import report, starts, store
 from finishline.backtest import run, score
 from finishline.history import History
 from finishline.ingest import eccc, entrants, nlaa
@@ -364,6 +365,7 @@ def _conditions_rows(
             finishers[result.race_id] = finishers.get(result.race_id, 0) + 1
 
     profiles = course_profiles()
+    begins = starts.load()
     rows: list[conditions.Observation] = []
     skipped = 0
     with eccc.Cache(WEATHER) as weather:
@@ -373,7 +375,9 @@ def _conditions_rows(
                 skipped += 1
                 continue
             try:
-                met = eccc.conditions(weather, race_id, race.date, race.distance_m)
+                met = eccc.conditions(
+                    weather, race_id, race.date, race.distance_m, start_hour=begins.hour(race)
+                )
             except eccc.NoObservation:
                 skipped += 1
                 continue
@@ -434,6 +438,20 @@ def weather(
             store_.get(station, year, month)
             if not already:
                 typer.echo(f"  [{index:>3}/{len(months)}] {year}-{month:02d}  {station.name}")
+
+    # The airport records no sky, and sunshine is most of what makes a warm morning hard, so
+    # the cloud cover comes from the Open-Meteo archive, a year at a time.
+    from finishline.ingest import openmeteo
+
+    years = sorted({race.date.year for race in races})
+    client = openmeteo.Client(OPENMETEO)
+    try:
+        for year in years:
+            body = client.archive(year, date.today())
+            hours = len(body.get("hourly", {}).get("time", []))
+            typer.echo(f"  sky {year}: {hours:,} hours")
+    finally:
+        client.close()
     typer.echo("done; nothing here is committed (see .gitignore)")
 
 
@@ -445,7 +463,7 @@ HIERARCHICAL_DEFAULTS: dict[str, int] = {
 }
 NO_WEATHER = "hierarchical-no-weather"
 
-Weather = dict[str, tuple[float, float, float, float]]
+Weather = dict[str, tuple[float, ...]]
 
 
 def bearings() -> dict[str, float]:
@@ -457,12 +475,41 @@ def bearings() -> dict[str, float]:
     }
 
 
+def _edition_sun(data: Dataset) -> dict[str, float]:
+    """The direct sun over each race, as a share of a clear noon, from the cached archive.
+
+    Read from the cache only: a race whose year has never been fetched is left without sun
+    rather than fetched here, so that a model fit makes no requests. `finishline weather`
+    is what fills this in.
+    """
+    from finishline.ingest import openmeteo
+
+    shares: dict[str, float] = {}
+    begins = starts.load()
+    for year in sorted({race.date.year for race in data.races.values()}):
+        cached = OPENMETEO / f"archive-{openmeteo.SKY}-{year}.json"
+        if not cached.exists():
+            continue
+        sky = openmeteo.sky_hours(json.loads(cached.read_text(encoding="utf-8"))["body"])
+        for race in data.races.values():
+            if race.date.year != year:
+                continue
+            share = openmeteo.sun_share(sky, race.date, race.distance_m, begins.hour(race))
+            if share is not None:
+                shares[race.race_id] = share
+    return shares
+
+
 def _edition_weather(data: Dataset) -> tuple[Weather, int]:
-    """Every edition's observed weather covariates, from the cached airport observations."""
+    """Every edition's observed conditions: the airport's air and wind, the archive's sun."""
     from finishline.models import weather as weather_model
 
+    sun = _edition_sun(data)
+    hours = starts.load().by_race(data.races)
     with eccc.Cache(WEATHER) as cache:
-        return weather_model.edition_covariates(data.races.values(), cache, bearings())
+        return weather_model.edition_conditions(
+            data.races.values(), cache, bearings(), sun, hours
+        )
 
 
 def _hierarchical_key(
@@ -730,14 +777,16 @@ def forecast_error(
 
     pairs: list[tuple[eccc.Conditions, eccc.Conditions]] = []
     skipped = 0
+    begins = starts.load()
     with eccc.Cache(WEATHER) as observed_cache:
         for race in editions:
+            hour = begins.hour(race)
             try:
                 observed = eccc.conditions(
-                    observed_cache, race.race_id, race.date, race.distance_m
+                    observed_cache, race.race_id, race.date, race.distance_m, start_hour=hour
                 )
                 predicted = openmeteo.conditions(
-                    forecasts, race.race_id, race.date, race.distance_m, 9
+                    forecasts, race.race_id, race.date, race.distance_m, hour
                 )
             except eccc.NoObservation:
                 skipped += 1
@@ -900,6 +949,9 @@ def _forecast(
         met = openmeteo.conditions(
             openmeteo.readings(body), race.race_id, race.date, race.distance_m, live.gun.hour
         )
+        sun_share = openmeteo.sun_share(
+            openmeteo.sky_hours(body), race.date, race.distance_m, live.gun.hour
+        )
     except (OSError, ValueError, eccc.NoObservation, httpx.HTTPError) as failure:
         typer.echo(f"no usable forecast ({failure}); predicting an average morning", err=True)
         return None, {"used": False, "reason": f"no usable forecast: {failure}"}
@@ -908,12 +960,15 @@ def _forecast(
 
     error = weather_model.load(FORECAST_ERROR)
     bearing = bearings().get(race.course_id)
+    # No forecast sun is treated as none, which never adds sunshine nobody forecast.
+    sun = 0.0 if sun_share is None else sun_share
     drawn = weather_model.draws(
-        met, error, race.distance_m, bearing, draws, np.random.default_rng(seed)
+        met, error, race.distance_m, bearing, draws, np.random.default_rng(seed), sun
     )
     typer.echo(
-        f"forecast {met.temp_c:.1f} C, wind {met.wind_kmh} km/h over {met.hours} hours; "
-        f"corrected by {-error.temp_bias:+.1f} C and {-error.wind_bias:+.1f} km/h"
+        f"forecast {met.temp_c:.1f} C, wind {met.wind_kmh} km/h, sun {sun:.0%} of a clear noon "
+        f"over {met.hours} hours; corrected by {-error.temp_bias:+.1f} C and "
+        f"{-error.wind_bias:+.1f} km/h"
     )
     return drawn, {
         "used": True,
@@ -924,15 +979,16 @@ def _forecast(
             "wind_kmh": None if met.wind_kmh is None else round(met.wind_kmh, 2),
             "wind_east_kmh": None if met.wind_east is None else round(met.wind_east, 2),
             "wind_north_kmh": None if met.wind_north is None else round(met.wind_north, 2),
+            "sun_share": None if sun_share is None else round(sun_share, 3),
         },
         "bearing_deg": bearing,
         "forecast_error": {
             key: round(value, 4) if isinstance(value, float) else value
             for key, value in error.as_record().items()
         },
-        "covariates_mean": dict(
+        "conditions_mean": dict(
             zip(
-                weather_model.COLUMNS,
+                weather_model.CONDITIONS,
                 (round(float(v), 4) for v in drawn.mean(axis=0)),
                 strict=True,
             )

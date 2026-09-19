@@ -11,7 +11,7 @@ the model's race effect (section 13 item 27), the LightGBM challenger, and the p
 model.
 
 **Section 13 is the log of what the data refuted**, and it is the first thing to read after
-this line: twenty-nine numbered entries, each one a design in this plan that measurement
+this line: thirty numbered entries, each one a design in this plan that measurement
 overturned. What is open and who owns it is in [docs/todo.md](docs/todo.md).
 
 **Build:** an alongside project, so planned in relative weeks. Earliest start: now. It waits
@@ -1009,3 +1009,147 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     (`backtest/saved.py`, `BlockStore`), so a failed run resumes instead of restarting, and
     the pagefile was raised to a fixed 64 GB. The freeze fit is the same size as that eighth
     block, so this is a constraint on October 17, not a one-off.
+
+30. **Heat is a hinge on felt temperature, the sun is part of the temperature, and the
+    calendar-year effect had been carrying the weather.** Found on 2026-09-18 by asking why
+    the 2026 Tely 10 was predicted 3.4% too fast when the 2024 edition, on the same kind of
+    morning, was not. Four designs failed on the way, and each is written down.
+
+    The same runners ran the 2026 Tely 4.5% slower than the 2025 one (1,874 of them), and the
+    2025 one 5.3% faster than 2024's; the Tely swings like this in every consecutive pair since
+    2022. Humidity and dew point explain none of what the model leaves over (dew point
+    +0.010% per degree, CI -0.110 to +0.182; relative humidity R2 0.085), and the heavy StudentT
+    tail is not suppressing the weather: held at nu = 8 instead of the fitted 1.63, the weather
+    coefficients are unchanged to the third decimal, though mixing improves five to ten times.
+    Solar radiation on its own explains nothing either, and 2024 and 2026 were the same
+    cloudless 16 C morning with residuals of -0.6% and -3.4%.
+
+    What does explain it: Peter's specification, that sunshine has no effect of its own but
+    raises the temperature a runner feels, and that the cost of that felt temperature is not
+    linear. A first grid, five random folds over 227 editions, put the sun at +3 C of cloud
+    cover and the knee at 10 C (out-of-sample R2 0.320 against 0.163 for the linear model).
+    Peter then pointed out that TrainAI (project 11) uses +15 F, 8.3 C, for a full sun, and
+    asked what the data says across versions. The answer took two tests, scored leave one year
+    out so that a warm year cannot pose as weather:
+
+    - **A, editions against their own course** (227 editions): best knee 2 to 6 C, with a
+      small sun of 2 to 6 C adding at most +0.03, inside the noise. Linear temperature 0.184,
+      the best hinge 0.367; TrainAI's exact pair (8.3 C of direct sun, knee 15.6 C) is 0.139
+      behind the best, interval +0.057 to +0.229.
+    - **B, the same runners in consecutive editions** (121 pairs, 19,035 runner pairs), which
+      holds the field fixed: every weighting prefers no sun, and the knee rises with how much
+      the Tely counts, 15.6 to 18 C weighted by runners (the Tely is 60% of the pairs), 14 to
+      15.6 capped at 200, 12 to 14 with every pair equal, and nothing distinguishable without
+      the Tely at all.
+
+    What is robust is that heat is a hinge, that cold is not a bonus, and that the old linear
+    term is the worst option in both. The knee is set at 12 C, the value whose worst shortfall
+    against the best of any single test is smallest (0.115). The sun is not settled by either:
+    test A barely sees it and test B is better without it, which is what a real effect measured
+    through a 9 km reanalysis sky looks like as much as it is what no effect looks like, and
+    TrainAI's own 45 days of thermometer readings at this coast caught that sky reporting full
+    cloud with the runner in sun. So the sun's size is estimated inside the model rather than
+    chosen: the direct radiation over the race hours as a share of a clear noon (TrainAI's
+    measure), and a boost in degrees with a HalfNormal prior on the NWS scale of 8.3 C, which
+    puts nothing and twice that in reach. The fitted boost is below.
+
+    Fitted free, a linear distance scaling claims that a hot 5 km is 7% fast and a hot marathon
+    26% slow, which is summer short races being quick for reasons that are not the weather. So
+    heat is scaled by log distance over 5 km rather than over 10, and both heat coefficients
+    are HalfNormal: the cost of a hot morning cannot be negative and cannot fall as a race
+    gets longer.
+
+    ⚠️ **The constants were chosen on editions that include the backtest's own races**, 2024 to
+    2026 among them. Two round values chosen on 18 years flatter a backtest of three only a
+    little, but they flatter it, and the backtest tables are read with that in mind.
+
+    ⚠️ **The calendar-year effect of item 29 was mostly weather.** Averaged by year, the
+    editions' course-relative effect tracks the year's average temperature at +0.403% per
+    degree (correlation +0.63 over 18 years), and taking the edition-level weather adjustment
+    out collapses it to +0.019%: 2023 from +4.47% to +1.17%, 2024 from +2.47% to -0.07%, 2026
+    from +2.69% to -0.25%. The "calendar drift" that item 29's year effect was built to absorb
+    was substantially a run of warm Junes. A year level that walks forward, fed by weather
+    it should not have been given, then carries a cool 2025 into 2026 as if the runners had
+    got faster, which is exactly the 2026 Tely. It is also why the linear weather terms came
+    out at half the edition-level estimate: collinear with the year's average, they were
+    identified only by differences between races within a year.
+
+    **What the whole archive says the sun adds: about a degree.** One fit on everything, knee
+    at 12 C, the sun estimated: a full direct sun adds a median 1.0 C to the felt temperature
+    (50% interval 0.4 to 2.0, 95% 0.04 to 6.2), against a prior whose median was 5.6. The
+    posterior is a third as wide as the prior, so this is the data speaking, and it puts
+    TrainAI's 8.3 C outside its 95% interval. It says what the sun is worth *as this archive
+    measures it*, through a reanalysis cell, and a noisy measure of a real effect is pulled
+    toward zero; so it bounds what this model can use, not what the sun does to a runner.
+    TrainAI's own observed sun share is the better witness, and its 15 F stays untouched there.
+
+    With the knee at 12 C the heat costs more per degree than the linear model claimed: per
+    degree of felt heat, +0.06% at 5 km, +0.26% at 10 km, +0.40% on the Tely, +0.47% on Cape to
+    Cabot and +0.69% at a marathon. An overcast 18 C Tely costs +2.4% (95% interval 1.9 to
+    2.9); a 22 C one with 70% of a clear noon's sun +4.4% (3.5 to 5.5). Wind +0.028% per km/h
+    (0.012 to 0.045); the tailwind still a null.
+
+    The year effect still leans on the heat a little: correlated with each year's mean felt
+    heat at +0.36 once both are detrended, and +0.23 in year-to-year changes, against +0.46
+    and +0.23 under the first heat term. On 18 years neither is distinguishable from zero, so
+    the year walk is left as it is and the backtest, which scores the 2026 Tely directly, is
+    the test. `sigma_year` still mixes badly (R-hat 1.44, ESS 8), which is item 29's ridge.
+
+    **Start times, supplied by Peter on 2026-09-18, and they matter.** No results page prints
+    a start, and every weather read above assumed 9 am. The organisers' times are 8 am as
+    standard and 7 am for a marathon, with the Uniformed Services Run staggered 7, 8, 9 and 10
+    by distance and the Five and Dime 10k at 9 (`data/starts.toml`, `finishline/starts.py`).
+    The same series ran on the same schedule under earlier names: the Provincial and Huffin
+    Puffin marathons with the Nautilus half, and in 2022 the Capital Subaru marathon and half,
+    whose 10k the archive files as `quidi-vidi-10000` after the brewery that named it and
+    which started at 7:30, read as the 7:00 hour. Half-hour starts are taken as the hour they
+    begin in, because the readings are hourly.
+    Read from the real start, both tests of this item sharpen, the same-runner test most: its
+    best out-of-sample R2 rises from 0.485 to 0.672 weighted by runners and from 0.417 to 0.532
+    capped, and without the Tely from 0.18 to 0.23, which is what a covariate with less error
+    in it looks like. The editions test still prefers a low knee (0.38 at 4 C with a little
+    sun) and the same runners a high one (14 to 15.6 C, no sun). Ranked by worst shortfall
+    across the editions test and the capped and equal same-runner tests, knees of 10, 12 and
+    14 C are within 0.04 of each other (0.148, 0.169, 0.188), so the knee stays at 12 C, the
+    middle of a range the data cannot split, rather than moving on a criterion that close. The
+    day-ahead forecast error was remeasured over the real hours: 1.5 C cold and 7.2 km/h calm,
+    against 1.4 and 7.7 read from 9 am.
+
+    **The gate refitted from the real start times, 2026-09-19** (`scratch/sun_fit.py`, output
+    `scratch/sun_fit.txt`). The numbers above were read from 9 am and are kept as they were
+    measured; these supersede them. A full sun adds a median 2.1 C (50% 0.9 to 4.2, 95% 0.1 to
+    9.2), the posterior half the prior's spread, so TrainAI's 8.3 C is now inside the 95%
+    interval though far from the middle of it: earlier starts meet less sun, and less of the
+    sun signal was being mislaid onto the heat. Per degree of felt heat: +0.05% at 5 km (0.00
+    to 0.13), +0.31% at 10 km (0.23 to 0.39), +0.50% on the Tely (0.37 to 0.61), +0.58% on Cape
+    to Cabot (0.43 to 0.71), +0.87% at a marathon (0.64 to 1.06); wind +0.027% per km/h (0.011
+    to 0.045); tailwind a null. An overcast 18 C Tely costs +3.0% (2.2 to 3.6), a 22 C one with
+    70% sun +5.9% (4.4 to 7.5). The year effect against felt heat: +0.53 raw, +0.31 detrended,
+    +0.20 in year-to-year changes, still indistinguishable from zero on 18 years, so
+    `sigma_year` is left alone; it still mixes worst (R-hat 1.29, bulk ESS 10).
+
+    **The backtest, 2026-09-19.** Both runs from scratch, eight quarterly fits each, the
+    weather run at 152 minutes and the ablation at 163, neither needing a retry. Mean absolute
+    error in minutes with the felt-heat model: 17.8 at no prior results, 9.4 at one, 8.5 at two
+    or three, 5.4 at four or more (27% skill against carry-forward's 7.4); without weather
+    17.9, 9.6, 8.6, 5.5. Paired on 18,278 predictions the weather gain is 0.0010 of absolute
+    log error (95% CI -0.0019 to +0.0002, resampling races), better at every depth, clear of
+    zero only at no prior results. Against carry-forward on the 12,714 runners both answer
+    for: 0.0743 against 0.0881, race-centred 0.0722 against 0.0780, a paired difference of
+    -0.0059 (-0.0093 to -0.0036); bias -0.7% (-1.8 to +0.6) against carry-forward's -0.4%
+    (-2.6 to +1.9). Coverage and widths as before within a point.
+
+    The test this item was built for is the race level, and it passes. Across the 32 backtest
+    races with an observation, median race bias regressed on the weather cost the model
+    applied (whole-archive posterior medians, so approximate): the no-weather run leaves
+    +0.42 (+/- 0.30) of each point of heat cost in its errors, the felt-heat run -0.15 (+/-
+    0.30), and -0.14 with calendar year in the regression. Item 29's linear terms left -0.69
+    (+/- 0.27), half the effect unapplied. The 2025 USR, 22 C for the half, moved from 1.0 to
+    1.4% too fast to 0.6 to 1.2% too slow; the 2025 Tely from 2.2% too slow to 0.7%. The 2026
+    Tely is not fixed: 18.4 C, 29% sun, calm with a tailwind, charged 3.1% and still 3.0% too
+    fast. Heat does not account for it, and it stays an open question rather than a reason to
+    move the knee. Per-fit diagnostics: no divergences with weather, worst R-hat by fit 1.41,
+    1.46, 1.77, 1.68, 1.50, 1.58, 1.87 and 2.15, smallest bulk ESS 5 to 9; the ablation has
+    13 divergences over two fits and R-hat 1.39 to 1.82. Scripts: `scratch/felt_heat_readme.py`,
+    `scratch/model_vs_cf.py`, `scratch/race_bias.py`.
+

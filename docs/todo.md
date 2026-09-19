@@ -77,6 +77,19 @@ must not be given one**; those courses feel the wind as a cost whichever way it 
 Candidates worth checking, all with real history: Mews Memorial 8 km, Mundy Pond 5 km,
 Harbour Front 10 km, Turkey Tea 10 km, Run to Remember 11 km, Flat Out 5 km.
 
+### 2c. Whether the USR marathon series kept one route
+
+The archive files the series under several course ids: `provincial-championship-42195`,
+`huffin-puffin-42195`, `capital-subaru-42195` and `usr-42195`, with the halves likewise. If the
+route did not change, they are one course and should share one course effect, which pools
+their history; if it did, they stay apart. Only someone who ran it can say.
+
+### 2d. A restart before the Cape to Cabot freeze fit
+
+A fit on the whole archive commits about 27 GB and failed on the old 48 GB commit limit. The
+pagefile was raised to a fixed 64 GB on 2026-09-18 and takes effect only after a restart. The
+freeze fit on 2026-10-17 is that size.
+
 ## Waiting on an outside event
 
 ### 3. Score the Uniformed Services Run against its start list

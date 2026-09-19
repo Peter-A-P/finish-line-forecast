@@ -53,7 +53,7 @@ def fitted(draws: int, **values: float) -> hm.Posterior:
         sigma_edition=np.full(draws, values.get("sigma_edition", 0.0)),
         latest_year=np.full(draws, values.get("latest_year", 0.0)),
         sigma_year=np.full(draws, values.get("sigma_year", 0.0)),
-        weather=np.tile(np.array([values.get("heat", 0.0), 0.0, 0.0, 0.0]), (draws, 1)),
+        weather=np.tile(np.array([values.get("heat", 0.0), 0.0, 0.0, 0.0, 0.0]), (draws, 1)),
         nu=np.full(draws, values.get("nu", 5.0)),
         sigma_eps=np.full(draws, values.get("sigma_eps", 0.0)),
         newcomer_share=hm.newcomer_shares(data),
@@ -108,7 +108,7 @@ def test_each_runners_draws_match_the_models_own_prediction(runner_id: str) -> N
         sigma_alpha=0.15,
         sigma_beta=0.02,
     )
-    morning = np.array([8.0, 8.0 * np.log(2.0), 0.0, 0.0])
+    morning = np.array([1.0, 20.0, 0.0, np.log(4.0), 0.0, 0.0])  # 20 C, 8 above the knee
     field = simulate.field_draws(
         posterior, [simulate.Entrant(runner_id, "F")], TARGET, np.random.default_rng(3), morning
     )[:, 0]

@@ -20,22 +20,56 @@ def met(
     return Conditions("r", 3, temp, None, None, speed, east, north, "test")
 
 
-def test_a_neutral_or_unobserved_morning_is_all_zeros() -> None:
-    assert weather.covariates(None, 20_000.0, 321.0) == weather.NEUTRAL
-    assert weather.covariates(met(10.0), 10_000.0, None) == (0.0, 0.0, 0.0, 0.0)
+def test_an_unobserved_morning_is_all_zeros_and_costs_nothing() -> None:
+    assert weather.row(None, 20_000.0, 321.0) == weather.NEUTRAL
+    parameters = np.array([[0.01, 0.01, 0.01, 0.01, 8.0]])
+    assert weather.effect(np.array([weather.NEUTRAL]), parameters)[0] == 0.0
 
 
-def test_the_heat_term_grows_with_distance() -> None:
-    temp, per_distance, wind, tail = weather.covariates(met(20.0, 30.0), 20_000.0, None)
-    assert temp == 10.0
-    assert per_distance == pytest.approx(10.0 * math.log(2.0))
-    assert wind == 10.0
-    assert tail == 0.0, "a loop course has no tailwind, whatever the wind"
+def test_a_row_carries_the_raw_morning() -> None:
+    morning = weather.row(met(20.0, 30.0), 20_000.0, None, 0.6)
+    observed, temp, sun, log_distance, wind, tail = morning
+    assert (observed, temp, sun, wind, tail) == (1.0, 20.0, 0.6, 10.0, 0.0)
+    assert log_distance == pytest.approx(math.log(4.0)), "pivoted at 5 km"
+    assert weather.row(met(20.0), 5_000.0, None)[3] == 0.0
+    assert weather.row(met(20.0), 10_000.0, None, 1.7)[2] == 1.0, "a share is at most a clear noon"
+
+
+def cost(temp: float, sun: float, boost: float, distance_m: float = 5_000.0) -> float:
+    rows = np.array([weather.row(met(temp), distance_m, None, sun)])
+    rows[0, 4] = 0.0  # no wind, so only the heat is measured
+    return float(weather.effect(rows, np.array([[0.01, 0.005, 0.0, 0.0, boost]]))[0])
+
+
+def test_a_cold_morning_costs_nothing_and_is_not_a_bonus() -> None:
+    """The hinge: below the threshold there is no heat, and no negative heat either."""
+    assert cost(2.0, 0.0, 8.0) == 0.0
+    assert cost(-8.0, 1.0, 8.0) == 0.0
+    assert weather.heat(5.0, 1.0, 5.0) == 0.0
+
+
+def test_sunshine_only_matters_once_it_is_warm() -> None:
+    """Sun raises the felt temperature; on a cool morning that is still under the threshold."""
+    knee = weather.HEAT_THRESHOLD_C
+    assert cost(knee - 6.0, 1.0, 5.0) == 0.0, "a cloudless cool morning is still a cool one"
+    assert cost(knee + 4.0, 0.0, 5.0) == pytest.approx(0.04)
+    assert cost(knee + 4.0, 1.0, 5.0) == pytest.approx(0.09)
+    assert cost(knee + 4.0, 0.5, 5.0) == pytest.approx(0.065)
+    assert cost(knee + 4.0, 1.0, 0.0) == cost(knee + 4.0, 0.0, 5.0), "no boost, no sun"
+
+
+def test_heat_costs_more_the_longer_the_race() -> None:
+    assert cost(20.0, 0.0, 0.0, 42_195.0) > cost(20.0, 0.0, 0.0, 10_000.0) > cost(20.0, 0.0, 0.0)
+
+
+def test_an_edition_without_a_sky_record_has_no_sun() -> None:
+    """Missing sky may not invent sunshine."""
+    assert weather.row(met(16.0), 10_000.0, None)[2] == 0.0
 
 
 def test_a_westerly_is_a_headwind_on_cape_to_cabot() -> None:
     westerly = met(10.0, 30.0, east=30.0)
-    assert weather.covariates(westerly, 20_000.0, 321.0)[3] < -15
+    assert weather.row(westerly, 20_000.0, 321.0)[5] < -15
 
 
 def test_bias_is_forecast_minus_observed() -> None:
@@ -57,9 +91,17 @@ def test_a_warm_forecast_is_cooled_by_its_bias_and_spread_by_its_error() -> None
     """Six degrees warm, as Overload measured: the draws centre on the corrected morning."""
     error = weather.ForecastError(40, 6.0, 1.5, 0.0, 4.0, 0.0, 3.0, 0.0, 3.0)
     drawn = weather.draws(met(21.0, 20.0), error, 20_000.0, 321.0, 50_000, np.random.default_rng(1))
-    assert drawn.shape == (50_000, 4)
-    assert drawn[:, 0].mean() == pytest.approx(5.0, abs=0.05)  # 21 - 6 - 10
-    assert drawn[:, 0].std() == pytest.approx(1.5, abs=0.05)
+    assert drawn.shape == (50_000, len(weather.CONDITIONS))
+    assert drawn[:, 1].mean() == pytest.approx(15.0, abs=0.05)  # 21 - 6
+    assert drawn[:, 1].std() == pytest.approx(1.5, abs=0.05)
+    assert (drawn[:, 0] == 1.0).all()
+
+
+def test_a_forecast_draw_carries_the_forecast_sun_as_given() -> None:
+    error = weather.ForecastError(40, 0.0, 3.0, 0.0, 4.0, 0.0, 3.0, 0.0, 3.0)
+    drawn = weather.draws(met(18.0), error, 20_000.0, None, 2_000, np.random.default_rng(3), 0.7)
+    assert (drawn[:, 2] == 0.7).all(), "the sun carries no forecast error yet, and says so"
+    assert np.allclose(drawn[:, 3], math.log(4.0))
 
 
 def test_a_drawn_tailwind_is_never_stronger_than_the_drawn_wind() -> None:
@@ -67,8 +109,8 @@ def test_a_drawn_tailwind_is_never_stronger_than_the_drawn_wind() -> None:
     drawn = weather.draws(
         met(10.0, 5.0, east=4.0, north=1.0), error, 16_093.0, 70.0, 20_000, np.random.default_rng(2)
     )
-    speed = drawn[:, 2] + 20.0
-    assert (np.abs(drawn[:, 3]) <= speed + 1e-9).all()
+    speed = drawn[:, 4] + 20.0
+    assert (np.abs(drawn[:, 5]) <= speed + 1e-9).all()
     assert (speed >= 0).all()
 
 
@@ -95,15 +137,21 @@ def test_editions_get_observed_covariates_and_the_rest_are_counted() -> None:
         Race("gander-2025", "g", date(2025, 10, 19), 10_000.0, "gander-10000", ""),
         Race("c2c-2025-other-day", "c2c", date(2025, 10, 20), 20_000.0, "cape-to-cabot-20000", ""),
     ]
-    observed, missing = weather.edition_covariates(
+    observed, missing = weather.edition_conditions(
         races, _Month(), {"cape-to-cabot-20000": 321.0}
     )
     assert set(observed) == {"c2c-2025"}
     assert missing == 2, "Gander is too far from the airport, and one day has no reading"
-    temp, _, wind, tail = observed["c2c-2025"]
-    assert temp == pytest.approx(2.0)
+    _, temp, sun, _, wind, tail = observed["c2c-2025"]
+    assert temp == pytest.approx(12.0)
+    assert sun == 0.0, "no sky record, no sun"
     assert wind == pytest.approx(10.0)
     assert tail < -15, "a westerly into Cape to Cabot's north-west bearing is a headwind"
+
+    sunny, _ = weather.edition_conditions(
+        races, _Month(), {"cape-to-cabot-20000": 321.0}, {"c2c-2025": 0.9}
+    )
+    assert sunny["c2c-2025"][2] == pytest.approx(0.9)
 
 
 def test_a_measurement_round_trips_through_its_file(tmp_path: Path) -> None:

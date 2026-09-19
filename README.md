@@ -116,22 +116,22 @@ with distance, because a 5 km field meets fifteen minutes of weather and a marat
 meets four hours of it.
 
 <!-- finishline:conditions -->
-Fitted on 227 editions near St. John's airport, 55 of 282 excluded as too far from it or without an observation. Explains **32%** of the edition-to-edition variance within a course, leaving sd 2.34%.
+Fitted on 227 editions near St. John's airport, 55 of 282 excluded as too far from it or without an observation. Explains **33%** of the edition-to-edition variance within a course, leaving sd 2.32%.
 
 | Race length | Cost per degree above neutral | What a 20 C morning costs |
 |---|---:|---:|
 | 5 km | -0.05% | -0.5% |
-| 10 km | +0.23% | +2.3% |
-| Tely 10 | +0.42% | +4.2% |
-| Cape to Cabot 20 km | +0.51% | +5.1% |
-| marathon | +0.81% | +8.1% |
+| 10 km | +0.24% | +2.4% |
+| Tely 10 | +0.44% | +4.4% |
+| Cape to Cabot 20 km | +0.53% | +5.3% |
+| marathon | +0.85% | +8.5% |
 
 Neutral is 10 C and 20 km/h, which is the middle of this archive rather than a laboratory ideal.
 
 | Term | Estimate | 95% CI |
 |---|---:|---|
-| Temperature at 10 km, per degree | +0.233% | [+0.129, +0.342] |
-| Tailwind along the bearing, per km/h | -0.022% | [-0.100, +0.054] |
+| Temperature at 10 km, per degree | +0.242% | [+0.130, +0.369] |
+| Tailwind along the bearing, per km/h | -0.029% | [-0.110, +0.052] |
 <!-- finishline:end:conditions -->
 
 **The check.** The Tely 10 on its own is the cleanest natural experiment in the archive:
@@ -171,23 +171,23 @@ it.
 | 0 | 5594 | `carry-forward` | 0% | - | - | baseline |
 |  |  | `best-equal-vdot` | 0% | - | - | - |
 |  |  | `category-median` | 96% | 18.5 (18.0 to 18.9) | 18% | - |
-|  |  | `hierarchical` | 100% | 17.9 (17.5 to 18.4) | 18% | - |
+|  |  | `hierarchical` | 100% | 17.8 (17.4 to 18.3) | 18% | - |
 |  |  | `hierarchical-no-weather` | 100% | 17.9 (17.5 to 18.4) | 18% | - |
 | 1 | 2650 | `carry-forward` | 100% | 9.6 (9.2 to 10.0) | 10% | baseline |
 |  |  | `best-equal-vdot` | 63% | 7.5 (7.2 to 7.9) | 8% | 22% |
 |  |  | `category-median` | 97% | 16.1 (15.5 to 16.8) | 16% | -68% |
-|  |  | `hierarchical` | 100% | 9.5 (9.1 to 9.9) | 10% | 1% |
-|  |  | `hierarchical-no-weather` | 100% | 9.6 (9.2 to 10.0) | 10% | 1% |
+|  |  | `hierarchical` | 100% | 9.4 (9.0 to 9.8) | 10% | 2% |
+|  |  | `hierarchical-no-weather` | 100% | 9.6 (9.2 to 10.0) | 10% | 0% |
 | 2 to 3 | 2831 | `carry-forward` | 100% | 9.2 (8.9 to 9.7) | 9% | baseline |
 |  |  | `best-equal-vdot` | 73% | 7.7 (7.2 to 8.0) | 8% | 17% |
 |  |  | `category-median` | 97% | 15.9 (15.3 to 16.5) | 16% | -72% |
-|  |  | `hierarchical` | 100% | 8.5 (8.2 to 9.0) | 9% | 8% |
+|  |  | `hierarchical` | 100% | 8.5 (8.1 to 8.9) | 9% | 8% |
 |  |  | `hierarchical-no-weather` | 100% | 8.6 (8.2 to 9.0) | 9% | 7% |
 | 4 or more | 7233 | `carry-forward` | 100% | 7.4 (7.2 to 7.6) | 8% | baseline |
 |  |  | `best-equal-vdot` | 87% | 7.1 (6.9 to 7.3) | 7% | 4% |
 |  |  | `category-median` | 97% | 14.1 (13.8 to 14.4) | 18% | -90% |
-|  |  | `hierarchical` | 100% | 5.5 (5.3 to 5.6) | 6% | 26% |
-|  |  | `hierarchical-no-weather` | 100% | 5.5 (5.3 to 5.7) | 6% | 26% |
+|  |  | `hierarchical` | 100% | 5.4 (5.2 to 5.6) | 6% | 27% |
+|  |  | `hierarchical-no-weather` | 100% | 5.5 (5.3 to 5.7) | 6% | 25% |
 <!-- finishline:end:baselines -->
 
 ⚠️ **The first run of this model lost to carry-forward. This is the second run, and what
@@ -197,46 +197,55 @@ years of improvement nobody has, and the race-edition effects were quietly absor
 calendar drift, so that 2023 and 2024 races came out 6 to 8% slower than their own course
 averages. Form is now a random walk over the years a runner actually races, and a shared
 year effect walks the whole province from one calendar year to the next. The bias is gone:
-predictions are 0.4% too fast on average (95% CI 2.0% too fast to 1.2% too slow), against
-carry-forward's 0.4% too fast (2.7% too fast to 2.0% too slow), the intervals resampling
-races rather than runners. With each race's typical error removed the model is now ahead rather than level, by
-0.59 percentage points of absolute log error (95% CI 0.32 to 0.93), so it has both the level
-and the order of a field better than the baseline it lost to before.
+on the 12,714 runners both can answer for, predictions are 0.7% too fast on average (95% CI
+1.8% too fast to 0.6% too slow), against carry-forward's 0.4% too fast (2.6% too fast to 1.9%
+too slow), the intervals resampling races rather than runners. With each race's typical error
+removed the model is ahead rather than level, by 0.59 percentage points of absolute log error
+(95% CI 0.36 to 0.93), so it has both the level and the order of a field better than the
+baseline it lost to before.
 
 ⚠️ **It still samples badly, and the tables above are what that badly-sampled model
-predicts.** Across the eight quarterly fits the worst R-hat runs from 1.35 to 1.87 and the
-smallest bulk ESS is about 6, with no divergences. The cause is identification, not tuning:
+predicts.** Across the eight quarterly fits the worst R-hat runs from 1.41 to 2.15 and the
+smallest bulk ESS is about 5, with no divergences. The cause is identification, not tuning:
 years since a runner's first race and the calendar year move together, so the group drift,
 the year effect and the group means trade off along a ridge that the sampler wanders. The
 predictions use only the combination that is invariant along that ridge, which is why they
 are accurate anyway, but no individual coefficient from this fit should be read on its own.
 PLAN.md section 13 item 29 has the comparison and the caveat in full.
 
-⚠️ **The weather terms move the tables by nothing, and that is not the same as measuring
-nothing.** `hierarchical-no-weather` is the same model without the four weather coefficients,
-and it lands within a rounding error at every depth: paired on the 18,278 predictions both
-runs make, the gain is 0.0003 of absolute log error (95% CI -0.0008 to +0.0002). But the
-coefficients themselves are not zero. Fitted on the whole archive they put a degree above
-neutral at +0.120% at 10 km (95% CI +0.074 to +0.164), +0.265% on Cape to Cabot and +0.421%
-at a marathon, and a km/h of wind at +0.0247% (+0.0087 to +0.0425), each with the whole
-posterior on one side of zero. The tailwind term remains the null it always was, +0.001%
-(-0.040 to +0.038), because only two courses carry a bearing.
+⚠️ **Weather is the felt heat above 12 C, with the sun estimated, and it is worth about a
+percent of a field's level, not of a runner's error.** The model reads each morning at St.
+John's airport over the hours the field was actually out, from each race's published start
+time, and charges nothing below 12 C. Above it, each degree of felt heat costs a fraction that
+grows with distance, and full sun adds degrees to the felt temperature, how many being a
+parameter the data estimates. Fitted on the whole archive, a degree above the knee costs
++0.05% at 5 km (95% CI +0.00 to +0.13), +0.31% at 10 km (+0.23 to +0.39), +0.50% on the Tely
+(+0.37 to +0.61), +0.58% on Cape to Cabot (+0.43 to +0.71) and +0.87% at a marathon (+0.64 to
++1.06); a km/h of wind +0.027% (+0.011 to +0.045). A full sun adds 2.1 C of felt temperature
+(95% CI 0.1 to 9.2), which the data narrowed to half its prior's spread without pinning down,
+because only six of 281 mornings in the archive had strong sun. The tailwind term stays the
+null it has always been, because only two courses carry a bearing.
 
-Both things are true because they answer different questions. Weather moves the level of a
-whole field by one to three percent; individual error is around ten percent, so a correct
-level shift is invisible in mean absolute error per runner. It is not invisible to a race
-director planning a finish-line clock.
+Paired on the 18,278 predictions both runs make, weather lowers absolute log error by 0.0010
+(95% CI -0.0019 to +0.0002), better at every depth and clear of zero only for runners with no
+history. That is the size it should be: weather moves the level of a whole field by one to
+five percent, individual error is around ten, and a correct level shift is close to invisible
+per runner. It is not invisible to a race director planning a finish-line clock, and the check
+that matters is the race level. There, the model without weather leaves bias that climbs with
+the heat, +0.42 (+/- 0.30) of each point of heat cost left in the errors, and the model with
+weather leaves -0.15 (+/- 0.30), which is zero. The previous weather model, linear in
+temperature from 10 C, left -0.69 (+/- 0.27): it applied about half the heat a warm morning
+costs. The 2025 USR, the hottest mornings in the backtest at 22 C, went from 1.0 to 1.4% too
+fast to 0.6 to 1.2% too slow.
 
-⚠️ **The model applies about half the weather its own errors still want, and that is
-unfinished business.** The conditions layer, fitted on edition effects alone, puts a degree
-at 10 km at +0.233% (+0.129 to +0.342), roughly twice what the joint fit applies. Race-level
-bias in the backtest still slopes -0.69 (+/- 0.27) against the conditions adjustment after
-controlling for calendar year and season, which is what a model applying half an effect looks
-like: the 2025 USR half marathon, 13.6 degrees above neutral, was predicted 3.7% too fast,
-and the 2026 Tely 10 3.4% too fast. Two candidates, neither settled: these coefficients come
-out of a fit whose bulk ESS on them is 14 to 34, which is thin; and a single multiplicative
-term assumes heat costs the front and the back of a field the same fraction, which a hot race
-does not look like. Measured before Cape to Cabot is frozen, not after.
+⚠️ **One hot race the heat does not explain: the 2026 Tely 10 is still 3.0% too fast.** 18 C,
+light sun, calm, with a tailwind. The model charges it 3.1% and it ran about 6% slower than a
+neutral morning. The whole-archive fit is the source of the charged figure, not the backtest's
+own quarterly fit, so this is approximate; either way the gap is not heat, since no setting of
+the knee or the sun closes it without breaking the other hot races. The conditions table above
+is the older linear check on edition effects alone, kept as the independent cross-check it was
+built to be; PLAN.md section 13 item 30 has the felt-heat model, the alternatives it was
+measured against, and why the knee is fixed at 12 C rather than fitted.
 
 **Getting the order right**, which is the number a race director actually plans from.
 
@@ -246,8 +255,8 @@ does not look like. Measured before Cape to Cabot is frozen, not after.
 | `carry-forward` | 49 | 25.8 | 0.836 |
 | `best-equal-vdot` | 48 | 18.3 | 0.836 |
 | `category-median` | 45 | 96.4 | 0.356 |
-| `hierarchical` | 49 | 53.4 | 0.716 |
-| `hierarchical-no-weather` | 49 | 53.3 | 0.716 |
+| `hierarchical` | 49 | 53.4 | 0.717 |
+| `hierarchical-no-weather` | 49 | 53.4 | 0.715 |
 <!-- finishline:end:placing -->
 
 ⚠️ **The model predicts times better than it predicts places, and this table flatters the
@@ -268,14 +277,14 @@ after conformal adjustment on the races before each one, by how much history a r
 
 | Prior results | Level | Runners checked | Races | Model's own interval | After conformal | Median width, minutes (own to conformal) |
 |---|---:|---:|---:|---|---|---|
-| 0 | 80% | 5,532 | 47 | 77% (75 to 80) | 78% (73 to 84) | 54.6 to 55.5 |
-| 1 | 80% | 2,591 | 43 | 72% (70 to 75) | 77% (74 to 78) | 21.0 to 23.5 |
-| 2 to 3 | 80% | 2,762 | 43 | 71% (68 to 75) | 79% (76 to 83) | 18.5 to 22.9 |
-| 4 or more | 80% | 7,133 | 46 | 76% (73 to 79) | 77% (74 to 79) | 13.5 to 13.6 |
-| 0 | 90% | 5,532 | 47 | 87% (86 to 89) | 89% (87 to 91) | 71.2 to 74.8 |
-| 1 | 90% | 2,591 | 43 | 83% (81 to 85) | 88% (87 to 89) | 28.7 to 34.1 |
-| 2 to 3 | 90% | 2,762 | 43 | 82% (80 to 85) | 88% (86 to 89) | 24.8 to 30.2 |
-| 4 or more | 90% | 7,133 | 46 | 86% (84 to 89) | 88% (86 to 90) | 18.3 to 19.2 |
+| 0 | 80% | 5,532 | 47 | 77% (76 to 80) | 79% (74 to 83) | 54.4 to 55.6 |
+| 1 | 80% | 2,591 | 43 | 74% (70 to 76) | 77% (74 to 79) | 20.7 to 23.2 |
+| 2 to 3 | 80% | 2,762 | 43 | 72% (68 to 75) | 78% (76 to 82) | 18.5 to 22.1 |
+| 4 or more | 80% | 7,133 | 46 | 76% (73 to 79) | 77% (74 to 79) | 13.4 to 13.5 |
+| 0 | 90% | 5,532 | 47 | 87% (86 to 90) | 89% (87 to 92) | 70.8 to 74.7 |
+| 1 | 90% | 2,591 | 43 | 84% (81 to 86) | 89% (87 to 90) | 28.3 to 33.7 |
+| 2 to 3 | 90% | 2,762 | 43 | 82% (80 to 84) | 88% (86 to 89) | 24.9 to 30.0 |
+| 4 or more | 90% | 7,133 | 46 | 87% (85 to 89) | 88% (87 to 90) | 18.1 to 19.1 |
 
 **The assumption.** Conformal coverage is guaranteed on average over races within a history-depth group, provided a new race's errors look like the earlier races' errors (exchangeability). It is not a promise about any one runner or any one race, and it fails when a race meets conditions or a field the earlier races did not: a gale on Signal Hill is exactly that. The first races of the backtest have too few earlier errors to calibrate on (under 50 per group) and are left out of this table rather than given an interval nobody could trust.
 <!-- finishline:end:coverage -->

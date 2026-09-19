@@ -323,15 +323,16 @@ def hourly(cache: Cache, when: date) -> tuple[Observation, ...]:
     return day
 
 
-def race_window(distance_m: float, start_hour: int = 9) -> tuple[int, int]:
+def race_window(distance_m: float, start_hour: int = 8) -> tuple[int, int]:
     """The Local Standard Time hours a field of this distance is out on the road.
 
-    ⚠️ **No results page in this archive prints a start time**, so the start is an
-    assumption: 09:00 on a wall clock, which is when Newfoundland road races go. The window
-    then runs to roughly when the back of the field finishes, because the last runner in a
-    marathon meets four hours of weather and the winner of a 5 km meets fifteen minutes of
-    it. Both ends are stated here rather than buried, and `start_hour` is an argument so
-    the assumption can be moved and the effect measured.
+    ⚠️ **No results page in this archive prints a start time.** They come from the
+    organisers instead (`finishline.starts`, `data/starts.toml`): 8 am as standard, 7 am for
+    a marathon. The first version assumed 09:00 for everything, which read a marathon's
+    weather two hours late on a warming morning. The window runs to roughly when the back of
+    the field finishes, because the last runner in a marathon meets four hours of weather and
+    the winner of a 5 km meets fifteen minutes of it. The default here is only for callers
+    that name no race.
     """
     hours = max(1, round(distance_m / 1000.0 * 0.09))
     first = start_hour + LST_OFFSET_HOURS
@@ -339,7 +340,7 @@ def race_window(distance_m: float, start_hour: int = 9) -> tuple[int, int]:
 
 
 def conditions(
-    cache: Cache, race_id: str, when: date, distance_m: float, *, start_hour: int = 9
+    cache: Cache, race_id: str, when: date, distance_m: float, *, start_hour: int = 8
 ) -> Conditions:
     """The average conditions a field met, over the hours it was running."""
     first, last = race_window(distance_m, start_hour)

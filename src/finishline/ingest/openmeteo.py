@@ -35,7 +35,7 @@ import math
 import ssl
 import time
 from collections.abc import Sequence
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -60,8 +60,19 @@ TIMEZONE = "America/St_Johns"
 
 FORECAST = "https://api.open-meteo.com/v1/forecast"
 PREVIOUS_RUNS = "https://previous-runs-api.open-meteo.com/v1/forecast"
+ARCHIVE = "https://archive-api.open-meteo.com/v1/archive"
 
 VARIABLES = ("temperature_2m", "wind_speed_10m", "wind_direction_10m")
+# How far behind today the reanalysis archive runs. A year fetched inside this window is
+# incomplete and is fetched again later, the same rule the ECCC months follow.
+ARCHIVE_LAG = timedelta(days=6)
+# A clear noon's direct sun, the unit the share is measured in (TrainAI uses the same).
+SUN_REFERENCE_W_M2 = 800.0
+# The sun, which the airport does not record and the model needs: it is what makes a warm road
+# feel hotter than the thermometer (`models.weather.heat`). Direct (beam) radiation rather than
+# cloud cover, because 100% thin cirrus and 100% storm cloud are the same cloud cover and not
+# the same sky, which is TrainAI's reasoning (project 11); the forecast carries it too.
+SKY = "direct_radiation"
 MIN_INTERVAL = 1.0
 
 STATION = "Open-Meteo forecast, St. John's airport"
@@ -73,10 +84,27 @@ def forecast_params(day: date) -> dict[str, str]:
         "latitude": str(LATITUDE),
         "longitude": str(LONGITUDE),
         "timezone": TIMEZONE,
-        "hourly": ",".join(VARIABLES),
+        "hourly": ",".join((*VARIABLES, SKY)),
         "wind_speed_unit": "kmh",
         "start_date": day.isoformat(),
         "end_date": day.isoformat(),
+    }
+
+
+def archive_params(year: int, today: date) -> dict[str, str]:
+    """The query for one year of hourly direct sun, clamped to what the archive holds.
+
+    The archive runs a few days behind, so the current year ends where it ends rather than on
+    the 31st of December, and a rerun after those days have landed fetches the rest.
+    """
+    end = min(date(year, 12, 31), today - ARCHIVE_LAG)
+    return {
+        "latitude": str(LATITUDE),
+        "longitude": str(LONGITUDE),
+        "timezone": TIMEZONE,
+        "hourly": SKY,
+        "start_date": date(year, 1, 1).isoformat(),
+        "end_date": end.isoformat(),
     }
 
 
@@ -142,6 +170,36 @@ def _number(value: object) -> float | None:
     return None if math.isnan(number) else number
 
 
+def sky_hours(body: dict[str, Any]) -> dict[tuple[date, int], float]:
+    """Direct radiation per day and wall-clock hour, in W/m2, from any response."""
+    hourly = body.get("hourly")
+    if not isinstance(hourly, dict) or "time" not in hourly or SKY not in hourly:
+        raise NoObservation(f"the response carries no {SKY} series")
+    out: dict[tuple[date, int], float] = {}
+    for at, cover in zip(hourly["time"], hourly[SKY], strict=True):
+        value = _number(cover)
+        if value is None:
+            continue
+        when = datetime.fromisoformat(at)
+        out[(when.date(), when.hour)] = value
+    return out
+
+
+def sun_share(
+    sky: dict[tuple[date, int], float], day: date, distance_m: float, start_hour: int = 8
+) -> float | None:
+    """The direct sun over the hours this field was out, as a share of a clear noon, 0 to 1.
+
+    None when the archive has no hour of that morning, which leaves the edition without sun
+    rather than sunny: the model may not invent sunshine nobody recorded.
+    """
+    first, last = window(distance_m, start_hour, wall_clock=True)
+    beams = [sky[(day, hour)] for hour in range(first, last + 1) if (day, hour) in sky]
+    if not beams:
+        return None
+    return min(1.0, sum(beams) / len(beams) / SUN_REFERENCE_W_M2)
+
+
 def conditions(
     hourly: Sequence[Observation],
     race_id: str,
@@ -181,6 +239,26 @@ class Client:
     def forecast(self, day: date) -> dict[str, Any]:
         """Today's forecast for a day. Never cached for reuse: a forecast is a moment."""
         return self._get(FORECAST, forecast_params(day), f"forecast-{day.isoformat()}")
+
+    def archive(self, year: int, today: date) -> dict[str, Any]:
+        """A year of hourly direct sun, fetched once, and again while the year is unfinished.
+
+        ⚠️ **A year fetched before it ended is not that year.** The reanalysis runs about a
+        week behind, so a request made in September returns January to September and nothing
+        else; served back next spring it would leave every race of the autumn overcast, which
+        is a silent wrong answer rather than a missing one. The cached response is reused only
+        when it reaches the last day the archive could have held when it was fetched.
+        """
+        name = f"archive-{SKY}-{year}"
+        cached = self.root / f"{name}.json"
+        if cached.exists():
+            record = json.loads(cached.read_text(encoding="utf-8"))
+            body: dict[str, Any] = record["body"]
+            wanted = archive_params(year, today)["end_date"]
+            times = body.get("hourly", {}).get("time") or [""]
+            if str(times[-1])[:10] >= wanted:
+                return body
+        return self._get(ARCHIVE, archive_params(year, today), name, keep=True)
 
     def previous_runs(self, start: date, end: date) -> dict[str, Any]:
         """Day-ahead forecasts for past days. History, so fetched once and kept."""

@@ -189,10 +189,10 @@ def test_the_forecast_used_is_recorded_and_moves_the_prediction() -> None:
     hot = hm.Posterior(
         **{
             **{name: getattr(posterior, name) for name in hm.Posterior.__slots__},
-            "weather": np.tile(np.array([0.01, 0.0, 0.0, 0.0]), (posterior.draws, 1)),
+            "weather": np.tile(np.array([0.01, 0.0, 0.0, 0.0, 0.0]), (posterior.draws, 1)),
         }
     )
-    record = {"used": True, "source": "test", "covariates_mean": {"temp": 10.0}}
+    record = {"used": True, "source": "test", "conditions_mean": {"temp_c": 22.0}}
 
     def freeze_with(conditions: np.ndarray | None) -> dict[str, Any]:
         return freeze.assemble(
@@ -210,7 +210,9 @@ def test_the_forecast_used_is_recorded_and_moves_the_prediction() -> None:
         )
 
     neutral = freeze_with(None)
-    warm = freeze_with(np.tile(np.array([10.0, 0.0, 0.0, 0.0]), (posterior.draws, 1)))
+    warm = freeze_with(
+        np.tile(np.array([1.0, 22.0, 0.0, 0.0, 0.0, 0.0]), (posterior.draws, 1))
+    )
     assert neutral["conditions"] is None
     assert warm["conditions"] == record
     assert pf.validate(warm) == []
