@@ -58,7 +58,7 @@ from typing import Any
 
 import numpy as np
 
-from finishline.conformal.split import QUANTILES
+from finishline.conformal.split import QUANTILES as QUANTILES
 from finishline.history import History
 from finishline.identity.resolve import Runner, age_range
 from finishline.metrics import daniels
@@ -246,7 +246,7 @@ def _second_batch(
     ]
 
 
-def _history_rows(runner: Runner, races: Mapping[str, Race]) -> list[tuple[Race, Result]]:
+def history_rows(runner: Runner, races: Mapping[str, Race]) -> list[tuple[Race, Result]]:
     rows = [(races[result.race_id], result) for result in runner.results if result.finished]
     return sorted(rows, key=lambda pair: pair[0].date)
 
@@ -260,7 +260,7 @@ def training_table(
     for runner in history.runners.values():
         if runner.ambiguous:
             continue
-        timeline = _history_rows(runner, history.races)
+        timeline = history_rows(runner, history.races)
         for index, (race, result) in enumerate(timeline):
             if race.date.year < FIRST_TRAINING_YEAR or not result.seconds:
                 continue
@@ -325,7 +325,7 @@ class Challenger:
             self.fits.append((start, self._fitted.rows if self._fitted else 0))
         if self._fitted is None:
             return Prediction(runner.runner_id, None, "nothing before this block to fit")
-        prior = _history_rows(runner, history.races)
+        prior = history_rows(runner, history.races)
         weather = self._conditions.get(target.race_id) if self._conditions else None
         row = features(
             prior, target, runner.sex, self._fitted.course_fit.prior_for(target.course_id),

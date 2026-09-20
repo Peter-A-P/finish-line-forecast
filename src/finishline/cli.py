@@ -636,6 +636,25 @@ def _hierarchical_rows(
     return [replace(row, model=NO_WEATHER) for row in rows]
 
 
+def _blend_rows(
+    data: Dataset, scored_from: int, covariates: Weather
+) -> list[score.Scored] | None:
+    """The blend's rows, from the two saved runs; None when either is missing or stale.
+
+    Nothing is fitted here: blending is arithmetic on two saved predictions, and doing it from
+    the saved rows is exactly what a freeze does to two live predictions (`models.blend`).
+    """
+    from finishline.models import blend
+
+    hierarchical = _hierarchical_rows(
+        data, scored_from, dict(HIERARCHICAL_DEFAULTS), covariates, fit_if_missing=False
+    )
+    challenger = _challenger_rows(data, scored_from, covariates, fit_if_missing=False)
+    if hierarchical is None or challenger is None:
+        return None
+    return blend.rows([*hierarchical, *challenger])
+
+
 @app.command()
 def backtest(
     scored_from: Annotated[int, typer.Option(help="First year to score.")] = 2024,
@@ -684,11 +703,14 @@ def backtest(
         model_name = "hierarchical" if weather else NO_WEATHER
         names.append(model_name)
     if challenger:
-        from finishline.models import gbm
+        from finishline.models import blend, gbm
 
         covariates, _missing = _edition_weather(data)
         scored += _challenger_rows(data, scored_from, covariates, fit_if_missing=True) or []
         names.append(gbm.NAME)
+        if hierarchical:
+            scored += blend.rows(scored)
+            names.append(blend.NAME)
     races = len({row.race_id for row in scored})
     typer.echo(f"{races} races scored from {scored_from}, {len(scored):,} predictions\n")
     typer.echo(report.baseline_table(scored, names))
@@ -747,7 +769,7 @@ def write_report(
     if ablation is not None:
         scored += ablation
         names.append(NO_WEATHER)
-    from finishline.models import gbm
+    from finishline.models import blend, gbm
 
     challenger = _challenger_rows(data, scored_from, covariates, fit_if_missing=False)
     if challenger is not None:
@@ -755,6 +777,10 @@ def write_report(
         names.append(gbm.NAME)
     else:
         typer.echo("no saved challenger run matches; `backtest --challenger` makes one")
+    blended = _blend_rows(data, scored_from, covariates)
+    if blended is not None:
+        scored += blended
+        names.append(blend.NAME)
 
     readme = Path("README.md")
     text = readme.read_text(encoding="utf-8")
@@ -989,6 +1015,10 @@ def freeze(
     ] = False,
     first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
     last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+    dry_run: Annotated[
+        bool,
+        typer.Option("--dry-run", help="Assemble and report, but write no file: a rehearsal."),
+    ] = False,
 ) -> None:
     """Write the prediction file for a race, and print the hash to publish with it.
 
@@ -1047,11 +1077,15 @@ def freeze(
 
     data = _dataset(first, last)
     covariates, _missing = _edition_weather(data)
-    saved_rows = _hierarchical_rows(
-        data, 2024, dict(HIERARCHICAL_DEFAULTS), covariates, fit_if_missing=False
-    )
+    # The intervals are calibrated on the published model's own backtest errors, and the
+    # published model is the blend (PLAN.md 13 item 35), so both saved runs have to match
+    # this code and this data or there is nothing honest to calibrate on.
+    saved_rows = _blend_rows(data, 2024, covariates)
     if saved_rows is None:
-        typer.echo("no saved model backtest matches this code; run `backtest --hierarchical`")
+        typer.echo(
+            "no saved backtest of the blend matches this code and data; run "
+            "`backtest --hierarchical --challenger`"
+        )
         raise typer.Exit(code=2)
     dates = {race_id_: race.date for race_id_, race in data.races.items()}
     calibration = {
@@ -1099,9 +1133,11 @@ def freeze(
             )
 
     listed = entrants.load(snapshot_path)
+    links_ = link.link(listed, data.runners)
+    challenger = _challenger_predictions(history, links_, live, covariates, conditions)
     doc = freezing.assemble(
         posterior=posterior,
-        links=link.link(listed, data.runners),
+        links=links_,
         history=history,
         live=live,
         now=datetime.now(UTC),
@@ -1109,13 +1145,7 @@ def freeze(
             "file": snapshot_path.name,
             "sha256": predictions.sha256(snapshot_path.read_bytes()),
         },
-        model={
-            "name": "hierarchical",
-            "commit": commit,
-            "fit_on_results_before": live.race.date.isoformat(),
-            "diagnostics": posterior.diagnostics,
-            "settings": dict(HIERARCHICAL_DEFAULTS),
-        },
+        model=_model_record(commit, live, posterior, challenger),
         calibration=calibration,
         seed=backtest_seed(race_id),
         conditions=conditions,
@@ -1123,6 +1153,7 @@ def freeze(
         already=already,
         only_new=daily_file,
         pool=pool,
+        challenger=challenger,
     )
     if daily_file:
         path = daily.daily_path(PREDICTIONS, race_id, today)
@@ -1133,6 +1164,19 @@ def freeze(
     else:
         path = PREDICTIONS / f"{race_id}.json"
         tag = f"predictions/{race_id}"
+    if dry_run:
+        problems = predictions.validate(doc)
+        counted = doc["entrants"]
+        typer.echo(
+            f"\ndry run: {counted['predicted']} runners would be written to {path}, "
+            f"{counted['ambiguous']} excluded as ambiguous, {counted['new']} with no history"
+        )
+        digest = predictions.sha256(predictions.to_bytes(doc))
+        typer.echo(f"sha256 of what it would write: {digest}")
+        typer.echo("schema: " + ("clean" if not problems else f"{len(problems)} problems"))
+        for problem in problems[:5]:
+            typer.echo(f"  {problem}")
+        return
     digest = predictions.write(path, doc)
     counts = doc["entrants"]
     typer.echo(
@@ -1148,6 +1192,69 @@ def freeze(
         f"  git tag -a {tag} -m \"sha256 {digest}\"\n"
         f"  git push && git push origin {tag}"
     )
+
+
+def _challenger_predictions(
+    history: History,
+    links: list[Any],
+    live: Any,
+    covariates: Weather,
+    conditions: Any,
+) -> dict[str, float]:
+    """The challenger's predicted seconds per entrant, keyed as `freeze` keys its runners.
+
+    Fitted here on the same history the posterior was fitted on, which is fixed for the whole
+    prediction week (the scheduled crawl stands down around a live race), so every morning of
+    a week refits the same model on the same rows and gets the same numbers back.
+
+    The trees take one morning rather than a draw per morning: the middle of the corrected
+    forecast, which is the same forecast the posterior's draws are spread around.
+    """
+    import numpy as np
+
+    from finishline.identity.link import Status
+    from finishline.models import gbm
+    from finishline.publish import freeze as freezing
+
+    fitted = gbm.fit(history, covariates)
+    if fitted is None:
+        typer.echo("the challenger has nothing to fit on; the blend falls back to the model")
+        return {}
+    morning = None if conditions is None else tuple(np.median(conditions, axis=0))
+    factor = fitted.course_fit.prior_for(live.race.course_id)
+    predicted = [item for item in links if item.status is not Status.AMBIGUOUS]
+    answers: dict[str, float] = {}
+    for runner_id, item in zip(freezing.entrant_ids(links), predicted, strict=True):
+        prior = (
+            gbm.history_rows(item.runner, history.races) if item.runner is not None else []
+        )
+        row = gbm.features(prior, live.race, item.entrant.sex, factor, morning)
+        answers[runner_id] = fitted.quantiles(row, live.race)[gbm.QUANTILES.index(0.50)]
+    typer.echo(f"the challenger, fitted on {fitted.rows:,} finishes, answered for {len(answers)}")
+    return answers
+
+
+def _model_record(
+    commit: str, live: Any, posterior: Any, challenger: dict[str, float]
+) -> dict[str, Any]:
+    """What the prediction file says made it."""
+    from finishline.models import blend, gbm
+
+    record: dict[str, Any] = {
+        "name": blend.NAME if challenger else "hierarchical",
+        "commit": commit,
+        "fit_on_results_before": live.race.date.isoformat(),
+        "diagnostics": posterior.diagnostics,
+        "settings": dict(HIERARCHICAL_DEFAULTS),
+    }
+    if challenger:
+        record["blend"] = {
+            "weight": blend.WEIGHT,
+            "centre": f"(1 - w) * log(hierarchical) + w * log({gbm.NAME})",
+            "distribution": "the hierarchical model's draws, scaled onto the blended centre",
+            "challenger_answered": len(challenger),
+        }
+    return record
 
 
 def _forecast(

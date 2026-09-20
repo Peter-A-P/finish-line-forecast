@@ -41,6 +41,7 @@ from finishline.backtest.score import stratum_of
 from finishline.conformal.split import bounds_for, widen
 from finishline.history import History
 from finishline.identity.link import Link, Status, counts
+from finishline.models import blend
 from finishline.models.hierarchical import QUANTILES, Posterior, summarise
 from finishline.placing import simulate, unseen
 from finishline.publish import daily
@@ -130,6 +131,20 @@ def crawl_paused(path: Path, today: date) -> str | None:
     return None
 
 
+def entrant_ids(links: Sequence[Link]) -> list[str]:
+    """The id each predicted entrant is known by, in list order.
+
+    A newcomer needs an id the posterior cannot mistake for an archive runner, and the caller
+    needs the same ids to hand over anything keyed by runner (the challenger's predictions,
+    for the blend).
+    """
+    predicted = [item for item in links if item.status is not Status.AMBIGUOUS]
+    return [
+        item.runner.runner_id if item.runner is not None else f"entrant:{position}"
+        for position, item in enumerate(predicted)
+    ]
+
+
 def assemble(
     *,
     posterior: Posterior,
@@ -146,6 +161,7 @@ def assemble(
     already: daily.Published | None = None,
     only_new: bool = False,
     pool: unseen.Pool | None = None,
+    challenger: Mapping[str, float] | None = None,
 ) -> dict[str, Any]:
     """The prediction file for this race, validated by the caller's `write`.
 
@@ -166,6 +182,12 @@ def assemble(
     in their own line, and the final file says how many top places are expected to go to
     runners with no results here. A newcomer's interval is then the spread of that pool,
     which is itself a measurement, and no conformal shift is added to it.
+
+    `challenger` is the LightGBM prediction in seconds per entrant (`models.gbm`). With it,
+    every runner both models answered for has their draws multiplied onto the blended centre
+    (`models.blend`), in their own line and in the simulated field alike, so a published place
+    and a published time are the same prediction. A runner drawn from the newcomer pool is
+    left alone.
     """
     check_gun(live.gun, now)
     race = live.race
@@ -175,20 +197,34 @@ def assemble(
     _new, carried, streams = daily.split(
         [daily.entrant_key(item.entrant) for item in predicted], earlier
     )
-    # Newcomers need an id the posterior cannot mistake for an archive runner.
-    ids = [
-        item.runner.runner_id if item.runner is not None else f"entrant:{position}"
-        for position, item in enumerate(predicted)
-    ]
+    ids = entrant_ids(links)
     field = [
         simulate.Entrant(runner_id, item.entrant.sex)
         for runner_id, item in zip(ids, predicted, strict=True)
     ]
+    # First pass: each runner's own draws, from their own stream, which fix the factor that
+    # moves them onto the blended centre. Drawing again below with the same stream repeats
+    # them exactly, so the line, the simulated field and the factor are one prediction.
+    scale: dict[str, float] = {}
+    if challenger:
+        for position, (runner_id, item) in enumerate(zip(ids, predicted, strict=True)):
+            if runner_id not in challenger or (pool is not None and item.runner is None):
+                continue
+            drawn = posterior.predict(
+                runner_id,
+                item.entrant.sex,
+                race,
+                daily.runner_rng(seed, streams[position]),
+                conditions,
+            )
+            median = float(summarise(drawn)[QUANTILES.index(0.50)])
+            scale[runner_id] = blend.factor(median, challenger[runner_id])
+
     places: dict[str, simulate.Place] = {}
     newcomers: dict[str, Any] | None = None
     if not only_new:
         simulated, placed = simulate.simulate_field(
-            posterior, field, race, np.random.default_rng(seed), conditions, pool
+            posterior, field, race, np.random.default_rng(seed), conditions, pool, scale
         )
         places = {place.runner_id: place for place in simulated}
         if pool is not None:
@@ -212,7 +248,12 @@ def assemble(
         if known:
             known_field = np.log(
                 simulate.field_draws(
-                    posterior, known, race, daily.runner_rng(seed, "known-field"), conditions
+                    posterior,
+                    known,
+                    race,
+                    daily.runner_rng(seed, "known-field"),
+                    conditions,
+                    scale=scale,
                 )
             )
 
@@ -234,6 +275,7 @@ def assemble(
             )
         else:
             draws = posterior.predict(runner_id, item.entrant.sex, race, rng, conditions)
+            draws = draws * scale.get(runner_id, 1.0)
         quantiles = summarise(draws)
         median = quantiles[QUANTILES.index(0.50)]
         depth = len(history.results_of(runner_id)) if item.runner is not None else 0

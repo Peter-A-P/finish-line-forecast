@@ -22,7 +22,7 @@ still pins that one runner's draws here match `predict`'s distribution.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
 import numpy as np
@@ -76,12 +76,18 @@ def field_draws(
     rng: np.random.Generator,
     conditions: np.ndarray | None = None,
     pool: unseen.Pool | None = None,
+    scale: Mapping[str, float] | None = None,
 ) -> np.ndarray:
     """Finish-time draws in seconds, (draws, entrants), with one morning per draw.
 
     With a `pool` (`placing.unseen`, the biggest races only), an entrant the archive has never
     seen is drawn from how first-timers at this course finished against the returning field,
     rather than from the group prior.
+
+    `scale` multiplies one runner's draws by one factor, which is how the blend moves a
+    runner's whole distribution onto a blended centre (`models.blend`) without touching the
+    shared morning that makes the places a field rather than a list. It is applied before the
+    pool draws, so a pool newcomer is never scaled.
     """
     morning = posterior.morning(target, rng, conditions)
     log_ratio = np.empty((posterior.draws, len(entrants)))
@@ -89,6 +95,10 @@ def field_draws(
         own = posterior.own(entrant.runner_id, entrant.sex, target, rng)
         log_ratio[:, column] = own + morning + posterior.noise(rng)
     seconds = np.exp(log_ratio) * reference_seconds(target.distance_m)
+    if scale:
+        seconds = seconds * np.array(
+            [scale.get(entrant.runner_id, 1.0) for entrant in entrants], dtype=float
+        )
     new = newcomer_columns(posterior, entrants)
     if pool is not None and new and len(new) < len(entrants):
         known = [column for column in range(len(entrants)) if column not in set(new)]
@@ -114,9 +124,10 @@ def simulate(
     rng: np.random.Generator,
     conditions: np.ndarray | None = None,
     pool: unseen.Pool | None = None,
+    scale: Mapping[str, float] | None = None,
 ) -> list[Place]:
     """Every entrant's simulated place: median and the middle 80 percent."""
-    return simulate_field(posterior, entrants, target, rng, conditions, pool)[0]
+    return simulate_field(posterior, entrants, target, rng, conditions, pool, scale)[0]
 
 
 def simulate_field(
@@ -126,11 +137,12 @@ def simulate_field(
     rng: np.random.Generator,
     conditions: np.ndarray | None = None,
     pool: unseen.Pool | None = None,
+    scale: Mapping[str, float] | None = None,
 ) -> tuple[list[Place], np.ndarray]:
     """`simulate`, and the (draws, entrants) places it summarised."""
     if not entrants:
         return [], np.empty((posterior.draws, 0), dtype=np.int64)
-    placed = places(field_draws(posterior, entrants, target, rng, conditions, pool))
+    placed = places(field_draws(posterior, entrants, target, rng, conditions, pool, scale))
     low, median, high = np.quantile(placed, [PLACE_RANGE[0], 0.5, PLACE_RANGE[1]], axis=0)
     return [
         Place(

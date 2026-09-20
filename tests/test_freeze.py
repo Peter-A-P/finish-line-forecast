@@ -489,3 +489,62 @@ def test_a_race_moves_through_its_stages() -> None:
     assert site.stage([daily_file, final_file], False, date(2026, 10, 19), race_day) == "run"
     assert site.stage([daily_file, final_file], True, date(2026, 10, 25), race_day) == "scored"
     assert "due" in site.status([], False, date(2026, 10, 12), race_day)
+
+
+def test_the_blend_moves_a_runner_and_their_place_together() -> None:
+    from finishline.models import blend
+    from finishline.publish import freeze as freezing
+
+    entrants = [Entrant("Ann Hynes", "F"), Entrant("Bea Power", "F")]
+    plain = build(entrants)
+    posterior, _links, history = setup()
+    archive = [history.runners[key] for key in ("r1", "r2") if key in history.runners]
+    links = link.link(entrants, archive)
+    ids = freezing.entrant_ids(links)
+    assert len(ids) == 2
+
+    # The challenger says the first entrant is a tenth slower and the second the same.
+    before = {line["name"]: line for line in plain["runners"]}
+    slower = before["Ann Hynes"]["seconds"] * 1.1
+    doc = freezing.assemble(
+        posterior=posterior,
+        links=links,
+        history=history,
+        live=LIVE,
+        now=NOW,
+        snapshot={"file": "x.html", "sha256": "ab"},
+        model={"name": "blend", "commit": "0" * 40},
+        calibration={0.80: {}, 0.90: {}},
+        seed=7,
+        challenger={ids[0]: slower, ids[1]: before["Bea Power"]["seconds"]},
+    )
+    assert pf.validate(doc) == []
+    after = {line["name"]: line for line in doc["runners"]}
+    expected = blend.centre(before["Ann Hynes"]["seconds"], slower)
+    # The file rounds a published time to a tenth of a second (`publish/predictions`).
+    assert after["Ann Hynes"]["seconds"] == pytest.approx(expected, abs=0.2)
+    assert after["Bea Power"]["seconds"] == pytest.approx(before["Bea Power"]["seconds"])
+
+    scale = expected / before["Ann Hynes"]["seconds"]
+    for edge, plain_edge in zip(after["Ann Hynes"]["interval_80"],
+                               before["Ann Hynes"]["interval_80"], strict=True):
+        assert edge == pytest.approx(plain_edge * scale, abs=0.2), "the whole range moves"
+    assert after["Ann Hynes"]["place"]["median"] >= before["Ann Hynes"]["place"]["median"], (
+        "a runner the blend slows down does not move up the field"
+    )
+
+
+def test_the_places_follow_the_blended_times() -> None:
+    import numpy as np
+
+    from finishline.placing import simulate
+
+    posterior, _links, _history = setup()
+    field = [simulate.Entrant("r1", "F"), simulate.Entrant("r2", "F")]
+    rng = np.random.default_rng(3)
+    plain = simulate.field_draws(posterior, field, LIVE.race, rng, None)
+    scaled = simulate.field_draws(
+        posterior, field, LIVE.race, np.random.default_rng(3), None, scale={"r1": 0.5}
+    )
+    assert scaled[:, 0] == pytest.approx(plain[:, 0] * 0.5)
+    assert scaled[:, 1] == pytest.approx(plain[:, 1]), "nobody else moves"
