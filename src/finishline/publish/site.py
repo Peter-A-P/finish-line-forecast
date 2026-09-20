@@ -359,6 +359,7 @@ def tokens(
         "race_options": options,
         "vdot_rows": vdot_rows(),
         "distance_rows": distance_rows(results),
+        "hero_distances": hero_distances(results),
         "refuted": str(refuted),
         "tests": f"{tests:,}",
         "code_lines": f"{code_lines:,}",
@@ -434,6 +435,26 @@ def _phrases(paired: Sequence[Mapping[str, Any]]) -> tuple[list[str], list[str],
         else:
             level.append(f"{who} ({times})")
     return ahead, level, behind
+
+
+def hero_distances(results: Mapping[str, Any]) -> str:
+    """The typical error at each race length, for the hero strip under the headline figures.
+
+    The same population as the headline error, runners with four or more past races, because a
+    reader comparing the two should not have to notice that one of them changed subject. The
+    full table further down carries the whole field, first-timers included.
+    """
+    rows = [row for row in results.get("distances") or [] if row.get("deep_mae_min") is not None]
+    if not rows:
+        return ""
+    return "".join(
+        "<span class=\"hero-distance\">"
+        f"<span class=\"hd-race\">{html.escape(str(row['label']))}</span>"
+        f"<span class=\"hd-min\">{row['deep_mae_min']:.1f} min</span>"
+        f"<span class=\"hd-pct\">{_percent(row['deep_mape'])}</span>"
+        "</span>"
+        for row in rows
+    )
 
 
 def distance_rows(results: Mapping[str, Any]) -> str:

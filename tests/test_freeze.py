@@ -579,3 +579,29 @@ def test_the_page_states_the_weight_the_predictions_are_made_with() -> None:
     )
     assert values["blend_weight"] == f"{blend.WEIGHT:.2f}"
     assert float(values["blend_weight"]) + float(values["blend_parent_weight"]) == 1.0
+
+
+def test_the_hero_strip_says_both_units_and_survives_an_unmeasured_run() -> None:
+    """The error by race length, in minutes and as a share, or nothing at all.
+
+    Before a backtest has run there is no `distances` block, and the page still has to build:
+    the strip is empty rather than the token being missing.
+    """
+    from finishline.publish import site
+
+    measured = {
+        "distances": [
+            {"label": "5 km", "runners": 10, "median_min": 28.0, "mae_min": 3.5, "mape": 0.10,
+             "deep_runners": 5, "deep_mae_min": 1.4, "deep_mape": 0.053},
+            {"label": "Marathon", "runners": 4, "median_min": 271.0, "mae_min": 26.0,
+             "mape": 0.10, "deep_runners": 0, "deep_mae_min": None, "deep_mape": None},
+        ]
+    }
+    strip = site.hero_distances(measured)
+    assert "5 km" in strip and "1.4 min" in strip and "5%" in strip
+    assert "Marathon" not in strip, "a band with nobody deep enough is left out of the strip"
+    assert site.hero_distances({}) == "", "no backtest, no strip, and still a valid page"
+
+    rows = site.distance_rows(measured)
+    assert "26.0 min, 10%" in rows, "the table keeps the whole field, deep or not"
+    assert "<td class=\"num\">-</td>" in rows, "and says so where it cannot answer"
