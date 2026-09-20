@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "finishline"
 version = "0.1.0.dev0"
-description = "Finish Line Forecast: pre-registered finish-time and placing predictions for Newfoundland road races from public results."
+description = "The Whole Field, Called Before the Gun: pre-registered finish-time and placing predictions for Newfoundland road races from public results."
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
 license = "MIT"

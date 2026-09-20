@@ -1,4 +1,4 @@
-"""Finish Line Forecast: finish-time and placing predictions published before the gun.
+"""The Whole Field, Called Before the Gun: finish-time and placing predictions published before the gun.
 
 The package is built in the order the prediction is: read the public results
 (`ingest`), work out who is who (`identity`), take the course and the weather back out
