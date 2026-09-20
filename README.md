@@ -1,4 +1,4 @@
-# Finish Line Forecast
+# The Whole Field, Called Before the Gun
 
 Before the gun, a predicted finish time and placing for every registered runner in a field of
 thousands, from their public race history, published in advance, with the error published once
