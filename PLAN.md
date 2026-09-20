@@ -1,4 +1,4 @@
-# Plan: Finish Line Forecast
+# Plan: The Whole Field, Called Before the Gun
 
 **Written:** 2026-09-12. **Status as of 2026-09-16:** weeks 1 and 2 built, and the
 hierarchical model is built and converges on the real archive; its backtest is running.
@@ -575,7 +575,7 @@ but it was never tried as a published design, so it is recorded there rather tha
 - [ ] Error published after Cape to Cabot 2026: finish-time MAE in minutes, coverage, placing error, field coverage
 - [ ] The same for Run to Remember 2026 on the frozen model
 - [ ] One rejected approach documented with evidence (`docs/rejected.md`)
-- [x] Public name decided (Finish Line Forecast, 2026-09-06)
+- [x] Public name decided (Finish Line Forecast, 2026-09-06; renamed The Whole Field, Called Before the Gun, 2026-09-20)
 - [x] Repository public before the first live race (2026-09-19); `v0.1.0` tagged after the first scored race
 
 ## 12. Deferred
