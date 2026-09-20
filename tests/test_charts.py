@@ -174,3 +174,35 @@ def test_a_chart_carries_no_script_and_paints_its_own_background() -> None:
 def test_a_chart_with_no_measurement_says_so_rather_than_drawing_axes() -> None:
     assert "Not measured yet" in charts.error_by_distance([])
     assert "Not measured yet" in charts.coverage([])
+
+
+def test_no_two_labels_are_drawn_on_top_of_each_other() -> None:
+    """The failure this catches is two sentences printed through one another.
+
+    It happened: the note under the first chart was placed by counting up from the bottom
+    edge while the runner counts were placed by counting down from the plot, and at one
+    height the two met and the chart said "Bars are the mean abso5,711 runnerse error".
+    Nothing in the drawing complains, because SVG text is just a baseline and a string.
+    """
+    measured = _measured()
+    for name, svg in (
+        ("depth", charts.error_by_depth(measured["backtest"]["strata"])),
+        ("distance", charts.error_by_distance(measured["distances"])),
+        ("coverage", charts.coverage(measured["backtest"]["coverage"])),
+    ):
+        drawn = []
+        for x, y, size, anchor, body in _labels(svg):
+            if not body.strip():
+                continue
+            span = charts.width_of(body, size)
+            left = x if anchor == "start" else x - span / 2 if anchor == "middle" else x - span
+            drawn.append((left, left + span, y, size, body))
+        for index, first in enumerate(drawn):
+            for second in drawn[index + 1 :]:
+                overlaps_across = first[0] < second[1] - 1 and second[0] < first[1] - 1
+                apart = abs(first[2] - second[2])
+                if overlaps_across and apart < max(first[3], second[3]) * 0.9:
+                    raise AssertionError(
+                        f"{name}: {first[4]!r} and {second[4]!r} are drawn over each other "
+                        f"(baselines {first[2]} and {second[2]})"
+                    )

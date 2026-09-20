@@ -167,13 +167,16 @@ def error_by_depth(strata: Sequence[Mapping[str, Any]]) -> str:
                 top = max(top, float(high))
     top = 5 * (int(top / 5) + 1)
 
-    height, left, right, head, foot = 420.0, 56.0, WIDTH - 16.0, 92.0, 356.0
+    # The foot of the plot, the group labels, the runner counts and then the notes, each
+    # with room of its own: the note used to be placed by counting up from the bottom edge
+    # while the runner counts were placed by counting down from the plot, and they met.
+    height, left, right, head, foot = 452.0, 56.0, WIDTH - 16.0, 104.0, 360.0
     body = [_legend([(label, colour) for _m, label, colour in METHODS], 16, 66, 142)]
     for tick in range(0, int(top) + 1, 5):
         y = foot - (foot - head) * tick / top
         body.append(_line(left, y, right, y))
         body.append(_text(left - 8, y + 4, f"{tick}", size=11, fill=FAINT, anchor="end"))
-    body.append(_text(16, head - 12, "minutes", size=11, fill=FAINT))
+    body.append(_text(16, head - 14, "minutes", size=11, fill=FAINT))
 
     group = (right - left) / len(DEPTHS)
     for index, (key, label) in enumerate(DEPTHS):
@@ -249,7 +252,8 @@ def error_by_distance(distances: Sequence[Mapping[str, Any]]) -> str:
     top = 5 * (int(top / 5) + 1)
 
     head, foot = 78.0, 78.0 + 46.0 * len(rows)
-    height = foot + 58
+    # Room under the axis for its ticks, its unit and two lines of note, in that order.
+    height = foot + 96
     left, right = 176.0, WIDTH - 60.0
     body = [
         _legend(
