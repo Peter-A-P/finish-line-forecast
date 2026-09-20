@@ -282,6 +282,29 @@ every finisher's prediction beside their result.
 _No prediction has been scored yet. `finishline score <race>` fills a row here once a tagged prediction's official results are posted._
 <!-- finishline:end:live -->
 
+### One race already run, which is not in that record
+
+The Uniformed Services Run went on 2026-09-13, a day after the first entrant-list snapshot
+and three weeks before the first race this project freezes a prediction for. **Nothing was
+tagged before its gun, so it is not in the record above and never will be.** What the
+[website](https://finishline.peterparker.ca) shows for it is the backtest's own rows, held
+out by construction: the fit that made them saw no result from the quarter the race falls in
+or later, which for 2026-09-13 means nothing after 2026-06-30, and the leakage check asserts
+that at every origin. It is the only place where the whole thing can be seen end to end
+before the Turkey Tea: a start list saved before the gun, an official finish list after it,
+and what the model would have said in between.
+
+Only the 10 km is scored. Its road has nine earlier editions; the marathon and half moved to
+new routes in 2026 and the 5 km had never been run, so for those three the model had no
+course difficulty at all and the error there would be mostly the cost of that. The rule is
+mechanical rather than chosen race by race, and the three unscored events are listed with the
+reason. On the 161 of 171 finishers the archive can identify: **4.74 min average miss**, and
+**3.81 against carry-forward's 4.43 paired** on the 136 carry-forward can answer for at all.
+The minutes grow down the field and the share of a finish time does not: 3.6, 4.5 and 6.4
+minutes from the front quarter to the last, which is 7.5%, 7.5% and 7.9% of a finish time.
+Of 198 listed in the 10 km, 171 finished and 168 were found, so 15.2% were not found, an
+upper bound on the no-show rate. [PLAN.md](PLAN.md) section 5.9 has the rest.
+
 ## What the archive gave up
 
 Public results from the Newfoundland and Labrador Athletics Association, crawled once at one
@@ -461,7 +484,7 @@ distance. Both sit in the range the marathon literature reports for mid-pack run
 
 ## What went wrong on the way
 
-[PLAN.md](PLAN.md) section 13 is a log of thirty-six designs this data refuted, each written up
+[PLAN.md](PLAN.md) section 13 is a log of thirty-seven designs this data refuted, each written up
 with its evidence rather than quietly fixed. The ones a reader should know about before trusting
 a number above:
 
@@ -545,6 +568,7 @@ rerun costs no requests.
 uv sync
 uv run finishline notices      what has to be sent before anything is fetched
 uv run finishline crawl        fetch the results pages, once, one request a second
+uv run finishline calendar     this year's fixtures, so the site's race list is the season
 uv run finishline dataset      parse, resolve runners, print what came out
 uv run finishline courses      how hard each course is, against what its hills predict
 uv run finishline backtest --hierarchical --challenger
@@ -561,7 +585,7 @@ Checks: `uv run ruff check .`, `uv run mypy`, `uv run pytest`.
 
 ## How it is built
 
-- **Python 3.13, typed throughout**, `mypy --strict` and `ruff` clean in CI, 330 tests.
+- **Python 3.13, typed throughout**, `mypy --strict` and `ruff` clean in CI, 356 tests.
 - **Tests that fail meaningfully**: golden pages for the parser, labelled pairs for identity
   resolution, closed-form checks for Daniels' tables and the grade model, coverage on a
   synthetic fixture, schema and hash on the prediction file, and a leakage test that plants a

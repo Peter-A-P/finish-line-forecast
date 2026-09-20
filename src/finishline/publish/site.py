@@ -45,6 +45,10 @@ from finishline.schema import HALF_MARATHON_M
 
 REPOSITORY = "https://github.com/Peter-A-P/finish-line-forecast"
 PREDICTION_DATA = "data/predictions"
+# The runner-by-runner rows of a race that already ran. Served under the same noindex rule as
+# the predictions, and kept under a different name because it is a different kind of thing:
+# nothing here was frozen before a gun, and the two must not be confusable by their address.
+RETROSPECT_DATA = "data/retrospect"
 
 # What Azure Static Web Apps sends with every file (docs/deploy.md), as project 08 does.
 HOST_CONFIG: dict[str, Any] = {
@@ -76,12 +80,19 @@ HOST_CONFIG: dict[str, Any] = {
                 "Cache-Control": "public, max-age=300, must-revalidate",
             },
         },
+        {
+            "route": f"/{RETROSPECT_DATA}/*",
+            "headers": {
+                "X-Robots-Tag": "noindex",
+                "Cache-Control": "public, max-age=300, must-revalidate",
+            },
+        },
         {"route": "/data/*", "headers": {"Cache-Control": "public, max-age=300, must-revalidate"}},
         {"route": "/index.html", "headers": {"Cache-Control": "public, max-age=300"}},
     ],
 }
 
-ROBOTS = f"User-agent: *\nDisallow: /{PREDICTION_DATA}/\n"
+ROBOTS = f"User-agent: *\nDisallow: /{PREDICTION_DATA}/\nDisallow: /{RETROSPECT_DATA}/\n"
 
 # The invented runner in the "one scale" section: three races, one fitness.
 EXAMPLE_RACES: tuple[tuple[str, float, float], ...] = (
@@ -133,6 +144,30 @@ def stage(files: Sequence[Published], scored: bool, today: date, race_date: date
     if any(item.doc.get("kind") != "daily" for item in files):
         return "final"
     return "week" if files else "before"
+
+
+# The three shelves the race picker is divided into, in the order a reader wants them: what
+# is open now, what is coming, what is done. The labels are on the page and the keys are in
+# the JSON, so renaming one is not a data migration.
+GROUPS: tuple[tuple[str, str], ...] = (
+    ("open", "Entries open"),
+    ("announced", "Announced, entries not open"),
+    ("run", "Already run"),
+)
+
+
+def group_of(record: Mapping[str, Any], entrants_seen: int | None, today: date) -> str:
+    """Which shelf a race belongs on.
+
+    ⚠️ **"Entries open" means a list with somebody on it, not a date in the future.** A race
+    can be announced for months before registration opens, and the only evidence this project
+    has either way is whether a start list has been seen with at least one name on it. So the
+    test is the snapshot, not the calendar.
+    """
+    when = date.fromisoformat(str(record["date"]))
+    if when < today:
+        return "run"
+    return "open" if entrants_seen else "announced"
 
 
 def status(files: Sequence[Published], scored: bool, today: date, race_date: date) -> str:
@@ -197,6 +232,89 @@ def race_record(
         ],
         "scorecard": f"{REPOSITORY}/blob/main/docs/predictions/{race_id}.md" if scored else None,
         "predictions": f"{PREDICTION_DATA}/{race_id}.json" if files else None,
+        # Filled in by `build`, which is the only place that can see the calendar and the
+        # entrant counts at the same time.
+        "group": "announced",
+        "predicted": True,
+        "place": None,
+        "retrospect": None,
+    }
+
+
+def calendar_record(event: Mapping[str, Any], closed: Mapping[str, Any]) -> dict[str, Any]:
+    """A race from the association's calendar that this project does not predict.
+
+    ⚠️ **It is on the page anyway.** A list of races that silently omits the ones this
+    project has nothing to say about is a list that flatters it. The Trapline is a real road
+    race on a real Sunday; what this project has for it is a name, a date and a place, and
+    saying so is more use to a reader than leaving a hole they cannot see.
+    """
+    race_id = f"{event['family']}-{str(event['date'])[:4]}"
+    return {
+        "id": race_id,
+        "name": str(event["name"]),
+        "date": str(event["date"]),
+        "place": event.get("place"),
+        "gun": None,
+        "distance_m": None,
+        "course_id": None,
+        "entrant_list": False,
+        "newcomer_pool": False,
+        "stage": "calendar",
+        "status": (
+            "No public entrant list, so there is no field to predict. Listed because the "
+            "association's calendar lists it."
+        ),
+        "week_start": None,
+        "final_by": None,
+        "forecast": None,
+        "files": [],
+        "scorecard": None,
+        "predictions": None,
+        "group": "announced",
+        "predicted": False,
+        "retrospect": None,
+        "url": event.get("url"),
+    }
+
+
+def closed_record(block: Mapping[str, Any]) -> dict[str, Any]:
+    """A race that ran while this project was watching, with no prediction tagged before it.
+
+    ⚠️ **Never called a prediction.** `stage` is `"retrospect"` and the card that draws it
+    leads with what it is not. The numbers are the rolling-origin backtest's own rows for
+    this race, held out by construction (`publish/retrospect.py`).
+    """
+    race_id = str(block["race_id"])
+    return {
+        "id": race_id,
+        # The race's own name, not the calendar's, which lumps a whole day's events into one
+        # line: "Uniformed Services Run Marathon/Half-Marathon/Marathon Relay/5km/10km".
+        "name": str(block["name"]),
+        "event_name": str(block.get("event") or block["name"]),
+        "date": str(block["date"]),
+        "place": block.get("place"),
+        "gun": None,
+        "distance_m": block.get("distance_m"),
+        "course_id": block.get("course_id"),
+        "entrant_list": block.get("attendance") is not None,
+        "newcomer_pool": False,
+        "stage": "retrospect",
+        # The banner above the card already says what this is not, so the chip says what it
+        # is instead of repeating it: how much of the field there is a held-out row for.
+        "status": (
+            f"Already run. {block['scored']} of {block['finishers']} finishers have a "
+            "held-out prediction here."
+        ),
+        "week_start": None,
+        "final_by": None,
+        "forecast": None,
+        "files": [],
+        "scorecard": None,
+        "predictions": None,
+        "group": "run",
+        "predicted": False,
+        "retrospect": f"{RETROSPECT_DATA}/{race_id}.json",
     }
 
 
@@ -320,6 +438,34 @@ def _number(value: float | None, places: int = 1) -> str:
     return "n/a" if value is None else f"{value:.{places}f}"
 
 
+def calendar_note(calendar: Mapping[str, Any] | None, races: Sequence[Mapping[str, Any]]) -> str:
+    """Where this list of races came from and when it was last looked at.
+
+    ⚠️ **The date matters and is not decoration.** The calendar is a live page: a race can be
+    added or cancelled the day after it was read, and a reader who cannot see how old the
+    list is cannot tell a quiet season from a stale file.
+    """
+    if not calendar:
+        return (
+            "The races below are the ones this project predicts, from "
+            "<code>data/live.toml</code>."
+        )
+    read = str(calendar.get("fetched_at", ""))[:10]
+    counted = len([race for race in races if not race.get("predicted")])
+    source = html.escape(str(calendar.get("source", "")))
+    tail = (
+        f" {counted} of them are races this project does not predict, listed so that the "
+        "season is not quieter here than it is on the road."
+        if counted
+        else ""
+    )
+    return (
+        f'Every race below comes from the association\'s own <a href="{source}">calendar of '
+        f"events</a>, last read on {html.escape(read)}, rather than from a list kept here."
+        f"{tail}"
+    )
+
+
 def tokens(
     results: Mapping[str, Any],
     races: Sequence[Mapping[str, Any]],
@@ -328,6 +474,7 @@ def tokens(
     tests: int,
     code_lines: int,
     today: date,
+    calendar: Mapping[str, Any] | None = None,
 ) -> dict[str, str]:
     """Every `{{token}}` in web/index.html, as the text that replaces it."""
     archive = results["archive"]
@@ -361,15 +508,27 @@ def tokens(
     course = {row["course_id"]: row for row in results["courses"]}
     c2c = course.get("cape-to-cabot-20000")
     tely = course.get("tely-10-16093")
-    options = "".join(
-        f"<option value=\"{html.escape(str(race['id']))}\">{html.escape(str(race['name']))}, "
-        f"{date.fromisoformat(str(race['date'])).day} "
-        f"{date.fromisoformat(str(race['date'])).strftime('%B %Y')}</option>"
-        for race in races
-    )
+    # One `<optgroup>` per shelf, and an empty shelf is left out rather than drawn empty.
+    # The groups are the reader's first question ("is this one on yet?") answered before they
+    # read a single race name.
+    options = ""
+    for key, label in GROUPS:
+        shelf = [race for race in races if race.get("group") == key]
+        if not shelf:
+            continue
+        options += f'<optgroup label="{html.escape(label)}">'
+        for race in shelf:
+            when = date.fromisoformat(str(race["date"]))
+            options += (
+                f'<option value="{html.escape(str(race["id"]))}">'
+                f"{html.escape(str(race['name']))}, {when.day} {when.strftime('%B %Y')}"
+                "</option>"
+            )
+        options += "</optgroup>"
     gbm_verdict, gbm_ranges = challenger_text(results)
     return {
         "repository": REPOSITORY,
+        "calendar_note": calendar_note(calendar, races),
         "gbm_verdict": gbm_verdict,
         "gbm_ranges": gbm_ranges,
         # From the constant the predictions are made with, so the page cannot state a weight
@@ -643,6 +802,12 @@ def fill(template: str, values: Mapping[str, str]) -> str:
     return re.sub(r"\{\{(\w+)\}\}", lambda match: values[match.group(1)], template)
 
 
+def _descending(iso: str) -> str:
+    """A sort key that puts later dates first, without a second `sorted` pass."""
+    return "".join(chr(ord("9") - int(character)) if character.isdigit() else character
+                   for character in iso)
+
+
 def _json(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
@@ -661,6 +826,8 @@ def build(
     *,
     web: Path = Path("web"),
     results: Path = Path("data/site/results.json"),
+    calendar: Path = Path("data/calendar.json"),
+    retrospect: Path = Path("data/retrospect"),
     plan: Path = Path("PLAN.md"),
     tests: Path = Path("tests"),
     source: Path = Path("src"),
@@ -677,22 +844,62 @@ def build(
     for race_id in records:
         files = files_for(directory, race_id)
         scored = (scores / f"{race_id}.json").exists()
-        races.append(race_record(race_id, records[race_id], files, scored, today))
+        record = race_record(race_id, records[race_id], files, scored, today)
+        story = measured.get("races", {}).get(race_id) or {}
+        listed = (story.get("entrants") or {}).get("listed")
+        record["group"] = group_of(record, listed, today)
+        record["listed"] = listed
+        races.append(record)
         if files:
             path = out / PREDICTION_DATA / f"{race_id}.json"
             _json(path, race_predictions(files))
             written.append(path)
-    # The races still to come first, soonest first, then the ones already run, latest first.
-    upcoming = sorted(
-        (race for race in races if race["stage"] not in ("run", "scored")),
-        key=lambda race: str(race["date"]),
+
+    # The races this project does not predict, and the ones it has already seen run. Both
+    # come from the association's calendar rather than from anything typed by hand, which is
+    # the whole point of reading it (`ingest/calendar.py`).
+    closed: dict[str, Any] = measured.get("closed") or {}
+    known = {str(record.get("course_id") or "").rsplit("-", 1)[0] for record in records.values()}
+    seen_days = {(str(block["date"]), str(block["course_id"])) for block in closed.values()}
+    fixtures: dict[str, Any] = (
+        json.loads(calendar.read_text(encoding="utf-8")) if calendar.exists() else {}
     )
-    past = sorted(
-        (race for race in races if race["stage"] in ("run", "scored")),
-        key=lambda race: str(race["date"]),
-        reverse=True,
+    watching = date.fromisoformat(str(fixtures.get("watching_since", today.isoformat())))
+    before_watching = 0
+    for event in fixtures.get("events", []):
+        if event.get("skipped") or not event.get("family"):
+            continue
+        when = date.fromisoformat(str(event["date"]))
+        if when < watching:
+            before_watching += 1
+            continue
+        if event["family"] in known or any(day == str(when) for day, _course in seen_days):
+            continue
+        if when < today:
+            # Run, but with nothing measured for it: no course history, or no results posted
+            # yet. It is still a race that happened and the page says so.
+            continue
+        races.append(calendar_record(event, closed))
+
+    for block in closed.values():
+        races.append(closed_record(block))
+        path = out / RETROSPECT_DATA / f"{block['race_id']}.json"
+        source = retrospect / f"{block['race_id']}.json"
+        if source.exists():
+            _json(path, json.loads(source.read_text(encoding="utf-8")))
+            written.append(path)
+
+    order = {key: position for position, (key, _label) in enumerate(GROUPS)}
+    ordered = sorted(
+        races,
+        key=lambda race: (
+            order.get(str(race["group"]), len(order)),
+            # Soonest first among those still to come; latest first among those already run.
+            str(race["date"]) if race["group"] != "run" else "",
+            "" if race["group"] != "run" else _descending(str(race["date"])),
+            str(race["name"]),
+        ),
     )
-    ordered = upcoming + past
 
     for name, payload in (("results.json", measured), ("races.json", ordered)):
         path = out / "data" / name
@@ -710,6 +917,7 @@ def build(
                 tests=count_tests(tests),
                 code_lines=count_lines(source),
                 today=today,
+                calendar=fixtures or None,
             ),
         ),
         encoding="utf-8",

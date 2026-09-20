@@ -13,7 +13,7 @@ prediction-then-error record. The plan is in [PLAN.md](PLAN.md).
   the code and say why in the commit message.
 - [docs/data-terms.md](docs/data-terms.md): what may be fetched, from where, under what
   terms, and how a runner asks to be removed. Add a source's row before fetching it.
-- **[PLAN.md](PLAN.md) section 13 is the log of designs the data refuted.** Thirty-six entries
+- **[PLAN.md](PLAN.md) section 13 is the log of designs the data refuted.** Thirty-seven entries
   and growing. Read it before changing the parser, the resolver, the course layer or the
   conditions layer: most of what looks like an odd choice in those modules is there because
   the obvious choice was measured and was wrong.
@@ -29,6 +29,9 @@ Everything reads from a local cache, so a rerun costs no requests. The order:
 finishline notices      what has to be sent before anything is fetched
 finishline snapshot     today's look at the two live entrant lists   (daily, needs --notices-sent)
 finishline catalogue    what races exist, and which are deliberately not read
+finishline calendar     this year's fixtures from nlaa.ca/calendar.php, so the website's race
+                        list is the season and not a hand-kept file (needs --notices-sent;
+                        the page is alive, so it always re-fetches; writes data/calendar.json)
 finishline crawl        fetch the results pages, once, one a second  (needs --notices-sent;
                         --refresh-index finds races posted since; a new race makes the
                         saved model backtest stale, so crawl before a backtest, never
@@ -41,12 +44,14 @@ finishline conditions   what heat and wind cost, by distance
 finishline backtest     score the baselines at every origin (--hierarchical adds the model)
 finishline report       rewrite the README tables from the measurement, and
                         data/site/results.json, the website's numbers, from the same run
+                        (also data/retrospect/<race>.json, runner by runner, for a race that
+                        ran with no prediction tagged before it: publish/retrospect.py)
 finishline freeze <race> the prediction file, hashed, refused inside 24 hours of the gun
                         (--daily from seven days out: only entrants no earlier file had)
 finishline due          which live races want a daily or final file today
 finishline page <race>  the race page, rendered from the published prediction files
 finishline site         the public website: web/ filled from data/site/results.json,
-                        data/live.toml and the prediction files
+                        data/live.toml, data/calendar.json and the prediction files
 finishline serve        preview it locally with the host's headers (docs/deploy.md)
 finishline score <race>  the tagged prediction against the results   (fetches: --notices-sent)
 ```
@@ -72,6 +77,11 @@ interpreter is `.venv/Scripts/python.exe`.
 - **A prediction counts only if it was tagged before the gun.** `freeze` refuses inside 24
   hours; nothing in a prediction file is edited after its tag, ever. A defect found later
   is scored as it stands and written up.
+- **A race that ran with no tag is a retrospective, never a prediction.** The website shows
+  one (`publish/retrospect.py`, PLAN.md 5.9): the backtest's own held-out rows for a race
+  run since 2026-09-12. It lives in `data/retrospect/`, never in `predictions/`; it gets no
+  hash and no tag; it is not scored in `scores/`; and the card that draws it opens by saying
+  what it is not. Keep those two directories, and those two words, apart.
 - **No Strava, no training data, for anyone, in the public model.** The terms are in
   PLAN.md section 0. Do not add a Strava client to this repository in Part A.
 - **Baselines first.** No model result is reported without carry-forward, best equal-VDOT

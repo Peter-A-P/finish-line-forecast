@@ -92,7 +92,15 @@ Harbour Front 10 km, Turkey Tea 10 km, Run to Remember 11 km, Flat Out 5 km.
 
 The 2026 USR is in, from Athletics NorthEAST's own finish lists (`ingest/ane.py`), and its
 start list is scored: 15.1% of listed entrants not found, 2.0% of finishers not on their
-event's list (PLAN.md 5.6). The scheduled crawl stands down from ten days before each live
+event's list (PLAN.md 5.6). **Both numbers are now computed in the repository rather than by
+hand** (`publish/retrospect.py`, written 2026-09-20), which closes the gap item 5 below
+complains about for this pair at least, and the 10 km is on the website as the one race this
+project has already seen run (PLAN.md 5.9). When nlaa.ca republishes the USR its pages carry
+a sex, an age band and a hometown, where the club's print none; `store.build` swaps the
+club's copy out automatically, and at that point the runner table could carry those columns.
+Whether it should is Peter's call, not the assistant's: CLAUDE.md says this project publishes
+"name and hometown as printed, the prediction, nothing else", and adding an age group and a
+sex to a published table is a change to that rule. The scheduled crawl stands down from ten days before each live
 race to the day after, and with the Turkey Tea rehearsal on 2026-10-04 and Cape to Cabot on
 2026-10-18 the only Sunday it runs before 2026-10-25 is 2026-09-20. Results posted after that
 are fetched by hand (`finishline crawl --refresh-index`) before the backtest each freeze uses,

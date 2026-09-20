@@ -151,6 +151,28 @@ excluded and counted, because the list prints no age to choose between them, unl
 prints a hometown that exactly one of them was ever printed under. Races without a
 list need a participation model, which is not built yet (PLAN.md 5.6).
 
+Which races exist at all comes from the association's own calendar of events
+(`ingest/calendar.py`), read by `finishline calendar` into `data/calendar.json`, so the
+website's race list is the season rather than whatever was last typed into `data/live.toml`.
+A calendar entry is a day and not a race: "Uniformed Services Run
+Marathon/Half-Marathon/Marathon Relay/5km/10km" is one row and five races, which is why an
+entry carries a course family and a date and no distance. Road races this project does not
+predict are listed with the reason rather than left out.
+
+## 9b. A race that ran with no prediction tagged
+
+The Uniformed Services Run of 2026-09-13 ran between the first entrant-list snapshot and the
+first freeze. It is on the website and it is **not a prediction**: nothing was tagged before
+its gun, so it is not in the public record and is not scored. What is shown is the
+rolling-origin backtest's own rows for that race, which are held out by construction, from a
+fit that saw no result from the quarter the race falls in or later. Its file is
+`data/retrospect/<race>.json`, never `predictions/`, and it carries no hash and no tag
+(`publish/retrospect.py`, PLAN.md 5.9). Only an event whose course has an earlier edition is
+scored, because a road the model has never seen has no course factor and the error there is
+mostly the cost of that; the unscored events of the same day are listed with the reason. The
+predicted place there is the rank of the predicted times and has no range, because a
+published place needs a posterior and the backtest kept its scored rows rather than its fits.
+
 ## 10. The backtest
 
 Every race from 2024 on is predicted from results dated strictly before it (`backtest/`). The

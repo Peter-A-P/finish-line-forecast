@@ -26,7 +26,8 @@ from __future__ import annotations
 import json
 import os
 import tomllib
-from datetime import date
+from collections.abc import Callable
+from datetime import UTC, date, datetime, time
 from pathlib import Path
 from typing import Annotated, Any
 
@@ -35,6 +36,7 @@ import typer
 from finishline import report, starts, store
 from finishline.backtest import run, score
 from finishline.history import History
+from finishline.ingest import calendar as race_calendar
 from finishline.ingest import eccc, entrants, nlaa
 from finishline.metrics import grade
 from finishline.models import baselines, conditions
@@ -159,6 +161,59 @@ def catalogue(
         typer.echo("\nSkipped:")
         for event, why in skipped:
             typer.echo(f"  {event}\n      {why}")
+
+
+CALENDAR = DATA / "calendar.json"
+CALENDAR_PAGE = DATA / "cache" / "nlaa" / "calendar.html"
+
+
+@app.command(name="calendar")
+def calendar_command(
+    notices_sent: Annotated[
+        bool, typer.Option("--notices-sent", help="The courtesy notes have gone out.")
+    ] = False,
+) -> None:
+    """Read the association's calendar of events and write what is on this year.
+
+    One request, to a page that changes all year, so there is no cache-hit path: a calendar
+    read from disk is last week's fixtures. The page names no person, so unlike the entrant
+    snapshots `data/calendar.json` is committed and the website reads it.
+    """
+    if not (notices_sent or os.environ.get(NOTICES_ENV)):
+        typer.echo(NOTICES, err=True)
+        raise typer.Exit(code=2)
+
+    page = race_calendar.fetch(CALENDAR_PAGE)
+    year, events = race_calendar.parse(page)
+    road = list(race_calendar.road_races(events))
+    skipped = race_calendar.unread(events)
+
+    typer.echo(
+        f"{len(events)} rows on the {year} calendar: {len(road)} road races, {len(skipped)} not"
+    )
+    live: dict[str, Any] = tomllib.loads(LIVE.read_text(encoding="utf-8"))
+    predicted = {str(record["course_id"]).rsplit("-", 1)[0] for record in live.values()}
+    for event in road:
+        mark = "predicted" if event.family in predicted else ""
+        typer.echo(f"  {event.when}  {event.name[:56]:<56} {event.place[:22]:<22} {mark}")
+
+    typer.echo("\nNot road races:")
+    for event in skipped:
+        typer.echo(f"  {event.when}  {event.skipped!s:<44} {event.name[:42]}")
+    unknown = [event for event in skipped if str(event.skipped).startswith("no course")]
+    if unknown:
+        typer.echo(
+            f"\n{len(unknown)} row(s) matched no course this project knows. If one of them "
+            "is a road race it needs an alias in `nlaa.COURSE_ALIASES`, not a guess here."
+        )
+
+    CALENDAR.parent.mkdir(parents=True, exist_ok=True)
+    CALENDAR.write_text(
+        json.dumps(race_calendar.record(year, events), indent=1, sort_keys=True) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    typer.echo(f"\n{CALENDAR} written; run `finishline site` to put it on the website")
 
 
 @app.command()
@@ -915,12 +970,16 @@ def _write_showcase(
     model_rows = [row for row in scored if row.model == showcase.MODEL]
     intervals = split.rolling(model_rows, dates, 0.80) if model_rows else []
     profiles = course_profiles()
-    races: dict[str, Any] = {}
-    for race_id, record in live.items():
-        course_id = str(record["course_id"])
+
+    def course_story(course_id: str, metres: float) -> dict[str, Any]:
+        """The road a race is run on, as the website's race card reads it.
+
+        Shared by the races still to come and the ones already run, so the card looks the
+        same for both and there is one place a course fact can be wrong.
+        """
         measured = fitted.courses.get(course_id)
         profile = profiles.get(course_id, {})
-        story: dict[str, Any] = {
+        return {
             "course_id": course_id,
             "course": showcase.course_name(course_id),
             "factor": None if measured is None else round(measured.factor, 4),
@@ -928,7 +987,7 @@ def _write_showcase(
             "factor_high": None if measured is None else round(measured.high, 4),
             # And the same course against the courses of its own length, which is the
             # comparison the card leads with where there is one (PLAN.md 13 item 36).
-            "length": showcase.distance_label(float(record["distance_m"])),
+            "length": showcase.distance_label(metres),
             "peers": 0 if measured is None else measured.peers,
             "versus": None if measured is None else showcase.rounded(measured.versus_peers),
             "versus_low": None if measured is None else showcase.rounded(measured.peers_low),
@@ -939,6 +998,10 @@ def _write_showcase(
             "backtest": showcase.course_backtest(scored, intervals, data, course_id),
             "entrants": None,
         }
+
+    races: dict[str, Any] = {}
+    for race_id, record in live.items():
+        story = course_story(str(record["course_id"]), float(record["distance_m"]))
         listing = record.get("entrant_list")
         snapshot = entrants.latest_snapshot(ENTRANTS, str(listing)) if listing else None
         if snapshot is not None:
@@ -946,6 +1009,11 @@ def _write_showcase(
             as_of = date.fromtimestamp(snapshot.stat().st_mtime).isoformat()
             story["entrants"] = showcase.entrants(links, as_of)
         races[race_id] = story
+
+    closed, published = _closed_races(data, scored, intervals, course_story)
+    for path in published:
+        typer.echo(f"  {path} written: a race that ran with no prediction tagged before it")
+
     showcase.write(
         SHOWCASE,
         {
@@ -963,8 +1031,85 @@ def _write_showcase(
                 fitted, {str(r["course_id"]): rid for rid, r in live.items()}
             ),
             "races": races,
+            "closed": closed,
         },
     )
+
+
+# Where the runner-by-runner rows of an already-run race are published. Deliberately not
+# `predictions/`: that directory is the tagged public record, every file in it was frozen and
+# hashed before a gun, and a file that was not has no business sitting among them.
+RETROSPECT = DATA / "retrospect"
+
+
+def _closed_races(
+    data: Dataset,
+    scored: list[score.Scored],
+    intervals: list[Any],
+    course_story: Callable[[str, float], dict[str, Any]],
+) -> tuple[dict[str, Any], list[Path]]:
+    """Every race run since this project started watching, from the association's calendar.
+
+    Automatic from end to end: the calendar says what was run, the archive says which races a
+    calendar entry turned into, and an event is scored only where its course had an earlier
+    edition (`retrospect.scorable`). Nothing here is a list somebody types.
+    """
+    from finishline.publish import retrospect
+
+    if not CALENDAR.exists():
+        return {}, []
+    page: dict[str, Any] = json.loads(CALENDAR.read_text(encoding="utf-8"))
+    watching = date.fromisoformat(str(page.get("watching_since", "2026-09-12")))
+    today = date.today()
+
+    closed: dict[str, Any] = {}
+    written: list[Path] = []
+    for event in page.get("events", []):
+        if event.get("skipped") or not event.get("family"):
+            continue
+        when = date.fromisoformat(str(event["date"]))
+        if not watching <= when < today:
+            continue
+        race_ids = retrospect.events_on(data, when, str(event["family"]))
+        if not race_ids:
+            continue
+        scorable = [race_id for race_id in race_ids if retrospect.scorable(data, race_id)]
+        people: list[Any] = []
+        prefix = retrospect.list_prefix(str(event["family"]), when, entrants.LISTS)
+        if prefix:
+            # Before the gun, not the latest: the scheduled task kept looking for days after.
+            gun = datetime.combine(when, time(hour=starts.load().hour(data.races[race_ids[0]])))
+            snapshot = retrospect.snapshot_before(ENTRANTS, prefix, gun.replace(tzinfo=UTC))
+            if snapshot is not None:
+                people = list(entrants.load(snapshot))
+        for race_id in scorable:
+            block = retrospect.race(data, scored, intervals, race_id, people)
+            if block is None:
+                continue
+            runners = block.pop("runners")
+            block["event"] = event["name"]
+            block["place"] = event["place"]
+            block["unscored"] = retrospect.unscored(
+                data, [other for other in race_ids if other not in scorable]
+            )
+            # The same course facts the races still to come carry, so one card draws both.
+            block.update(course_story(block["course_id"], float(block["distance_m"])))
+            closed[race_id] = block
+            path = RETROSPECT / f"{race_id}.json"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(
+                json.dumps(
+                    {"race_id": race_id, "runners": runners},
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+                newline="\n",
+            )
+            written.append(path)
+    return closed, written
 
 
 OPENMETEO = DATA / "cache" / "openmeteo"

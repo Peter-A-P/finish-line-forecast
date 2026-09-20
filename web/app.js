@@ -191,7 +191,10 @@
     drawPreview(race);
     drawHistory(race);
     var find = byId("find");
-    if (race.predictions) {
+    if (race.retrospect) {
+      find.disabled = false;
+      loadRetrospect(race);
+    } else if (race.predictions) {
       find.disabled = false;
       loadPredictions(race);
     } else {
@@ -199,13 +202,21 @@
       find.value = "";
       clear(byId("predictions"));
       byId("predictions").appendChild(el("p", { "class": "note" },
-        "No prediction has been published for this race yet. " + race.status +
-        " Until then, the model's record on the same course is below."));
+        race.predicted
+          ? "No prediction has been published for this race yet. " + race.status +
+            " Until then, the model's record on the same course is below."
+          : race.status));
     }
   }
 
+  /* The measured block for a race. A race already run keeps its numbers under `closed`
+     rather than `races`, because nothing about it is a prediction and the two must not be
+     reachable by the same key by accident. Both carry the same course facts. */
   function story(race) {
-    return (state.results && state.results.races && state.results.races[race.id]) || null;
+    if (!state.results) { return null; }
+    var live = state.results.races && state.results.races[race.id];
+    if (live) { return live; }
+    return (state.results.closed && state.results.closed[race.id]) || null;
   }
 
   function absPct(value) { return Math.abs(value * 100).toFixed(1) + "%"; }
@@ -258,16 +269,61 @@
     return box;
   }
 
+  /* The one thing a reader must not get wrong about an already-run race: nothing here was
+     published before the gun. It is the first element in the card, before the name, and it
+     is a block of prose rather than a chip, because a chip is the sort of thing an eye
+     learns to skip. */
+  function notAPrediction(race, info) {
+    var box = el("div", { "class": "race-warning" });
+    box.appendChild(el("strong", null, "No prediction was tagged before this gun."));
+    box.appendChild(el("p", null,
+      "This race was run on " + longDate(race.date) + ", before this project published " +
+      "anything, so it is not part of the record below and never will be. What is shown is " +
+      "what the model would have said: the rolling-origin backtest's own rows for this race, " +
+      "made by a fit that had seen no result from the quarter the race falls in or later."));
+    if (info && info.unscored && info.unscored.length) {
+      /* Longest first, and named by their distance rather than by the results page's title,
+         which prefixes every one of them with the same three letters. */
+      var names = info.unscored.slice()
+        .sort(function (a, b) { return b.distance_m - a.distance_m; })
+        .map(function (u) { return distanceLabel(u.distance_m).toLowerCase(); });
+      var listed = names.length > 1
+        ? names.slice(0, -1).join(", ") + " and " + names[names.length - 1]
+        : names[0];
+      box.appendChild(el("p", null,
+        "The same morning's " + listed + " ran on roads with no earlier edition in the " +
+        "archive, so the model had no course difficulty for them at all. An error measured " +
+        "there is mostly the cost of the missing course, so those events are not scored here."));
+    }
+    return box;
+  }
+
   function drawRaceCard(race) {
     var card = clear(byId("race-card"));
     var info = story(race) || {};
+    if (race.stage === "retrospect") { card.appendChild(notAPrediction(race, info)); }
     var head = el("div", { "class": "race-head" });
     head.appendChild(el("h3", null, race.name));
     var gun = race.gun ? race.gun.slice(11, 16) : null;
     head.appendChild(el("p", { "class": "race-when" },
-      longDate(race.date) + (gun ? ", gun at " + gun + " local time" : "")));
+      longDate(race.date) + (gun ? ", gun at " + gun + " local time" : "") +
+      (race.place ? ", " + race.place : "")));
     head.appendChild(el("p", { "class": "race-status stage-" + race.stage }, race.status));
     card.appendChild(head);
+
+    if (race.stage === "calendar") {
+      var note = el("p", { "class": "note" },
+        "This project reads the association's calendar so that the list of races here is the " +
+        "season as it is, not the part of it with a prediction attached. It predicts a race " +
+        "only where the organisers publish an entrant list, because without one there is no " +
+        "field to predict.");
+      card.appendChild(note);
+      if (race.url) {
+        card.appendChild(append(el("p", { "class": "note" }),
+          [el("a", { href: race.url, rel: "nofollow noopener" }, "The organisers' own page for this race")]));
+      }
+      return;
+    }
 
     var facts = el("div", { "class": "facts" });
     facts.appendChild(fact("Distance", distanceLabel(race.distance_m)));
@@ -290,8 +346,9 @@
     }
     card.appendChild(facts);
 
+    if (info.attendance) { card.appendChild(attendanceBlock(info.attendance)); }
     if (info.entrants) { card.appendChild(fieldBar(info.entrants)); }
-    else if (!race.entrant_list) {
+    else if (!race.entrant_list && race.predicted) {
       card.appendChild(el("p", { "class": "note" },
         "This race publishes no entrant list, so who will run has to be predicted too. That " +
         "participation model is not built yet, and this race's predictions will say so."));
@@ -301,6 +358,32 @@
         "One of the biggest races: runners from away with no results here are drawn from how " +
         "this course's past first-timers finished, so they can take their share of the top places."));
     }
+  }
+
+  /* The start list against the finish list. This is the number a race director asks for and
+     the one a prediction cannot supply on its own: how many of the people who entered
+     actually came. It is reported apart from the prediction error on purpose, because
+     folding the two together would let a good prediction hide a bad guess at the field. */
+  function attendanceBlock(a) {
+    var box = el("div", { "class": "field" });
+    box.appendChild(el("p", { "class": "field-title" },
+      "The start list against the finish list"));
+    var facts = el("div", { "class": "facts" });
+    append(facts, [
+      fact("On the start list", count(a.listed), "the last look before the gun"),
+      fact("Finished", count(a.finished), "on the official results page"),
+      fact("Listed and finished", count(a.found),
+        percent(1 - a.found / a.listed, 1) + " of the list did not finish under a name on it, " +
+        "which is an upper bound on no-shows: it also holds anyone who started and stopped, " +
+        "and anyone whose name the two pages spelled differently"),
+      fact("Finished, not on that list", count(a.not_listed),
+        a.switched
+          ? count(a.switched) + " of them were on another distance's list that morning, so a " +
+            "change of event rather than a late entry"
+          : "late entries, or a name printed two ways")
+    ]);
+    box.appendChild(facts);
+    return box;
   }
 
   var DEPTHS = [
@@ -345,6 +428,11 @@
   /* The prediction week, as five steps, with where the race is now. */
   function drawWeek(race) {
     var node = clear(byId("week"));
+    /* The prediction week belongs to a race this project predicts. Drawing it for a race
+       already run, or for one on the calendar with no entrant list, would promise a
+       timetable that is not going to happen. */
+    if (!race.predicted) { node.hidden = true; return; }
+    node.hidden = false;
     var order = ["before", "week", "final", "run", "scored"];
     var at = order.indexOf(race.stage);
     var steps = [
@@ -456,6 +544,132 @@
     applySearch();
   }
 
+  /* A race already run, runner by runner --------------------------------------------- */
+
+  function loadRetrospect(race) {
+    var target = clear(byId("predictions"));
+    target.appendChild(el("p", { "class": "note" }, "Loading this race..."));
+    if (state.predictions[race.id]) { drawRetrospect(race, state.predictions[race.id]); return; }
+    getJSON(race.retrospect).then(function (data) {
+      state.predictions[race.id] = data;
+      if (state.race && state.race.id === race.id) { drawRetrospect(race, data); }
+    }).catch(fail);
+  }
+
+  function signedClock(seconds) {
+    if (!isNumber(seconds)) { return ""; }
+    return (seconds > 0 ? "+" : seconds < 0 ? "-" : "") + clock(Math.abs(seconds));
+  }
+
+  function drawRetrospect(race, data) {
+    var target = clear(byId("predictions"));
+    var info = story(race) || {};
+    var runners = data.runners;
+
+    var stats = el("div", { "class": "headline" });
+    append(stats, [
+      stat(errorText(info.mae_min), "average miss over " + count(info.scored) + " runners, " +
+        "first-timers included"),
+      info.paired ? stat(errorText(info.paired_model_min) + " vs " + errorText(info.paired_baseline_min),
+        "the model against \"you will run what you ran last time\", on the " + count(info.paired) +
+        " runners both could answer for") : null,
+      isNumber(info.coverage80) ? stat(percent(info.coverage80, 0),
+        "of finishes landed inside the 80% range, which promises 80%") : null,
+      stat(info.median_places_out + " places", "the middle miss on where a runner finished in " +
+        "the field; the average is " + info.places_out)
+    ]);
+    target.appendChild(stats);
+
+    if (info.ambiguous) {
+      target.appendChild(el("p", { "class": "note" },
+        count(info.finishers) + " people finished and " + count(info.scored) + " are below. The " +
+        count(info.ambiguous) + " missing are finishers the archive cannot tell apart from " +
+        "another runner of the same name, which is the same rule that keeps them out of every " +
+        "other number on this page."));
+    }
+
+    if (info.bands && info.bands.length) { target.appendChild(bandTable(info.bands)); }
+
+    target.appendChild(el("h3", null, "Every runner, against what the model would have said"));
+    target.appendChild(el("p", { "class": "note" },
+      "Sorted by finishing time. \"Out by\" is the prediction minus the finish, so a minus " +
+      "sign means the model called that runner faster than they ran. \"Finished\" is the " +
+      "place the results page printed, in the race everybody ran; \"predicted place\" and " +
+      "\"places out\" are positions among the " + count(info.scored) + " runners here, " +
+      "because a runner with no prediction cannot be out by any number of places. The " +
+      "predicted place has no range: a published place is drawn from thousands of simulated " +
+      "races, and the backtest kept its scored rows rather than the fits that would let that " +
+      "be redone here."));
+
+    var wrap = el("div", { "class": "table-wrap tall" });
+    var table = el("table", { id: "everyone", "class": "tight" });
+    var head = el("tr");
+    var NUMERIC = { 0: 1, 2: 1, 3: 1, 5: 1, 6: 1, 7: 1, 8: 1 };
+    ["Finished", "Name", "Past races", "Predicted", "80% range", "Actual", "Out by",
+      "Predicted place", "Places out"]
+      .forEach(function (label, i) { head.appendChild(el("th", { "class": NUMERIC[i] ? "num" : "" }, label)); });
+    table.appendChild(append(el("thead"), [head]));
+    var body = el("tbody");
+    runners.forEach(function (r) {
+      var row = el("tr");
+      row.setAttribute("data-key", r.name.toLowerCase());
+      append(row, [
+        el("td", { "class": "num" }, isNumber(r.finish_place) ? String(r.finish_place) : ""),
+        el("td", null, r.name),
+        el("td", { "class": "num" }, String(r.prior)),
+        el("td", { "class": "num" }, clock(r.seconds)),
+        el("td", null, r.i80 ? clock(r.i80[0]) + " to " + clock(r.i80[1]) : ""),
+        el("td", { "class": "num" }, clock(r.actual)),
+        el("td", { "class": "num " + (Math.abs(r.out_by) <= 60 ? "close" : "") }, signedClock(r.out_by)),
+        el("td", { "class": "num" }, String(r.place)),
+        el("td", { "class": "num " + (r.places_out === 0 ? "close" : "") },
+          (r.places_out > 0 ? "+" : "") + r.places_out)
+      ]);
+      row.addEventListener("click", function () { drawField(runners, r); });
+      body.appendChild(row);
+    });
+    table.appendChild(body);
+    wrap.appendChild(table);
+    target.appendChild(wrap);
+    target.appendChild(el("p", { id: "find-count", "class": "note" }));
+    applySearch();
+  }
+
+  /* The error by where a runner finished in their own field: the same three bands the rest
+     of the page uses, so moving between this race and the archive-wide figures is not a
+     change of subject. Both units are shown, because the minutes grow down the field and the
+     share of a finish time need not. */
+  function bandTable(bands) {
+    var box = el("div");
+    box.appendChild(el("h3", null, "Where the misses were"));
+    box.appendChild(el("p", { "class": "note" },
+      "A five-minute miss is not the same claim for somebody racing the front of the field as " +
+      "for somebody out on the road twice as long, so the same error is given in minutes and " +
+      "as a share of that runner's own finish time."));
+    var wrap = el("div", { "class": "table-wrap" });
+    var table = el("table", { "class": "tight" });
+    var head = el("tr");
+    ["Part of the field", "Runners", "Average miss", "As a share of their time", "Places out"]
+      .forEach(function (label, i) { head.appendChild(el("th", { "class": i ? "num" : "" }, label)); });
+    table.appendChild(append(el("thead"), [head]));
+    var body = el("tbody");
+    bands.forEach(function (b) {
+      var row = el("tr");
+      append(row, [
+        el("td", null, b.label + " (" + b.note + ")"),
+        el("td", { "class": "num" }, count(b.runners)),
+        el("td", { "class": "num" }, errorText(b.mae_min)),
+        el("td", { "class": "num" }, percent(b.mape, 1)),
+        el("td", { "class": "num" }, b.places_out.toFixed(1))
+      ]);
+      body.appendChild(row);
+    });
+    table.appendChild(body);
+    wrap.appendChild(table);
+    box.appendChild(wrap);
+    return box;
+  }
+
   function stat(figure, caption) {
     var box = el("div", { "class": "stat" });
     box.appendChild(el("span", { "class": "figure" }, figure));
@@ -565,8 +779,13 @@
     box.hidden = !bt;
     if (!bt) { return; }
     var year = bt.date.slice(0, 4);
-    byId("preview-title").textContent = "How this model did at the " + year + " " + race.name + ", predicted only from races before it";
-    byId("preview-lede").textContent = "In the backtest, the " + year + " race was predicted as if it were tomorrow, from results dated before it, and then compared with what happened. Each dot is one runner: across is the prediction, up is the actual finish. On the diagonal, the prediction was exact.";
+    var here = race.stage === "retrospect" && bt.date === race.date;
+    byId("preview-title").textContent = here
+      ? "This race, runner by runner"
+      : "How this model did at the " + year + " " + race.name + ", predicted only from races before it";
+    byId("preview-lede").textContent = here
+      ? "The same rows as the table below, drawn. Each dot is one runner: across is what the model would have said, up is what they actually ran. On the diagonal the two agree. Above it the runner was slower than the model expected, below it faster."
+      : "In the backtest, the " + year + " race was predicted as if it were tomorrow, from results dated before it, and then compared with what happened. Each dot is one runner: across is the prediction, up is the actual finish. On the diagonal, the prediction was exact.";
     var stats = clear(byId("preview-stats"));
     append(stats, [
       stat(bt.mae_min.toFixed(1) + " min", "average miss across all " + count(bt.runners) + " finishers, first-timers included"),

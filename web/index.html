@@ -86,7 +86,7 @@
   <nav class="toc" aria-label="On this page">
     <p class="eyebrow">On this page</p>
     <ol>
-      <li><a href="#races">The races and their predictions</a></li>
+      <li><a href="#races">This year's races</a></li>
       <li><a href="#picture">The whole idea in one picture</a></li>
       <li><a href="#data">Eighteen years of results</a></li>
       <li><a href="#who">Working out who is who</a></li>
@@ -118,25 +118,28 @@
   <!-- ============================================================== the races -->
 
   <section class="section" id="races">
-    <h2>The races and their predictions</h2>
+    <h2>This year's races</h2>
     <p class="section-lead">
       Pick a race. From seven days before it, every runner on the entrant list gets a
       prediction the first morning they appear; the day before, the whole field is predicted
       again with the latest weather forecast and given places. Until then, you can see how the
       same model would have done at this race last year, and what the course and its history
-      look like.
+      look like. One race here has already been run: it shows every runner against what the
+      model would have said, which is not the same thing as a prediction and is marked as
+      such.
     </p>
+    <p class="section-lead">{{calendar_note}}</p>
 
     <div class="controls">
       <div class="control">
         <label for="race">Race
-          <span class="hint">the races this project is predicting</span>
+          <span class="hint">entries open, announced, or already run</span>
         </label>
         <select id="race">{{race_options}}</select>
       </div>
       <div class="control">
         <label for="find">Find a runner
-          <span class="hint">a name or a town, once predictions are published</span>
+          <span class="hint">a name or a town, once there are runners to search</span>
         </label>
         <input id="find" type="search" autocomplete="off" placeholder="Name or town" disabled>
       </div>
@@ -766,6 +769,18 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
       <p>
         <strong>A mistake found after the gun is scored as it stands and written up, not
         fixed.</strong> That rule is what separates a forecast from a story told afterwards.
+      </p>
+    </div>
+    <div class="assumption">
+      <p>
+        <strong>One race on this site was not written down before its gun, and it says so on
+        its own card.</strong> The Uniformed Services Run was run on 13 September 2026,
+        between the day this project started watching entrant lists and the day it first
+        published anything. Nothing was tagged for it, so it is not in the record above and
+        never will be. What is shown there is what the model would have said: rows from the
+        backtest, made by a fit that had seen no result from July 2026 onward. It is here
+        because it is the only place the whole thing can be seen end to end before the first
+        real prediction, and it is labelled rather than quietly counted.
       </p>
     </div>
     <details class="disclose">

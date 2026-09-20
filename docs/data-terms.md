@@ -114,6 +114,36 @@ matches on "Road" and leaves the rest of the phrase alone, and a test pins both 
 - **A team page is not a hole.** Many of the skips are team standings and awards pages for
   races whose individual results are read.
 
+## NLAA race calendar, added 2026-09-20
+
+`https://www.nlaa.ca/calendar.php`, the association's own list of the year's events: a
+date, an event name and a place per entry, in a plain unordered list. Same site, same
+footer ("Copyright NLAA 2026"), no terms-of-use page and no `robots.txt`, which is the
+same standing the results pages were read under. Peter told the association on 2026-09-19
+that this project reads its site to predict races, and it raised no objection.
+
+**Why it is read at all.** Without it the website's list of races is whatever a person last
+typed into `data/live.toml`, which goes stale the moment a race is added or cancelled and
+says nothing about the races this project is not predicting. The calendar is the only public
+statement of what is actually being run this year.
+
+⚠️ **This page is alive, like an entrant list and unlike a results page.** Races are added,
+moved and cancelled all year, so the cached copy is not the truth and a fetch-once-keep-forever
+rule would publish last month's calendar. It is re-fetched on each run of `finishline calendar`,
+at the crawler's one-a-second pace and under its user agent, and the copy on disk is replaced.
+It holds no personal data at all, so unlike the entrant snapshots it is not kept as a series
+and the file it writes, `data/calendar.json`, is committed.
+
+**What is taken.** The date, the event name and the place, for road races only. Track meets,
+cross-country, road relays and the kids' events are dropped by the same rules that decide
+what `finishline catalogue` reads (`nlaa.why_not_read`), and the count of what was dropped
+is printed rather than hidden. A calendar entry carries no distance and no course, so it is
+matched to a course in the archive by the same sponsor-proof aliases the results index is
+matched by (`nlaa.COURSE_ALIASES`); an entry that matches nothing is listed as an
+unrecognised road race rather than guessed at.
+
+**Nothing about a person is on this page**, so nothing about a person comes off it.
+
 ## Athletics NorthEAST entrant lists
 
 Public pages on the club's store, "up-to-the-minute", no privacy statement:

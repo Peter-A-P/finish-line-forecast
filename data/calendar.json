@@ -1,0 +1,368 @@
+{
+ "events": [
+  {
+   "date": "2026-01-31",
+   "end": null,
+   "family": null,
+   "name": "Indoor Track Series - Meet #1",
+   "place": "The Works Field House, St. John's",
+   "skipped": "track and field (indoor)",
+   "url": "/track-and-field/indoor-series/index.php"
+  },
+  {
+   "date": "2026-03-14",
+   "end": null,
+   "family": null,
+   "name": "Indoor Track Series - Meet #2",
+   "place": "The Works Field House, St. John's",
+   "skipped": "track and field (indoor)",
+   "url": "/track-and-field/indoor-series/index.php"
+  },
+  {
+   "date": "2026-04-18",
+   "end": null,
+   "family": null,
+   "name": "Spring Indoor Track & Field Meet",
+   "place": "St. John's",
+   "skipped": "track and field (indoor)",
+   "url": "/track-and-field/spring-meet/index.php"
+  },
+  {
+   "date": "2026-04-26",
+   "end": null,
+   "family": "flat-out",
+   "name": "Boston Pizza Flat Out 5km Road Race",
+   "place": "St. John's",
+   "skipped": null,
+   "url": "https://www.athleticsnortheast.com/FlatOut5k/"
+  },
+  {
+   "date": "2026-05-23",
+   "end": null,
+   "family": "run-from-away",
+   "name": "Run From Away Marathon - Half Marathon - 5k",
+   "place": "Gander",
+   "skipped": null,
+   "url": "https://runfromaway.ca"
+  },
+  {
+   "date": "2026-05-24",
+   "end": null,
+   "family": "ane-mile",
+   "name": "ANE Mile Road Race",
+   "place": "St. John's",
+   "skipped": null,
+   "url": "https://www.athleticsnortheast.com/Mile/"
+  },
+  {
+   "date": "2026-05-24",
+   "end": null,
+   "family": null,
+   "name": "Officials Track & Field Clinic - Throwing Events",
+   "place": "Mount Pearl",
+   "skipped": "track and field (track)",
+   "url": "https://www.trackie.com/event/nlaa-officials-track-field-clinic-throwing-events/1037451/"
+  },
+  {
+   "date": "2026-05-30",
+   "end": null,
+   "family": null,
+   "name": "TrackFest 2026 (Grades 3/4 & 5/6)",
+   "place": "St. John's",
+   "skipped": "track and field (trackfest)",
+   "url": "/trackfest/index.php"
+  },
+  {
+   "date": "2026-06-02",
+   "end": null,
+   "family": null,
+   "name": "Pearlgate Twilight Meet 1 (14+, born 2012 and older)",
+   "place": "Mount Pearl",
+   "skipped": "track and field (twilight)",
+   "url": "https://pearlgate.ca/all-events"
+  },
+  {
+   "date": "2026-06-05",
+   "end": "2026-06-06",
+   "family": null,
+   "name": "NLAA Junior and Senior HS Championships (3 sessions)",
+   "place": "Mount Pearl",
+   "skipped": "no course this project knows is named here",
+   "url": "/track-and-field/school-provincials/index.php"
+  },
+  {
+   "date": "2026-06-07",
+   "end": null,
+   "family": "five-and-dime",
+   "name": "Banished Brewing Five & Dime Road Race (10km)",
+   "place": "Paradise",
+   "skipped": null,
+   "url": "https://www.paradiserunningclub.com/racesevents/fiveanddime"
+  },
+  {
+   "date": "2026-06-07",
+   "end": null,
+   "family": "five-and-dime",
+   "name": "Banished Brewing Five & Dime Road Race (5km)",
+   "place": "Paradise",
+   "skipped": null,
+   "url": "https://www.paradiserunningclub.com/racesevents/fiveanddime"
+  },
+  {
+   "date": "2026-06-09",
+   "end": null,
+   "family": null,
+   "name": "Pearlgate Twilight Meet 2 (14+, born 2012 and older)",
+   "place": "Mount Pearl",
+   "skipped": "track and field (twilight)",
+   "url": "https://pearlgate.ca/all-events"
+  },
+  {
+   "date": "2026-06-14",
+   "end": null,
+   "family": "mews-memorial",
+   "name": "Quidi Vidi Mews Memorial 8km",
+   "place": "St. John's",
+   "skipped": null,
+   "url": "https://www.athleticsnortheast.com/Mews8k/"
+  },
+  {
+   "date": "2026-06-15",
+   "end": null,
+   "family": null,
+   "name": "Pearlgate Tetrathlons - Meet 1 (U14, born 2013 and younger)",
+   "place": "Mount Pearl",
+   "skipped": "track and field (tetrathlons)",
+   "url": "https://pearlgate.ca/"
+  },
+  {
+   "date": "2026-06-28",
+   "end": null,
+   "family": "tely-10",
+   "name": "The Tely 10 Mile Road Race",
+   "place": "Paradise/Mount Pearl/St. John's",
+   "skipped": null,
+   "url": "/tely10/index.php"
+  },
+  {
+   "date": "2026-07-04",
+   "end": null,
+   "family": null,
+   "name": "NLAA Age-Class Track and Field Championships",
+   "place": "Mount Pearl",
+   "skipped": "track and field (track)",
+   "url": "/track-and-field/age-class/index.php"
+  },
+  {
+   "date": "2026-07-06",
+   "end": null,
+   "family": null,
+   "name": "Pearlgate Tetrathlons - Meet 2 (U14, born 2013 and younger)",
+   "place": "Mount Pearl",
+   "skipped": "track and field (tetrathlons)",
+   "url": "https://pearlgate.ca/"
+  },
+  {
+   "date": "2026-07-10",
+   "end": "2026-07-11",
+   "family": null,
+   "name": "Legion Track and Field Meet",
+   "place": "Mount Pearl",
+   "skipped": "track and field (track)",
+   "url": "/track-and-field/legion/index.php"
+  },
+  {
+   "date": "2026-07-12",
+   "end": null,
+   "family": "mundy-pond",
+   "name": "LiveBy Wealth Mundy Pond 5km",
+   "place": "St. John's",
+   "skipped": null,
+   "url": "https://striderunningnl.ca/mundy-pond-5k/"
+  },
+  {
+   "date": "2026-07-13",
+   "end": "2026-07-17",
+   "family": null,
+   "name": "Memorial T&F Club - Speed Development Camp",
+   "place": "St. John's",
+   "skipped": "track and field (camp)",
+   "url": "https://www.trackie.com/event/memorial-track-and-field-club-speed-development-camp/1036453/"
+  },
+  {
+   "date": "2026-07-13",
+   "end": "2026-07-17",
+   "family": null,
+   "name": "Memorial T&F Club - Summer Camp",
+   "place": "St. John's",
+   "skipped": "track and field (camp)",
+   "url": "https://www.trackie.com/event/memorial-track-and-field-club-summer-camp/1036451/"
+  },
+  {
+   "date": "2026-07-16",
+   "end": null,
+   "family": null,
+   "name": "Pearlgate Twilight Meet 3 (14+, born 2012 and older)",
+   "place": "Mount Pearl",
+   "skipped": "track and field (twilight)",
+   "url": "https://pearlgate.ca/all-events"
+  },
+  {
+   "date": "2026-08-01",
+   "end": null,
+   "family": null,
+   "name": "All-Comers Track Meet",
+   "place": "Mount Pearl",
+   "skipped": "track and field (all-comers)",
+   "url": "/track-and-field/all-comers-summer-track-meet/index.php"
+  },
+  {
+   "date": "2026-08-01",
+   "end": null,
+   "family": "commander-gander",
+   "name": "Commander Gander 5k and 10k",
+   "place": "Gander",
+   "skipped": null,
+   "url": "https://www.trackie.com/event/commander-gander-5k-10k-kids-fun-run/1037809/"
+  },
+  {
+   "date": "2026-08-03",
+   "end": null,
+   "family": null,
+   "name": "Pearlgate Tetrathlons - Meet 3 (U14, born 2013 and younger)",
+   "place": "Mount Pearl",
+   "skipped": "track and field (tetrathlons)",
+   "url": "https://pearlgate.ca/"
+  },
+  {
+   "date": "2026-08-08",
+   "end": null,
+   "family": "prc-figure-8",
+   "name": "Hillcrest Pharmasave Paradise Figure 8(K)",
+   "place": "Paradise",
+   "skipped": null,
+   "url": "https://www.paradiserunningclub.com/racesevents/figure8"
+  },
+  {
+   "date": "2026-08-12",
+   "end": "2026-08-15",
+   "family": null,
+   "name": "NL Games",
+   "place": "Corner Brook",
+   "skipped": "track and field (games)",
+   "url": "/track-and-field/nlgames2026/index.php"
+  },
+  {
+   "date": "2026-08-22",
+   "end": null,
+   "family": null,
+   "name": "Pearlgate Memorial Meet",
+   "place": "Mount Pearl",
+   "skipped": "track and field (meet)",
+   "url": "https://pearlgate.ca/all-events"
+  },
+  {
+   "date": "2026-08-29",
+   "end": null,
+   "family": null,
+   "name": "Sea-Hawks XC Season Opener 5k (U14 2k)",
+   "place": "St. John's",
+   "skipped": "a different sport (xc)",
+   "url": "https://www.trackie.com/event/2026-sea-hawks-xc-season-opener-5km-2km/1038501/"
+  },
+  {
+   "date": "2026-09-13",
+   "end": null,
+   "family": "usr",
+   "name": "Uniformed Services Run Marathon/Half-Marathon/Marathon Relay/5km/10km",
+   "place": "St. John's",
+   "skipped": null,
+   "url": "https://www.athleticsnortheast.com/USR/"
+  },
+  {
+   "date": "2026-09-19",
+   "end": null,
+   "family": null,
+   "name": "Cross-country Running Series for Schools Meet #1",
+   "place": "St. John's",
+   "skipped": "a different sport (cross-country)",
+   "url": "/xcseries/index.php"
+  },
+  {
+   "date": "2026-09-26",
+   "end": null,
+   "family": null,
+   "name": "Cross-country Running Series for Schools Meet #2",
+   "place": "St. John's",
+   "skipped": "a different sport (cross-country)",
+   "url": "/xcseries/index.php"
+  },
+  {
+   "date": "2026-10-03",
+   "end": null,
+   "family": null,
+   "name": "Cross-country Running Series for Schools Meet #3",
+   "place": "St. John's",
+   "skipped": "a different sport (cross-country)",
+   "url": "/xcseries/index.php"
+  },
+  {
+   "date": "2026-10-04",
+   "end": null,
+   "family": "turkey-tea",
+   "name": "Turkey Tea 10km Road Race",
+   "place": "Mount Pearl",
+   "skipped": null,
+   "url": "https://www.paradiserunningclub.com/racesevents/turkeytea10k"
+  },
+  {
+   "date": "2026-10-11",
+   "end": null,
+   "family": "trapline",
+   "name": "Trapline Marathon / Half-Marathon / 10km / 5km",
+   "place": "Goose Bay",
+   "skipped": null,
+   "url": "http://www.traplinemarathon.com/"
+  },
+  {
+   "date": "2026-10-18",
+   "end": null,
+   "family": "cape-to-cabot",
+   "name": "Capital Subaru Cape to Cabot 20km",
+   "place": "St. John's",
+   "skipped": null,
+   "url": "https://www.capetocabot.com/"
+  },
+  {
+   "date": "2026-10-24",
+   "end": null,
+   "family": null,
+   "name": "NLAA Provincial Cross-country Championships",
+   "place": "St. John's",
+   "skipped": "a different sport (cross-country)",
+   "url": "/xcchampionships/index.php"
+  },
+  {
+   "date": "2026-11-11",
+   "end": null,
+   "family": "run-to-remember",
+   "name": "Run to Remember 11km Race",
+   "place": "Mount Pearl",
+   "skipped": null,
+   "url": "https://striderunningnl.ca/run-to-remember/"
+  },
+  {
+   "date": "2026-12-06",
+   "end": null,
+   "family": null,
+   "name": "Holiday Hustle Track & Field Meet",
+   "place": "St. John's",
+   "skipped": "track and field (track)",
+   "url": "/track-and-field/holiday-hustle/index.php"
+  }
+ ],
+ "fetched_at": "2026-09-20T17:59:01+00:00",
+ "source": "https://www.nlaa.ca/calendar.php",
+ "watching_since": "2026-09-12",
+ "year": 2026
+}

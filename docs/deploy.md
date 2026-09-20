@@ -3,10 +3,11 @@
 The website is `site/`: one static page, its stylesheet, its script and two fonts, written by
 `finishline site` from `web/` (the page, in the style of the other project pages on
 peterparker.ca), `data/site/results.json` (the measured numbers, written by `finishline
-report` in the same run as the README's tables), `data/live.toml` and the committed
-prediction files. The runners' predictions are served from `data/predictions/`, which
-`robots.txt` disallows and the host marks noindex; the page itself names nobody and is
-indexed. There is no backend, so hosting it is a file upload and one DNS record. It follows the same path as
+report` in the same run as the README's tables), `data/live.toml`, `data/calendar.json` (the
+association's fixture list, so the race picker is the season rather than a hand-kept file) and
+the committed prediction files. The runners' predictions are served from `data/predictions/`,
+and the runner rows of a race that already ran from `data/retrospect/`; `robots.txt` disallows
+both and the host marks both noindex. The page itself names nobody and is indexed. There is no backend, so hosting it is a file upload and one DNS record. It follows the same path as
 project 08's `capacity.peterparker.ca` (its `docs/deploy.md`) with one difference: the upload
 runs in GitHub Actions on every push, as `peterparker.ca` does, rather than from this machine,
 because the prediction week commits a new file every morning and the website has to follow
@@ -129,5 +130,9 @@ gh run watch --repo Peter-A-P/finish-line-forecast
 - **Race pages carry `noindex`** (a meta tag and an `X-Robots-Tag` header), so search engines
   do not list a named person's prediction; the front page, which names nobody, is indexed.
   Reversing it is one line in `publish/site.py` if Peter wants the pages findable.
+- **`data/retrospect/` is the same rule for a different thing.** It holds the runner rows of a
+  race that ran before this project published anything (PLAN.md 5.9). It is deliberately not
+  `data/predictions/`: that directory is the tagged record, and no address should let the two
+  be mistaken for each other. Both are disallowed and both are noindex.
 
 Cost: the Free plan, CA$0.

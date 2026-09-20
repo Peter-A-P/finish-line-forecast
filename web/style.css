@@ -842,6 +842,27 @@ tbody tr.reference { background: var(--accent-soft); }
   background: color-mix(in srgb, var(--good) 14%, transparent);
   color: var(--good);
 }
+.race-status.stage-retrospect, .race-status.stage-calendar {
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+  color: var(--warn);
+}
+
+/* The banner on a race that ran before this project published anything. It sits above the
+   race name rather than beside the status chip, because the one thing a reader must not
+   carry away from this card is that these numbers were published before the gun. */
+.race-warning {
+  margin: -0.25rem 0 1.1rem;
+  padding: 0.9rem 1.1rem;
+  border-left: 3px solid var(--warn);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: color-mix(in srgb, var(--warn) 9%, transparent);
+}
+.race-warning strong { display: block; color: var(--warn); margin-bottom: 0.35rem; }
+.race-warning p { font-size: 0.86rem; line-height: 1.55; margin: 0 0 0.5rem; }
+.race-warning p:last-child { margin-bottom: 0; }
+
+/* A miss inside a minute, marked so the eye can find the rows that landed. */
+td.close { color: var(--good); }
 
 .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 0.9rem 1.25rem; margin-bottom: 1rem; }
 .fact { display: flex; flex-direction: column; min-width: 0; }

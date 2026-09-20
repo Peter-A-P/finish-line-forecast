@@ -466,6 +466,92 @@ free plan at finishline.peterparker.ca behind a Cloudflare CNAME, but deployed b
 workflow on every push, as peterparker.ca is, so the morning task's commit refreshes it
 (docs/deploy.md). This is section 7's reserve line, now used, at CA$0.
 
+### 5.8 What is on this year
+
+**Added 2026-09-20, at Peter's request: the race list populates itself.** `data/live.toml`
+is the right source for the races this project predicts and the wrong source for the season.
+It cannot say the Trapline is on in three weeks, it cannot notice a race moving, and it goes
+stale the day one is cancelled. `finishline calendar` reads
+`https://www.nlaa.ca/calendar.php`, the association's own fixture list, and writes
+`data/calendar.json`, which the website's race picker is built from (`ingest/calendar.py`,
+docs/data-terms.md). No race is ever typed into the site by hand.
+
+The picker has three shelves and the first two are the interesting distinction: **entries
+open** means a start list has been seen with somebody on it, **announced** means the race is
+on the calendar and no list has been seen, and **already run** is section 5.9. A date in the
+future is not evidence that registration is open, and the only evidence this project has
+either way is the snapshot.
+
+Three things the calendar forced that the results index never did:
+
+- **A calendar entry is a day, not a race.** The index has one row per race per distance;
+  the calendar has "Uniformed Services Run Marathon/Half-Marathon/Marathon Relay/5km/10km",
+  which is one row and five races. An entry therefore carries a course family and a date and
+  no distance, and `retrospect.events_on` is where one becomes several.
+- **"Relay" disqualifies an index row and not a calendar entry.** On the index a row that
+  says relay is the relay. On the calendar it is one component of a day that also has a
+  marathon, and reusing `nlaa.NOT_ROAD` unchanged dropped the whole USR. The words that mean
+  a different sport (cross-country, trail, a schools meet) are kept apart from the words that
+  name one component of a day.
+- **Three track meets carry a road course's venue in their name.** "Pearlgate Twilight Meet"
+  matches the `pearlgate` alias, so the track-and-field test has to run before the alias test
+  or the calendar files a tetrathlon as a road race.
+
+Of the 40 rows on the 2026 calendar, 15 are road races and 25 are not; exactly one row
+matches nothing this project knows, and `finishline calendar` prints it first, because a new
+road race with no alias yet is the only skip here that is ever a bug rather than a fact about
+the sport. Races this project does not predict are listed anyway, with the reason: a list
+that quietly omits them would be a list that flatters this project.
+
+### 5.9 A race that ran before anything was published
+
+**Added 2026-09-20.** The Uniformed Services Run went on 2026-09-13, a day after the first
+entrant-list snapshot and three weeks before the first race this project freezes for. There
+is a start list from before its gun, an official finish list from after it, and in between
+there is what the model would have said. That is the only end-to-end demonstration this
+project has before the Turkey Tea, and it is on the website
+(`publish/retrospect.py`, `data/retrospect/`).
+
+⚠️ **It is not a prediction and nothing may call it one.** Nothing was frozen, hashed or
+tagged before the gun, so it is not in the public record and is not scored in `scores/`. Its
+rows are the ones `backtest/run.py` already produced, held out by construction: the fit that
+made them saw nothing from the quarter the race falls in or later, which for 2026-09-13 means
+nothing after 2026-06-30, and `check_no_leakage` asserts it at every origin. The file lives
+under `data/retrospect/`, never under `predictions/`, so no address can confuse the two, and
+the card on the website opens by saying what it is not.
+
+**Peter's question, 2026-09-20, and the answer**: are these last week's model or this one?
+This one. `saved.load` refuses rows whose key does not match the dataset and the source of
+every module that shapes a prediction, both saved files' keys match the code as it stands,
+and the blend that publishes is computed from them at `WEIGHT = 0.65`. The four USR races are
+already among the 53 test races behind every headline figure on the site; this surfaces rows
+that were being published in aggregate already.
+
+**Only an event whose road had been run before is scored**, which for the 2026 USR means the
+10 km alone. Its course has nine earlier editions; the marathon and half moved to new routes
+in 2026 and the 5 km had never been run, so for three of the four the model was predicting a
+road with no course factor at all, and an error measured there is mostly the cost of that.
+The rule is mechanical (`retrospect.scorable`: does the course have an edition before this
+one?) rather than a judgement made race by race, and the three unscored events are listed on
+the page with the reason, because a reader told about the 10 km and not about the marathon
+beside it has been told half of it.
+
+Measured, blend against the baselines, on the 161 of 171 finishers the archive can identify:
+**4.74 min average miss** against carry-forward's 4.43 over the 136 carry-forward can answer
+for at all, and **3.81 against 4.43 paired on those 136**; 78% of finishes inside the 80%
+range; 14 places out at the middle. Split by where a runner finished in their own field, the
+minutes grow down the field and the share of a finish time does not: 3.6 min at the front
+quarter, 4.5 mid-pack, 6.4 in the last quarter, and 7.5%, 7.5%, 7.9% of a finish time. The
+start list against the finish list: 198 listed in the 10 km, 171 finished, 168 found, so
+15.2% not found (an upper bound on no-shows, section 5.6), and 3 finishers on no list.
+
+Two things this cannot do, and the page says both. **A place here is a rank, not a
+simulation**: a published place is drawn from thousands of simulated races and needs a
+posterior, and the backtest kept its scored rows rather than its fits, so the predicted place
+is the order of the predicted times and carries no range. **There is no hometown, sex or age
+band**, because the club's finish lists print none: a place, a name, a service affiliation, a
+bib and the times, and nothing else.
+
 ## 6. Week by week
 
 Relative weeks, anchored to the first live race. Evenings and weekends.
@@ -1519,3 +1605,33 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     five percent population fade planted at the distance) asserts what the fit must do: the
     flat marathon reads harder than the flat 10 km against the reference, level against the
     other marathon, and the planted ten percent survives in the peer comparison.
+
+37. **The rule that reads the results index deleted the year's biggest multi-distance race
+    from the calendar (2026-09-20).** The calendar (section 5.8) is the first source here
+    that mixes sports on one page, and the first two attempts at telling road racing out of
+    it both failed on real rows.
+
+    **Reusing `nlaa.NOT_ROAD` unchanged dropped the USR.** On the results index a row that
+    says "relay" is the relay, and refusing it is right. The association's calendar has one
+    row per *day*: "Uniformed Services Run Marathon/Half-Marathon/Marathon Relay/5km/10km" is
+    a marathon, a half, a 10 km, a 5 km and a relay in one line, and the same pattern deleted
+    all five. The fix is not a longer pattern but a distinction the index never needed:
+    **a word that means a different sport** (cross-country, trail, a schools meet) disqualifies
+    an entry, and **a word that names one component of a day** (relay, walk, kids, teams,
+    awards) does not. `ingest/calendar.py` imports `NOT_ROAD` and does not call it, so a
+    rename there fails here rather than quietly changing what is read.
+
+    **Matching the course aliases first filed three track meets as road races.** "Pearlgate
+    Twilight Meet 1", "Pearlgate Tetrathlons" and "Pearlgate Memorial Meet" all match the
+    `pearlgate` alias, because the venue is also a road-race course; "NLAA Provincial
+    Cross-country Championships" matches `provincial` the same way. Positive identification
+    by alias is still the test that a road race has to pass, but the track-and-field
+    exclusion has to run before it, and cross-country before that. Order is the whole design
+    and the tests pin it row by row.
+
+    **What the page settles for rather than guesses.** Of 40 rows, 15 are road races and 25
+    are not. Exactly one, "NLAA Junior and Senior HS Championships (3 sessions)", matches no
+    rule and no alias; it is reported as unrecognised and sorted to the top of the skip list,
+    because a new road race whose name has no alias yet looks exactly like that and is the
+    only skip here that is ever a bug. Nothing is filed under a derived slug, which is the
+    same refusal the parser makes about a results page with no column headers.

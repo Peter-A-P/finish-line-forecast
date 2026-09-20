@@ -1,0 +1,410 @@
+"""A race that ran while this project was watching, but before it published anything.
+
+WHY
+---
+The Uniformed Services Run went on 2026-09-13, a day after the first entrant-list snapshot
+and three weeks before the first race this project freezes a prediction for. There is a
+start list saved from before its gun and an official finish list from after it, and in
+between there is what the model would have said. That is the only end-to-end demonstration
+this project has until the Turkey Tea on 2026-10-04, and leaving it off the website because
+no tag was cut would be hiding the most informative thing here.
+
+⚠️ **This is not a prediction and the page must never call it one.** Nothing was frozen,
+hashed or tagged before the gun, so it does not enter the public record and it is not
+scored in `scores/`. What it is, exactly: the rows the rolling-origin backtest already
+produced for this race, which are held out by construction. The model that made them was
+fitted on the history strictly before the quarter the race falls in
+(`hierarchical.block_start`, three months), so for 2026-09-13 it had seen nothing after
+2026-06-30. `backtest.run.check_no_leakage` asserts it at every origin.
+
+⚠️ **Only an event whose road this project had already seen is scored.** The 2026 USR
+introduced new marathon and half-marathon routes and its 5 km had never been run before, so
+for three of its four events the model was predicting a road with no course factor at all
+(`nlaa.SAME_ROUTE`). Publishing a held-out error for those would be reporting the cost of a
+missing course as if it were the model's accuracy. They are listed, with the reason, and
+not scored. The rule is mechanical rather than a judgement made race by race: an event is
+scored when its course has an edition before it, and is not when it does not.
+
+⚠️ **The field is the runners who finished and resolved**, which is fewer than the runners
+who finished. A finisher the archive cannot tell apart from another runner of the same name
+is excluded by the resolver (`Runner.ambiguous`) and counted here, the same as everywhere
+else in this project.
+
+⚠️ **A place here is a rank, not a simulation.** For a live race the published place comes
+from drawing the whole field thousands of times (`placing/simulate.py`), which needs a
+posterior; the backtest saved scored rows and let its posteriors go. So the predicted place
+on this page is the order of the predicted times and carries no range, and the page says so
+rather than letting it look like the same object.
+"""
+
+from __future__ import annotations
+
+import math
+import statistics
+from collections.abc import Iterable, Sequence
+from dataclasses import dataclass
+from datetime import date, datetime
+from pathlib import Path
+from typing import Any
+
+from finishline.backtest import score
+from finishline.conformal import split
+from finishline.identity.normalise import name_key
+from finishline.ingest import nlaa
+from finishline.ingest.entrants import Entrant
+from finishline.publish import showcase
+from finishline.schema import Race, Result
+from finishline.store import Dataset
+
+
+@dataclass(frozen=True, slots=True)
+class Attendance:
+    """The start list against the finish list, for one event of one race."""
+
+    listed: int
+    finished: int
+    found: int
+    not_listed: int
+    switched: int
+
+    @property
+    def not_found(self) -> float | None:
+        """The share of listed entrants who did not finish under a name on their list.
+
+        ⚠️ **An upper bound on the no-show rate, not the no-show rate.** It also holds
+        everyone who started and did not finish, and everyone whose name the list and the
+        results page printed two different ways. Said here because the number is quoted.
+        """
+        return None if not self.listed else 1.0 - self.found / self.listed
+
+
+def snapshot_before(directory: Path, prefix: str, when: datetime) -> Path | None:
+    """The last snapshot of a list taken before a moment, by the stamp in its filename.
+
+    ⚠️ **Not `entrants.latest_snapshot`.** The scheduled task kept looking at the USR list
+    for days after the race, so the latest snapshot of it is a list nobody could have
+    predicted from. What a retrospective may use is what was knowable before the gun.
+    """
+    best: tuple[datetime, Path] | None = None
+    for path in sorted(directory.glob(f"{prefix}_*.html")):
+        stamp = path.stem.rsplit("_", 1)[-1]
+        try:
+            taken = datetime.strptime(stamp, "%Y%m%dT%H%M%SZ")
+        except ValueError:
+            try:
+                taken = datetime.strptime(stamp, "%Y%m%dT%H%MZ")
+            except ValueError:
+                continue
+        taken = taken.replace(tzinfo=when.tzinfo)
+        if taken <= when and (best is None or taken > best[0]):
+            best = (taken, path)
+    return None if best is None else best[1]
+
+
+def entered(people: Sequence[Entrant], race: Race) -> list[Entrant]:
+    """The entrants on a list who are in this race, by the distance their event names.
+
+    ⚠️ **The list groups a day's entrants by event and the archive files them by distance**,
+    and no identifier joins the two. The USR list says "Quidi Vidi Brewery 10k", "Half
+    Marathon", "1k Kids Run"; the archive says 10,000 m and 21,097.5 m. So an event label is
+    read for its distance with the same parser the results index is read with, and dropped
+    by the same rules: the kids' run, the family walk and the marathon relay are not
+    individual road races and never join a field here.
+    """
+    picked = []
+    for person in people:
+        label = person.event
+        if not label or nlaa.why_not_read(label, "") is not None:
+            continue
+        metres = nlaa.distance_m(label)
+        if metres is not None and abs(metres - race.distance_m) < 1.0:
+            picked.append(person)
+    return picked
+
+
+def attendance(people: Sequence[Entrant], results: Sequence[Result], race: Race) -> Attendance:
+    """Who was listed, who finished, and how far apart the two lists are.
+
+    Matched on the normalised name key within the event, which is all there is: the club's
+    finish lists print no sex, no age and no hometown, so there is nothing else to agree on.
+    A switch is a finisher who was on another event's list that day, which is a runner who
+    changed distance rather than a late entry, and the two are counted apart.
+    """
+    mine = {name_key(person.name) for person in entered(people, race)}
+    everyone = {name_key(person.name) for person in people if person.event}
+    finished = {name_key(result.name) for result in results if result.finished}
+    not_listed = finished - mine
+    return Attendance(
+        listed=len(mine),
+        finished=len(finished),
+        found=len(mine & finished),
+        not_listed=len(not_listed),
+        switched=len(not_listed & everyone),
+    )
+
+
+def scorable(data: Dataset, race_id: str) -> bool:
+    """Whether this race's course had been run before, so the model knew the road.
+
+    The bar the module docstring sets, in one line. A course with no earlier edition has no
+    course factor, and an error measured on it is mostly the cost of that.
+    """
+    race = data.races[race_id]
+    return any(
+        other.course_id == race.course_id and other.date < race.date
+        for other in data.races.values()
+    )
+
+
+def _bands(
+    rows: Sequence[tuple[float, float, int]], field: Sequence[float]
+) -> list[dict[str, Any]]:
+    """The error split by where a runner finished in their own field.
+
+    The same three bands the rest of the site uses (`showcase.SPEED_GROUPS`), so a reader
+    moving between this race and the archive-wide table is not changing subject. Reported in
+    minutes and as a share of a finish time, because a five-minute miss is not the same claim
+    for somebody racing the front as for somebody out there twice as long.
+    """
+    out = []
+    for key, label, note, low, high in showcase.SPEED_GROUPS:
+        picked = [
+            (error, actual, places)
+            for error, actual, places in rows
+            if low <= showcase._share_of_field(actual, field) < high
+        ]
+        if not picked:
+            continue
+        out.append({
+            "key": key,
+            "label": label,
+            "note": note,
+            "runners": len(picked),
+            "mae_min": round(statistics.mean(error for error, _, _ in picked) / 60, 2),
+            "mape": round(statistics.mean(error / actual for error, actual, _ in picked), 4),
+            "places_out": round(statistics.mean(places for _, _, places in picked), 1),
+        })
+    return out
+
+
+def race(
+    data: Dataset,
+    scored: Sequence[score.Scored],
+    intervals: Sequence[split.Interval],
+    race_id: str,
+    people: Sequence[Entrant],
+    *,
+    model: str = showcase.MODEL,
+    baseline: str = showcase.BASELINE,
+) -> dict[str, Any] | None:
+    """Everything the website says about one already-run race, names included.
+
+    The runner rows carry a name because the finish list carries a name; nothing else about
+    a person is here that the finish list did not print. They go to a file the host serves
+    `noindex` and `robots.txt` disallows, like the prediction files.
+    """
+    target = data.races.get(race_id)
+    if target is None:
+        return None
+    rows = {
+        row.runner_id: row
+        for row in scored
+        if row.race_id == race_id and row.model == model and row.predicted is not None
+    }
+    if not rows:
+        return None
+    others = {
+        row.runner_id: row
+        for row in scored
+        if row.race_id == race_id and row.model == baseline and row.predicted is not None
+    }
+    bounds = {
+        item.row.runner_id: item
+        for item in intervals
+        if item.row.race_id == race_id and item.adjusted
+    }
+    finishers = [
+        result
+        for result in data.results
+        if result.race_id == race_id and result.finished and result.seconds
+    ]
+    by_runner = {
+        runner.runner_id: runner
+        for runner in data.runners
+        if not runner.ambiguous
+        for result in runner.results
+        if result.race_id == race_id
+    }
+    names = {
+        runner_id: runner.name for runner_id, runner in by_runner.items() if runner_id in rows
+    }
+    # The place the results page printed, which is the place in the race that was run. The
+    # two place columns below are ranks inside the scored field instead, because a runner
+    # the archive could not identify has no prediction to be out by and dropping them from
+    # one side of a comparison and not the other is how a place error gets flattered.
+    official = {
+        runner.runner_id: result.place
+        for runner in data.runners
+        if not runner.ambiguous
+        for result in runner.results
+        if result.race_id == race_id
+    }
+
+    predicted_order = sorted(rows, key=lambda key: rows[key].predicted or 0.0)
+    predicted_place = {runner_id: i + 1 for i, runner_id in enumerate(predicted_order)}
+    actual_order = sorted(rows, key=lambda key: rows[key].actual)
+    actual_place = {runner_id: i + 1 for i, runner_id in enumerate(actual_order)}
+
+    runners: list[dict[str, Any]] = []
+    ranged: list[tuple[float, int, int]] = []
+    for runner_id in actual_order:
+        row = rows[runner_id]
+        held = bounds.get(runner_id)
+        predicted = float(row.predicted or 0.0)
+        actual = float(row.actual)
+        # An open-ended upper edge is no range at all, and rounding `inf` raises. The
+        # conformal step can leave one on a stratum with too few earlier races.
+        edges: list[int] | None = None
+        low = None if held is None else held.low
+        high = None if held is None else held.high
+        if low is not None and high is not None and math.isfinite(low) and math.isfinite(high):
+            edges = [round(low), round(high)]
+            ranged.append((actual, edges[0], edges[1]))
+        runners.append({
+            "name": names.get(runner_id, ""),
+            "prior": row.depth,
+            "seconds": round(predicted, 1),
+            "actual": round(actual, 1),
+            "out_by": round(predicted - actual, 1),
+            "i80": edges,
+            "finish_place": official.get(runner_id),
+            "place": predicted_place[runner_id],
+            "actual_place": actual_place[runner_id],
+            "places_out": predicted_place[runner_id] - actual_place[runner_id],
+        })
+
+    field = showcase.field_times(data).get(race_id, ())
+    errors = [
+        (
+            abs(float(row.predicted or 0.0) - float(row.actual)),
+            float(row.actual),
+            abs(predicted_place[runner_id] - actual_place[runner_id]),
+        )
+        for runner_id, row in rows.items()
+    ]
+    both = [runner_id for runner_id in rows if runner_id in others]
+    held_count = sum(1 for actual, low, high in ranged if low <= actual <= high)
+
+    return {
+        "race_id": race_id,
+        "name": target.name,
+        "date": target.date.isoformat(),
+        "course_id": target.course_id,
+        "distance_m": target.distance_m,
+        "model": model,
+        "baseline": baseline,
+        "finishers": len(finishers),
+        "scored": len(rows),
+        "ambiguous": len(finishers) - len(rows),
+        "mae_min": round(statistics.mean(error for error, _, _ in errors) / 60, 2),
+        "median_error_min": round(statistics.median(error for error, _, _ in errors) / 60, 2),
+        "places_out": round(statistics.mean(places for _, _, places in errors), 1),
+        "median_places_out": round(statistics.median(places for _, _, places in errors), 1),
+        "coverage80": None if not ranged else round(held_count / len(ranged), 4),
+        "paired": len(both),
+        "paired_model_min": None if not both else round(
+            statistics.mean(
+                abs(float(rows[key].predicted or 0.0) - float(rows[key].actual)) for key in both
+            ) / 60, 2
+        ),
+        "paired_baseline_min": None if not both else round(
+            statistics.mean(
+                abs(float(others[key].predicted or 0.0) - float(others[key].actual))
+                for key in both
+            ) / 60, 2
+        ),
+        "bands": _bands(errors, field),
+        "attendance": _attendance_record(people, finishers, target),
+        "runners": runners,
+    }
+
+
+def _attendance_record(
+    people: Sequence[Entrant], finishers: Sequence[Result], target: Race
+) -> dict[str, Any] | None:
+    if not people:
+        return None
+    seen = attendance(people, finishers, target)
+    return {
+        "listed": seen.listed,
+        "finished": seen.finished,
+        "found": seen.found,
+        "not_found": None if seen.not_found is None else round(seen.not_found, 4),
+        "not_listed": seen.not_listed,
+        "switched": seen.switched,
+    }
+
+
+def unscored(data: Dataset, race_ids: Sequence[str]) -> list[dict[str, Any]]:
+    """The events of the same day that ran on a road this project had never seen.
+
+    Listed rather than dropped. A reader who is told the 10 km was 4.7 minutes out and not
+    told that the marathon beside it ran on a road new that year has been told half of it.
+    """
+    return [
+        {
+            "race_id": race_id,
+            "name": data.races[race_id].name,
+            "distance_m": data.races[race_id].distance_m,
+            "course_id": data.races[race_id].course_id,
+            "finishers": sum(
+                1
+                for result in data.results
+                if result.race_id == race_id and result.finished
+            ),
+        }
+        for race_id in race_ids
+        if race_id in data.races
+    ]
+
+
+def events_on(data: Dataset, when: date, family: str) -> list[str]:
+    """Every race in the archive that this calendar entry turned into, soonest distance first.
+
+    A calendar entry is a day, not a race (`ingest.calendar`), so this is where one becomes
+    several. Matched on the day and on the course family the entry's name gave, which is the
+    same alias table the results index is read with, so a sponsor change cannot break it.
+    """
+    return sorted(
+        (
+            race_id
+            for race_id, race in data.races.items()
+            if race.date == when and race.course_id.startswith(f"{family}-")
+        ),
+        key=lambda race_id: data.races[race_id].distance_m,
+    )
+
+
+def list_prefix(family: str, when: date, known: Iterable[str]) -> str | None:
+    """The entrant-list prefix a closed race's snapshots were filed under, if there is one.
+
+    The snapshot prefixes are named by hand in `ingest.entrants.LISTS` and the calendar knows
+    only a course family, so the two are joined by the convention the prefixes follow:
+    the family and the year. Returns None rather than guessing at a near miss, because
+    attaching one race's start list to another race would invent a no-show rate.
+    """
+    wanted = f"{family}-{when.year}"
+    return wanted if wanted in set(known) else None
+
+
+__all__ = [
+    "Attendance",
+    "attendance",
+    "entered",
+    "events_on",
+    "list_prefix",
+    "race",
+    "scorable",
+    "snapshot_before",
+    "unscored",
+]

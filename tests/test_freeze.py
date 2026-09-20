@@ -437,7 +437,18 @@ def test_the_website_is_built_from_the_committed_files_alone(tmp_path: Path) -> 
         encoding="utf-8",
     )
     out = tmp_path / "site"
-    site.build(out, live, tmp_path / "predictions", tmp_path / "scores", date(2026, 10, 12))
+    # No calendar and no retrospect files, so this stays a test of the prediction side. The
+    # three-shelf picker and the already-run race have a test of their own below, on data
+    # written here rather than on whatever `finishline report` last measured.
+    site.build(
+        out,
+        live,
+        tmp_path / "predictions",
+        tmp_path / "scores",
+        date(2026, 10, 12),
+        calendar=tmp_path / "no-calendar.json",
+        retrospect=tmp_path / "no-retrospect",
+    )
 
     page = (out / "index.html").read_text(encoding="utf-8")
     assert "{{" not in page, "every token is filled"
@@ -448,9 +459,13 @@ def test_the_website_is_built_from_the_committed_files_alone(tmp_path: Path) -> 
     assert "innerHTML" not in (out / "app.js").read_text(encoding="utf-8"), "names go in as text"
 
     races = json.loads((out / "data" / "races.json").read_text(encoding="utf-8"))
-    assert [race["id"] for race in races] == ["c2c-2026", "r2r-2026"], "soonest first"
-    assert races[0]["stage"] == "week" and "1 daily file(s)" in races[0]["status"]
-    assert races[1]["status"] == "Daily predictions start 2026-11-04."
+    upcoming = [race for race in races if race["group"] != "run"]
+    assert [race["id"] for race in upcoming] == ["c2c-2026", "r2r-2026"], "soonest first"
+    assert upcoming[0]["stage"] == "week" and "1 daily file(s)" in upcoming[0]["status"]
+    assert upcoming[1]["status"] == "Daily predictions start 2026-11-04."
+    # Cape to Cabot has a start list with names on it and Run to Remember has none at all,
+    # which is exactly the difference the two shelves are for.
+    assert upcoming[0]["group"] == "open" and upcoming[1]["group"] == "announced"
     assert "Hynes" not in json.dumps(races), "the race list names nobody"
 
     named = json.loads((out / "data" / "predictions" / "c2c-2026.json").read_text("utf-8"))
@@ -465,6 +480,119 @@ def test_the_website_is_built_from_the_committed_files_alone(tmp_path: Path) -> 
     moved = {route["route"]: route.get("redirect") for route in config["routes"]}
     assert moved["/c2c-2026.html"] == "/#c2c-2026", "the old race pages still land somewhere"
     assert "'unsafe-inline'" not in config["globalHeaders"]["Content-Security-Policy"]
+
+
+def test_the_picker_has_three_shelves_and_a_race_already_run(tmp_path: Path) -> None:
+    """The whole season, from the association's calendar rather than from a hand-kept list.
+
+    Three shelves, and the one that matters is the difference between the first two: a race
+    with somebody on its start list is open, a race with nobody on it is only announced. A
+    race already run is on the third, is never called a prediction, and its runner rows go to
+    their own directory so no address can confuse them with the tagged record.
+    """
+    import shutil
+
+    from finishline.publish import site
+
+    live = tmp_path / "live.toml"
+    live.write_text(
+        '[c2c-2026]\nname = "Cape to Cabot"\ndate = "2026-10-18"\n'
+        'course_id = "cape-to-cabot-20000"\nentrant_list = "c2c-2026"\n'
+        '[r2r-2026]\nname = "Run to Remember"\ndate = "2026-11-11"\n'
+        'course_id = "run-to-remember-11000"\n',
+        encoding="utf-8",
+    )
+    calendar = tmp_path / "calendar.json"
+    calendar.write_text(
+        json.dumps({
+            "source": "https://www.nlaa.ca/calendar.php",
+            "fetched_at": "2026-09-20T12:00:00+00:00",
+            "watching_since": "2026-09-12",
+            "year": 2026,
+            "events": [
+                # Before this project was watching: archive, not record, and not on the page.
+                {"date": "2026-06-28", "name": "The Tely 10", "place": "St. John's",
+                 "family": "tely-10", "url": None, "end": None, "skipped": None},
+                {"date": "2026-09-13", "name": "Club day", "place": "St. John's",
+                 "family": "club", "url": None, "end": None, "skipped": None},
+                # A real road race this project does not predict, listed all the same.
+                {"date": "2026-10-11", "name": "Trapline Marathon / 10km", "place": "Goose Bay",
+                 "family": "trapline", "url": "https://example.invalid/", "end": None,
+                 "skipped": None},
+                {"date": "2026-10-18", "name": "Capital Subaru Cape to Cabot 20km",
+                 "place": "St. John's", "family": "cape-to-cabot", "url": None, "end": None,
+                 "skipped": None},
+                {"date": "2026-12-06", "name": "Holiday Hustle", "place": "St. John's",
+                 "family": None, "url": None, "end": None, "skipped": "track and field (track)"},
+            ],
+        }),
+        encoding="utf-8",
+    )
+    measured = json.loads(Path("data/site/results.json").read_text(encoding="utf-8"))
+    measured["races"] = {
+        "c2c-2026": {"entrants": {"listed": 500, "as_of": "2026-09-19", "depth": {}, "refused": 0}},
+        "r2r-2026": {"entrants": None},
+    }
+    measured["closed"] = {
+        "r-2026": {
+            "race_id": "r-2026", "name": "Club 10k", "event": "Club day", "date": "2026-09-13",
+            "course_id": "club-10000", "distance_m": 10000.0, "place": "St. John's",
+            "scored": 2, "finishers": 3, "ambiguous": 1, "mae_min": 1.5, "unscored": [],
+            "attendance": {"listed": 4, "finished": 3, "found": 3, "not_found": 0.25,
+                           "not_listed": 0, "switched": 0},
+        }
+    }
+    results = tmp_path / "results.json"
+    results.write_text(json.dumps(measured), encoding="utf-8")
+    rows = tmp_path / "retrospect"
+    rows.mkdir()
+    (rows / "r-2026.json").write_text(
+        json.dumps({"race_id": "r-2026", "runners": [{"name": "Ann <Hynes>", "actual": 2400.0}]}),
+        encoding="utf-8",
+    )
+
+    out = tmp_path / "site"
+    shutil.copytree(Path("web"), tmp_path / "web")
+    site.build(
+        out, live, tmp_path / "predictions", tmp_path / "scores", date(2026, 9, 20),
+        web=tmp_path / "web", results=results, calendar=calendar, retrospect=rows,
+    )
+    races = json.loads((out / "data" / "races.json").read_text(encoding="utf-8"))
+    shelves = {race["id"]: race["group"] for race in races}
+    assert shelves == {
+        "c2c-2026": "open",
+        "r2r-2026": "announced",
+        "trapline-2026": "announced",
+        "r-2026": "run",
+    }
+    # Run before this project was watching: archive, not record, and not on the page.
+    assert "tely-10-2026" not in shelves
+    assert [race["id"] for race in races] == [
+        "c2c-2026", "trapline-2026", "r2r-2026", "r-2026"
+    ], "open first, then announced soonest first, then what has already run"
+
+    closed = next(race for race in races if race["id"] == "r-2026")
+    assert closed["stage"] == "retrospect" and closed["predicted"] is False
+    assert closed["predictions"] is None, "an already-run race is never a published prediction"
+    assert closed["retrospect"] == "data/retrospect/r-2026.json"
+    assert not (out / "data" / "predictions" / "r-2026.json").exists()
+    assert (out / "data" / "retrospect" / "r-2026.json").exists()
+
+    trapline = next(race for race in races if race["id"] == "trapline-2026")
+    assert trapline["predicted"] is False and trapline["stage"] == "calendar"
+    assert trapline["url"] == "https://example.invalid/"
+
+    page = (out / "index.html").read_text(encoding="utf-8")
+    assert "{{" not in page
+    assert page.count("<optgroup") == 3
+    assert "last read on 2026-09-20" in page, "a live page's age is on the page"
+    assert "Hynes" not in page, "the indexed page still names nobody"
+
+    robots = (out / "robots.txt").read_text(encoding="utf-8")
+    assert "Disallow: /data/retrospect/" in robots
+    config = json.loads((out / "staticwebapp.config.json").read_text(encoding="utf-8"))
+    routes = {route["route"]: route.get("headers", {}) for route in config["routes"]}
+    assert routes["/data/retrospect/*"]["X-Robots-Tag"] == "noindex"
 
 
 def test_the_page_template_and_its_values_agree() -> None:
