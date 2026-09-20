@@ -104,3 +104,22 @@ given is the exact guess everything else here is built to avoid. Hard-coding tha
 layout is defensible, but it should be a written exception rather than something slipped
 in. The other four unparsed pages are named in [data-terms.md](data-terms.md) and are not
 this kind of question.
+
+### 5. The two tuning scripts are not in the repository, and two published numbers come from them
+
+The challenger's features and parameters (PLAN.md section 13 item 34) and the blend weight
+(item 35) were both chosen on the 2022 and 2023 races, by `scratch/tune_gbm.py` and
+`scratch/blend_weight.py`. Both items cite those scripts, and `scratch/` is gitignored, so a
+reader can check every number measured on the test races and cannot rerun the two searches
+that produced the settings. That is a gap in the one rule this project is built on.
+
+**The case for moving them in**, say to `experiments/`, is that the settings are as much a
+result as the errors are: a weight of 0.65 and a 40-set random search are claims about what
+was tried, and the scripts are the evidence. **The case against** is that they are scratch
+code, not held to the typing and lint bar the package is, and committing them invites a
+reader to treat them as part of the tool.
+
+Either is defensible; what is not defensible is citing a file nobody else can see. A
+middle course is to commit them under `experiments/` with a README saying they are records
+of a search rather than supported code, excluded from `mypy --strict` the way the tests
+are not. Peter's call.
