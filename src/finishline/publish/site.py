@@ -518,25 +518,28 @@ def hero_distances(results: Mapping[str, Any], group: str = DEFAULT_SPEED) -> st
     rows = (groups.get("rows") or {}).get(group) or []
     if not rows:
         return ""
+    # One short line per row of the tile, because a tile is read down a phone screen rather
+    # than across: the figure, what it is, how often, then the shape of the misses.
     return "".join(
         "<span class=\"hero-distance\">"
         f"<span class=\"hd-race\">{html.escape(str(row['label']))}</span>"
         f"<span class=\"hd-min\">{showcase.error_text(row['mae_min'])}</span>"
-        f"<span class=\"hd-pct\">average miss, {row['mape'] * 100:.1f}% of the time</span>"
-        f"<span class=\"hd-spread\">{_spread_text(row)}</span>"
-        "</span>"
+        "<span class=\"hd-pct\">avg miss,</span>"
+        f"<span class=\"hd-pct\">{row['mape'] * 100:.1f}% of the time</span>"
+        + "".join(f"<span class=\"hd-spread\">{line}</span>" for line in _spread_lines(row))
+        + "</span>"
         for row in rows
     )
 
 
-def _spread_text(row: Mapping[str, Any]) -> str:
-    """"Half within a minute, nine in ten within two", which is what an average does not say."""
+def _spread_lines(row: Mapping[str, Any]) -> tuple[str, ...]:
+    """"Half within a minute", "90% within two": what an average does not say, a line each."""
     middle, tail = row.get("median_error_min"), row.get("p90_error_min")
     if middle is None or tail is None:
-        return ""
+        return ()
     return (
-        f"half within {showcase.error_text(middle)}, "
-        f"9 in 10 within {showcase.error_text(tail)}"
+        f"half within {showcase.error_text(middle)},",
+        f"90% within {showcase.error_text(tail)}",
     )
 
 

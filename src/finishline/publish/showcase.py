@@ -117,7 +117,7 @@ def _minutes(seconds: float | None) -> float | None:
     return None if seconds is None else round(seconds / 60.0, 2)
 
 
-def _round(value: float | None, places: int = 4) -> float | None:
+def rounded(value: float | None, places: int = 4) -> float | None:
     return None if value is None or not math.isfinite(value) else round(value, places)
 
 
@@ -157,12 +157,12 @@ def backtest(
         for name in names:
             summary = score.summarise(rows, name)
             models[name] = {
-                "answered": _round(summary.coverage),
+                "answered": rounded(summary.coverage),
                 "mae_min": _minutes(summary.mae_seconds),
                 "low_min": _minutes(summary.mae_low),
                 "high_min": _minutes(summary.mae_high),
-                "mape": _round(summary.mape),
-                "skill": _round(score.skill(summary, baseline)) if name != names[0] else None,
+                "mape": rounded(summary.mape),
+                "skill": rounded(score.skill(summary, baseline)) if name != names[0] else None,
             }
         strata.append({"label": label, "runners": baseline.runners, "models": models})
 
@@ -249,10 +249,10 @@ def distances(
             "runners": len(band),
             "median_min": _minutes(statistics.median(row.actual for row in band)),
             "mae_min": _minutes(everyone.mae_seconds),
-            "mape": _round(everyone.mape),
+            "mape": rounded(everyone.mape),
             "deep_runners": len(deep),
             "deep_mae_min": None if experienced is None else _minutes(experienced.mae_seconds),
-            "deep_mape": None if experienced is None else _round(experienced.mape),
+            "deep_mape": None if experienced is None else rounded(experienced.mape),
             **spread(band),
         })
     return out
@@ -333,7 +333,7 @@ def distance_groups(
                 "runners": len(band),
                 "median_min": _minutes(statistics.median(row.actual for row in band)),
                 "mae_min": _minutes(summary.mae_seconds),
-                "mape": _round(summary.mape),
+                "mape": rounded(summary.mape),
                 **spread(band),
             })
         groups["rows"][key] = band_rows
@@ -380,12 +380,12 @@ def _coverage(
                 "stratum": held.stratum,
                 "level": level,
                 "checked": held.rows - held.unadjusted,
-                "raw": _round(held.raw),
-                "raw_low": _round(held.raw_low),
-                "raw_high": _round(held.raw_high),
-                "conformal": _round(held.conformal),
-                "conformal_low": _round(held.conformal_low),
-                "conformal_high": _round(held.conformal_high),
+                "raw": rounded(held.raw),
+                "raw_low": rounded(held.raw_low),
+                "raw_high": rounded(held.raw_high),
+                "conformal": rounded(held.conformal),
+                "conformal_low": rounded(held.conformal_low),
+                "conformal_high": rounded(held.conformal_high),
                 "raw_width_min": _minutes(held.raw_width),
                 "conformal_width_min": _minutes(held.conformal_width),
             })
@@ -419,9 +419,9 @@ def course_list(fit: courses.Fit, live_courses: Mapping[str, str]) -> list[dict[
             # the others of the same length, where the reference's drift over distance has
             # cancelled. None where the length has only one measured course.
             "peers": measured.peers,
-            "versus": _round(measured.versus_peers),
-            "versus_low": _round(measured.peers_low),
-            "versus_high": _round(measured.peers_high),
+            "versus": rounded(measured.versus_peers),
+            "versus_low": rounded(measured.peers_low),
+            "versus_high": rounded(measured.peers_high),
             "live": live_courses.get(measured.course_id),
             "named": measured.course_id in busiest,
         }
@@ -446,7 +446,7 @@ def editions(
             "finishers": len(values),
             "median_s": round(statistics.median(values), 1),
             "fastest_s": round(values[0], 1),
-            "temp_c": _round(temperatures.get(race_id), 1),
+            "temp_c": rounded(temperatures.get(race_id), 1),
         })
     return out
 
@@ -511,7 +511,7 @@ def course_backtest(
         "date": race.date.isoformat(),
         "runners": len(points),
         "mae_min": _minutes(statistics.mean(abs(p[0] - p[1]) for p in points)),
-        "coverage80": _round(held / len(ranged) if ranged else None),
+        "coverage80": rounded(held / len(ranged) if ranged else None),
         "paired": len(both),
         "paired_model_min": _minutes(
             statistics.mean(abs((r.predicted or 0) - r.actual) for r in both) if both else None

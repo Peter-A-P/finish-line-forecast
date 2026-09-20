@@ -6,7 +6,7 @@ published once the results are in. For a race director that is pacing, corral an
 staffing planned from expected finish times rather than guesses; for a runner it is a goal
 time with an honest interval instead of a hunch.
 
-**Status: building.** Every registered runner in a Newfoundland road race can be given a
+**Status: built and measured, waiting for a start line.** Every registered runner in a Newfoundland road race can be given a
 finish time, a calibrated range and a likely place before the gun, which is a thing that did
 not exist for these races: eighteen years of results pages are parsed, 23,830 runners are
 resolved out of them with no runner ID to join on, every course's difficulty is measured from
@@ -17,10 +17,12 @@ between them was chosen on 2022 and 2023 alone, so the races reported here never
 it. Against the strongest simple rule this same machinery can compute, that average is 32%
 closer for runners with four or more prior results, 5.0 minutes of mean absolute error against
 carry-forward's 7.4, with no bias left to speak of, and it answers for the 30% of a field that
-no such rule can answer for at all. No prediction has been made yet. The first live race is the Cape to Cabot 20 km in St. John's
-on 2026-10-18, with a second on a frozen model on 2026-11-11; predictions are committed,
-tagged and hashed in this repository before each race and scored against the official
-results after it. Build plan: [PLAN.md](PLAN.md).
+no such rule can answer for at all. What has not happened yet is a prediction: nothing here
+is tagged. The first is the Turkey Tea 10 km on 2026-10-04, a dress rehearsal on a real race,
+and the Cape to Cabot 20 km follows on 2026-10-18; each prediction file is committed, tagged
+and hashed in this repository before the gun and scored against the official results after it.
+Run to Remember on 2026-11-11 publishes no start list, so who runs would have to be predicted
+too, and that part is not built. Build plan: [PLAN.md](PLAN.md).
 
 **The website: [finishline.peterparker.ca](https://finishline.peterparker.ca)**, every live
 race and its predictions, with the whole method explained in pictures.

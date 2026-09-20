@@ -16,8 +16,24 @@ The weekly results crawl is registered the same way (`scripts/register-crawl-tas
 
 ### 1. Elevation figures for the other courses, if and when they are easy to get
 
-**This blocks nothing.** It is worth being clear about that, because it was a dependency in
-the original plan and is not one any more. Course difficulty is measured from the results
+**This blocks nothing, and since 2026-09-20 it would buy something it would not have bought
+before.** Peter asked for the website's course chart to have a second view: difficulty from
+the elevation profile, as an objective measure that strips the weather and any self-selection
+in who turns up. It is a good idea for a reason beyond that. A factor measured from results is
+measured against Daniels' reference time for the course's own distance, so it carries this
+population's departure from that curve (PLAN.md 13 item 36); a factor integrated from a
+gradient profile has no reference time in it at all, and is the one number here that would be
+comparable straight across race lengths.
+
+**What it needs, and it is more than a total.** Not the climb total: the grade distribution.
+550 m spread over 11 km at 5% costs 5.9% and the same 550 m packed into 5.5 km at 10% costs
+9.0%, which is why `metrics/grade.penalty` takes the grade as an explicit argument. So the view
+wants elevation sampled along each route, not one ascent figure, and that means a traced route
+per course. Today 2 of the 50 measured courses publish a climb at all (Cape to Cabot and Turkey
+Tea), so the second view would be a chart with two dots in it and has not been built. Six or
+eight of the busiest courses would make it worth drawing.
+
+**The rest of the case, which has not changed.** Course difficulty is measured from the results
 (`finishline courses`), and on every course that matters the interval is tighter than an
 elevation figure could make it. Cape to Cabot is +9.3% [+9.0, +9.5] from 5,310 finishes.
 

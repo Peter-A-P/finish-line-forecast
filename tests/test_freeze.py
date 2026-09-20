@@ -609,7 +609,8 @@ def test_the_hero_strip_follows_the_part_of_the_field_it_is_asked_for() -> None:
     }
     front = site.hero_distances(measured)
     assert "48 sec" in front and "3.8% of the time" in front, "under a minute reads as seconds"
-    assert "half within 28 sec" in front and "9 in 10 within 1.6 min" in front, (
+    assert front.count("hd-pct") == 2 and "avg miss," in front, "one short line per row"
+    assert "half within 28 sec," in front and "90% within 1.6 min" in front, (
         "the average is never shown without the shape of the misses around it"
     )
     back = site.hero_distances(measured, "back")

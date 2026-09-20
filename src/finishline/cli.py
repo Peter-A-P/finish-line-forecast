@@ -910,6 +910,13 @@ def _write_showcase(
             "factor": None if measured is None else round(measured.factor, 4),
             "factor_low": None if measured is None else round(measured.low, 4),
             "factor_high": None if measured is None else round(measured.high, 4),
+            # And the same course against the courses of its own length, which is the
+            # comparison the card leads with where there is one (PLAN.md 13 item 36).
+            "length": showcase.distance_label(float(record["distance_m"])),
+            "peers": 0 if measured is None else measured.peers,
+            "versus": None if measured is None else showcase.rounded(measured.versus_peers),
+            "versus_low": None if measured is None else showcase.rounded(measured.peers_low),
+            "versus_high": None if measured is None else showcase.rounded(measured.peers_high),
             "climb_m": profile.get("climb_m"),
             "drop_m": profile.get("drop_m"),
             "editions": showcase.editions(data, course_id, temperatures),

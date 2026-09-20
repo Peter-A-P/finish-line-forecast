@@ -208,10 +208,46 @@
     return (state.results && state.results.races && state.results.races[race.id]) || null;
   }
 
-  function difficulty(factor) {
-    if (!isNumber(factor)) { return "Not enough history to measure"; }
-    var pct = Math.abs(factor * 100).toFixed(1) + "%";
-    return factor >= 0 ? pct + " slower than a flat road" : pct + " faster than a flat road";
+  function absPct(value) { return Math.abs(value * 100).toFixed(1) + "%"; }
+
+  /* An interval that straddles zero is printed signed, because "0.2% to 0.8%" would hide the
+     one thing it says: that the measurement did not settle which side of level this is. */
+  function intervalText(low, high) {
+    if (!isNumber(low) || !isNumber(high)) { return ""; }
+    if (low <= 0 && high >= 0) {
+      return " (95% interval " + (low < 0 ? "-" : "+") + absPct(low) + " to +" + absPct(high) + ")";
+    }
+    var ends = [Math.abs(low), Math.abs(high)].sort(function (a, b) { return a - b; });
+    return " (95% interval " + absPct(ends[0]) + " to " + absPct(ends[1]) + ")";
+  }
+
+  /* The course fact, in two parts. The headline is the course against the other courses of
+     its own length, which is the comparison a reader has in mind; the note carries the figure
+     against an equal-VDOT flat time, which is the same fit with the race length still inside
+     it. A course alone at its length has only the second, and says so. PLAN.md 13 item 36. */
+  function courseFact(info) {
+    if (!isNumber(info.factor)) { return ["Not enough history to measure", null]; }
+    var length = info.length || distanceLabel(info.distance_m || 0);
+    var flat = absPct(info.factor) + (info.factor >= 0 ? " slower" : " faster") +
+      " than an equal-VDOT flat time";
+    var span = intervalText(info.factor_low, info.factor_high);
+    if (!isNumber(info.versus)) {
+      return [flat + span, info.peers
+        ? "Measured from the results. Its own length is too thinly covered here to compare against."
+        : "Measured from the results. The only " + length + " course on the archive, so there is " +
+          "nothing of its own length to compare it with."];
+    }
+    var others = info.peers === 1 ? "the other " + length + " course" : "other " + length + " courses";
+    var against = info.peers === 1 ? "the only other course of that length"
+      : "the " + info.peers + " other courses of that length";
+    var clear = info.versus_low > 0 || info.versus_high < 0;
+    var value = clear
+      ? absPct(info.versus) + (info.versus < 0 ? " faster" : " slower") + " than " + others
+      : "about as hard as " + others;
+    return [value, "Measured from the results against " + against +
+      intervalText(info.versus_low, info.versus_high) +
+      ". Against an equal-VDOT flat time for the distance it is " +
+      flat.replace(" than an equal-VDOT flat time", "") + span + "."];
   }
 
   function fact(label, value, note) {
@@ -235,9 +271,8 @@
 
     var facts = el("div", { "class": "facts" });
     facts.appendChild(fact("Distance", distanceLabel(race.distance_m)));
-    facts.appendChild(fact("Course", difficulty(info.factor),
-      isNumber(info.factor_low) ? "95% interval " + percent(Math.min(Math.abs(info.factor_low), Math.abs(info.factor_high)), 1) + " to " +
-        percent(Math.max(Math.abs(info.factor_low), Math.abs(info.factor_high)), 1) + ", measured from the results" : null));
+    var course = courseFact(info);
+    facts.appendChild(fact("Course", course[0], course[1]));
     if (isNumber(info.climb_m)) {
       facts.appendChild(fact("Climb and drop", info.climb_m + " m up, " + info.drop_m + " m down"));
     }
@@ -634,14 +669,15 @@
     }
     rows.forEach(function (row) {
       var card = el("span", { "class": "hero-distance" });
-      var spread = isNumber(row.median_error_min) && isNumber(row.p90_error_min)
-        ? "half within " + errorText(row.median_error_min) + ", 9 in 10 within " + errorText(row.p90_error_min)
-        : "";
+      var spread = isNumber(row.median_error_min) && isNumber(row.p90_error_min);
+      /* One line each, matching site.hero_distances: a tile is read down, not across. */
       append(card, [
         el("span", { "class": "hd-race" }, row.label),
         el("span", { "class": "hd-min" }, errorText(row.mae_min)),
-        el("span", { "class": "hd-pct" }, "average miss, " + percent(row.mape, 1) + " of the time"),
-        spread ? el("span", { "class": "hd-spread" }, spread) : null
+        el("span", { "class": "hd-pct" }, "avg miss,"),
+        el("span", { "class": "hd-pct" }, percent(row.mape, 1) + " of the time"),
+        spread ? el("span", { "class": "hd-spread" }, "half within " + errorText(row.median_error_min) + ",") : null,
+        spread ? el("span", { "class": "hd-spread" }, "90% within " + errorText(row.p90_error_min)) : null
       ]);
       node.appendChild(card);
     });

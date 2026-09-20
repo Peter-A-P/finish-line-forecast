@@ -344,7 +344,17 @@ strong { font-weight: 600; }
   color: var(--good);
 }
 
-.hd-pct { font-size: 0.8rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.hd-pct {
+  font-size: 0.8rem;
+  line-height: 1.3;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The second line of a two-line sentence closes the column gap, so "avg miss," and
+   "3.8% of the time" read as one thing and not as two facts. */
+.hd-pct + .hd-pct,
+.hd-spread + .hd-spread { margin-top: -0.1rem; }
 
 /* What the average does not say: where the middle of the misses is, and where the tail
    ends. Quieter than the figure above it, because it is the sentence that stops a reader
