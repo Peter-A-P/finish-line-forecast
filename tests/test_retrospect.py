@@ -32,8 +32,18 @@ LAST_YEAR = Race("r-2025", "Club 10k", date(2025, 9, 14), 10_000.0, "club-10000"
 NEW_ROAD = Race("m-2026", "Club Marathon", date(2026, 9, 13), 42_195.0, "club-42195", "u")
 
 
-def result(race_id: str, place: int, name: str, seconds: float) -> Result:
-    return Result(race_id, place, None, name, None, None, None, None, None, None, seconds, None)
+def result(
+    race_id: str,
+    place: int,
+    name: str,
+    seconds: float,
+    *,
+    sex: str | None = None,
+    band: str | None = None,
+) -> Result:
+    """One line on a results page. `sex` and `band` are None wherever the page printed none,
+    which is every line of the one race these tests are about."""
+    return Result(race_id, place, None, name, None, sex, None, band, None, None, seconds, None)
 
 
 def dataset() -> Dataset:
@@ -41,7 +51,9 @@ def dataset() -> Dataset:
         result("r-2026", 1, "Ann Hynes", 2400.0),
         result("r-2026", 2, "Bea Power", 2700.0),
         result("r-2026", 3, "Cal Noseworthy", 3000.0),
-        result("r-2025", 1, "Ann Hynes", 2430.0),
+        # The year before, on the association's own page, which prints both. This race does
+        # not, and the two columns on the site are borrowed from here.
+        result("r-2025", 1, "Ann Hynes", 2430.0, sex="F", band="40-49"),
         result("m-2026", 1, "Dot Squires", 12000.0),
     ]
     runners = [
@@ -168,13 +180,101 @@ def test_a_finisher_with_no_prediction_does_not_move_the_place_error() -> None:
     assert plain["median_places_out"] == ahead["median_places_out"]
 
 
-def test_out_by_is_signed_so_a_reader_can_see_which_way_it_missed() -> None:
-    """Prediction minus finish: a minus sign means the model called the runner too fast."""
+def test_out_by_is_the_finish_minus_the_prediction_not_the_other_way_round() -> None:
+    """A runner who took a minute longer than they were told reads +1:00, not -1:00.
+
+    The opposite sign to `score.Scored.error` and to every bias table, and deliberately so:
+    a bias is read on the model, and a row in this table is read on the runner. Ann was
+    called at 39:00 and ran 40:00, which is a minute longer than she was told.
+    """
     block = retrospect.race(dataset(), scored_rows(), intervals(), "r-2026", [])
     assert block is not None
     rows = {row["name"]: row for row in block["runners"]}
-    assert rows["Ann Hynes"]["out_by"] == pytest.approx(-60.0)
-    assert rows["Bea Power"]["out_by"] == pytest.approx(120.0)
+    assert rows["Ann Hynes"]["out_by"] == pytest.approx(60.0)
+    assert rows["Bea Power"]["out_by"] == pytest.approx(-120.0)
+
+
+def test_the_gender_and_age_group_are_borrowed_and_say_where_from() -> None:
+    """This race printed neither, so the columns come from the runner's other results.
+
+    Ann's 2025 line on the association's own page printed F and 40-49. That is public under
+    her name there, it is what the site shows here, and the row carries the race and the date
+    it was printed at so a reader is never told it came off this finish list.
+    """
+    block = retrospect.race(dataset(), scored_rows(), intervals(), "r-2026", [])
+    assert block is not None
+    rows = {row["name"]: row for row in block["runners"]}
+    assert rows["Ann Hynes"]["sex"] == "F"
+    assert rows["Ann Hynes"]["age"] == "40-49"
+    assert rows["Ann Hynes"]["age_from"] == "Club 10k, 2025-09-14"
+    # Bea has one result and it printed nothing, so there is nothing to show and no guess.
+    assert rows["Bea Power"]["age"] is None
+    assert rows["Bea Power"]["age_from"] is None
+    assert block["with_age"] == 1
+
+
+def test_a_band_the_runner_has_certainly_grown_out_of_is_not_printed() -> None:
+    """20-29 in 2016 puts a runner at 30 to 40 in 2026, so the band is dropped, not aged.
+
+    Aging it forward would be inventing a band no page printed. Leaving it as printed would
+    be putting a claim about a person's age on the website that is certainly false. The row
+    goes blank, which is the only one of the three that is true.
+    """
+    assert not retrospect.still_possible("20-29", date(2016, 4, 24), date(2026, 9, 13))
+    # Three months on, a runner printed 45-49 may have turned 50 and may not, so the band
+    # they were printed under is still one they could be in.
+    assert retrospect.still_possible("45-49", date(2026, 6, 28), date(2026, 9, 13))
+    # An open band at the top never expires; one at the bottom does.
+    assert retrospect.still_possible("80+", date(2016, 4, 24), date(2026, 9, 13))
+    assert not retrospect.still_possible("U20", date(2001, 4, 24), date(2026, 9, 13))
+
+
+def test_a_finisher_with_no_prediction_gets_no_age_or_gender_either() -> None:
+    """The row says the archive cannot tell which runner this is. Then it may not say her age.
+
+    Cal's cluster here has a sex and a printed band on it. It is still two people, which is
+    why the row has no prediction, so putting one of them's age beside the other's finish
+    would invent exactly the thing the row exists to say is unknown.
+    """
+    data = dataset()
+    older = result("r-2025", 9, "Cal Noseworthy", 3100.0, sex="F", band="30-39")
+    cal = next(runner for runner in data.runners if runner.runner_id == "cal")
+    runners = [runner for runner in data.runners if runner.runner_id != "cal"]
+    runners.append(Runner("cal", cal.name, None, "F", (older, *cal.results), True, cal.reason))
+    data = Dataset(
+        races=data.races, results=[*data.results, older], runners=runners, failures=[]
+    )
+    block = retrospect.race(data, scored_rows(), intervals(), "r-2026", [])
+    assert block is not None
+    rows = {row["name"]: row for row in block["runners"]}
+    assert rows["Cal Noseworthy"]["excluded"]
+    assert rows["Cal Noseworthy"]["sex"] is None
+    assert rows["Cal Noseworthy"]["age"] is None
+
+
+def test_a_band_printed_after_this_race_is_not_borrowed() -> None:
+    """Nothing after the gun reaches this page, including a column that is only description.
+
+    The whole claim of a retrospective is that the model saw nothing after the quarter before
+    the race. A description taken from a later page would not move a number, and would still
+    be the one thing a reader has no way to check.
+    """
+    data = dataset()
+    later = Race("r-2027", "Club 10k", date(2027, 5, 1), 10_000.0, "club-10000", "u")
+    after = result("r-2027", 1, "Ann Hynes", 2450.0, sex="F", band="50-59")
+    ann = next(runner for runner in data.runners if runner.runner_id == "ann")
+    runners = [runner for runner in data.runners if runner.runner_id != "ann"]
+    runners.append(Runner("ann", ann.name, None, "F", (*ann.results, after), False, ""))
+    data = Dataset(
+        races={**data.races, "r-2027": later},
+        results=[*data.results, after],
+        runners=runners,
+        failures=[],
+    )
+    block = retrospect.race(data, scored_rows(), intervals(), "r-2026", [])
+    assert block is not None
+    rows = {row["name"]: row for row in block["runners"]}
+    assert rows["Ann Hynes"]["age"] == "40-49", "the 2027 page may not describe a 2026 row"
 
 
 def test_places_out_is_signed_so_a_reader_can_see_which_way_the_order_missed() -> None:

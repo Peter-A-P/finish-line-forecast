@@ -561,6 +561,26 @@
     return (seconds > 0 ? "+" : seconds < 0 ? "-" : "") + clock(Math.abs(seconds));
   }
 
+  /* The name, and for a finisher the archive would not commit to, the tag that says so. The
+     resolver's own sentence rides on the tag's tooltip rather than in a cell of its own: it
+     is the same sentence for every such row here, it is long, and a column wide enough to
+     hold it pushed the numbers off the side of a phone. The plain-sight copy of it is the
+     bolded note above the table, because a tooltip does not exist on a touch screen. */
+  function named(r) {
+    var cell = el("td", null, r.name);
+    if (r.excluded) {
+      cell.appendChild(document.createTextNode(" "));
+      cell.appendChild(el("span", { "class": "name-tag", title: r.excluded }, "(potential duplicate)"));
+    }
+    return cell;
+  }
+
+  /* An age group this race never printed, so it says where it came from. */
+  function ageCell(r) {
+    if (!r.age) { return el("td", null, ""); }
+    return el("td", r.age_from ? { title: "Printed at the " + r.age_from } : null, r.age);
+  }
+
   function drawRetrospect(race, data) {
     var target = clear(byId("predictions"));
     var info = story(race) || {};
@@ -594,34 +614,31 @@
     target.appendChild(el("h3", null, "Every runner, against what the model would have said"));
     target.appendChild(el("p", { "class": "note" },
       "Every finisher, in the order they crossed the line, with the place the results page " +
-      "printed. \"Out by\" is the prediction minus the finish, so a minus sign means the " +
-      "model called that runner faster than they ran. It is green where the finish landed " +
+      "printed. \"Out by\" is the finish minus the prediction, so a plus sign means the " +
+      "runner took that much longer than the model called. It is green where the finish landed " +
       "inside that runner's own 80% range, which is the one promise made about a single " +
       "runner; " + percent(info.coverage80, 0) + " of them did, against the 80% promised. A " +
       "bigger miss inside a wide range is green and a smaller one outside a tight range is " +
       "not, because it is the range that made the promise."));
     target.appendChild(el("p", { "class": "note" },
-      count(info.ambiguous) + " of the " + count(info.finishers) + " have no prediction, and " +
-      "say so in their own row: the archive holds more than one runner their result could " +
-      "belong to and the results page prints nothing that would tell them apart. They are " +
-      "here because they ran, and they reach none of the figures above. \"Places out\" is how " +
-      "far out the model had a runner in the order of the " + count(info.scored) + " it was " +
-      "given, plus meaning it expected them further back than they finished, so somebody the " +
-      "resolver could not identify neither helps nor hurts it. There is no predicted place " +
-      "column: an absolute place would be a second claim about who finished where, and the " +
-      "race is the first column. The order behind it carries no range either, because a " +
-      "published place is drawn from thousands of simulated races and the backtest kept its " +
-      "scored rows rather than the fits that would let that be redone here."));
+      "There is no predicted place column and no places-out column: an absolute place would " +
+      "be a second claim about who finished where, and the race is the first column. The " +
+      "place error under \"Where the misses were\" is the model's ordering over the " +
+      count(info.scored) + " runners it was given, ranked among themselves, so somebody the " +
+      "resolver could not identify neither helps nor hurts it. That order carries no range, " +
+      "because a published place is drawn from thousands of simulated races and the backtest " +
+      "kept its scored rows rather than the fits that would let that be redone here."));
 
     var wrap = el("div", { "class": "table-wrap tall" });
     var table = el("table", { id: "everyone", "class": "tight" });
     var head = el("tr");
     /* One place, and it is the place in the race that was run. Every finisher is a row,
-       including the ones with no prediction, which carry the reason instead. "Places out" is
-       a difference and not a place, so there is no second scale to mistake for this one. */
-    var NUMERIC = { 0: 1, 2: 1, 3: 1, 5: 1, 6: 1, 7: 1 };
-    ["Finished", "Name", "Past races", "Predicted", "80% range", "Actual", "Out by",
-      "Places out"]
+       including the ones with no prediction, which say so in the range column and carry the
+       reason on the tag after the name. There is no second place scale anywhere in here to
+       mistake for the first column. */
+    var NUMERIC = { 0: 1, 4: 1, 5: 1, 7: 1, 8: 1 };
+    ["Finished", "Name", "Gender", "Age group", "Past races", "Predicted", "80% range",
+      "Actual", "Out by"]
       .forEach(function (label, i) { head.appendChild(el("th", { "class": NUMERIC[i] ? "num" : "" }, label)); });
     table.appendChild(append(el("thead"), [head]));
     var body = el("tbody");
@@ -629,18 +646,21 @@
       var row = el("tr");
       row.setAttribute("data-key", r.name.toLowerCase());
       /* A finisher the archive could not identify. The row is the real one, with its real
-         place and time; the resolver's reason sits where the prediction would be, spanning
-         the columns it has nothing to put in. Leaving them out and renumbering the rest was
-         how this table came to print a second-place finisher as the winner. */
+         place and time; the name carries the tag and the resolver's own reason behind it,
+         and every column this project cannot fill for them is empty rather than filled in.
+         Leaving them out and renumbering the rest was how this table came to print a
+         second-place finisher as the winner. */
       if (r.excluded) {
         row.className = "unpredicted";
         append(row, [
           el("td", { "class": "num" }, isNumber(r.place) ? String(r.place) : ""),
-          el("td", null, r.name),
+          named(r),
+          el("td", null, "-"),
+          el("td", null, "-"),
           el("td", { "class": "num" }, "-"),
-          el("td", { colspan: "2", "class": "why" }, "No prediction: " + r.excluded),
+          el("td", { "class": "num" }, "-"),
+          el("td", { "class": "why", title: r.excluded }, "No prediction"),
           el("td", { "class": "num" }, clock(r.actual)),
-          el("td", { "class": "num" }, "-"),
           el("td", { "class": "num" }, "-")
         ]);
         /* Nothing in this row reaches a single number above it, which is the point. */
@@ -656,13 +676,14 @@
       var held = r.i80 && r.i80[0] <= r.actual && r.actual <= r.i80[1];
       append(row, [
         el("td", { "class": "num" }, isNumber(r.place) ? String(r.place) : ""),
-        el("td", null, r.name),
+        named(r),
+        el("td", null, r.sex || ""),
+        ageCell(r),
         el("td", { "class": "num" }, String(r.prior)),
         el("td", { "class": "num" }, clock(r.seconds)),
         el("td", null, r.i80 ? clock(r.i80[0]) + " to " + clock(r.i80[1]) : ""),
         el("td", { "class": "num" }, clock(r.actual)),
-        el("td", { "class": "num " + (held ? "close" : "") }, signedClock(r.out_by)),
-        el("td", { "class": "num" }, (r.places_out > 0 ? "+" : "") + r.places_out)
+        el("td", { "class": "num " + (held ? "close" : "") }, signedClock(r.out_by))
       ]);
       row.addEventListener("click", function () { drawField(runners, r); });
       body.appendChild(row);
@@ -670,6 +691,34 @@
     table.appendChild(body);
     wrap.appendChild(table);
     target.appendChild(wrap);
+    /* The two things a reader hits first and has no way to work out from the table: what the
+       tag after a name means, and why a gender and an age group are here at all when the
+       finish list printed neither. Both are on every affected row as a tooltip, and a
+       tooltip is invisible on a phone, so both are also written out here, under the table
+       they explain, in the one weight this page uses for a thing a reader must not miss. */
+    var tag = el("p", { "class": "note" });
+    append(tag, [
+      el("strong", null, "Potential duplicate"),
+      document.createTextNode(": " + count(info.ambiguous) + " of the " +
+        count(info.finishers) + " finishers are marked that way and have no prediction. The " +
+        "archive holds more than one runner the result could belong to and the results page " +
+        "prints nothing that would tell them apart, so this project will not say which one " +
+        "ran. They are in the table because they ran, and they reach none of the figures " +
+        "above. Hover the tag for the resolver's own words on that row.")
+    ]);
+    target.appendChild(tag);
+    var borrowed = el("p", { "class": "note" });
+    append(borrowed, [
+      el("strong", null, "Gender and age group"),
+      document.createTextNode(": this race's finish list prints neither, and no hometown " +
+        "either. They are what the association's own results last printed for that runner " +
+        "before this race, public on nlaa.ca under the same name; hover one for the race and " +
+        "the date it was printed at. " + count(info.with_age) + " of the " +
+        count(info.finishers) + " have one. A band the runner has certainly grown out of " +
+        "since is left blank rather than aged forward, and the bands differ in width because " +
+        "the races that printed them do.")
+    ]);
+    target.appendChild(borrowed);
     target.appendChild(el("p", { id: "find-count", "class": "note" }));
     applySearch();
   }

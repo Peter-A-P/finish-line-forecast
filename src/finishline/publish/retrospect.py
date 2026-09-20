@@ -45,8 +45,24 @@ an absolute place on that scale would be a claim about the race.
 ⚠️ **The ordering here is a rank, not a simulation.** For a live race the published place
 comes from drawing the whole field thousands of times (`placing/simulate.py`), which needs a
 posterior; the backtest saved scored rows and let its posteriors go. So the order behind
-"places out" is the order of the predicted times, with no range on it, and the page says so
-rather than letting it look like the same object.
+the place error is the order of the predicted times, with no range on it, and the page says
+so rather than letting it look like the same object.
+
+⚠️ **`out_by` is the finish minus the prediction, which is the opposite sign to everything
+else in this repository.** `score.Scored.error` and the bias tables are predicted minus
+actual, because a model's bias is naturally read on the model. A reader looking at one
+runner's row is not reading a bias; they are reading a runner who took two minutes longer
+than they were told, and they expect +2:00. The flip lives here, at the last step before the
+page, so nothing measured is touched by it.
+
+⚠️ **The gender and age group are from another race's page, and are dated.** The club's
+finish list for this race prints neither, nor a hometown (`ingest/ane.py`): a name, a place
+and a time is all of it. So the two columns carry what the association's own results last
+printed for that runner before this race, which is public on nlaa.ca under that runner's
+name, and they carry the race and date they were printed at. `printed_category` refuses a
+band the runner has certainly grown out of since, and prints nothing rather than a guess for
+a finisher the resolver could not identify, because an age band is a claim about a person and
+a row with no prediction is a row where this project does not know which person it is.
 """
 
 from __future__ import annotations
@@ -62,7 +78,7 @@ from typing import Any
 from finishline.backtest import score
 from finishline.conformal import split
 from finishline.identity.normalise import name_key
-from finishline.identity.resolve import Runner
+from finishline.identity.resolve import Runner, age_range, birth_window
 from finishline.ingest import nlaa
 from finishline.ingest.entrants import Entrant
 from finishline.publish import showcase
@@ -154,6 +170,62 @@ def attendance(people: Sequence[Entrant], results: Sequence[Result], race: Race)
         not_listed=len(not_listed),
         switched=len(not_listed & everyone),
     )
+
+
+def still_possible(band: str, printed_on: date, when: date) -> bool:
+    """Whether a runner printed under this band then could still be in it now.
+
+    The band fixes a window of birth years (`resolve.birth_window`, which is the same
+    function the resolver uses to decide whether two results can be one person). Carry that
+    window forward to this race and it gives the ages the runner can be on the day; the band
+    is still printable if those ages overlap it. A 20-29 printed in 2016 puts the runner at
+    30 to 40 in 2026 and is refused. A 45-49 printed three months ago is kept, because a
+    runner who has just turned 50 is still inside the window that band allowed.
+    """
+    ages = age_range(band)
+    window = birth_window(band, printed_on)
+    if ages is None or window is None:
+        return False
+    return when.year - window[1] <= ages[1] and ages[0] <= when.year - window[0]
+
+
+def printed_category(data: Dataset, runner: Runner | None, when: date) -> dict[str, Any]:
+    """The gender and age group the association's results printed for this runner.
+
+    ⚠️ **Nothing here is inferred and nothing here is from this race.** The club's list for
+    this race prints no sex and no age at all, so these come from that runner's other results
+    on nlaa.ca, where they are public under the same name. Only results before this race
+    count: a description taken from a later page would be true and still wrong to put beside
+    a held-out prediction, because the whole claim of this page is that nothing after the
+    race was used. The band is the one printed most recently, with the race it was printed
+    at, and it is dropped rather than aged forward when `still_possible` refuses it.
+
+    A runner the resolver would not commit to gets nothing. Their row has no prediction
+    precisely because the archive holds more than one person it could be, and printing one of
+    those people's age beside the other's finish would be inventing the thing the row is
+    there to say is unknown.
+    """
+    blank: dict[str, Any] = {"sex": None, "age": None, "age_from": None}
+    if runner is None or runner.ambiguous:
+        return blank
+    dated = [
+        (data.races[result.race_id].date, result)
+        for result in runner.results
+        if result.age_band
+        and result.race_id in data.races
+        and data.races[result.race_id].date < when
+    ]
+    found = {"sex": runner.sex, "age": None, "age_from": None}
+    if not dated:
+        return found
+    printed_on, latest = max(dated, key=lambda pair: pair[0])
+    band = latest.age_band or ""
+    if not still_possible(band, printed_on, when):
+        return found
+    source = data.races[latest.race_id]
+    found["age"] = band
+    found["age_from"] = f"{source.name}, {printed_on.isoformat()}"
+    return found
 
 
 def scorable(data: Dataset, race_id: str) -> bool:
@@ -299,6 +371,7 @@ def race(
                 "out_by": None,
                 "i80": None,
                 "places_out": None,
+                **printed_category(data, found, target.date),
                 # Why there is no prediction, in the resolver's own words. It is always the
                 # same kind of reason: the archive holds more than one runner this result
                 # could belong to, and nothing on the page says which.
@@ -321,7 +394,11 @@ def race(
             "prior": row.depth,
             "seconds": round(predicted, 1),
             "actual": round(actual, 1),
-            "out_by": round(predicted - actual, 1),
+            # The finish minus the prediction, in that order: a runner who took two minutes
+            # longer than the model called reads +2:00. Written the other way round it read
+            # -2:00 for the same race, which is the sign every reader expects on the
+            # difference of two times and the opposite of what it meant.
+            "out_by": round(actual - predicted, 1),
             "i80": edges,
             # How far out the model had this runner in the order of the field it was given.
             # Positive means it expected them further back than they finished. Not an
@@ -329,6 +406,7 @@ def race(
             # claim about the race, and the race is the `place` above.
             "places_out": predicted_rank[result.place] - actual_rank[result.place],
             "excluded": None,
+            **printed_category(data, runner_of(result), target.date),
         })
 
     field = showcase.field_times(data).get(race_id, ())
@@ -360,6 +438,10 @@ def race(
         "places_out": round(statistics.mean(places for _, _, places in errors), 1),
         "median_places_out": round(statistics.median(places for _, _, places in errors), 1),
         "coverage80": None if not ranged else round(held_count / len(ranged), 4),
+        # How much of the borrowed description there is, so the page can say it rather than
+        # let a column of blanks look like a bug.
+        "with_sex": sum(1 for item in runners if item["sex"]),
+        "with_age": sum(1 for item in runners if item["age"]),
         "paired": len(both),
         "paired_model_min": None if not both else round(
             statistics.mean(
@@ -452,8 +534,10 @@ __all__ = [
     "entered",
     "events_on",
     "list_prefix",
+    "printed_category",
     "race",
     "scorable",
     "snapshot_before",
+    "still_possible",
     "unscored",
 ]

@@ -546,9 +546,16 @@ start list against the finish list: 198 listed in the 10 km, 171 finished, 168 f
 15.2% not found (an upper bound on no-shows, section 5.6), and 3 finishers on no list.
 
 **The runner table is the race that was run**, all 171 finishers in the order they crossed
-the line, with the place the results page printed. The ten with no prediction carry the
-resolver's reason in their own row instead. See item 38 for the two versions before it that
-were wrong, and why the second one was worse than the first.
+the line, with the place the results page printed. The ten with no prediction are tagged
+"(potential duplicate)" beside the name, carry the resolver's own sentence behind that tag,
+and say "No prediction" where the range would be. See item 38 for the two versions before it
+that were wrong, and why the second one was worse than the first.
+
+**"Out by" is the finish minus the prediction** (changed 2026-09-20 at Peter's request):
+somebody who took two minutes longer than the model called reads +2:00. That is the opposite
+sign to `score.Scored.error` and to every bias table in this repository, which are read on the
+model and stay as they are. The flip is at the last step before the page, so nothing measured
+moves with it.
 
 **Green in that table marks the published range holding**, and briefly marked a miss under a
 minute, which is a threshold nobody declared and this project does not measure: a runner whose
@@ -558,9 +565,24 @@ the same meaning, as the scatter plot directly above it.
 Two things this cannot do, and the page says both. **A place here is a rank, not a
 simulation**: a published place is drawn from thousands of simulated races and needs a
 posterior, and the backtest kept its scored rows rather than its fits, so the predicted place
-is the order of the predicted times and carries no range. **There is no hometown, sex or age
-band**, because the club's finish lists print none: a place, a name, a service affiliation, a
-bib and the times, and nothing else.
+is the order of the predicted times and carries no range. **The club's finish lists print no
+hometown, no sex and no age band**: a place, a name, a service affiliation, a bib and the
+times, and nothing else.
+
+**The gender and age group columns are therefore borrowed, and dated** (added 2026-09-20 at
+Peter's request; the decision it settles was parked in `docs/todo.md`). They are what the
+association's own results last printed for that runner before this race, which is public on
+nlaa.ca under the same name, and the page says at which race and on what date. 136 of the 171
+have a gender and 133 an age group. Three rules keep it honest, all in
+`retrospect.printed_category`: only results dated before this race count, because a
+description taken from a later page would be the one thing on a held-out page a reader cannot
+check; a band the runner has certainly grown out of since is left blank rather than aged
+forward, tested against the resolver's own birth-year windows (`still_possible`, which drops
+two of the 135 and would drop a 20-29 printed in 2016); and a finisher with no prediction gets
+neither column, because that row exists to say this project does not know which person it is.
+The bands differ in width, 30-39 beside 45-49, because the races that printed them do, and
+widening them all to decades would print a band no page printed. This is a widening of
+CLAUDE.md's publishing rule, made in the same commit as the code.
 
 ## 6. Week by week
 

@@ -301,9 +301,12 @@ mechanical rather than chosen race by race, and the three unscored events are li
 reason. On the 161 of 171 finishers the archive can identify: **4.74 min average miss**, and
 **3.81 against carry-forward's 4.43 paired** on the 136 carry-forward can answer for at all.
 Every one of the 171 finishers is in the table on the site at the place the results page
-printed, the ten with no prediction included, each carrying the reason the resolver refused
-them; the place error is 14 at the middle, measured over the runners with a prediction
-so that a runner nobody could identify neither helps it nor hurts it.
+printed, the ten with no prediction included, tagged as a potential duplicate and carrying the
+reason the resolver refused them; the place error is 14 at the middle, measured over the
+runners with a prediction so that a runner nobody could identify neither helps it nor hurts
+it. The club's finish lists print no hometown, no sex and no age band, so the gender and age
+group beside a name are what the association's own results last printed for that runner
+before this race, dated on the page, and blank where a band could no longer be true.
 The minutes grow down the field and the share of a finish time does not: 3.6, 4.5 and 6.4
 minutes from the front quarter to the last, which is 7.5%, 7.5% and 7.9% of a finish time.
 Of 198 listed in the 10 km, 171 finished and 168 were found, so 15.2% were not found, an

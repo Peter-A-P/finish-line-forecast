@@ -867,9 +867,27 @@ tbody tr.reference { background: var(--accent-soft); }
 td.close { color: var(--good); }
 
 /* A finisher with no prediction. The row is real and stays in place; what it cannot say is
-   greyed, and the reason sits across the columns that would have held the prediction. */
+   greyed, and the range column says so in words where the range would have been. */
 tr.unpredicted td { color: var(--ink-faint); }
-td.why { font-size: 0.82rem; font-style: italic; white-space: normal; min-width: 22rem; }
+td.why { font-size: 0.82rem; font-style: italic; white-space: nowrap; }
+
+/* The tag after a name the archive would not commit to, and anything else carrying a note
+   behind it. The dotted underline is the only thing on the page that says a tooltip is
+   there; without it nobody hovers. The note is also written out under the table, because a
+   touch screen has no hover at all. */
+/* Not `.tag`, which is the pill used elsewhere on the page and would draw a box round it. */
+.name-tag, #everyone td[title] { cursor: help; }
+.name-tag {
+  font-size: 0.82rem;
+  font-style: italic;
+  border-bottom: 1px dotted currentColor;
+}
+#everyone td[title] { border-bottom: 1px dotted var(--line); }
+
+/* A note whose opening words are the thing a reader must not miss: the tag in the table
+   above it, and where two of its columns came from. Bold alone is not enough in a colour
+   this faint. */
+.note strong { color: var(--ink); }
 
 .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 0.9rem 1.25rem; margin-bottom: 1rem; }
 .fact { display: flex; flex-direction: column; min-width: 0; }
@@ -911,10 +929,11 @@ td.why { font-size: 0.82rem; font-style: italic; white-space: normal; min-width:
 
 .table-wrap.tall { max-height: 34rem; overflow-y: auto; border: 1px solid var(--line); border-radius: var(--radius); }
 .table-wrap.tall thead th { position: sticky; top: 0; z-index: 1; }
-/* The runner table, which a race already run gives ten columns. The last of them is what
-   stops the two place scales reading as an off-by-one, so it has to be on screen at an
-   ordinary desktop width rather than behind a horizontal scroll nobody knows is there. The
-   live prediction table shares this id and is a little tighter for it, which costs nothing. */
+/* The runner table, which a race already run gives nine columns: a place, a name, the two
+   the association's other pages printed, and the prediction against the finish. All of it
+   has to be on screen at an ordinary desktop width rather than behind a horizontal scroll
+   nobody knows is there, so the padding comes in. The live prediction table shares this id
+   and is a little tighter for it, which costs nothing. */
 #everyone th, #everyone td { padding-left: 0.5rem; padding-right: 0.5rem; }
 #everyone tbody tr { cursor: pointer; }
 #everyone tbody tr:hover { background: var(--accent-soft); }

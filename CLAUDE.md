@@ -88,8 +88,17 @@ interpreter is `.venv/Scripts/python.exe`.
   and category median beside it.
 - **Every reported number carries a confidence interval**, and every coverage table has
   the conformal assumption beside it.
-- **Publish only what the results already publish** about a runner: name and hometown as
-  printed, the prediction, nothing else. Ambiguous runners are excluded and counted.
+- **Publish only what the results already publish** about a runner: the name and hometown as
+  printed, the gender and age group the association's own results printed, the prediction,
+  nothing else. Never the shirt size or anything else an entrant list alone holds. Ambiguous
+  runners are excluded from every figure and counted, and a runner the resolver would not
+  commit to gets no gender and no age either, because the row is there to say this project
+  does not know which person it is. Widened from "name and hometown, the prediction, nothing
+  else" on 2026-09-20 at Peter's request, for the runner table of an already-run race: the
+  club's finish lists print no sex and no age, so the two columns are borrowed from that
+  runner's other results on nlaa.ca, where they are public under the same name, and the page
+  says which race and date they were printed at (`retrospect.printed_category`). Only results
+  from before the race count and a band the runner has certainly grown out of is left blank.
 - **Be polite to nlaa.ca**: one request a second, fetch once, cache forever, identify the
   crawler in the user agent.
 - **Constants from Overload are priors, not estimates.** Say so where they are used; the

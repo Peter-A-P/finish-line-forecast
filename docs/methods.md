@@ -170,8 +170,28 @@ fit that saw no result from the quarter the race falls in or later. Its file is
 (`publish/retrospect.py`, PLAN.md 5.9). Only an event whose course has an earlier edition is
 scored, because a road the model has never seen has no course factor and the error there is
 mostly the cost of that; the unscored events of the same day are listed with the reason. The
-predicted place there is the rank of the predicted times and has no range, because a
-published place needs a posterior and the backtest kept its scored rows rather than its fits.
+order behind the place error there is the rank of the predicted times and has no range,
+because a published place needs a posterior and the backtest kept its scored rows rather than
+its fits, so no absolute predicted place is printed for a runner at all.
+
+Every finisher is in the runner table, and the only place printed is the place in the race
+that was run. A finisher the resolver would not commit to is tagged "(potential duplicate)"
+with its reason behind the tag, has no prediction, and reaches none of the figures: showing
+somebody and scoring them are different jobs, and the place error is measured over the
+predicted runners ranked among themselves so that a runner the archive cannot identify
+neither helps nor hurts the model (PLAN.md 13 item 38). "Out by" is the finish minus the
+prediction, so a runner who took two minutes longer than the model called reads +2:00; that
+is the opposite sign to `score.Scored.error` and to the bias tables, which are read on the
+model rather than on the runner, and the flip happens at the last step before the page.
+
+The gender and age group in that table are **not from this race**. The club's finish lists
+print neither, nor a hometown. They are what the association's own results last printed for
+that runner before this race, public on nlaa.ca under the same name, and the page carries the
+race and date they were printed at. Only results before the race count, a band the runner has
+certainly grown out of since is left blank rather than aged forward
+(`retrospect.still_possible`, from the resolver's own birth-year windows), and a finisher with
+no prediction gets neither column, because the row exists to say this project does not know
+which runner it is.
 
 ## 10. The backtest
 

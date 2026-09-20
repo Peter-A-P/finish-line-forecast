@@ -95,12 +95,16 @@ start list is scored: 15.1% of listed entrants not found, 2.0% of finishers not 
 event's list (PLAN.md 5.6). **Both numbers are now computed in the repository rather than by
 hand** (`publish/retrospect.py`, written 2026-09-20), which closes the gap item 5 below
 complains about for this pair at least, and the 10 km is on the website as the one race this
-project has already seen run (PLAN.md 5.9). When nlaa.ca republishes the USR its pages carry
-a sex, an age band and a hometown, where the club's print none; `store.build` swaps the
-club's copy out automatically, and at that point the runner table could carry those columns.
-Whether it should is Peter's call, not the assistant's: CLAUDE.md says this project publishes
-"name and hometown as printed, the prediction, nothing else", and adding an age group and a
-sex to a published table is a change to that rule. The scheduled crawl stands down from ten days before each live
+project has already seen run (PLAN.md 5.9). **Peter decided that column question on
+2026-09-20**: the runner table carries a gender and an age group, taken from that runner's
+other results on nlaa.ca, where they are public under the same name, and CLAUDE.md's
+publishing rule was widened in the same commit to say so. The club's own finish lists print
+no sex, no age and no hometown, so the columns are borrowed and dated on the page
+(`retrospect.printed_category`); only results from before the race count, and a band the
+runner has certainly grown out of is left blank rather than aged forward. 133 of the 171 USR
+finishers have one. When nlaa.ca republishes the USR its own pages carry all three and
+`store.build` swaps the club's copy out automatically, at which point these columns stop
+being borrowed for that race and the hometown column becomes possible too. The scheduled crawl stands down from ten days before each live
 race to the day after, and with the Turkey Tea rehearsal on 2026-10-04 and Cape to Cabot on
 2026-10-18 the only Sunday it runs before 2026-10-25 is 2026-09-20. Results posted after that
 are fetched by hand (`finishline crawl --refresh-index`) before the backtest each freeze uses,
