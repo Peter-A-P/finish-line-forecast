@@ -876,9 +876,25 @@ def write_report(
     typer.echo("README.md tables rewritten from the measurement")
     _write_showcase(data, scored, names, fitted, rows)
     typer.echo(f"{SHOWCASE} rewritten from the same measurement, for the website")
+    _write_charts()
 
 
 SHOWCASE = DATA / "site" / "results.json"
+CHARTS = Path("docs") / "charts"
+
+
+def _write_charts() -> None:
+    """The README's pictures, from the numbers `_write_showcase` has just published.
+
+    Read back from the file rather than passed the objects, so a chart cannot show a number
+    the published JSON does not have: the picture and the table are the same measurement or
+    this step fails.
+    """
+    from finishline.publish import charts
+
+    results = json.loads(SHOWCASE.read_text(encoding="utf-8"))
+    written = charts.write(results, CHARTS)
+    typer.echo(f"{len(written)} charts redrawn in {CHARTS}, for the README")
 
 
 def _write_showcase(

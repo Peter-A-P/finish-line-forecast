@@ -67,6 +67,11 @@ for all of it.
 - **`hierarchical`** and **`lightgbm`** are the two models; **`blend`** is what the site
   publishes, the average of the two.
 
+![Average error in minutes by how many past races a runner has, for the three rules of thumb, the two models and the average that publishes](docs/charts/error-by-depth.svg)
+
+The chart and the table under it are the same numbers, both redrawn by `finishline report`.
+Nothing here is drawn by hand.
+
 The first table is the headline. The three after it pair the models on the same runners, race by
 race, which is how a difference of a few tenths of a percent is told apart from noise, with the
 intervals resampling races rather than runners because runners in one race share a morning. What
@@ -150,6 +155,8 @@ An average in minutes is not one claim across distances, so the error is given b
 minutes, which a race director plans with, and the share of a runner's own finish time, which
 is what compares a 5 km with a marathon.
 
+![Average miss per race length, in minutes and as a share of a finish time, for the whole field and for runners with four or more past races](docs/charts/error-by-distance.svg)
+
 <!-- finishline:distances -->
 `blend`, every race from 2024 on, grouped by race length. An average miss is not a margin every prediction carries, so the middle of the misses and the ninth decile are beside it: half of these runners were predicted closer than the one, nine in ten closer than the other. The percent in brackets is of each runner's own finish time.
 
@@ -219,6 +226,8 @@ scoring each method only on the subset that suits it is how a table stops being 
 A predicted time with a range is two claims, and the second one is checked here: the model's
 own 80% and 90% ranges, and the same ranges after conformal adjustment on the races before each
 one, split by how much history a runner has.
+
+![Share of finishes that fell inside their own range, by history depth, against what the 80% and 90% ranges promise](docs/charts/coverage.svg)
 
 <!-- finishline:coverage -->
 `blend`, every race from 2024 on. Each race's intervals are adjusted using only races dated before it, separately for each history depth. Coverage is the share of runners whose finish fell inside; the 95% CI resamples races, not runners, because runners in one race share its morning.
