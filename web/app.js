@@ -634,10 +634,14 @@
     }
     rows.forEach(function (row) {
       var card = el("span", { "class": "hero-distance" });
+      var spread = isNumber(row.median_error_min) && isNumber(row.p90_error_min)
+        ? "half within " + errorText(row.median_error_min) + ", 9 in 10 within " + errorText(row.p90_error_min)
+        : "";
       append(card, [
         el("span", { "class": "hd-race" }, row.label),
         el("span", { "class": "hd-min" }, errorText(row.mae_min)),
-        el("span", { "class": "hd-pct" }, percent(row.mape, 1) + " of the time")
+        el("span", { "class": "hd-pct" }, "average miss, " + percent(row.mape, 1) + " of the time"),
+        spread ? el("span", { "class": "hd-spread" }, spread) : null
       ]);
       node.appendChild(card);
     });

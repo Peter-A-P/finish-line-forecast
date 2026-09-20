@@ -85,6 +85,23 @@ def course_name(course_id: str) -> str:
     return f"{' '.join(shown)} {distance}"
 
 
+def spread(rows: Sequence[score.Scored]) -> dict[str, float | None]:
+    """The shape of a set of misses, not just their average.
+
+    An average miss is read by most people as "every prediction is out by this much", which is
+    not what it says: half the misses are smaller, and the tail is what makes the average bigger
+    than the middle. So the median and the ninth decile are published beside it, and the page
+    says them in those words.
+    """
+    misses = sorted(abs(row.error) for row in rows if row.error is not None)
+    if not misses:
+        return {"median_error_min": None, "p90_error_min": None}
+    return {
+        "median_error_min": _minutes(statistics.median(misses)),
+        "p90_error_min": _minutes(misses[min(int(0.9 * len(misses)), len(misses) - 1)]),
+    }
+
+
 def error_text(minutes: float) -> str:
     """An error as a reader says it: "48 sec" under a minute, "3.6 min" over one.
 
@@ -236,6 +253,7 @@ def distances(
             "deep_runners": len(deep),
             "deep_mae_min": None if experienced is None else _minutes(experienced.mae_seconds),
             "deep_mape": None if experienced is None else _round(experienced.mape),
+            **spread(band),
         })
     return out
 
@@ -316,6 +334,7 @@ def distance_groups(
                 "median_min": _minutes(statistics.median(row.actual for row in band)),
                 "mae_min": _minutes(summary.mae_seconds),
                 "mape": _round(summary.mape),
+                **spread(band),
             })
         groups["rows"][key] = band_rows
     return groups

@@ -42,8 +42,8 @@
     <div class="hero-points">
       <div class="point">
         <span class="point-figure up">{{mae_model}} min</span>
-        <span class="point-unit">typical error for a runner with four or more past races</span>
-        <span class="point-label">or {{mae_model_pct}} of their own finish time, which is the measure that compares a 5 km with a marathon. Against {{mae_cf}} min for "you will run what you ran last time", the benchmark every model here has to beat</span>
+        <span class="point-unit">average miss for a runner with four or more past races</span>
+        <span class="point-label">an average, not a margin every prediction carries: about half are closer than this and a few are further out. It is {{mae_model_pct}} of a finish time, and the benchmark, "you will run what you ran last time", misses by {{mae_cf}} min</span>
       </div>
       <div class="point">
         <span class="point-figure up">{{skill}}</span>
@@ -68,8 +68,11 @@
       <select id="speed">{{speed_options}}</select>
     </div>
     <p class="hero-strip-label">
-      Typical error at each race length for these runners, counting only those with four or more
-      past races. Minutes, and the same miss as a share of the finish time.
+      <strong>How far out a prediction usually is</strong>, by race length, for runners with four
+      or more past races. The big figure is the average miss. It is not a margin every prediction
+      carries: the line underneath says where the middle of the misses falls and where nine in ten
+      of them stop, and a handful are further out than that, which is why every published
+      prediction comes with its own range rather than a single time.
     </p>
     <div class="hero-distances" id="hero-distances">{{hero_distances}}</div>
     <p class="hero-note">
@@ -652,11 +655,15 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
       An average error in minutes is not one claim across distances. The same model that is out
       by a minute and a half over 5 km is out by a quarter of an hour over a marathon, and both
       are about the same fraction of the runner's day. So here it is both ways, for the whole
-      field and for the runners the archive knows well.
+      field and for the runners the archive knows well. <strong>An average is also not a margin
+      every prediction carries</strong>, so the middle of the misses and the ninth decile are
+      beside it: half of these runners were predicted closer than the one and nine in ten closer
+      than the other, while a handful, usually somebody having a very bad day or a very good one,
+      are further out than any of these numbers.
     </p>
     <table class="example">
       <caption>The published prediction's error by race length, over every race since 2024.</caption>
-      <thead><tr><th>Race length</th><th class="num">Runners</th><th class="num">Middle of the field</th><th class="num">Error, whole field</th><th class="num">Error, four or more past races</th></tr></thead>
+      <thead><tr><th>Race length</th><th class="num">Runners</th><th class="num">Middle of the field</th><th class="num">Average miss, whole field</th><th class="num">Half within</th><th class="num">9 in 10 within</th><th class="num">Average miss, 4+ past races</th></tr></thead>
       <tbody>{{distance_rows}}</tbody>
     </table>
     <details class="disclose">
@@ -879,7 +886,7 @@ sha256sum predictions/tt-2026.json      # the same hash, or the file was changed
         <dt>Conformal prediction</dt><dd>A way of calibrating prediction ranges on past errors so that they hold as often as they claim, on average, under stated assumptions.</dd>
         <dt>Coverage</dt><dd>How often a range actually contained the outcome. An 80% range should cover about 80% of finishes.</dd>
         <dt>Ensemble, or blend</dt><dd>Averaging the predictions of two models that make different mistakes. Where one is too fast and the other too slow, the average lands closer than either, which is why the published prediction here is an average of two.</dd>
-        <dt>Mean absolute error</dt><dd>The average size of a miss, ignoring whether it was too fast or too slow.</dd>
+        <dt>Mean absolute error</dt><dd>The average size of a miss, ignoring whether it was too fast or too slow. It describes a pile of predictions, not any one of them: roughly half the misses are smaller than the average and a few are much larger, which is what pulls an average above the middle. For one runner, the range published beside their time is the honest statement of how sure the model is.</dd>
         <dt>Pre-registration</dt><dd>Publishing a prediction, fixed and dated, before the event it predicts, so it cannot be adjusted after the fact.</dd>
         <dt>SHA-256</dt><dd>A fingerprint of a file. Change one character and the fingerprint changes completely.</dd>
         <dt>VDOT</dt><dd>Jack Daniels' single number for running fitness, which puts performances at different distances on one scale.</dd>

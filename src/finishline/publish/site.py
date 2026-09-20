@@ -471,9 +471,21 @@ def hero_distances(results: Mapping[str, Any], group: str = DEFAULT_SPEED) -> st
         "<span class=\"hero-distance\">"
         f"<span class=\"hd-race\">{html.escape(str(row['label']))}</span>"
         f"<span class=\"hd-min\">{showcase.error_text(row['mae_min'])}</span>"
-        f"<span class=\"hd-pct\">{row['mape'] * 100:.1f}% of the time</span>"
+        f"<span class=\"hd-pct\">average miss, {row['mape'] * 100:.1f}% of the time</span>"
+        f"<span class=\"hd-spread\">{_spread_text(row)}</span>"
         "</span>"
         for row in rows
+    )
+
+
+def _spread_text(row: Mapping[str, Any]) -> str:
+    """"Half within a minute, nine in ten within two", which is what an average does not say."""
+    middle, tail = row.get("median_error_min"), row.get("p90_error_min")
+    if middle is None or tail is None:
+        return ""
+    return (
+        f"half within {showcase.error_text(middle)}, "
+        f"9 in 10 within {showcase.error_text(tail)}"
     )
 
 
@@ -487,13 +499,14 @@ def distance_rows(results: Mapping[str, Any]) -> str:
     rows = results.get("distances") or []
     if not rows:
         return (
-            '<tr><td colspan="5">Not measured yet; run the backtest.</td></tr>'
+            '<tr><td colspan="7">Not measured yet; run the backtest.</td></tr>'
         )
     out = []
     for row in rows:
         deep = "-" if row.get("deep_mae_min") is None else (
             f"{showcase.error_text(row['deep_mae_min'])}, {_percent(row['deep_mape'])}"
         )
+        middle, tail = row.get("median_error_min"), row.get("p90_error_min")
         out.append(
             "<tr>"
             f"<td>{html.escape(str(row['label']))}</td>"
@@ -501,6 +514,8 @@ def distance_rows(results: Mapping[str, Any]) -> str:
             f"<td class=\"num\">{row['median_min']:.0f} min</td>"
             f"<td class=\"num\">{showcase.error_text(row['mae_min'])}, "
             f"{_percent(row['mape'])}</td>"
+            f"<td class=\"num\">{'-' if middle is None else showcase.error_text(middle)}</td>"
+            f"<td class=\"num\">{'-' if tail is None else showcase.error_text(tail)}</td>"
             f"<td class=\"num\">{deep}</td>"
             "</tr>"
         )

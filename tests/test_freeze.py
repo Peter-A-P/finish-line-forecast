@@ -596,17 +596,22 @@ def test_the_hero_strip_follows_the_part_of_the_field_it_is_asked_for() -> None:
             "rows": {
                 "front": [
                     {"label": "5 km", "runners": 372, "median_min": 19.4,
-                     "mae_min": 0.8, "mape": 0.038},
+                     "mae_min": 0.8, "mape": 0.038,
+                     "median_error_min": 0.47, "p90_error_min": 1.57},
                 ],
                 "back": [
                     {"label": "5 km", "runners": 158, "median_min": 34.1,
-                     "mae_min": 3.4, "mape": 0.098},
+                     "mae_min": 3.4, "mape": 0.098,
+                     "median_error_min": 2.3, "p90_error_min": 7.1},
                 ],
             },
         }
     }
     front = site.hero_distances(measured)
     assert "48 sec" in front and "3.8% of the time" in front, "under a minute reads as seconds"
+    assert "half within 28 sec" in front and "9 in 10 within 1.6 min" in front, (
+        "the average is never shown without the shape of the misses around it"
+    )
     back = site.hero_distances(measured, "back")
     assert "3.4 min" in back and "9.8% of the time" in back, "a slower group is not flattered"
     assert site.hero_distances(measured, "mid") == "", "a group with no rows shows nothing"
@@ -646,3 +651,19 @@ def test_an_error_under_a_minute_is_said_in_seconds() -> None:
     assert showcase.error_text(0.999) == "60 sec", "still seconds right up to the minute"
     assert showcase.error_text(1.0) == "1.0 min"
     assert showcase.error_text(13.72) == "13.7 min"
+
+
+def test_the_spread_of_the_misses_is_published_beside_their_average() -> None:
+    """Half the misses are smaller than the average, and the page has to be able to say so."""
+    from finishline.backtest.score import Scored
+    from finishline.publish import showcase
+
+    # Nine tidy predictions and one disaster: the average sits above the middle, which is the
+    # whole reason a reader should not read an average as a margin.
+    rows = [Scored("blend", "r1", f"a{i}", 600.0 + i, 600.0, 4) for i in range(9)]
+    rows.append(Scored("blend", "r1", "bad", 900.0, 600.0, 4))
+    shape = showcase.spread(rows)
+    assert shape["median_error_min"] is not None and shape["p90_error_min"] is not None
+    assert shape["median_error_min"] < 30.0 / 60.0, "the middle miss is seconds"
+    assert shape["p90_error_min"] == pytest.approx(5.0), "the tail is the bad day"
+    assert showcase.spread([]) == {"median_error_min": None, "p90_error_min": None}

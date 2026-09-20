@@ -367,14 +367,17 @@ def distance_table(
     runners the archive knows well, because a race director reads the minutes and a runner
     comparing this with a race calculator reads the percent.
     """
+    from finishline.publish import showcase
+
     rows = [row for row in scored if row.model == model and row.predicted is not None]
     lines = [
-        f"`{model}`, every race from 2024 on, grouped by race length. The middle column pair is "
-        "the whole field, the right-hand pair the runners with four or more prior results. "
-        "The percent is of each runner's own finish time.",
+        f"`{model}`, every race from 2024 on, grouped by race length. An average miss is not a "
+        "margin every prediction carries, so the middle of the misses and the ninth decile are "
+        "beside it: half of these runners were predicted closer than the one, nine in ten closer "
+        "than the other. The percent in brackets is of each runner's own finish time.",
         "",
-        "| Race length | Runners | Middle of the field | MAE, all | % of time, all "
-        "| MAE, 4+ races | % of time, 4+ |",
+        "| Race length | Runners | Middle of the field | Average miss, whole field "
+        "| Half within | 9 in 10 within | Average miss, 4+ races |",
         "|---|---:|---:|---:|---:|---:|---:|",
     ]
     for label, low, high in DISTANCE_BANDS:
@@ -389,11 +392,25 @@ def distance_table(
         everyone = score.summarise(band, model)
         experienced = score.summarise(deep, model) if deep else None
         median = statistics.median(row.actual for row in band)
+        shape = showcase.spread(band)
+        middle, tail = shape["median_error_min"], shape["p90_error_min"]
+        deep_cell = (
+            "-"
+            if experienced is None or experienced.mae_seconds is None
+            else f"{showcase.error_text(experienced.mae_seconds / 60.0)} "
+            f"({_percent(experienced.mape)})"
+        )
+        average = (
+            "-"
+            if everyone.mae_seconds is None
+            else f"{showcase.error_text(everyone.mae_seconds / 60.0)} "
+            f"({_percent(everyone.mape)})"
+        )
         lines.append(
-            f"| {label} | {len(band):,} | {_minutes(median)} "
-            f"| {_minutes(everyone.mae_seconds)} | {_percent(everyone.mape)} "
-            f"| {'-' if experienced is None else _minutes(experienced.mae_seconds)} "
-            f"| {'-' if experienced is None else _percent(experienced.mape)} |"
+            f"| {label} | {len(band):,} | {_minutes(median)} | {average} "
+            f"| {'-' if middle is None else showcase.error_text(middle)} "
+            f"| {'-' if tail is None else showcase.error_text(tail)} "
+            f"| {deep_cell} |"
         )
     return "\n".join(lines)
 

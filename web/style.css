@@ -346,6 +346,16 @@ strong { font-weight: 600; }
 
 .hd-pct { font-size: 0.8rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
 
+/* What the average does not say: where the middle of the misses is, and where the tail
+   ends. Quieter than the figure above it, because it is the sentence that stops a reader
+   believing every prediction is out by the headline number. */
+.hd-spread {
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ---------------------------------------------------------------- sections */
 
 .section { padding: 2.75rem 0; border-bottom: 1px solid var(--line); }

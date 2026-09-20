@@ -252,16 +252,16 @@ the published model's error is broken out both ways: minutes, which a race direc
 and the share of a runner's own finish time, which is what compares a 5 km with a marathon.
 
 <!-- finishline:distances -->
-`blend`, every race from 2024 on, grouped by race length. The middle column pair is the whole field, the right-hand pair the runners with four or more prior results. The percent is of each runner's own finish time.
+`blend`, every race from 2024 on, grouped by race length. An average miss is not a margin every prediction carries, so the middle of the misses and the ninth decile are beside it: half of these runners were predicted closer than the one, nine in ten closer than the other. The percent in brackets is of each runner's own finish time.
 
-| Race length | Runners | Middle of the field | MAE, all | % of time, all | MAE, 4+ races | % of time, 4+ |
+| Race length | Runners | Middle of the field | Average miss, whole field | Half within | 9 in 10 within | Average miss, 4+ races |
 |---|---:|---:|---:|---:|---:|---:|
-| 5 km | 2,491 | 28.2 | 3.5 | 10% | 1.4 | 5% |
-| 8 km | 1,154 | 42.4 | 2.7 | 6% | 1.8 | 4% |
-| 10 km | 1,908 | 58.2 | 4.6 | 7% | 2.7 | 5% |
-| 16 km (the Tely 10) | 10,901 | 102.6 | 12.7 | 11% | 6.6 | 6% |
-| 20 km | 2,017 | 129.3 | 9.5 | 7% | 6.1 | 5% |
-| Marathon | 323 | 271.7 | 26.0 | 10% | 17.4 | 6% |
+| 5 km | 2,491 | 28.2 | 3.5 min (10%) | 1.6 min | 8.7 min | 1.4 min (5%) |
+| 8 km | 1,154 | 42.4 | 2.7 min (6%) | 1.6 min | 6.6 min | 1.8 min (4%) |
+| 10 km | 1,908 | 58.2 | 4.6 min (7%) | 2.6 min | 11.4 min | 2.7 min (5%) |
+| 16 km (the Tely 10) | 10,901 | 102.6 | 12.7 min (11%) | 7.4 min | 31.0 min | 6.6 min (6%) |
+| 20 km | 2,017 | 129.3 | 9.5 min (7%) | 5.9 min | 21.7 min | 6.1 min (5%) |
+| Marathon | 323 | 271.7 | 26.0 min (10%) | 20.2 min | 58.1 min | 17.4 min (6%) |
 <!-- finishline:end:distances -->
 
 **And the same error by where a runner finishes in their own race.** The front of a field is
