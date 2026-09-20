@@ -436,7 +436,8 @@ def speed_table(
             else:
                 share = found["mape"] * 100
                 cells.append(
-                    f"{found['mae_min']:.1f} min, {share:.1f}% ({found['runners']:,})"
+                    f"{showcase.error_text(found['mae_min'])}, {share:.1f}% "
+                    f"({found['runners']:,})"
                 )
         if all(cell == "-" for cell in cells):
             continue

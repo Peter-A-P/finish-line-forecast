@@ -470,7 +470,7 @@ def hero_distances(results: Mapping[str, Any], group: str = DEFAULT_SPEED) -> st
     return "".join(
         "<span class=\"hero-distance\">"
         f"<span class=\"hd-race\">{html.escape(str(row['label']))}</span>"
-        f"<span class=\"hd-min\">{row['mae_min']:.1f} min</span>"
+        f"<span class=\"hd-min\">{showcase.error_text(row['mae_min'])}</span>"
         f"<span class=\"hd-pct\">{row['mape'] * 100:.1f}% of the time</span>"
         "</span>"
         for row in rows
@@ -492,14 +492,15 @@ def distance_rows(results: Mapping[str, Any]) -> str:
     out = []
     for row in rows:
         deep = "-" if row.get("deep_mae_min") is None else (
-            f"{row['deep_mae_min']:.1f} min, {_percent(row['deep_mape'])}"
+            f"{showcase.error_text(row['deep_mae_min'])}, {_percent(row['deep_mape'])}"
         )
         out.append(
             "<tr>"
             f"<td>{html.escape(str(row['label']))}</td>"
             f"<td class=\"num\">{row['runners']:,}</td>"
             f"<td class=\"num\">{row['median_min']:.0f} min</td>"
-            f"<td class=\"num\">{row['mae_min']:.1f} min, {_percent(row['mape'])}</td>"
+            f"<td class=\"num\">{showcase.error_text(row['mae_min'])}, "
+            f"{_percent(row['mape'])}</td>"
             f"<td class=\"num\">{deep}</td>"
             "</tr>"
         )

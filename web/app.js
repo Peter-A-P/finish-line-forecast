@@ -92,6 +92,11 @@
 
   function plural(n, one, many) { return count(n) + " " + (n === 1 ? one : many); }
 
+  /* An error as a reader says it, matching showcase.error_text: seconds under a minute. */
+  function errorText(minutes) {
+    return minutes < 1 ? Math.round(minutes * 60) + " sec" : minutes.toFixed(1) + " min";
+  }
+
   /* Scales and axes --------------------------------------------------------------- */
 
   function linear(domain, range) {
@@ -631,7 +636,7 @@
       var card = el("span", { "class": "hero-distance" });
       append(card, [
         el("span", { "class": "hd-race" }, row.label),
-        el("span", { "class": "hd-min" }, row.mae_min.toFixed(1) + " min"),
+        el("span", { "class": "hd-min" }, errorText(row.mae_min)),
         el("span", { "class": "hd-pct" }, percent(row.mape, 1) + " of the time")
       ]);
       node.appendChild(card);

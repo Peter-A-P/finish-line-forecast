@@ -85,6 +85,17 @@ def course_name(course_id: str) -> str:
     return f"{' '.join(shown)} {distance}"
 
 
+def error_text(minutes: float) -> str:
+    """An error as a reader says it: "48 sec" under a minute, "3.6 min" over one.
+
+    The page and the README both call this, so a fast runner's error never reads "0.8 min",
+    which is a number nobody says out loud.
+    """
+    if minutes < 1.0:
+        return f"{round(minutes * 60)} sec"
+    return f"{minutes:.1f} min"
+
+
 def _minutes(seconds: float | None) -> float | None:
     return None if seconds is None else round(seconds / 60.0, 2)
 

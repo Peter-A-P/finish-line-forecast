@@ -606,7 +606,7 @@ def test_the_hero_strip_follows_the_part_of_the_field_it_is_asked_for() -> None:
         }
     }
     front = site.hero_distances(measured)
-    assert "0.8 min" in front and "3.8% of the time" in front
+    assert "48 sec" in front and "3.8% of the time" in front, "under a minute reads as seconds"
     back = site.hero_distances(measured, "back")
     assert "3.4 min" in back and "9.8% of the time" in back, "a slower group is not flattered"
     assert site.hero_distances(measured, "mid") == "", "a group with no rows shows nothing"
@@ -635,3 +635,14 @@ def test_the_distance_table_keeps_the_whole_field() -> None:
     assert "3.5 min, 10%" in rows and "1.4 min, 5%" in rows
     assert "26.0 min, 10%" in rows, "a band with nobody experienced still reports the field"
     assert '<td class="num">-</td>' in rows, "and says so where it cannot answer"
+
+
+def test_an_error_under_a_minute_is_said_in_seconds() -> None:
+    """Nobody says "0.8 minutes". The page and the README both go through one rule."""
+    from finishline.publish import showcase
+
+    assert showcase.error_text(0.8) == "48 sec"
+    assert showcase.error_text(0.25) == "15 sec"
+    assert showcase.error_text(0.999) == "60 sec", "still seconds right up to the minute"
+    assert showcase.error_text(1.0) == "1.0 min"
+    assert showcase.error_text(13.72) == "13.7 min"

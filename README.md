@@ -275,7 +275,7 @@ by how much history each group happens to have.
 
 | Race length | Front of the field (fastest quarter) | Mid-pack (middle half) | Later finishers (last quarter) |
 |---|---|---|---|
-| 5 km | 0.8 min, 3.8% (372) | 1.3 min, 5.1% (572) | 3.4 min, 9.8% (158) |
+| 5 km | 45 sec, 3.8% (372) | 1.3 min, 5.1% (572) | 3.4 min, 9.8% (158) |
 | 8 km | 1.1 min, 3.3% (223) | 1.8 min, 4.2% (336) | 3.1 min, 5.6% (135) |
 | 10 km | 1.6 min, 3.6% (319) | 2.5 min, 4.3% (441) | 4.8 min, 6.4% (192) |
 | 16 km (the Tely 10) | 3.6 min, 4.7% (1,177) | 6.1 min, 5.9% (1,710) | 13.7 min, 9.3% (585) |
