@@ -595,9 +595,11 @@
     target.appendChild(el("p", { "class": "note" },
       "Every finisher, in the order they crossed the line, with the place the results page " +
       "printed. \"Out by\" is the prediction minus the finish, so a minus sign means the " +
-      "model called that runner faster than they ran. The 80% range is green where the " +
-      "finish landed inside it, which is the one promise made about a single runner; " +
-      percent(info.coverage80, 0) + " of them did, against the 80% promised."));
+      "model called that runner faster than they ran. It is green where the finish landed " +
+      "inside that runner's own 80% range, which is the one promise made about a single " +
+      "runner; " + percent(info.coverage80, 0) + " of them did, against the 80% promised. A " +
+      "bigger miss inside a wide range is green and a smaller one outside a tight range is " +
+      "not, because it is the range that made the promise."));
     target.appendChild(el("p", { "class": "note" },
       count(info.ambiguous) + " of the " + count(info.finishers) + " have no prediction, and " +
       "say so in their own row: the archive holds more than one runner their result could " +
@@ -646,19 +648,20 @@
         return;
       }
       /* Green marks the one promise this project makes about a single runner: that the
-         finish would land inside the published range. It used to mark a miss under a
-         minute, which is a threshold nobody declared and which this project does not
-         measure, so a runner whose finish was inside their range could read as a failure. */
+         finish would land inside the published range. It goes on the miss rather than on the
+         range, because the miss is the number a reader is already looking at, and it is the
+         range that decides. It once marked a miss under a minute, a threshold nobody
+         declared and this project does not measure, so a runner whose finish was inside
+         their own range could read as a failure. */
       var held = r.i80 && r.i80[0] <= r.actual && r.actual <= r.i80[1];
       append(row, [
         el("td", { "class": "num" }, isNumber(r.place) ? String(r.place) : ""),
         el("td", null, r.name),
         el("td", { "class": "num" }, String(r.prior)),
         el("td", { "class": "num" }, clock(r.seconds)),
-        el("td", { "class": held ? "close" : "" },
-          r.i80 ? clock(r.i80[0]) + " to " + clock(r.i80[1]) : ""),
+        el("td", null, r.i80 ? clock(r.i80[0]) + " to " + clock(r.i80[1]) : ""),
         el("td", { "class": "num" }, clock(r.actual)),
-        el("td", { "class": "num" }, signedClock(r.out_by)),
+        el("td", { "class": "num " + (held ? "close" : "") }, signedClock(r.out_by)),
         el("td", { "class": "num" }, (r.places_out > 0 ? "+" : "") + r.places_out)
       ]);
       row.addEventListener("click", function () { drawField(runners, r); });
