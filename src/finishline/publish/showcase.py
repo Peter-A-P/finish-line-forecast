@@ -195,6 +195,39 @@ def backtest(
     return payload
 
 
+def distances(
+    scored: Sequence[score.Scored], metres: Mapping[str, float], model: str = MODEL
+) -> list[dict[str, Any]]:
+    """The published model's error by race length, in minutes and as a share of a finish time.
+
+    An average error in minutes is not one claim across distances: a minute and a half over
+    5 km and a quarter of an hour over a marathon are the same model doing about equally well.
+    The bands are `report.DISTANCE_BANDS`, so the page and the README cut the field the same way.
+    """
+    from finishline import report
+
+    rows = [row for row in scored if row.model == model and row.predicted is not None]
+    out: list[dict[str, Any]] = []
+    for label, low, high in report.DISTANCE_BANDS:
+        band = [row for row in rows if low <= metres.get(row.race_id, -1.0) < high]
+        if not band:
+            continue
+        deep = [row for row in band if score.stratum_of(row.depth) == "4 or more"]
+        everyone = score.summarise(band, model)
+        experienced = score.summarise(deep, model) if deep else None
+        out.append({
+            "label": label,
+            "runners": len(band),
+            "median_min": _minutes(statistics.median(row.actual for row in band)),
+            "mae_min": _minutes(everyone.mae_seconds),
+            "mape": _round(everyone.mape),
+            "deep_runners": len(deep),
+            "deep_mae_min": None if experienced is None else _minutes(experienced.mae_seconds),
+            "deep_mape": None if experienced is None else _round(experienced.mape),
+        })
+    return out
+
+
 def _paired(scored: Sequence[score.Scored], model: str, other: str) -> list[dict[str, Any]]:
     """One model against another on the same runners, by history depth.
 
@@ -243,9 +276,18 @@ def _coverage(
     return out
 
 
+# How many of the busiest courses the chart names. A reader looking for the province's big
+# races should find them without hovering fifty dots, and the Tely is not a live race here.
+NAMED = 4
+
+
 def course_list(fit: courses.Fit, live_courses: Mapping[str, str]) -> list[dict[str, Any]]:
-    """Every measured course, hardest first, with the live races marked."""
+    """Every measured course, hardest first, with the live races and the busiest ones marked."""
     ranked = sorted(fit.courses.values(), key=lambda c: -c.factor)
+    busiest = {
+        measured.course_id
+        for measured in sorted(fit.courses.values(), key=lambda c: -c.finishes)[:NAMED]
+    }
     return [
         {
             "course_id": measured.course_id,
@@ -256,6 +298,7 @@ def course_list(fit: courses.Fit, live_courses: Mapping[str, str]) -> list[dict[
             "low": round(measured.low, 4),
             "high": round(measured.high, 4),
             "live": live_courses.get(measured.course_id),
+            "named": measured.course_id in busiest,
         }
         for measured in ranked
     ]

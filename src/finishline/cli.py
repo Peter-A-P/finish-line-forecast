@@ -810,6 +810,20 @@ def write_report(
             )
             baseline_text += "\n\n" + report.paired_error_table(scored, blend.NAME, gbm.NAME)
     text = report.replace_between(text, "baselines", baseline_text)
+    # An average error in minutes means different things over 5 km and over a marathon, so the
+    # published model's error is broken out by race length as well, in both units.
+    published_model = blend.NAME if blended is not None else "hierarchical"
+    text = report.replace_between(
+        text,
+        "distances",
+        report.distance_table(
+            scored,
+            published_model,
+            {race_id_: race.distance_m for race_id_, race in data.races.items()},
+        )
+        if saved_rows is not None
+        else "Not measured yet: run `backtest --hierarchical --challenger`.",
+    )
     text = report.replace_between(text, "placing", report.placing_table(scored, names))
     # The published model's coverage comes first, then each parent's, and the conformal
     # assumption is stated once, under the last table.
@@ -879,6 +893,9 @@ def _write_showcase(
         {
             "archive": showcase.archive(data),
             "backtest": showcase.backtest(scored, names, dates),
+            "distances": showcase.distances(
+                scored, {rid: race.distance_m for rid, race in data.races.items()}
+            ),
             "courses": showcase.course_list(
                 fitted, {str(r["course_id"]): rid for rid, r in live.items()}
             ),

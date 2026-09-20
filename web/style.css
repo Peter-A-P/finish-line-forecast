@@ -440,6 +440,7 @@ figcaption { font-size: 0.83rem; color: var(--ink-faint); margin-top: 0.5rem; }
 .zero-label { fill: var(--ink-faint); font-size: 10.5px; }
 .bar-value { fill: var(--ink-soft); font-size: 11px; font-variant-numeric: tabular-nums; }
 .row-label { fill: var(--ink); font-size: 12px; font-weight: 600; }
+.row-label.faint { fill: var(--ink-soft); font-weight: 500; }
 .row-note { fill: var(--ink-faint); font-size: 10.5px; }
 .divider { stroke: var(--line-2); stroke-width: 1; stroke-dasharray: 4 3; }
 .divider-label { fill: var(--ink-faint); font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; }
@@ -845,6 +846,7 @@ input[type="search"]:disabled { opacity: 0.55; }
 
 .course-dot { fill: var(--ink-faint); stroke: var(--paper-soft); stroke-width: 1; }
 .course-dot.live { fill: var(--warn); }
+.course-dot.named { fill: var(--ink-soft); }
 .whisker.live { stroke: var(--warn); stroke-width: 1.5; }
 .whisker.faint { stroke: var(--ink-faint); stroke-dasharray: 2 2; }
 
@@ -882,6 +884,7 @@ input[type="search"]:disabled { opacity: 0.55; }
 .pt-miss-sw { background: var(--miss); }
 .course-sw { background: var(--ink-faint); }
 .live-sw { background: var(--warn); }
+.named-sw { background: var(--ink-soft); }
 .past-sw { background: var(--paper-soft); border: 1.5px solid var(--ink-soft); }
 .pred-sw { background: var(--accent); }
 .raw-sw { background: var(--paper-soft); border: 2px solid var(--ink-soft); }

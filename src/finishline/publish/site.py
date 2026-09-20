@@ -291,6 +291,24 @@ def tokens(
     model = deep.get(showcase.MODEL, {})
     baseline = deep.get(showcase.BASELINE, {})
     newcomer = strata.get("0", {}).get(showcase.MODEL, {})
+    # What share of a whole field each method can answer for at all. "Last time" has nothing to
+    # say about a runner with no past result, and about three entrants in ten are that runner, so
+    # the comparison of errors is only half the story and the page says the other half.
+    def answered(name: str) -> float | None:
+        counted = [(row["runners"], row["models"].get(name, {})) for row in backtest["strata"]]
+        total = sum(runners for runners, _model in counted)
+        known = [
+            (runners, model) for runners, model in counted if model.get("answered") is not None
+        ]
+        if not total or not known:
+            return None
+        share = sum(runners * float(model["answered"]) for runners, model in known) / total
+        return float(share)
+
+    newcomers = next(
+        (row["runners"] for row in backtest["strata"] if row["label"] == "0"), 0
+    )
+    field = sum(row["runners"] for row in backtest["strata"]) or 1
     coverage = {(row["stratum"], row["level"]): row for row in backtest["coverage"]}
     cov_deep = coverage.get(("4 or more", 0.8), {})
     cov_new = coverage.get(("0", 0.8), {})
@@ -312,7 +330,15 @@ def tokens(
         "blend_weight": f"{blend.WEIGHT:.2f}",
         "blend_parent_weight": f"{1 - blend.WEIGHT:.2f}",
         "mae_model": _number(model.get("mae_min")),
+        # The same error as a share of each runner's own finish time. Minutes mean different
+        # things over 5 km and over a marathon, and this field is mostly 10 to 16 km races, so
+        # the page says both and the reader can judge which one they care about.
+        "mae_model_pct": _percent(model.get("mape")),
         "mae_cf": _number(baseline.get("mae_min")),
+        "model_answered": _percent(answered(showcase.MODEL)),
+        "cf_answered": _percent(answered(showcase.BASELINE)),
+        "vdot_answered": _percent(answered("best-equal-vdot")),
+        "newcomer_share": _percent(newcomers / field),
         "mae_new": _number(newcomer.get("mae_min"), 0),
         "skill": _percent(model.get("skill")),
         "cov80_deep": _percent(cov_deep.get("conformal")),
@@ -332,6 +358,7 @@ def tokens(
         "c2c_factor": "n/a" if c2c is None else f"{c2c['factor'] * 100:.0f}%",
         "race_options": options,
         "vdot_rows": vdot_rows(),
+        "distance_rows": distance_rows(results),
         "refuted": str(refuted),
         "tests": f"{tests:,}",
         "code_lines": f"{code_lines:,}",
@@ -407,6 +434,35 @@ def _phrases(paired: Sequence[Mapping[str, Any]]) -> tuple[list[str], list[str],
         else:
             level.append(f"{who} ({times})")
     return ahead, level, behind
+
+
+def distance_rows(results: Mapping[str, Any]) -> str:
+    """The error by race length, as table rows, in minutes and as a share of a finish time.
+
+    Both units, because "five minutes out" is a different claim over 5 km and over a marathon,
+    and the share is the one that compares them. Written here rather than drawn in the browser:
+    it is six rows, and a table a reader can copy beats a chart they cannot.
+    """
+    rows = results.get("distances") or []
+    if not rows:
+        return (
+            '<tr><td colspan="5">Not measured yet; run the backtest.</td></tr>'
+        )
+    out = []
+    for row in rows:
+        deep = "-" if row.get("deep_mae_min") is None else (
+            f"{row['deep_mae_min']:.1f} min, {_percent(row['deep_mape'])}"
+        )
+        out.append(
+            "<tr>"
+            f"<td>{html.escape(str(row['label']))}</td>"
+            f"<td class=\"num\">{row['runners']:,}</td>"
+            f"<td class=\"num\">{row['median_min']:.0f} min</td>"
+            f"<td class=\"num\">{row['mae_min']:.1f} min, {_percent(row['mape'])}</td>"
+            f"<td class=\"num\">{deep}</td>"
+            "</tr>"
+        )
+    return "".join(out)
 
 
 def challenger_text(results: Mapping[str, Any]) -> tuple[str, str]:

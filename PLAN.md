@@ -1100,13 +1100,13 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     raises the temperature a runner feels, and that the cost of that felt temperature is not
     linear. A first grid, five random folds over 227 editions, put the sun at +3 C of cloud
     cover and the knee at 10 C (out-of-sample R2 0.320 against 0.163 for the linear model).
-    Peter then pointed out that TrainAI (project 11) uses +15 F, 8.3 C, for a full sun, and
+    Peter then pointed out that Overload uses +15 F, 8.3 C, for a full sun, and
     asked what the data says across versions. The answer took two tests, scored leave one year
     out so that a warm year cannot pose as weather:
 
     - **A, editions against their own course** (227 editions): best knee 2 to 6 C, with a
       small sun of 2 to 6 C adding at most +0.03, inside the noise. Linear temperature 0.184,
-      the best hinge 0.367; TrainAI's exact pair (8.3 C of direct sun, knee 15.6 C) is 0.139
+      the best hinge 0.367; Overload's exact pair (8.3 C of direct sun, knee 15.6 C) is 0.139
       behind the best, interval +0.057 to +0.229.
     - **B, the same runners in consecutive editions** (121 pairs, 19,035 runner pairs), which
       holds the field fixed: every weighting prefers no sun, and the knee rises with how much
@@ -1119,9 +1119,9 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     against the best of any single test is smallest (0.115). The sun is not settled by either:
     test A barely sees it and test B is better without it, which is what a real effect measured
     through a 9 km reanalysis sky looks like as much as it is what no effect looks like, and
-    TrainAI's own 45 days of thermometer readings at this coast caught that sky reporting full
+    Overload's own 45 days of thermometer readings at this coast caught that sky reporting full
     cloud with the runner in sun. So the sun's size is estimated inside the model rather than
-    chosen: the direct radiation over the race hours as a share of a clear noon (TrainAI's
+    chosen: the direct radiation over the race hours as a share of a clear noon (Overload's
     measure), and a boost in degrees with a HalfNormal prior on the NWS scale of 8.3 C, which
     puts nothing and twice that in reach. The fitted boost is below.
 
@@ -1150,10 +1150,10 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     at 12 C, the sun estimated: a full direct sun adds a median 1.0 C to the felt temperature
     (50% interval 0.4 to 2.0, 95% 0.04 to 6.2), against a prior whose median was 5.6. The
     posterior is a third as wide as the prior, so this is the data speaking, and it puts
-    TrainAI's 8.3 C outside its 95% interval. It says what the sun is worth *as this archive
+    Overload's 8.3 C outside its 95% interval. It says what the sun is worth *as this archive
     measures it*, through a reanalysis cell, and a noisy measure of a real effect is pulled
     toward zero; so it bounds what this model can use, not what the sun does to a runner.
-    TrainAI's own observed sun share is the better witness, and its 15 F stays untouched there.
+    Overload's own observed sun share is the better witness, and its 15 F stays untouched there.
 
     With the knee at 12 C the heat costs more per degree than the linear model claimed: per
     degree of felt heat, +0.06% at 5 km, +0.26% at 10 km, +0.40% on the Tely, +0.47% on Cape to
@@ -1190,7 +1190,7 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     **The gate refitted from the real start times, 2026-09-19** (`scratch/sun_fit.py`, output
     `scratch/sun_fit.txt`). The numbers above were read from 9 am and are kept as they were
     measured; these supersede them. A full sun adds a median 2.1 C (50% 0.9 to 4.2, 95% 0.1 to
-    9.2), the posterior half the prior's spread, so TrainAI's 8.3 C is now inside the 95%
+    9.2), the posterior half the prior's spread, so Overload's 8.3 C is now inside the 95%
     interval though far from the middle of it: earlier starts meet less sun, and less of the
     sun signal was being mislaid onto the heat. Per degree of felt heat: +0.05% at 5 km (0.00
     to 0.13), +0.31% at 10 km (0.23 to 0.39), +0.50% on the Tely (0.37 to 0.61), +0.58% on Cape

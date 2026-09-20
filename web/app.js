@@ -573,15 +573,20 @@
     var node = clear(byId("history-chart"));
     var eds = (info && info.editions) || [];
     if (!eds.length) { byId("history-caption").textContent = "No past editions in the archive."; return; }
-    var H = 300, L = 58, R = WIDTH - 16, T = 16, B = H - 70, BARS = H - 30;
+    /* Tall, and tight around the times. Editions of one race differ by a few percent, which is
+       minutes: on a short chart with wide padding those differences flatten into a straight
+       line, and the year-to-year swing this chart exists to show disappears. The finisher bars
+       get their own band at the bottom so they cannot eat the time axis. */
+    var H = 440, L = 58, R = WIDTH - 16, T = 20, B = H - 104, BARS = H - 30;
     var root = frame(H, "Median and fastest finish, and finishers, for each edition of " + race.name);
     var lo = Infinity, hi = 0, most = 0;
     eds.forEach(function (e) { lo = Math.min(lo, e.fastest_s); hi = Math.max(hi, e.median_s); most = Math.max(most, e.finishers); });
-    var y = linear([lo / 60 * 0.92, hi / 60 * 1.05], [B, T]);
+    var pad = Math.max((hi - lo) * 0.08, 30) / 60;
+    var y = linear([lo / 60 - pad, hi / 60 + pad], [B, T]);
     var step = (R - L) / eds.length;
     var xs = function (i) { return L + step * (i + 0.5); };
     yAxis(root, y, L, R, function (v) { return clock(v * 60); }, "finish time");
-    var scale = linear([0, most], [0, 34]);
+    var scale = linear([0, most], [0, 56]);
     var lines = { median_s: [], fastest_s: [] };
     eds.forEach(function (e, i) {
       var h = scale(e.finishers);
@@ -641,7 +646,7 @@
 
   function drawCourses(courses) {
     var node = clear(byId("courses-chart"));
-    var H = 330, L = 52, R = WIDTH - 12, T = 22, B = H - 34;
+    var H = 400, L = 52, R = WIDTH - 12, T = 30, B = H - 34;
     var root = frame(H, "How much slower than flat each course runs");
     var lo = 0, hi = 0;
     courses.forEach(function (c) { lo = Math.min(lo, c.low); hi = Math.max(hi, c.high); });
@@ -649,22 +654,37 @@
     yAxis(root, y, L, R, function (v) { return (v > 0 ? "+" : "") + v + "%"; }, "slower than flat");
     root.appendChild(svg("line", { x1: L, x2: R, y1: y(0), y2: y(0), "class": "zero" }));
     var step = (R - L) / courses.length;
+    var labelled = 0;
     courses.forEach(function (c, i) {
       var x = L + step * (i + 0.5);
       root.appendChild(svg("line", { x1: x, x2: x, y1: y(c.low * 100), y2: y(c.high * 100), "class": "whisker" + (c.live ? " live" : "") }));
-      var dot = svg("circle", { cx: x, cy: y(c.factor * 100), r: c.live ? 6 : 3.8, "class": "course-dot" + (c.live ? " live" : "") });
+      var dot = svg("circle", { cx: x, cy: y(c.factor * 100), r: c.live ? 6 : (c.named ? 5 : 3.8), "class": "course-dot" + (c.live ? " live" : (c.named ? " named" : "")) });
       hover(dot, "courses-readout", c.name + ": " + (c.factor >= 0 ? "+" : "") + (c.factor * 100).toFixed(1) + "% against a flat road (95% interval " +
         (c.low * 100).toFixed(1) + " to " + (c.high * 100).toFixed(1) + "), from " + count(c.finishes) + " finishes over " + plural(c.editions, "edition", "editions"));
       root.appendChild(dot);
-      if (c.live) {
-        var above = c.factor > 0;
-        root.appendChild(svg("text", { x: x + (i > courses.length * 0.7 ? -10 : 10), y: y(c.factor * 100) + (above ? -10 : 18), "text-anchor": i > courses.length * 0.7 ? "end" : "start", "class": "row-label halo" }, c.name));
+      /* Labelled: the races on this page, and the courses with the deepest history, which are
+         the ones a reader goes looking for. Labels alternate above and below the dot, because
+         two of them can sit side by side on the ranking. */
+      if (c.live || c.named) {
+        var end = i > courses.length * 0.7;
+        var below = labelled % 2 === 1;
+        labelled += 1;
+        root.appendChild(svg("text", {
+          x: x + (end ? -9 : 9),
+          y: y(c.factor * 100) + (below ? 20 : -12),
+          "text-anchor": end ? "end" : "start",
+          "class": "row-label halo" + (c.live ? "" : " faint")
+        }, c.name));
       }
     });
     root.appendChild(svg("text", { x: L + 4, y: B + 20, "class": "tick" }, "hardest"));
     root.appendChild(svg("text", { x: R - 4, y: B + 20, "text-anchor": "end", "class": "tick" }, "easiest"));
     node.appendChild(root);
-    legend("courses-legend", [["dot course-sw", "a course"], ["dot live-sw", "a race on this page"]]);
+    legend("courses-legend", [
+      ["dot course-sw", "a course"],
+      ["dot named-sw", "one of the four busiest, named"],
+      ["dot live-sw", "a race on this page"]
+    ]);
   }
 
   /* The felt-heat cost per degree above 12 C, by race length: the whole-archive posterior

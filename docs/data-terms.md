@@ -265,10 +265,10 @@ freeze time and never reused, because a forecast is a moment.
 **The sun, added 2026-09-18.** The airport records temperature and wind but not the sun, and
 the sun raises the heat a runner meets (PLAN.md 13 item 30). Direct radiation comes from the
 same archive, reanalysis rather than an observation, one request per year, kept under
-`data/cache/openmeteo/`, and is used as a share of a clear noon's 800 W/m2, which is TrainAI's
+`data/cache/openmeteo/`, and is used as a share of a clear noon's 800 W/m2, which is Overload's
 measure. A year fetched before the archive has caught up with it is fetched again later, the
 same rule the ECCC months follow; the forecast pulled at freeze time asks for the forecast sun
-as well. ⚠️ A 9 km reanalysis cell is a poor witness to the sun on one road: TrainAI's 45 days
+as well. ⚠️ A 9 km reanalysis cell is a poor witness to the sun on one road: Overload's 45 days
 of thermometer readings at this coast caught it reporting full cloud while the runner was in
 sun for half the run, so what the model learns about the sun is bounded by this input.
 

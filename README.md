@@ -6,16 +6,18 @@ published once the results are in. For a race director that is pacing, corral an
 staffing planned from expected finish times rather than guesses; for a runner it is a goal
 time with an honest interval instead of a hunch.
 
-**Status: building.** Eighteen years of Newfoundland road results are read, 23,830
-runners resolved out of them, the three baselines are measured on every race since 2024,
-every course's difficulty is measured from the results, and two models are measured against
-them: a Bayesian hierarchical model and a LightGBM challenger, which is the more accurate of
-the two for every runner with a history. What gets published is neither alone but the average
-of the two, which beats both, and that average is 32% closer than the strongest baseline for
-runners with four or more prior results, 5.0 minutes of mean absolute error against
-carry-forward's 7.4, with no bias left to speak of. The weight between them was chosen on
-2022 and 2023 alone, so the races reported here never helped pick it. No prediction has
-been made yet. The first live race is the Cape to Cabot 20 km in St. John's
+**Status: building.** Every registered runner in a Newfoundland road race can be given a
+finish time, a calibrated range and a likely place before the gun, which is a thing that did
+not exist for these races: eighteen years of results pages are parsed, 23,830 runners are
+resolved out of them with no runner ID to join on, every course's difficulty is measured from
+the finishes, and the whole field is predicted, first-timers included, with the error published
+afterwards. Two models do the predicting, a Bayesian hierarchical model and a LightGBM
+challenger, and what gets published is the average of the two, which beats both; the weight
+between them was chosen on 2022 and 2023 alone, so the races reported here never helped pick
+it. Against the strongest simple rule this same machinery can compute, that average is 32%
+closer for runners with four or more prior results, 5.0 minutes of mean absolute error against
+carry-forward's 7.4, with no bias left to speak of, and it answers for the 30% of a field that
+no such rule can answer for at all. No prediction has been made yet. The first live race is the Cape to Cabot 20 km in St. John's
 on 2026-10-18, with a second on a frozen model on 2026-11-11; predictions are committed,
 tagged and hashed in this repository before each race and scored against the official
 results after it. Build plan: [PLAN.md](PLAN.md).
@@ -227,6 +229,40 @@ it.
 | 2 to 3 | 2,904 | 52 | 7.7 vs 7.7 | +0.08 (+0.02 to +0.20) |
 | 4 or more | 7,480 | 51 | 5.0 vs 5.2 | -0.12 (-0.22 to -0.03) |
 <!-- finishline:end:baselines -->
+
+**What those baselines cost, and why 32% is not the whole claim.** None of the three rules of
+thumb above were lying around to be beaten. "You will run what you ran last time" is trivial for
+one runner with one race in front of them and is not trivial for a field of several hundred: it
+needs eighteen years of results pages parsed, the same person's results joined across them with
+no runner ID to go on, the last race converted to this race's distance through Daniels' tables,
+and this course's difficulty measured against every other course in the province. All of that is
+this repository, and the baselines are computed by it. The comparison is therefore not this model
+against something a runner can look up; it is this model against the best simple answer the same
+machinery can give, on the same runners, which is the harder test and the only honest one.
+
+**And a rule of thumb cannot answer for a third of the field.** Over the 53 scored races,
+carry-forward can answer for 13,113 of 18,824 entrants (70%) and the race calculator for 10,403
+(55%); 5,711 entrants, 30% of the field, have no past result to carry forward at all. The
+published model answers for every one of them and reports the error it makes on them, which is
+the largest error in the table and is published rather than hidden. A race director planning a
+finish-line clock needs the whole field, not the two thirds of it with a history.
+
+**The same error, by race length.** An average in minutes is not one claim across distances, so
+the published model's error is broken out both ways: minutes, which a race director plans with,
+and the share of a runner's own finish time, which is what compares a 5 km with a marathon.
+
+<!-- finishline:distances -->
+`blend`, every race from 2024 on, grouped by race length. The middle column pair is the whole field, the right-hand pair the runners with four or more prior results. The percent is of each runner's own finish time.
+
+| Race length | Runners | Middle of the field | MAE, all | % of time, all | MAE, 4+ races | % of time, 4+ |
+|---|---:|---:|---:|---:|---:|---:|
+| 5 km | 2,491 | 28.2 | 3.5 | 10% | 1.4 | 5% |
+| 8 km | 1,154 | 42.4 | 2.7 | 6% | 1.8 | 4% |
+| 10 km | 1,908 | 58.2 | 4.6 | 7% | 2.7 | 5% |
+| 16 km (the Tely 10) | 10,901 | 102.6 | 12.7 | 11% | 6.6 | 6% |
+| 20 km | 2,017 | 129.3 | 9.5 | 7% | 6.1 | 5% |
+| Marathon | 323 | 271.7 | 26.0 | 10% | 17.4 | 6% |
+<!-- finishline:end:distances -->
 
 ⚠️ **The LightGBM challenger is more accurate than the hierarchical model for every runner with
 a history.** Gradient-boosted quantile trees on hand-built features (`models/gbm.py`: form on
@@ -515,14 +551,27 @@ shows them with a search box for anyone looking for their own name.
 
 ## Part of a portfolio
 
-One of fifteen projects. It reuses the running arithmetic from Overload, the AI coaching
-team for runners: Daniels' VDOT, the heat and wind corrections and the age-grading tables,
-here in a public repository with tests.
+One of fifteen projects. The running arithmetic is borrowed from
+[Overload](https://peterparker.ca/projects/overload/), Peter's AI coaching team for runners:
+Daniels' VDOT, the heat and wind corrections and the age-grading tables, here in a public
+repository with tests. Constants that came across from Overload, including the full-sun
+figure it takes from the US National Weather Service, are used as priors and labelled as
+priors wherever they appear; anything this archive can measure is measured here instead, and
+PLAN.md section 13 item 30 has what the measurement said about that figure.
 
 ## How this was built
 
 Design, methodology, evaluation choices and judgement are Peter Parker's, including years
-of racing and coaching himself on these courses. AI coding assistants (Claude Code) were
-used for implementation and drafting, the way a senior engineer uses them in 2026. Every
+of racing and coaching himself on these courses. Two of those calls are in the model: that
+the Tely's prevailing westerly is a tailwind for almost the whole race, and that heat does
+not act in a straight line. The weather model is the clearest case. Four reasonable designs
+failed first, heat as a straight line, humidity, dew point and sunshine as an effect of its
+own; what worked was the specification that came off the road rather than out of the data.
+Below a threshold heat costs nothing, above it each degree costs more than the last, and it
+costs more the longer the race; sunshine has no effect of its own but raises the temperature
+a runner feels. Written that way it explains about twice as much of the edition-to-edition
+variation as the straight line did (PLAN.md section 13 item 30). AI coding
+assistants (Claude Code) were used for implementation and drafting, the way a senior
+engineer uses them in 2026. Every
 number in the results tables is reproducible from this repository with one command, and
 every live prediction is verifiable from a tag that predates the race it predicts.

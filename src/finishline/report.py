@@ -7,6 +7,7 @@ a results table somebody can edit.
 
 from __future__ import annotations
 
+import statistics
 from collections.abc import Mapping, Sequence
 from typing import Any
 
@@ -339,3 +340,59 @@ def replace_between(text: str, marker: str, table: str) -> str:
     head, rest = text.split(start, 1)
     _old, tail = rest.split(end, 1)
     return f"{head}{start}\n{table}\n{end}{tail}"
+
+
+# What a reader means by a race length, and the metres that fall under it. The bands are wide
+# enough that one course does not become its own row and narrow enough that a 5 km and a
+# marathon never share one.
+DISTANCE_BANDS: tuple[tuple[str, float, float], ...] = (
+    ("5 km", 0.0, 5500.0),
+    ("8 km", 5500.0, 9000.0),
+    ("10 km", 9000.0, 12000.0),
+    ("16 km (the Tely 10)", 12000.0, 17000.0),
+    ("20 km", 17000.0, 25000.0),
+    ("Half marathon", 25000.0, 30000.0),
+    ("Marathon", 30000.0, 50000.0),
+)
+
+
+def distance_table(
+    scored: Sequence[score.Scored], model: str, distances: Mapping[str, float]
+) -> str:
+    """One model's error by race length, in minutes and as a share of a finish time.
+
+    An average error in minutes is not one claim: the same model is out by a minute and a half
+    over 5 km and by a quarter of an hour over a marathon, and the honest common measure is the
+    share of the runner's own finish time. Both are here, for the whole field and for the
+    runners the archive knows well, because a race director reads the minutes and a runner
+    comparing this with a race calculator reads the percent.
+    """
+    rows = [row for row in scored if row.model == model and row.predicted is not None]
+    lines = [
+        f"`{model}`, every race from 2024 on, grouped by race length. The middle column pair is "
+        "the whole field, the right-hand pair the runners with four or more prior results. "
+        "The percent is of each runner's own finish time.",
+        "",
+        "| Race length | Runners | Middle of the field | MAE, all | % of time, all "
+        "| MAE, 4+ races | % of time, 4+ |",
+        "|---|---:|---:|---:|---:|---:|---:|",
+    ]
+    for label, low, high in DISTANCE_BANDS:
+        band = [
+            row
+            for row in rows
+            if low <= distances.get(row.race_id, -1.0) < high
+        ]
+        if not band:
+            continue
+        deep = [row for row in band if score.stratum_of(row.depth) == "4 or more"]
+        everyone = score.summarise(band, model)
+        experienced = score.summarise(deep, model) if deep else None
+        median = statistics.median(row.actual for row in band)
+        lines.append(
+            f"| {label} | {len(band):,} | {_minutes(median)} "
+            f"| {_minutes(everyone.mae_seconds)} | {_percent(everyone.mape)} "
+            f"| {'-' if experienced is None else _minutes(experienced.mae_seconds)} "
+            f"| {'-' if experienced is None else _percent(experienced.mape)} |"
+        )
+    return "\n".join(lines)

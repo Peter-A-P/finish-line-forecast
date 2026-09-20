@@ -22,17 +22,28 @@
     <p class="lead">
       Every registered runner at a Newfoundland road race gets a predicted finish time, a range
       it should land in, and a likely place, worked out from eighteen years of public race
-      results. The predictions are <strong>locked in a public record before the race starts</strong>,
+      results. Each prediction is a <strong>blend of two models</strong>, because the two make
+      different mistakes and the average of them is more accurate than either one.
+      The predictions are <strong>locked in a public record before the race starts</strong>,
       so nobody can quietly adjust them afterwards, and once the official results are posted the
       error is published right beside them. A race director can plan pacers, the finish-line
       clock and medical staff from expected finishing times rather than guesses, and a runner
       gets a goal time with an honest range instead of a hunch.
     </p>
+    <p class="hero-models">
+      The two models are a
+      <span class="term" tabindex="0" data-note="One statistical model of every runner at once. Each runner has their own fitness and their own fade over distance, estimated together with the group of runners like them, so a runner with one race borrows from people of their age and sex and a runner with eight is judged almost entirely on their own results. It is fitted in PyMC, and a prediction from it is thousands of simulated race days rather than a single number.">hierarchical
+      Bayesian model</span> and
+      <span class="term" tabindex="0" data-note="Gradient-boosted decision trees, the workhorse of applied machine learning, given the same history, course difficulty and weather. It learns patterns nobody specified, and it is the more accurate of the two for every runner with a past race, which is why it is in the published prediction rather than just measured against it.">LightGBM
+      gradient-boosted trees</span>, averaged {{blend_parent_weight}} to {{blend_weight}} on the
+      log scale. Point at either name for what it means, and
+      <a href="#results">Does it work?</a> has both measured against three rules of thumb.
+    </p>
     <div class="hero-points">
       <div class="point">
         <span class="point-figure up">{{mae_model}} min</span>
         <span class="point-unit">typical error for a runner with four or more past races</span>
-        <span class="point-label">against {{mae_cf}} min for "you will run what you ran last time", the benchmark every model here has to beat</span>
+        <span class="point-label">or {{mae_model_pct}} of their own finish time, which is the measure that compares a 5 km with a marathon. Against {{mae_cf}} min for "you will run what you ran last time", the benchmark every model here has to beat</span>
       </div>
       <div class="point">
         <span class="point-figure up">{{skill}}</span>
@@ -43,6 +54,11 @@
         <span class="point-figure">{{cov80_deep}}</span>
         <span class="point-unit">of finishes landed inside the 80% range</span>
         <span class="point-label">for runners with four or more past races; a range that promises four in five should hold about four in five</span>
+      </div>
+      <div class="point">
+        <span class="point-figure up">{{model_answered}}</span>
+        <span class="point-unit">of the field answered, first-timers included</span>
+        <span class="point-label">"you will run what you ran last time" can answer for {{cf_answered}} and a race calculator for {{vdot_answered}}: {{newcomer_share}} of entrants have no past result to carry forward</span>
       </div>
     </div>
     <p class="hero-note">
@@ -574,6 +590,28 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
       beat three simple rules of thumb, which are always shown first, and a standard
       machine-learning challenger given the same information.
     </p>
+    <div class="verdict">
+      <p>
+        <strong>One thing to be clear about before the numbers: none of these rules of thumb
+        were lying around.</strong> "You will run what you ran last time" sounds like something
+        anybody could do, and for one runner with one race in front of them it is. For a field of
+        several hundred it is not. It needs eighteen years of results pages read and parsed, the
+        same person's results joined across those years with no runner ID to go on, their last
+        race converted to this race's distance through Daniels' tables, and this course's
+        difficulty measured against every other course in the province. All of that is this
+        project, and the rules of thumb are computed by it. So the comparison below is not this
+        model against something a runner can look up; it is this model against the best simple
+        answer the same machinery can give, which is a harder test and the only honest one.
+      </p>
+      <p>
+        <strong>And a rule of thumb cannot answer for everybody.</strong> "Last time" has nothing
+        to say about a runner with no past result, and about {{newcomer_share}} of a field is that
+        runner: it answers for {{cf_answered}} of these entrants and a race calculator for
+        {{vdot_answered}}, while the published model answers for {{model_answered}} and carries a
+        measured error for the ones it is least sure about. A race director planning a
+        finish-line clock needs the whole field, not the two thirds of it with a history.
+      </p>
+    </div>
     <dl class="baselines">
       <div><dt><span class="swatch solid sw-cf"></span>Last time</dt><dd>You will run what you ran in your most recent race, adjusted for distance and course. Simple, and hard to beat.</dd></div>
       <div><dt><span class="swatch solid sw-vdot"></span>Race calculator</dt><dd>Your best recent race, converted with Daniels' tables. What most runners use.</dd></div>
@@ -598,6 +636,18 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
       </p>
       <p>{{gbm_verdict}}</p>
     </div>
+    <h3>Is five minutes good? It depends what you are running</h3>
+    <p>
+      An average error in minutes is not one claim across distances. The same model that is out
+      by a minute and a half over 5 km is out by a quarter of an hour over a marathon, and both
+      are about the same fraction of the runner's day. So here it is both ways, for the whole
+      field and for the runners the archive knows well.
+    </p>
+    <table class="example">
+      <caption>The published prediction's error by race length, over every race since 2024.</caption>
+      <thead><tr><th>Race length</th><th class="num">Runners</th><th class="num">Middle of the field</th><th class="num">Error, whole field</th><th class="num">Error, four or more past races</th></tr></thead>
+      <tbody>{{distance_rows}}</tbody>
+    </table>
     <details class="disclose">
       <summary>For the technical reader: how two models become one prediction</summary>
       <p>
@@ -790,9 +840,24 @@ sha256sum predictions/tt-2026.json      # the same hash, or the file was changed
       a timestamp that predates the race it predicts.
     </p>
     <p>
-      It reuses the running arithmetic from <a href="https://peterparker.ca/projects/overload/">Overload</a>,
-      an AI coaching team for runners: Daniels' formulas and the heat and wind corrections, here
-      with tests.
+      <strong>The weather model is the clearest case of that judgement paying off.</strong> Four
+      designs failed before it, all of them reasonable: heat as a straight line, humidity, dew
+      point, sunshine as an effect of its own. What worked was Peter's specification, which came
+      from running in it rather than from the data. Heat does not act in a straight line. Below a
+      threshold it costs nothing at all, above it each degree costs more than the last, and it
+      costs more the longer the race, because a 5 km field meets fifteen minutes of weather and a
+      marathon field meets four hours of it. Sunshine has no effect of its own; it raises the
+      temperature a runner feels. Written that way, the weather explains twice as much of what
+      separates one edition of a race from the next as the straight line did.
+    </p>
+    <p>
+      The arithmetic underneath it is borrowed from
+      <a href="https://peterparker.ca/projects/overload/">Overload</a>, Peter's AI coaching team
+      for runners: Daniels' formulas, the age-grading tables and the heat and wind corrections,
+      including the full-sun figure Overload takes from the US National Weather Service, which
+      this project then measured against eighteen years of races rather than assuming. Constants
+      that arrived from Overload are used as starting assumptions and labelled as such wherever
+      they appear; everything the archive can measure is measured here instead.
     </p>
     <details class="disclose">
       <summary>Glossary</summary>
