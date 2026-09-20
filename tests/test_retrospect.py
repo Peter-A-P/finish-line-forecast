@@ -89,13 +89,55 @@ def test_an_unscored_event_is_listed_rather_than_dropped() -> None:
     assert listed[0]["finishers"] == 1
 
 
-def test_a_finisher_the_archive_cannot_identify_is_excluded_and_counted() -> None:
+def test_a_finisher_with_no_prediction_keeps_their_row_and_says_why() -> None:
+    """The rule item 38 is about: a real result may be incomplete, never restated.
+
+    Cal Noseworthy finished third and the resolver refused him, so he has no prediction. He is
+    still in the table, still third, still at his own time, carrying the reason.
+    """
     block = retrospect.race(dataset(), scored_rows(), intervals(), "r-2026", [])
     assert block is not None
     assert block["finishers"] == 3
-    assert block["scored"] == 2
+    assert block["scored"] == 2, "the figures above the table are over the two predicted"
     assert block["ambiguous"] == 1
-    assert [row["name"] for row in block["runners"]] == ["Ann Hynes", "Bea Power"]
+    assert [row["name"] for row in block["runners"]] == [
+        "Ann Hynes", "Bea Power", "Cal Noseworthy"
+    ], "every finisher, in finishing order"
+    cal = block["runners"][2]
+    assert cal["place"] == 3, "the place the results page printed"
+    assert cal["actual"] == pytest.approx(3000.0)
+    assert cal["excluded"] == "two of this name"
+    assert cal["seconds"] is None and cal["predicted_place"] is None
+    assert cal["places_out"] is None, "a runner with no prediction is out by no places"
+
+
+def test_no_row_is_renumbered_when_a_finisher_ahead_has_no_prediction() -> None:
+    """A table that deletes the winner and calls the runner-up first is a second race.
+
+    The whole of PLAN.md 13 item 38. The place in this table is the place in the race that was
+    run, and the predicted place is on the same scale, which is what makes their difference
+    mean anything.
+    """
+    results = [
+        result("r-2026", 1, "Cal Noseworthy", 2300.0),  # refused by the resolver
+        result("r-2026", 2, "Ann Hynes", 2400.0),
+        result("r-2026", 3, "Bea Power", 2700.0),
+    ]
+    runners = [
+        Runner("ann", "Ann Hynes", None, "F", (results[1],), False, ""),
+        Runner("bea", "Bea Power", None, "F", (results[2],), False, ""),
+        Runner("cal", "Cal Noseworthy", None, None, (results[0],), True, "two of this name"),
+    ]
+    data = Dataset(races={TEN_K.race_id: TEN_K}, results=results, runners=runners, failures=[])
+    block = retrospect.race(data, scored_rows(), intervals(), "r-2026", [])
+    assert block is not None
+    rows = {row["name"]: row for row in block["runners"]}
+    assert rows["Cal Noseworthy"]["place"] == 1, "he won it, and the table says so"
+    assert rows["Ann Hynes"]["place"] == 2, "second, not first"
+    # Cal is held at the place he finished, so the fastest prediction gets the next slot.
+    assert rows["Ann Hynes"]["predicted_place"] == 2
+    assert rows["Ann Hynes"]["places_out"] == 0
+    assert rows["Bea Power"]["predicted_place"] == 3
 
 
 def test_out_by_is_signed_so_a_reader_can_see_which_way_it_missed() -> None:
@@ -107,19 +149,13 @@ def test_out_by_is_signed_so_a_reader_can_see_which_way_it_missed() -> None:
     assert rows["Bea Power"]["out_by"] == pytest.approx(120.0)
 
 
-def test_the_official_place_and_the_rank_among_the_scored_are_kept_apart() -> None:
-    """Two different things, and folding them together flatters the place error.
-
-    The official place is the place in the race that was run, ambiguous runners included.
-    The two place columns are ranks inside the scored field, because a runner with no
-    prediction cannot be out by any number of places.
-    """
+def test_places_out_is_signed_so_a_reader_can_see_which_way_the_order_missed() -> None:
     block = retrospect.race(dataset(), scored_rows(), intervals(), "r-2026", [])
     assert block is not None
     rows = {row["name"]: row for row in block["runners"]}
-    assert rows["Bea Power"]["finish_place"] == 2, "the results page printed second"
-    assert rows["Bea Power"]["actual_place"] == 2, "second of the two scored, as it happens"
-    assert rows["Ann Hynes"]["place"] == 1 and rows["Ann Hynes"]["places_out"] == 0
+    assert rows["Ann Hynes"]["place"] == 1 and rows["Ann Hynes"]["predicted_place"] == 1
+    assert rows["Ann Hynes"]["places_out"] == 0
+    assert rows["Bea Power"]["place"] == 2 and rows["Bea Power"]["places_out"] == 0
 
 
 def test_the_paired_comparison_only_uses_runners_the_baseline_could_answer_for() -> None:

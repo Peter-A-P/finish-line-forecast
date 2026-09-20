@@ -539,21 +539,16 @@ beside it has been told half of it.
 Measured, blend against the baselines, on the 161 of 171 finishers the archive can identify:
 **4.74 min average miss** against carry-forward's 4.43 over the 136 carry-forward can answer
 for at all, and **3.81 against 4.43 paired on those 136**; 78% of finishes inside the 80%
-range; 14 places out at the middle. Split by where a runner finished in their own field, the
+range; 15 places out at the middle. Split by where a runner finished in their own field, the
 minutes grow down the field and the share of a finish time does not: 3.6 min at the front
 quarter, 4.5 mid-pack, 6.4 in the last quarter, and 7.5%, 7.5%, 7.9% of a finish time. The
 start list against the finish list: 198 listed in the 10 km, 171 finished, 168 found, so
 15.2% not found (an upper bound on no-shows, section 5.6), and 3 finishers on no list.
 
-**Two place scales sit in the runner table and they are not the same scale**, which read as
-an off-by-one to Peter on 2026-09-20 and was not one. "Finished" is the place the results
-page printed, in the race everybody ran; the predicted and actual place columns count only
-the runners who have a prediction. Brian Caines finished second, is predicted first and is
-nought places out, because Adam Guy won it and is one of the ten the archive cannot identify.
-The fix was presentational and not arithmetical: the actual place among the scored is now a
-column of its own beside the predicted one, so the difference is visible rather than inferred,
-and both headers name the population. If the person who wrote the thing misreads a table, the
-table is wrong.
+**The runner table is the race that was run**, all 171 finishers in the order they crossed
+the line, with the place the results page printed. The ten with no prediction carry the
+resolver's reason in their own row instead. See item 38 for the two versions before it that
+were wrong, and why the second one was worse than the first.
 
 **Green in that table marks the published range holding**, and briefly marked a miss under a
 minute, which is a threshold nobody declared and this project does not measure: a runner whose
@@ -1650,3 +1645,40 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     because a new road race whose name has no alias yet looks exactly like that and is the
     only skip here that is ever a bug. Nothing is filed under a derived slug, which is the
     same refusal the parser makes about a results page with no column headers.
+
+38. **A table that renumbered a race printed the man who finished second as its winner
+    (2026-09-20).** The USR retrospective (section 5.9) shows every finisher, but only 161 of
+    the 171 have a prediction: the other ten are runners the resolver refused, because the
+    archive holds more than one person their result could belong to. The first version of the
+    table dropped those ten and ranked what was left among itself.
+
+    **What that printed.** Adam Guy won the 10 km in 36:17 and is one of the ten. So Brian
+    Caines, who finished second, appeared as "actual place 1", beside a column saying he
+    finished second, beside "nought places out". Peter read it as an index off by one. It was
+    not off by one; it was a second race, invented by deletion, printed next to the real one.
+
+    **The first fix made it worse.** Adding the restricted actual place as a column of its
+    own, so the arithmetic was visible, plus a note explaining the two populations. The
+    numbers were then internally consistent and the table still asserted, in print, that a man
+    who finished second finished first. Peter, on being shown it: "you are changing reality,
+    everyone sees you're lying and your credibility is ruined." He was right, and the general
+    rule is worth more than this table: **a published number about a real event may be
+    incomplete, and may not be restated.** A footnote does not buy the right to renumber a
+    race.
+
+    **What is published now.** Every finisher, in finishing order, at the place the results
+    page printed. A finisher with no prediction keeps their row, their place and their time,
+    and carries the resolver's own words where the prediction would be ("2 runners of this
+    name could be this result, and the page printed no age band to tell them apart"; for two
+    of them, "results under this name disagree about sex"). To make a predicted place
+    comparable with a real one, the ten are held at the place they actually finished and the
+    161 are ordered around them: the model is not asked to place runners it could not
+    identify, and is not charged for them. Caines now reads: finished 2, predicted to finish
+    2, nought places out.
+
+    **It costs a little accuracy to say it honestly**, and that is reported rather than
+    absorbed. On the real scale the place error is 20.4 places mean and 15 median, against
+    19.3 and 14 on the renumbered one, because the ten held at their finishing places push the
+    others out. The band table moves the same way (12.5, 25.4, 18.3 places from the front
+    quarter to the last, against 12.3, 24.2, 16.7). Nothing about the time predictions moved:
+    the MAE, the paired comparison and the coverage are over the same 161 runners as before.

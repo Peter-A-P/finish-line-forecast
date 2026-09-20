@@ -582,54 +582,72 @@
 
     if (info.ambiguous) {
       target.appendChild(el("p", { "class": "note" },
-        count(info.finishers) + " people finished and " + count(info.scored) + " are below. The " +
-        count(info.ambiguous) + " missing are finishers the archive cannot tell apart from " +
-        "another runner of the same name, which is the same rule that keeps them out of every " +
-        "other number on this page."));
+        count(info.finishers) + " people finished and all of them are in the table below. The " +
+        "figures above are over the " + count(info.scored) + " with a prediction: the other " +
+        count(info.ambiguous) + " are finishers the archive cannot tell apart from another " +
+        "runner of the same name, which is the same rule that keeps them out of every other " +
+        "number on this page."));
     }
 
     if (info.bands && info.bands.length) { target.appendChild(bandTable(info.bands)); }
 
     target.appendChild(el("h3", null, "Every runner, against what the model would have said"));
     target.appendChild(el("p", { "class": "note" },
-      "Sorted by finishing time. \"Out by\" is the prediction minus the finish, so a minus " +
-      "sign means the model called that runner faster than they ran. The 80% range is green " +
-      "where the finish landed inside it, which is the one promise made about a single " +
-      "runner; " + percent(info.coverage80, 0) + " of them did, against the 80% promised."));
+      "Every finisher, in the order they crossed the line, with the place the results page " +
+      "printed. \"Out by\" is the prediction minus the finish, so a minus sign means the " +
+      "model called that runner faster than they ran. The 80% range is green where the " +
+      "finish landed inside it, which is the one promise made about a single runner; " +
+      percent(info.coverage80, 0) + " of them did, against the 80% promised."));
     target.appendChild(el("p", { "class": "note" },
-      "\"Finished\" is the place the results page printed, in the race everybody ran. The two " +
-      "place columns after it count only the " + count(info.scored) + " runners in this " +
-      "table, because a finisher with no prediction cannot be out by any number of places. " +
-      "That is why somebody can finish second and be predicted first and nought places out: " +
-      "the runner who beat them is one of the " + count(info.ambiguous) + " the archive " +
-      "cannot identify. The predicted place has no range either, because a published place is " +
-      "drawn from thousands of simulated races and the backtest kept its scored rows rather " +
+      count(info.ambiguous) + " of the " + count(info.finishers) + " have no prediction, and " +
+      "say so in their own row: the archive holds more than one runner their result could " +
+      "belong to and the results page prints nothing that would tell them apart. They are " +
+      "left exactly where they finished, and the rest are placed around them, so \"predicted " +
+      "to finish\" and \"finished\" are the same kind of number and the difference between " +
+      "them means what it says. The model is not asked to place the runners it could not " +
+      "identify and is not charged for them. It carries no range either: a published place is " +
+      "drawn from thousands of simulated races, and the backtest kept its scored rows rather " +
       "than the fits that would let that be redone here."));
 
     var wrap = el("div", { "class": "table-wrap tall" });
     var table = el("table", { id: "everyone", "class": "tight" });
     var head = el("tr");
-    /* Two place scales sit in this table and they are not the same scale. "Finished" is the
-       race everybody ran; the last three columns count only the runners with a prediction.
-       The actual place is a column rather than a number to be inferred, because without it
-       "finished second, predicted first, nought places out" reads as an off-by-one, which is
-       how it read to the person who built it. The note under the table says which is which. */
-    var NUMERIC = { 0: 1, 2: 1, 3: 1, 5: 1, 6: 1, 7: 1, 8: 1, 9: 1 };
+    /* One place, and it is the place in the race that was run. Every finisher is a row,
+       including the ones with no prediction, which carry the reason instead. */
+    var NUMERIC = { 0: 1, 2: 1, 3: 1, 5: 1, 6: 1, 7: 1, 8: 1 };
     ["Finished", "Name", "Past races", "Predicted", "80% range", "Actual", "Out by",
-      "Predicted place", "Actual place", "Places out"]
+      "Predicted to finish", "Places out"]
       .forEach(function (label, i) { head.appendChild(el("th", { "class": NUMERIC[i] ? "num" : "" }, label)); });
     table.appendChild(append(el("thead"), [head]));
     var body = el("tbody");
     runners.forEach(function (r) {
       var row = el("tr");
       row.setAttribute("data-key", r.name.toLowerCase());
+      /* A finisher the archive could not identify. The row is the real one, with its real
+         place and time; the resolver's reason sits where the prediction would be, spanning
+         the columns it has nothing to put in. Leaving them out and renumbering the rest was
+         how this table came to print a second-place finisher as the winner. */
+      if (r.excluded) {
+        row.className = "unpredicted";
+        append(row, [
+          el("td", { "class": "num" }, isNumber(r.place) ? String(r.place) : ""),
+          el("td", null, r.name),
+          el("td", { "class": "num" }, "-"),
+          el("td", { colspan: "3", "class": "why" }, "No prediction: " + r.excluded),
+          el("td", { "class": "num" }, clock(r.actual)),
+          el("td", { "class": "num" }, "-"),
+          el("td", { "class": "num" }, "-")
+        ]);
+        body.appendChild(row);
+        return;
+      }
       /* Green marks the one promise this project makes about a single runner: that the
          finish would land inside the published range. It used to mark a miss under a
          minute, which is a threshold nobody declared and which this project does not
          measure, so a runner whose finish was inside their range could read as a failure. */
       var held = r.i80 && r.i80[0] <= r.actual && r.actual <= r.i80[1];
       append(row, [
-        el("td", { "class": "num" }, isNumber(r.finish_place) ? String(r.finish_place) : ""),
+        el("td", { "class": "num" }, isNumber(r.place) ? String(r.place) : ""),
         el("td", null, r.name),
         el("td", { "class": "num" }, String(r.prior)),
         el("td", { "class": "num" }, clock(r.seconds)),
@@ -637,8 +655,7 @@
           r.i80 ? clock(r.i80[0]) + " to " + clock(r.i80[1]) : ""),
         el("td", { "class": "num" }, clock(r.actual)),
         el("td", { "class": "num" }, signedClock(r.out_by)),
-        el("td", { "class": "num" }, String(r.place)),
-        el("td", { "class": "num" }, String(r.actual_place)),
+        el("td", { "class": "num" }, String(r.predicted_place)),
         el("td", { "class": "num" }, (r.places_out > 0 ? "+" : "") + r.places_out)
       ]);
       row.addEventListener("click", function () { drawField(runners, r); });
@@ -737,6 +754,11 @@
     var node = byId("field-chart");
     if (!node) { return; }
     clear(node);
+    /* A race already run puts its unpredictable finishers in the same list, with no predicted
+       time. They are real runners and they belong in the table; they have nothing to put on a
+       chart of predicted times. */
+    runners = runners.filter(function (r) { return isNumber(r.seconds); });
+    if (!runners.length) { return; }
     var minutes = runners.map(function (r) { return r.seconds / 60; });
     var lo = Math.floor(Math.min.apply(null, minutes));
     var hi = Math.ceil(Math.max.apply(null, minutes));

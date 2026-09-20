@@ -861,8 +861,14 @@ tbody tr.reference { background: var(--accent-soft); }
 .race-warning p { font-size: 0.86rem; line-height: 1.55; margin: 0 0 0.5rem; }
 .race-warning p:last-child { margin-bottom: 0; }
 
-/* A miss inside a minute, marked so the eye can find the rows that landed. */
+/* The published range, where the finish landed inside it. The one promise this project
+   makes about a single runner, and the same green the scatter above the table uses. */
 td.close { color: var(--good); }
+
+/* A finisher with no prediction. The row is real and stays in place; what it cannot say is
+   greyed, and the reason sits across the columns that would have held the prediction. */
+tr.unpredicted td { color: var(--ink-faint); }
+td.why { font-size: 0.82rem; font-style: italic; white-space: normal; min-width: 22rem; }
 
 .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 0.9rem 1.25rem; margin-bottom: 1rem; }
 .fact { display: flex; flex-direction: column; min-width: 0; }

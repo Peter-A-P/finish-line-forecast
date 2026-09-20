@@ -300,6 +300,9 @@ course difficulty at all and the error there would be mostly the cost of that. T
 mechanical rather than chosen race by race, and the three unscored events are listed with the
 reason. On the 161 of 171 finishers the archive can identify: **4.74 min average miss**, and
 **3.81 against carry-forward's 4.43 paired** on the 136 carry-forward can answer for at all.
+Every one of the 171 finishers is in the table on the site at the place the results page
+printed, the ten with no prediction included, each carrying the reason the resolver refused
+them; the place error is 15 at the middle.
 The minutes grow down the field and the share of a finish time does not: 3.6, 4.5 and 6.4
 minutes from the front quarter to the last, which is 7.5%, 7.5% and 7.9% of a finish time.
 Of 198 listed in the 10 km, 171 finished and 168 were found, so 15.2% were not found, an
@@ -484,7 +487,7 @@ distance. Both sit in the range the marathon literature reports for mid-pack run
 
 ## What went wrong on the way
 
-[PLAN.md](PLAN.md) section 13 is a log of thirty-seven designs this data refuted, each written up
+[PLAN.md](PLAN.md) section 13 is a log of thirty-eight designs this data refuted, each written up
 with its evidence rather than quietly fixed. The ones a reader should know about before trusting
 a number above:
 

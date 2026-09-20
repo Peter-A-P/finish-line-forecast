@@ -25,10 +25,16 @@ missing course as if it were the model's accuracy. They are listed, with the rea
 not scored. The rule is mechanical rather than a judgement made race by race: an event is
 scored when its course has an edition before it, and is not when it does not.
 
-⚠️ **The field is the runners who finished and resolved**, which is fewer than the runners
-who finished. A finisher the archive cannot tell apart from another runner of the same name
-is excluded by the resolver (`Runner.ambiguous`) and counted here, the same as everywhere
-else in this project.
+⚠️ **Every finisher is in the table, and the place in it is the place in the race that was
+run.** A finisher the archive cannot tell apart from another runner of the same name has no
+prediction, and is listed with the resolver's reason where the prediction would be rather
+than dropped. An earlier version dropped them and ranked the rest among themselves, which
+printed the man who finished second as "actual place 1" because the winner was one of the
+ones it had dropped: a second, invented race beside the real one (PLAN.md 13 item 38). The
+finishers with no prediction are now held at the place they actually finished and the rest
+are ordered around them, so a predicted place and a finishing place are the same kind of
+thing and their difference means what it says. The model is not asked to place the runners it
+could not identify and is not charged for them.
 
 ⚠️ **A place here is a rank, not a simulation.** For a live race the published place comes
 from drawing the whole field thousands of times (`placing/simulate.py`), which needs a
@@ -50,6 +56,7 @@ from typing import Any
 from finishline.backtest import score
 from finishline.conformal import split
 from finishline.identity.normalise import name_key
+from finishline.identity.resolve import Runner
 from finishline.ingest import nlaa
 from finishline.ingest.entrants import Entrant
 from finishline.publish import showcase
@@ -223,45 +230,83 @@ def race(
         for item in intervals
         if item.row.race_id == race_id and item.adjusted
     }
-    finishers = [
-        result
-        for result in data.results
-        if result.race_id == race_id and result.finished and result.seconds
-    ]
-    by_runner = {
-        runner.runner_id: runner
+    finishers = sorted(
+        (
+            result
+            for result in data.results
+            if result.race_id == race_id and result.finished and result.seconds
+        ),
+        key=lambda result: result.place or 0,
+    )
+    # Every finisher's runner, the ones the resolver refused included, because those are the
+    # rows this table has to carry a reason for rather than quietly leave out.
+    owner: dict[tuple[str, int | None], Runner] = {
+        (result.name, result.place): runner
         for runner in data.runners
-        if not runner.ambiguous
-        for result in runner.results
-        if result.race_id == race_id
-    }
-    names = {
-        runner_id: runner.name for runner_id, runner in by_runner.items() if runner_id in rows
-    }
-    # The place the results page printed, which is the place in the race that was run. The
-    # two place columns below are ranks inside the scored field instead, because a runner
-    # the archive could not identify has no prediction to be out by and dropping them from
-    # one side of a comparison and not the other is how a place error gets flattered.
-    official = {
-        runner.runner_id: result.place
-        for runner in data.runners
-        if not runner.ambiguous
         for result in runner.results
         if result.race_id == race_id
     }
 
-    predicted_order = sorted(rows, key=lambda key: rows[key].predicted or 0.0)
-    predicted_place = {runner_id: i + 1 for i, runner_id in enumerate(predicted_order)}
-    actual_order = sorted(rows, key=lambda key: rows[key].actual)
-    actual_place = {runner_id: i + 1 for i, runner_id in enumerate(actual_order)}
+    def runner_of(result: Result) -> Runner | None:
+        return owner.get((result.name, result.place))
+
+    def prediction_for(result: Result) -> score.Scored | None:
+        found = runner_of(result)
+        return None if found is None else rows.get(found.runner_id)
+
+    def predicted_seconds(result: Result) -> float:
+        row = prediction_for(result)
+        return float(row.predicted or 0.0) if row is not None else 0.0
+
+    # ⚠️ **The place in this table is the place in the race that was run, always.** An
+    # earlier version ranked the predicted runners among themselves, so the man who finished
+    # second was "actual place 1" because the winner had no prediction. That is a second,
+    # invented race printed next to the real one, and no footnote rescues it (PLAN 13 item
+    # 38). Instead the finishers with no prediction are held at the place they actually
+    # finished and the rest are ordered around them, so a predicted place and a finishing
+    # place are the same kind of thing and their difference means what it says. The model is
+    # not asked to place the runners it could not identify, and is not charged for them.
+    unplaceable = {
+        result.place for result in finishers if prediction_for(result) is None
+    }
+    free = [
+        place
+        for place in range(1, len(finishers) + 1)
+        if place not in unplaceable
+    ]
+    by_predicted = sorted(
+        (result for result in finishers if prediction_for(result) is not None),
+        key=predicted_seconds,
+    )
+    predicted_place = {
+        result.place: free[position] for position, result in enumerate(by_predicted)
+    }
 
     runners: list[dict[str, Any]] = []
     ranged: list[tuple[float, int, int]] = []
-    for runner_id in actual_order:
-        row = rows[runner_id]
-        held = bounds.get(runner_id)
+    for result in finishers:
+        actual = float(result.seconds or 0.0)
+        row = prediction_for(result)
+        if row is None:
+            found = runner_of(result)
+            runners.append({
+                "name": result.name,
+                "place": result.place,
+                "actual": round(actual, 1),
+                "prior": None,
+                "seconds": None,
+                "out_by": None,
+                "i80": None,
+                "predicted_place": None,
+                "places_out": None,
+                # Why there is no prediction, in the resolver's own words. It is always the
+                # same kind of reason: the archive holds more than one runner this result
+                # could belong to, and nothing on the page says which.
+                "excluded": (found.reason if found is not None else "not resolved to a runner"),
+            })
+            continue
+        held = bounds.get(row.runner_id)
         predicted = float(row.predicted or 0.0)
-        actual = float(row.actual)
         # An open-ended upper edge is no range at all, and rounding `inf` raises. The
         # conformal step can leave one on a stratum with too few earlier races.
         edges: list[int] | None = None
@@ -270,27 +315,29 @@ def race(
         if low is not None and high is not None and math.isfinite(low) and math.isfinite(high):
             edges = [round(low), round(high)]
             ranged.append((actual, edges[0], edges[1]))
+        slot = predicted_place[result.place]
         runners.append({
-            "name": names.get(runner_id, ""),
+            "name": result.name,
+            "place": result.place,
             "prior": row.depth,
             "seconds": round(predicted, 1),
             "actual": round(actual, 1),
             "out_by": round(predicted - actual, 1),
             "i80": edges,
-            "finish_place": official.get(runner_id),
-            "place": predicted_place[runner_id],
-            "actual_place": actual_place[runner_id],
-            "places_out": predicted_place[runner_id] - actual_place[runner_id],
+            "predicted_place": slot,
+            "places_out": slot - (result.place or slot),
+            "excluded": None,
         })
 
     field = showcase.field_times(data).get(race_id, ())
     errors = [
         (
-            abs(float(row.predicted or 0.0) - float(row.actual)),
-            float(row.actual),
-            abs(predicted_place[runner_id] - actual_place[runner_id]),
+            abs(float(item["seconds"]) - float(item["actual"])),
+            float(item["actual"]),
+            abs(int(item["places_out"])),
         )
-        for runner_id, row in rows.items()
+        for item in runners
+        if item["excluded"] is None
     ]
     both = [runner_id for runner_id in rows if runner_id in others]
     held_count = sum(1 for actual, low, high in ranged if low <= actual <= high)
