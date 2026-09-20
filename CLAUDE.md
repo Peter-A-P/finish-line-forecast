@@ -1,6 +1,6 @@
 # Working notes for Claude Code
 
-This repository is Finish Line Forecast, package `finishline`: pre-registered finish-time
+This repository is The Whole Field, Called Before the Gun, package `finishline`: pre-registered finish-time
 and placing predictions for Newfoundland road races from public results, with a
 hierarchical model over sparse histories, conformal intervals and a public
 prediction-then-error record. The plan is in [PLAN.md](PLAN.md).
