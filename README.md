@@ -1,193 +1,77 @@
 # Finish Line Forecast
 
-Before the gun, a predicted finish time and placing for every registered runner in a
-field of thousands, from their public race history, published in advance, with the error
-published once the results are in. For a race director that is pacing, corral and medical
-staffing planned from expected finish times rather than guesses; for a runner it is a goal
-time with an honest interval instead of a hunch.
+Before the gun, a predicted finish time and placing for every registered runner in a field of
+thousands, from their public race history, published in advance, with the error published once
+the results are in.
 
-**Status: built and measured, waiting for a start line.** Every registered runner in a Newfoundland road race can be given a
-finish time, a calibrated range and a likely place before the gun, which is a thing that did
-not exist for these races: eighteen years of results pages are parsed, 23,830 runners are
-resolved out of them with no runner ID to join on, every course's difficulty is measured from
-the finishes, and the whole field is predicted, first-timers included, with the error published
-afterwards. Two models do the predicting, a Bayesian hierarchical model and a LightGBM
-challenger, and what gets published is the average of the two, which beats both; the weight
-between them was chosen on 2022 and 2023 alone, so the races reported here never helped pick
-it. Against the strongest simple rule this same machinery can compute, that average is 32%
-closer for runners with four or more prior results, 5.0 minutes of mean absolute error against
-carry-forward's 7.4, with no bias left to speak of, and it answers for the 30% of a field that
-no such rule can answer for at all. What has not happened yet is a prediction: nothing here
-is tagged. The first is the Turkey Tea 10 km on 2026-10-04, a dress rehearsal on a real race,
-and the Cape to Cabot 20 km follows on 2026-10-18; each prediction file is committed, tagged
-and hashed in this repository before the gun and scored against the official results after it.
-Run to Remember on 2026-11-11 publishes no start list, so who runs would have to be predicted
-too, and that part is not built. Build plan: [PLAN.md](PLAN.md).
+For a runner that is a goal time with an honest range instead of a hunch. For a race director
+it is pacing, corral and medical staffing planned from expected finish times rather than
+guesses. For a reader who wants to check the work, it is a forecasting system whose every
+prediction is committed, tagged and hashed before the race it describes, so the record cannot
+be edited once the results are in.
 
-**The website: [finishline.peterparker.ca](https://finishline.peterparker.ca)**, every live
-race and its predictions, with the whole method explained in pictures.
+**The site: [finishline.peterparker.ca](https://finishline.peterparker.ca)**, every live race
+and the whole method in pictures, with a search box for your own name.
 
-Nothing was fetched until the two organisations whose pages this reads had been told, and
-`finishline crawl` refuses until they have. That rail is in code rather than in a
-document: [docs/emails.md](docs/emails.md) carries what was sent.
+**Status: built and measured, waiting for a start line.** Eighteen years of results pages are
+parsed, 23,830 runners are resolved out of them with no runner ID to join on, every course's
+difficulty is measured from the finishes, and a whole field is predicted, first-timers
+included. What has not happened yet is a prediction: nothing here is tagged. The first goes out
+on 2026-09-27 for the Turkey Tea 10 km on 2026-10-04, then Cape to Cabot 20 km on 2026-10-18.
 
-## Result
+## How good is it
 
-**What the archive holds.** Measured by `finishline catalogue` on 2026-09-12 from the year
-indexes, which carry event names and dates and no runners.
+- **5.0 minutes** of average error for a runner with four or more past races (95% interval 4.8
+  to 5.2), against **7.4 minutes** for the best simple rule this same pipeline can compute.
+  **32% closer.**
+- It answers for **every runner on the start list**. Nearly a third of a field here, 5,711 of
+  18,824, has no past result at all, which no rule of thumb can answer for; those predictions
+  carry the largest error in the tables and the error is published, not hidden.
+- **4.1 places closer** than that rule on the same runners (95% interval 2.0 to 6.7), which is
+  the number a race director plans from.
+- Every prediction carries a range, and the ranges are checked: the 80% range held 74 to 78% of
+  the time and the 90% range 88 to 89%, on races the calibration had never seen.
 
-| | |
-|---|---|
-| Individual road races, 2008 to 2026 | 286 |
-| Distinct courses | 52 |
-| Deepest course history | 17 editions (Mews Memorial 8 km, Mundy Pond 5 km), 16 (Cape to Cabot 20 km) |
-| Years with no racing | 2020 |
+**An average miss is not a margin every prediction carries.** For the front of a 5 km field,
+with four or more past races, the average miss is 45 seconds, half of those runners were inside
+28 seconds, and nine in ten inside 1.6 minutes. The tables below give that shape by race length
+and by where a runner finishes in their own field, because a single average hides both.
 
-The skip list is the coverage claim, so it distinguishes a duplicate from a hole. Most
-skips are team standings, awards pages, relays, cross-country and school races, which are
-other views of races already read or other disciplines; a handful are real holes, mostly
-races published as a PDF. One is the same race published twice: the 2014 CHCM 10 km is on
-the index as both `.htm` and `.php` with the same 162 finishers in different letter cases,
-and counting it twice would have given 162 people a second result on a day they raced once.
+Measured on 18,824 predictions over 53 races from 2024 on, each made only from results dated
+strictly before it. Every table on this page is written by `finishline report` from that one
+run, and none of them is edited by hand.
 
-⚠️ **Eighty of those courses were really fifty-two.** The 2008 to 2015 index titles a race
-with its ordinal and whichever sponsor held the naming rights, so Burton's Pond read as six
-courses of one edition each and CHCM as seven, and every fragment then fell under the
-thirty-finish floor and vanished from the table below. The merge overshot once before it
-settled: some races have no name but their sponsor, and stripping it collapsed six unrelated
-half marathons into a single course called "unknown". [docs/data-terms.md](docs/data-terms.md) has the full table and
-every page that would not parse.
+## Contents
 
-**What reading all of it produced.** Written by `finishline report`; not edited by hand.
+- [The measured result](#the-measured-result), against the best simple rules, by race length,
+  by position in the field, on the order of finish and on the ranges
+- [What the archive gave up](#what-the-archive-gave-up): what was read, how hard each course
+  runs, what the weather costs
+- [What this does not do](#what-this-does-not-do), starting with the data it refuses to use
+- [What went wrong on the way](#what-went-wrong-on-the-way): the designs the data refuted
+- [How it works](#how-it-works) and [how to run it](#run-it-yourself)
+- [How it is built](#how-it-is-built), and [whose judgement is in it](#judgement-and-what-is-borrowed)
 
-<!-- finishline:archive -->
-| | |
-|---|---:|
-| Races read | 286 |
-| Finishes parsed | 75,061 |
-| Runners resolved | 23,830 |
-| Runners this refuses to tell apart, and will not publish | 381 |
-| Runners with one finish | 12,737 |
-| Runners with two or three | 6,280 |
-| Runners with four or more | 4,786 |
-| Pages that would not parse | 5 |
-<!-- finishline:end:archive -->
+## The measured result
 
-**How hard each course is, measured rather than surveyed.** Runners cross between courses,
-so a course's difficulty is identifiable from finishes alone: somebody slower on Cape to
-Cabot than their own equal-VDOT expectation every year, and faster on Mews Memorial every
-year, is saying what the hills cost. Effects are centred on the average course somebody
-actually runs, so zero is ordinary rather than flat, and the interval resamples runners
-rather than finishes, because two races by one person are not independent evidence about a
-hill. The last column is a check and not an input: it asks what average grade would explain
-the measured factor, given the climb the race publishes.
+Every race from 2024 on, each runner predicted only from results dated strictly before that
+race. Three simple rules are in the table beside the models, because a model that is not
+compared with the obvious answer is not measured at all. Coverage sits beside error in every
+row: a method that answers for the easy half of a field is not better than one that answers
+for all of it.
 
-⚠️ **Compare inside a race length, not down the table.** The factor is measured against a
-reference time for the course's own distance, and this population fades over the long
-distances harder than the reference expects, which is why the marathons crowd the hard end:
-all five read between +4.5% and +11.2%, and against each other they straddle zero, as five
-ordinary road marathons should. Course and distance cannot be separated from finishes, since
-every course is run at one distance, so the fifth column gives each course against the other
-measured courses of its own length, where that cancels. It is where the Tely 10 stops looking
-ordinary: +0.2% against a flat reference, and -4.1% [-5.0, -3.4] against the only other 10
-mile course on the archive, which is a fast road measured. PLAN.md section 13 item 36 has how
-large the effect is and why no prediction moves because of it.
+- **`carry-forward`**: your last race, converted to this distance.
+- **`best-equal-vdot`**: your best recent race read off Daniels' curve, the race calculator a
+  runner would use.
+- **`category-median`**: the middle of your age and sex category.
+- **`hierarchical`** and **`lightgbm`** are the two models; **`blend`** is what the site
+  publishes, the average of the two.
 
-<!-- finishline:courses -->
-| Course | Race length | Finishes | Slower than flat | Against its own length | Grade that would explain it |
-|---|---|---:|---|---|---|
-| usr-42195 | marathon | 32 | +11.2% [+7.5, +14.8] | +3.1% [-0.5, +7.1], against 4 |  |
-| huffin-puffin-42195 | marathon | 296 | +9.6% [+8.3, +10.8] | +1.3% [-0.4, +3.1], against 4 |  |
-| provincial-championship-42195 | marathon | 68 | +9.4% [+6.2, +12.1] | +1.0% [-2.2, +3.8], against 4 |  |
-| cape-to-cabot-20000 | 20 km | 5,311 | +9.2% [+9.0, +9.5] | _the only course of this length_ | 10.3% average, over the published 550 m of climb |
-| run-from-away-42195 | marathon | 79 | +7.8% [+6.1, +9.6] | -0.7% [-2.6, +1.2], against 4 |  |
-| trapline-5000 | 5 km | 138 | +6.3% [-1.9, +15.1] | +8.4% [+0.1, +17.4], against 12 |  |
-| bell-island-blast-16093 | 10 mile | 181 | +4.6% [+3.8, +5.5] | +4.3% [+3.5, +5.2], against 1 |  |
-| trapline-42195 | marathon | 55 | +4.5% [+0.5, +8.2] | -4.6% [-8.4, -1.1], against 4 |  |
-| _... 34 more_ | | | | | |
-| five-and-dime-5000 | 5 km | 1,052 | -3.0% [-3.6, -2.4] | -1.8% [-2.8, -0.8], against 12 |  |
-| quidi-vidi-5000 | 5 km | 334 | -3.2% [-3.9, -2.4] | -2.0% [-2.9, -0.8], against 12 |  |
-| ane-mile-1609 | mile | 577 | -3.7% [-5.0, -2.3] | _the only course of this length_ |  |
-| provincial-championship-5000 | 5 km | 907 | -4.0% [-4.5, -3.5] | -2.9% [-3.8, -2.0], against 12 |  |
-| turkey-tea-10000 | 10 km | 2,296 | -5.1% [-5.4, -4.9] | -4.5% [-5.0, -3.9], against 14 | **the published climb cannot explain it** |
-| mews-memorial-8000 | 8 km | 4,893 | -5.3% [-5.5, -5.1] | -5.2% [-5.8, -4.6], against 1 |  |
-| pearlgate-5000 | 5 km | 88 | -5.7% [-6.8, -4.7] | -4.8% [-6.1, -3.4], against 12 |  |
-| oceanview-5000 | 5 km | 108 | -6.3% [-7.2, -5.5] | -5.4% [-6.6, -4.4], against 12 |  |
-<!-- finishline:end:courses -->
-
-**The check is worth more than either number alone.** Cape to Cabot is the only course here
-with a published elevation, and the two routes to its difficulty were computed
-independently: 5,310 finishes say +9.3%, and 550 m of climb against 450 m of drop over 20 km
-through Minetti's cost-of-running curve needs a 10.3% average grade to produce that. The
-race's own course page says "grades of more than 10 per cent in some parts". Neither number
-was tuned to the other. Read it as a ballpark rather than a decimal: at 20 km it is the only
-course on the archive, so a point or so of the +9.3% is the race-length effect above, and the
-grade that explains the rest is nearer 8.3%.
-
-⚠️ **A per-runner career trend is doing more work here than it looks.** Fitted with one
-constant per runner, Cape to Cabot's edition effect climbs almost monotonically from +3.8%
-in 2013 to +14.4% in 2025, which reads as a course getting harder every year. It is not: a
-career-long constant has nowhere to put the fact that runners age, so the edition effects
-absorb it, and all thirteen well-covered courses drift upward at a median of +0.60% a year.
-With a per-runner trend the median drift is +0.00% and the signs scatter. A model fitted the
-first way and asked for 2026 would extrapolate ten points of course inflation that does not
-exist, and the table would look entirely reasonable.
-
-**What the morning costs.** The course layer says how hard a road is; this says how much of
-what is left over is the weather. It fits the same edition effects against the observed
-temperature and wind at St. John's airport, with the temperature coefficient allowed to grow
-with distance, because a 5 km field meets fifteen minutes of weather and a marathon field
-meets four hours of it.
-
-<!-- finishline:conditions -->
-Fitted on 231 editions near St. John's airport, 55 of 286 excluded as too far from it or without an observation. Explains **34%** of the edition-to-edition variance within a course, leaving sd 2.31%.
-
-| Race length | Cost per degree above neutral | What a 20 C morning costs |
-|---|---:|---:|
-| 5 km | -0.05% | -0.5% |
-| 10 km | +0.24% | +2.4% |
-| Tely 10 | +0.45% | +4.5% |
-| Cape to Cabot 20 km | +0.54% | +5.4% |
-| marathon | +0.86% | +8.6% |
-
-Neutral is 10 C and 20 km/h, which is the middle of this archive rather than a laboratory ideal.
-
-| Term | Estimate | 95% CI |
-|---|---:|---|
-| Temperature at 10 km, per degree | +0.245% | [+0.135, +0.372] |
-| Tailwind along the bearing, per km/h | -0.033% | [-0.101, +0.025] |
-<!-- finishline:end:conditions -->
-
-**The check.** The Tely 10 on its own is the cleanest natural experiment in the archive:
-eleven editions of two to four thousand finishers, run anywhere from 3.6 to 22.7 C because
-two COVID years pushed it into October. It gives +0.41% per degree on its own, +0.42
-controlling for year, R-squared 0.64. The pooled model above, fitted across every course and
-never told about the Tely, returns +0.425 at that distance. Both sit in the range the
-marathon literature reports for mid-pack runners.
-
-⚠️ **This took two wrong answers first, and both are in [PLAN.md](PLAN.md) section 13.**
-Fitted unweighted, temperature came out at +0.03% per degree with the interval through zero,
-which reads as "the weather does not move a race in a climate this cool"; an edition effect
-from thirty finishers is mostly noise and the small races were shouting down the large ones.
-Fitted on raw edition effects rather than within-course ones, it partly measured the fact
-that the hard courses here run in October and the easy ones in June. What caught the second
-one was the residual coming out at 4.42%, larger than the 2.79% scatter it was supposed to
-be explaining: a model cannot explain something and leave more behind than it started with.
-
-⚠️ **A wind speed is not a wind, and the tailwind term is not yet significant.** The
-prevailing wind in Tely season is westerly and the Tely runs east-north-east, so the usual
-wind pushes that field along; Cape to Cabot runs north-west, so the same westerly is a
-headwind, and it runs into one in 13 of its 16 editions. Fitted as a single speed for the
-whole province those cancel, which is exactly what the first attempt showed. Wind now enters
-as a speed, which a loop pays whichever way it blows, and as a signed tailwind along a course
-bearing, which only a point-to-point course has. Only two courses carry a bearing so far, so
-the tailwind coefficient has the right sign and an interval that still includes zero. It is
-reported that way rather than kept quiet because the sign is pleasing.
-
-**How well the obvious approaches do.** Every race from 2024 on, each predicted only from
-results dated strictly before it. Coverage sits beside error in every row, because a model
-that answers for the easy half of a field is not better than one that answers for all of
-it.
+The first table is the headline. The three after it pair the models on the same runners, race by
+race, which is how a difference of a few tenths of a percent is told apart from noise, with the
+intervals resampling races rather than runners because runners in one race share a morning. What
+they say: the trees beat the Bayesian model wherever a runner has any history, the average of
+the two beats both, and where the average loses it loses by 0.08 points at one depth.
 
 <!-- finishline:baselines -->
 | Prior results | Runners | Model | Answered | MAE, minutes (95% CI) | Mean % error | Skill vs carry-forward |
@@ -245,31 +129,31 @@ it.
 | 4 or more | 7,480 | 51 | 5.0 vs 5.2 | -0.12 (-0.22 to -0.03) |
 <!-- finishline:end:baselines -->
 
-**What those baselines cost, and why 32% is not the whole claim.** None of the three rules of
-thumb above were lying around to be beaten. "You will run what you ran last time" is trivial for
-one runner with one race in front of them and is not trivial for a field of several hundred: it
-needs eighteen years of results pages parsed, the same person's results joined across them with
-no runner ID to go on, the last race converted to this race's distance through Daniels' tables,
-and this course's difficulty measured against every other course in the province. All of that is
-this repository, and the baselines are computed by it. The comparison is therefore not this model
-against something a runner can look up; it is this model against the best simple answer the same
-machinery can give, on the same runners, which is the harder test and the only honest one.
+**None of those three rules was lying around to be beaten.** "You will run what you ran last
+time" is trivial for one runner with one race in front of them, and is not trivial for a field
+of several hundred: it needs eighteen years of results pages parsed, the same person's results
+joined across them with no runner ID to go on, the last race converted to this distance through
+Daniels' tables, and this course's difficulty measured against every other course in the
+province. All of that is this repository, and the baselines are computed by it. So the
+comparison is not this model against something a runner can look up. It is this model against
+the best simple answer the same machinery can give, on the same runners, which is the harder
+test and the only honest one.
 
-**And a rule of thumb cannot answer for a third of the field.** Over the 53 scored races,
-carry-forward can answer for 13,113 of 18,824 entrants (70%) and the race calculator for 10,403
-(55%); 5,711 entrants, 30% of the field, have no past result to carry forward at all. The
-published model answers for every one of them and reports the error it makes on them, which is
-the largest error in the table and is published rather than hidden. A race director planning a
+**And a rule of thumb cannot answer for a third of the field.** Over the 53 scored races
+carry-forward answers for 13,113 of 18,824 entrants (70%) and the race calculator for 10,403
+(55%). The remaining 5,711 have nothing to carry forward. A race director planning a
 finish-line clock needs the whole field, not the two thirds of it with a history.
 
-**The same error, by race length.** An average in minutes is not one claim across distances, so
-the published model's error is broken out both ways: minutes, which a race director plans with,
-and the share of a runner's own finish time, which is what compares a 5 km with a marathon.
+### By race length
+
+An average in minutes is not one claim across distances, so the error is given both ways:
+minutes, which a race director plans with, and the share of a runner's own finish time, which
+is what compares a 5 km with a marathon.
 
 <!-- finishline:distances -->
 `blend`, every race from 2024 on, grouped by race length. An average miss is not a margin every prediction carries, so the middle of the misses and the ninth decile are beside it: half of these runners were predicted closer than the one, nine in ten closer than the other. The percent in brackets is of each runner's own finish time.
 
-| Race length | Runners | Middle of the field | Average miss, whole field | Half within | 9 in 10 within | Average miss, 4+ races |
+| Race length | Runners | Typical finish, minutes | Average miss, whole field | Half within | 9 in 10 within | Average miss, 4+ races |
 |---|---:|---:|---:|---:|---:|---:|
 | 5 km | 2,491 | 28.2 | 3.5 min (10%) | 1.6 min | 8.7 min | 1.4 min (5%) |
 | 8 km | 1,154 | 42.4 | 2.7 min (6%) | 1.6 min | 6.6 min | 1.8 min (4%) |
@@ -279,11 +163,12 @@ and the share of a runner's own finish time, which is what compares a 5 km with 
 | Marathon | 323 | 271.7 | 26.0 min (10%) | 20.2 min | 58.1 min | 17.4 min (6%) |
 <!-- finishline:end:distances -->
 
-**And the same error by where a runner finishes in their own race.** The front of a field is
-predicted more tightly than the back of it, in both units, which a single average hides: a
-runner's own day-to-day variation is what the model cannot know, and there is more of it further
-back. Runners with four or more prior results only, so these columns differ by speed rather than
-by how much history each group happens to have.
+### By where a runner finishes in their own field
+
+The front of a field is predicted more tightly than the back of it, in both units. A runner's
+own day-to-day variation is what no model can know, and there is more of it further back.
+Runners with four or more past races only, so these columns differ by speed rather than by how
+much history each group happens to have.
 
 <!-- finishline:speeds -->
 `blend`, every race from 2024 on, for runners with four or more prior results, by race length and by where they finished in their own race. Each cell is the mean absolute error in minutes and as a percent of the runner's own finish time.
@@ -298,97 +183,7 @@ by how much history each group happens to have.
 | Marathon | 10.4 min, 4.8% (39) | 18.8 min, 6.8% (67) | 23.2 min, 6.9% (31) |
 <!-- finishline:end:speeds -->
 
-⚠️ **The LightGBM challenger is more accurate than the hierarchical model for every runner with
-a history.** Gradient-boosted quantile trees on hand-built features (`models/gbm.py`: form on
-the same Daniels scale, history depth and age, course difficulty, the raw weather), refitted
-per quarter on the same history, with hyperparameters fixed before the first run. On the same
-runners, the paired table above: 0.39 to 1.00 points of a finish time better for runners with
-one or more prior results, intervals clear of zero; level for first-timers. It also orders a
-field better, 4.2 places closer than carry-forward against the hierarchical model's 1.8. Its
-own quantile ranges under-cover at every depth (68 to 74% at 80%) and the conformal layer
-repairs them, which is the coverage table below. Its features and parameters were searched on
-2022 and 2023 only, never on these races, and that search bought about one percent (PLAN.md
-section 13 item 34, which also has the six ideas that made it worse). PLAN.md section 13 item 33
-has the detail.
-
-⚠️ **What is published is the average of the two models, not either one, because the average
-beats both.** On the log scale, weighted 0.65 towards the challenger: the paired tables above
-give 0.4 to 0.6 points of a finish time against the hierarchical model at four or more prior
-results and 0.0 to 0.2 against the challenger, and the average is level with the challenger at
-one prior result and a fraction behind it at two or three. The weight was read off the 2022 and
-2023 races alone (`scratch/blend_weight.py`), where the curve is flat from 0.60 to 0.75 and
-resampling races puts the best weight between 0.50 and 0.80; reading it off the races in these
-tables would have made them report a number about themselves. The published distribution is
-still the hierarchical model's, moved: each runner's posterior draws are multiplied by the one
-factor that puts their median on the averaged centre, because a place in a field needs joint
-draws of everyone on one shared morning and quantile trees do not give them. A first-timer drawn
-from a course's newcomer pool is left out of the average, since that pool is a measurement
-rather than either model's guess. `models/blend.py` and PLAN.md section 13 item 35.
-
-⚠️ **The first run of this model lost to carry-forward. This is the second run, and what
-changed is in [PLAN.md](PLAN.md) section 13 items 28 and 29.** Two things were wrong at once:
-each runner's improvement trend was carried in a straight line to race day, which predicts
-years of improvement nobody has, and the race-edition effects were quietly absorbing a
-calendar drift, so that 2023 and 2024 races came out 6 to 8% slower than their own course
-averages. Form is now a random walk over the years a runner actually races, and a shared
-year effect walks the whole province from one calendar year to the next. The bias is gone:
-on the 12,714 runners both can answer for, predictions are 0.7% too fast on average (95% CI
-1.8% too fast to 0.6% too slow), against carry-forward's 0.4% too fast (2.6% too fast to 1.9%
-too slow), the intervals resampling races rather than runners. With each race's typical error
-removed the model is ahead rather than level, by 0.59 percentage points of absolute log error
-(95% CI 0.36 to 0.93), so it has both the level and the order of a field better than the
-baseline it lost to before.
-
-⚠️ **It still samples badly, and the tables above are what that badly-sampled model
-predicts.** Across the eight quarterly fits the worst R-hat runs from 1.41 to 2.15 and the
-smallest bulk ESS is about 5, with no divergences. The cause is identification, not tuning:
-years since a runner's first race and the calendar year move together, so the group drift,
-the year effect and the group means trade off along a ridge that the sampler wanders.
-Checked on the worst fit, the quantity a prediction for a returning runner reads converges
-(R-hat 1.006 median, 1.08 worst, over 600 runners), so those predictions are not sampler
-noise; a first-timer's starting level does not (R-hat up to 1.27), so theirs carry some, and
-the conformal layer calibrating first-timers separately is what keeps their intervals
-honest. The obvious fix, constraining the year effect, made every chain disagree and was
-taken out. No individual coefficient from this fit should be read on its own. PLAN.md
-section 13 items 29 and 31 have the detail.
-
-⚠️ **Weather is the felt heat above 12 C, with the sun estimated, and it is worth about a
-percent of a field's level, not of a runner's error.** The model reads each morning at St.
-John's airport over the hours the field was actually out, from each race's published start
-time, and charges nothing below 12 C. Above it, each degree of felt heat costs a fraction that
-grows with distance, and full sun adds degrees to the felt temperature, how many being a
-parameter the data estimates. Fitted on the whole archive, a degree above the knee costs
-+0.05% at 5 km (95% CI +0.00 to +0.13), +0.31% at 10 km (+0.23 to +0.39), +0.50% on the Tely
-(+0.37 to +0.61), +0.58% on Cape to Cabot (+0.43 to +0.71) and +0.87% at a marathon (+0.64 to
-+1.06); a km/h of wind +0.027% (+0.011 to +0.045). A full sun adds 2.1 C of felt temperature
-(95% CI 0.1 to 9.2), which the data narrowed to half its prior's spread without pinning down,
-because only six of 281 mornings in the archive had strong sun. The tailwind term stays the
-null it has always been, because only two courses carry a bearing.
-
-Paired on the 18,278 predictions both runs made before the 2026 USR results were added (the
-ablation is rerun overnight, and its rows are missing from the tables until then), weather lowers absolute log error by 0.0010
-(95% CI -0.0019 to +0.0002), better at every depth and clear of zero only for runners with no
-history. That is the size it should be: weather moves the level of a whole field by one to
-five percent, individual error is around ten, and a correct level shift is close to invisible
-per runner. It is not invisible to a race director planning a finish-line clock, and the check
-that matters is the race level. There, the model without weather leaves bias that climbs with
-the heat, +0.42 (+/- 0.30) of each point of heat cost left in the errors, and the model with
-weather leaves -0.15 (+/- 0.30), which is zero. The previous weather model, linear in
-temperature from 10 C, leaves +0.11 (+/- 0.31) on the same measure, so on three years of
-backtest races the two weather models cannot be told apart; the case for the felt-heat
-shape is eighteen years of editions, in [docs/rejected.md](docs/rejected.md). The 2025 USR, the hottest mornings in the backtest at 22 C, went from 1.0 to 1.4% too
-fast to 0.6 to 1.2% too slow.
-
-⚠️ **One hot race the heat does not explain: the 2026 Tely 10 is still 3.0% too fast.** 18 C,
-light sun, calm, with a tailwind. The model charges it 3.1% and it ran about 6% slower than a
-neutral morning. The whole-archive fit is the source of the charged figure, not the backtest's
-own quarterly fit, so this is approximate; either way the gap is not heat, since no setting of
-the knee or the sun closes it without breaking the other hot races. The conditions table above
-is the older linear check on edition effects alone, kept as the independent cross-check it was
-built to be; PLAN.md section 13 item 30 has the felt-heat model, the alternatives it was
-measured against, and why the knee is fixed at 12 C rather than fitted.
-
-**Getting the order right**, which is the number a race director actually plans from.
+### The order of finish
 
 <!-- finishline:placing -->
 | Model | Races | Mean absolute place error | Spearman, predicted vs actual |
@@ -411,18 +206,19 @@ The same runners: each model against `carry-forward`, both ranked among the runn
 | `blend` | 51 | 13,081 | 21.3 vs 25.5 | -4.1 (-6.7 to -2.0) | 0.876 vs 0.849 | +0.027 (+0.015 to +0.039) |
 <!-- finishline:end:placing -->
 
-⚠️ **Read the second table, not the first.** The first ranks each model among the runners it
-answered for, so carry-forward is ranked over the 13,113 runners who have a prior result and
-the model over the whole field, the 5,711 entrants with no history included, whose order is
-close to a guess. That is where its 50.9 comes from. The second ranks both over the same
-runners, race by race: there the model is 1.8 places better than carry-forward (95% CI 0.7 to
-3.1), 23.7 against 25.5, with Spearman 0.857 against 0.849. It orders a field better than the
-baseline, by less than it times one. Both tables stay, because scoring each model only on the
-subset that suits it is how a table stops being checkable.
+**Read the second table, not the first.** The first ranks each method among the runners it
+answered for, so carry-forward is ranked over the 13,113 runners who have a past result while
+the model is ranked over the whole field, first-timers included, whose order is close to a
+guess. That is where its 48.7 comes from. The second ranks both over the same runners, race by
+race: there the published model is 4.1 places better than carry-forward (95% interval 2.0 to
+6.7), 21.3 against 25.5, with rank correlation 0.876 against 0.849. Both tables stay, because
+scoring each method only on the subset that suits it is how a table stops being checkable.
 
-**How often the intervals hold.** A predicted time with an interval is two claims, and the
-second one is checked here: the model's own 80% and 90% intervals, and the same intervals
-after conformal adjustment on the races before each one, by how much history a runner has.
+### The ranges
+
+A predicted time with a range is two claims, and the second one is checked here: the model's
+own 80% and 90% ranges, and the same ranges after conformal adjustment on the races before each
+one, split by how much history a runner has.
 
 <!-- finishline:coverage -->
 `blend`, every race from 2024 on. Each race's intervals are adjusted using only races dated before it, separately for each history depth. Coverage is the share of runners whose finish fell inside; the 95% CI resamples races, not runners, because runners in one race share its morning.
@@ -467,145 +263,335 @@ after conformal adjustment on the races before each one, by how much history a r
 **The assumption.** Conformal coverage is guaranteed on average over races within a history-depth group, provided a new race's errors look like the earlier races' errors (exchangeability). It is not a promise about any one runner or any one race, and it fails when a race meets conditions or a field the earlier races did not: a gale on Signal Hill is exactly that. The first races of the backtest have too few earlier errors to calibrate on (under 50 per group) and are left out of this table rather than given an interval nobody could trust.
 <!-- finishline:end:coverage -->
 
-**Live: predicted before the gun, scored after.** Cape to Cabot 20 km on 2026-10-18, then Run
-to Remember 11 km on 2026-11-11 on the same frozen model. `finishline score` reads each
-prediction from its tag, refuses one tagged less than 24 hours before the gun, and writes a
-row here and a race page under `docs/predictions/` with every finisher's
-prediction beside their result.
+### The live record
+
+`finishline score` reads each prediction from its git tag, refuses one tagged less than 24
+hours before the gun, and writes a row here plus a race page under `docs/predictions/` with
+every finisher's prediction beside their result.
 
 <!-- finishline:live -->
 _No prediction has been scored yet. `finishline score <race>` fills a row here once a tagged prediction's official results are posted._
 <!-- finishline:end:live -->
 
-**Who is entered for the first live race.** Cape to Cabot, from the club's published start
-list of 2026-09-12, matched against the archive.
+## What the archive gave up
 
-| | 2016 on, no 2026 Tely | 2008 on, with it |
+Public results from the Newfoundland and Labrador Athletics Association, crawled once at one
+request a second and cached forever, plus Athletics NorthEAST's own finish lists and entrant
+lists. `finishline catalogue` reads the year indexes, which carry event names and dates and no
+runners; the skip list distinguishes a duplicate from a hole, because the coverage claim is only
+as good as that distinction. Most skips are team standings, awards pages, relays, cross-country
+and school races: other views of races already read, or other disciplines. What came out is 286
+races over 52 courses from 2008 to 2026, with no racing at all in 2020, and the deepest course
+history 17 editions.
+
+<!-- finishline:archive -->
+| | |
+|---|---:|
+| Races read | 286 |
+| Finishes parsed | 75,061 |
+| Runners resolved | 23,830 |
+| Runners this refuses to tell apart, and will not publish | 381 |
+| Runners with one finish | 12,737 |
+| Runners with two or three | 6,280 |
+| Runners with four or more | 4,786 |
+| Pages that would not parse | 5 |
+<!-- finishline:end:archive -->
+
+⚠️ **Eighty course names in that index were really fifty-two courses.** The 2008 to 2015 index titles a race with
+its ordinal and whichever sponsor held the naming rights, so Burton's Pond read as six courses
+of one edition each and CHCM as seven, and every fragment then fell under the thirty-finish
+floor. The merge overshot once before it settled: some races have no name but their sponsor, and
+stripping it collapsed six unrelated half marathons into one course called "unknown".
+[docs/data-terms.md](docs/data-terms.md) has every source, every skip and every page that would
+not parse.
+
+**One race mattered more than the other 282.** The 2026 Tely 10 is not on the association's own
+site: it timed the race on Race Roster in June and its own page links out, where every edition
+from 2018 to 2025 is published in place. It is 4,147 finishers, the largest field in the
+province, and reading it doubled the share of the Cape to Cabot entrant list whose current-season
+form a prediction can see, from 37% to 73%. The basis for reading it is the association's
+ownership of the race and its knowledge of this project rather than the platform's terms, and it
+is set out in [docs/data-terms.md](docs/data-terms.md) like every other source.
+
+### How hard each course is, measured rather than surveyed
+
+Runners cross between courses, so a course's difficulty is identifiable from the finishes alone:
+somebody slower on Cape to Cabot than their own equal-VDOT expectation every year, and faster on
+Mews Memorial every year, is saying what the hills cost. Effects are centred on the average
+course somebody actually runs, and the interval resamples runners rather than finishes, because
+two races by one person are not independent evidence about a hill. The last column is a check
+and not an input: it asks what average grade would explain the measured factor, given the climb
+the race publishes.
+
+⚠️ **Compare inside a race length, not down the table.** The factor is measured against a
+reference time for the course's own distance, and this population fades over the long distances
+harder than the reference expects, which is why the marathons crowd the hard end: all five read
+between +4.5% and +11.2%, and against each other they straddle zero, as five ordinary road
+marathons should. Course and distance cannot be separated from finishes, since every course is
+run at one distance, so the fifth column gives each course against the other measured courses of
+its own length, where that cancels. It is where the Tely 10 stops looking ordinary: +0.2% against
+a flat reference, and **-4.1% [-5.0, -3.4] against the only other 10 mile course on the
+archive**, which is a fast road measured. No prediction is affected, because a course factor is
+only ever applied to that course at its own distance; PLAN.md section 13 item 36 has the size of
+it.
+
+<!-- finishline:courses -->
+| Course | Race length | Finishes | Slower than flat | Against its own length | Grade that would explain it |
+|---|---|---:|---|---|---|
+| usr-42195 | marathon | 32 | +11.2% [+7.5, +14.8] | +3.1% [-0.5, +7.1], against 4 |  |
+| huffin-puffin-42195 | marathon | 296 | +9.6% [+8.3, +10.8] | +1.3% [-0.4, +3.1], against 4 |  |
+| provincial-championship-42195 | marathon | 68 | +9.4% [+6.2, +12.1] | +1.0% [-2.2, +3.8], against 4 |  |
+| cape-to-cabot-20000 | 20 km | 5,311 | +9.2% [+9.0, +9.5] | _the only course of this length_ | 10.3% average, over the published 550 m of climb |
+| run-from-away-42195 | marathon | 79 | +7.8% [+6.1, +9.6] | -0.7% [-2.6, +1.2], against 4 |  |
+| trapline-5000 | 5 km | 138 | +6.3% [-1.9, +15.1] | +8.4% [+0.1, +17.4], against 12 |  |
+| bell-island-blast-16093 | 10 mile | 181 | +4.6% [+3.8, +5.5] | +4.3% [+3.5, +5.2], against 1 |  |
+| trapline-42195 | marathon | 55 | +4.5% [+0.5, +8.2] | -4.6% [-8.4, -1.1], against 4 |  |
+| _... 34 more_ | | | | | |
+| five-and-dime-5000 | 5 km | 1,052 | -3.0% [-3.6, -2.4] | -1.8% [-2.8, -0.8], against 12 |  |
+| quidi-vidi-5000 | 5 km | 334 | -3.2% [-3.9, -2.4] | -2.0% [-2.9, -0.8], against 12 |  |
+| ane-mile-1609 | mile | 577 | -3.7% [-5.0, -2.3] | _the only course of this length_ |  |
+| provincial-championship-5000 | 5 km | 907 | -4.0% [-4.5, -3.5] | -2.9% [-3.8, -2.0], against 12 |  |
+| turkey-tea-10000 | 10 km | 2,296 | -5.1% [-5.4, -4.9] | -4.5% [-5.0, -3.9], against 14 | **the published climb cannot explain it** |
+| mews-memorial-8000 | 8 km | 4,893 | -5.3% [-5.5, -5.1] | -5.2% [-5.8, -4.6], against 1 |  |
+| pearlgate-5000 | 5 km | 88 | -5.7% [-6.8, -4.7] | -4.8% [-6.1, -3.4], against 12 |  |
+| oceanview-5000 | 5 km | 108 | -6.3% [-7.2, -5.5] | -5.4% [-6.6, -4.4], against 12 |  |
+<!-- finishline:end:courses -->
+
+**The check is worth more than either number alone.** Cape to Cabot is the only course here with
+a published elevation, and the two routes to its difficulty were computed independently: 5,310
+finishes say +9.3%, and 550 m of climb against 450 m of drop over 20 km through Minetti's
+cost-of-running curve needs about a 10% average grade to produce that, against a course page
+that says "grades of more than 10 per cent in some parts". Neither number was tuned to the
+other. Read it as a ballpark rather than a decimal: at 20 km it is the only course on the
+archive, so a point or so of that +9.3% is the race-length effect above, and the grade that
+explains the rest is nearer 8.3%.
+
+⚠️ **A per-runner career trend is doing more work here than it looks.** Fitted with one constant
+per runner, Cape to Cabot's edition effect climbs almost monotonically from +3.8% in 2013 to
++14.4% in 2025, which reads as a course getting harder every year. It is not: a career-long
+constant has nowhere to put the fact that runners age, so the edition effects absorb it, and all
+thirteen well-covered courses drift upward at a median of +0.60% a year. With a per-runner trend
+the median drift is +0.00% and the signs scatter. Fitted the first way and asked for 2026, a
+model would extrapolate ten points of course inflation that does not exist, and the table would
+look entirely reasonable.
+
+### What the morning costs
+
+The course layer says how hard a road is; this says how much of what is left over is the
+weather. It fits the same edition effects against the observed temperature and wind at St.
+John's airport, with the temperature coefficient allowed to grow with distance, because a 5 km
+field meets fifteen minutes of weather and a marathon field meets four hours of it. This is the
+independent cross-check; the model's own weather terms are fitted inside it and are in
+[docs/methods.md](docs/methods.md).
+
+<!-- finishline:conditions -->
+Fitted on 231 editions near St. John's airport, 55 of 286 excluded as too far from it or without an observation. Explains **34%** of the edition-to-edition variance within a course, leaving sd 2.31%.
+
+| Race length | Cost per degree above neutral | What a 20 C morning costs |
 |---|---:|---:|
-| Entrants on the list | 453 | 453 |
-| Resolve to a runner in the archive | 386 (85%) | **419 (92%)** |
-| Have a 2026 result, so current-season form | 166 (37%) | **332 (73%)** |
-| Have four or more prior results | 252 | **289** |
-| No history at all | 67 | **34** |
+| 5 km | -0.05% | -0.5% |
+| 10 km | +0.24% | +2.4% |
+| Tely 10 | +0.45% | +4.5% |
+| Cape to Cabot 20 km | +0.54% | +5.4% |
+| marathon | +0.86% | +8.6% |
 
-**That second row is why one race mattered more than the other 282.** The 2026 Tely 10 is
-not on the association's own site: it timed the race on Race Roster in June and its Tely
-page links out, where every edition from 2018 to 2025 is published in place. It is 4,147
-finishers, the largest field in the province, and adding it doubles the share of this field
-whose current-season form the prediction can see. The basis for reading it, which is the
-association's ownership of the race and its knowledge of this project rather than the
-platform's terms, is set out in [docs/data-terms.md](docs/data-terms.md).
+Neutral is 10 C and 20 km/h, which is the middle of this archive rather than a laboratory ideal.
 
-**Course and conditions.** Week 2 fills this; the normalisation is not built yet.
+| Term | Estimate | 95% CI |
+|---|---:|---|
+| Temperature at 10 km, per degree | +0.245% | [+0.135, +0.372] |
+| Tailwind along the bearing, per km/h | -0.033% | [-0.101, +0.025] |
+<!-- finishline:end:conditions -->
 
-| Course | Estimated course factor (95% CI) | Physics prior | MAE without normalisation | MAE with normalisation |
-|---|---|---|---|---|
-| _not yet_ | | | | |
+**What the model's own weather terms are worth, which is less than it sounds.** Inside the
+hierarchical model the same idea is fitted as felt heat above a 12 C knee, with the sun adding
+degrees to the temperature a runner feels: a degree above the knee costs +0.05% at 5 km (95% CI
++0.00 to +0.13), +0.31% at 10 km, +0.50% on the Tely, +0.58% on Cape to Cabot and +0.87% at a
+marathon, and a km/h of wind +0.027%. Paired against the same model fitted without any weather,
+it lowers a runner's own error by 0.0010 of a finish time, an interval that only clears zero for
+first-timers. That is the size it should be: weather moves the level of a whole field by one to
+five percent and individual error is around ten, so a correct level shift is nearly invisible per
+runner. It is not invisible to a race director planning a finish-line clock, and that is where
+the check matters: without weather, bias climbs with the heat, leaving +0.42 (+/- 0.30) of each
+point of heat cost in the errors, and with it -0.15 (+/- 0.30), which is zero.
 
-### What the baselines already say
-
-**A third of the runners in any race have never raced here before.** 5,594 of the 18,308
-runners predicted across those 49 races had no prior result at all, even with eighteen
-years of archive behind them, and for those runners the only answer any of these models can
-give is the middle of their age and sex category, which is out by 18.5 minutes on average.
-That number, not the model comparison, is the size of the real problem. Adding eight more
-years of history moved it by less than three hundred runners, which is worth knowing: the
-cold start is not a gap in the archive, it is people who have genuinely never raced here.
-
-**The race calculator beats the last result, but only where it will answer.** Reading the
-best recent form off Daniels' curve is 19 percent better than carrying the last race
-forward for runners with one prior result, and it gains four percent on runners with four
-or more. What
-moves is coverage: it answers for 63 percent of the thin histories and 90 percent of the
-deep ones, because a runner with more results is likelier to have one inside the range the
-curve is fitted for. A calculator that quietly extrapolated instead would have posted a
-better-looking average over a worse-defined group.
-
-**Nobody has said anything about an interval yet.** These three produce a time and no
-sense of how sure it is, which is the gap the hierarchical model and the conformal layer
-exist to fill.
+**The Tely 10 on its own is the cleanest natural experiment in the archive**: eleven editions of
+two to four thousand finishers, run anywhere from 3.6 to 22.7 C because two COVID years pushed
+it into October. It gives +0.41% per degree on its own, +0.42 controlling for year, R-squared
+0.64. The pooled fit above, which was never told about the Tely, returns +0.425 at that
+distance. Both sit in the range the marathon literature reports for mid-pack runners.
 
 ## What this does not do
 
-- **It uses no training data.** The original idea included each runner's public Strava
-  activity. Strava's API agreement (effective 2026-06-01) forbids displaying or disclosing
-  other users' data even when public, forbids training models on API data, and its
-  acceptable use policy forbids scraping. The public model here works from public race
-  results only, which is weaker, and this page says so first. An opt-in channel, where a
-  runner sees a prediction from their own data and nobody else does, is deferred.
-- It does not know who will start. Where the race publishes an entrant list, as Athletics
-  NorthEAST does for Cape to Cabot, it predicts for that list and publishes the no-show
-  rate afterwards. Where there is no list, it predicts for the runners its history says are
-  likely to run and publishes how many of the actual finishers it covered.
-- **It will sometimes merge two runners who share a name.** Hometown is not allowed to
-  split them, for the reasons above, so two people of the same name and a compatible age
-  become one runner with one muddled history. The number that bounds it is published:
-  a measured 2.7 percent of resolved runners have a printed hometown that changes back and
-  forth rather than once, which is the shape two merged people make. Reading them
-  shows most are one person spelling their own town differently across entry forms
-  (`Paradise` and `Pradise`, `Conception Bay South` and `Cbs`), so the true number is
-  lower than 416, and 416 is what gets published because it is the one that can be checked.
-- It does not predict a runner it cannot tell apart from another runner of the same name.
-  355 were held back on the current archive, and they are counted rather than guessed at.
-- It does not publish anything about a runner beyond what the race results already
-  publish: name and hometown as printed, and the prediction.
-- Its intervals are calibrated on past races. Coverage is guaranteed on average within a
-  history-depth group under exchangeability, not for any one runner or one race, and the
-  tables above say where it held.
+- **It uses no training data, for anyone.** The original idea included each registered runner's
+  public Strava activity. Strava's API agreement effective 2026-06-01 forbids displaying or
+  disclosing other users' data even when public, forbids training models on API data, and its
+  acceptable use policy forbids scraping. So the public model works from public race results
+  only, which is weaker, and this page says so before it says anything else. An opt-in channel,
+  where a runner authorises the app and sees a prediction from their own data that nobody else
+  sees, is the only compliant use and is deferred.
+- **It does not know who will start.** Where the race publishes an entrant list it predicts for
+  that list and publishes the no-show rate afterwards. Where there is no list, as at Run to
+  Remember, who runs would have to be predicted too, and that part is not built.
+- **It will sometimes merge two runners who share a name.** There is no runner ID in the
+  archive, and hometown is not allowed to split a name because runners move, so two people of
+  one name with compatible ages become one runner with one muddled history. The number that
+  bounds it is published: 2.7% of resolved runners have a printed hometown that changes back and
+  forth rather than once, which is the shape two merged people make. Reading them shows most are
+  one person spelling their own town differently across entry forms (`Paradise` and `Pradise`,
+  `Conception Bay South` and `Cbs`), so the true number is lower, and the checkable one is what
+  gets published.
+- **It does not predict a runner it cannot tell apart from another.** 381 are held back on the
+  current archive, counted rather than guessed at.
+- **It publishes nothing about a runner that the results do not already publish**: the name and
+  hometown as printed, and the prediction. Never the shirt size an entrant list happens to show.
+- **Its ranges are calibrated on past races.** Coverage is guaranteed on average within a
+  history-depth group under exchangeability, not for any one runner or any one race, and it
+  fails when a race meets conditions the earlier races did not. A gale on Signal Hill is exactly
+  that.
+
+## What went wrong on the way
+
+[PLAN.md](PLAN.md) section 13 is a log of thirty-six designs this data refuted, each written up
+with its evidence rather than quietly fixed. The ones a reader should know about before trusting
+a number above:
+
+- **The first run of this model lost to carry-forward.** Two things were wrong at once: each
+  runner's improvement trend was carried in a straight line to race day, which predicts years of
+  improvement nobody has, and the race-edition effects were absorbing a calendar drift, so 2023
+  and 2024 races came out 6 to 8% slower than their own course averages. Form is now a random
+  walk over the years a runner actually races, and a shared year effect walks the whole province
+  from one year to the next. The bias is gone: predictions are 0.7% too fast on average (95% CI
+  1.8% too fast to 0.6% too slow) against carry-forward's 0.4%. Items 28 and 29.
+- **The hierarchical model still samples badly, and the tables above are what that
+  badly-sampled model predicts.** Worst R-hat 1.41 to 2.15 across the quarterly fits, smallest
+  bulk ESS about 5, no divergences. The cause is identification rather than tuning: years since
+  a runner's first race and the calendar year move together. What a returning runner's
+  prediction reads does converge (R-hat 1.006 median over 600 runners); a first-timer's starting
+  level does not (up to 1.27), and the conformal layer calibrating first-timers separately is
+  what keeps their ranges honest. No individual coefficient from this fit should be read on its
+  own. Items 29 and 31.
+- **Two wrong answers about the weather came first.** Fitted unweighted, temperature came out at
+  +0.03% per degree with the interval through zero, because an edition effect from thirty
+  finishers is mostly noise and the small races were shouting down the large ones. Fitted on raw
+  edition effects rather than within-course ones, it partly measured the fact that the hard
+  courses here run in October and the easy ones in June. What caught the second was the residual
+  coming out larger than the scatter it was supposed to be explaining.
+- **A wind speed is not a wind.** The prevailing wind in Tely season is westerly and the Tely
+  runs east-north-east, so the usual wind pushes that field along; Cape to Cabot runs
+  north-west, so the same westerly is a headwind. Fitted as one speed for the province those
+  cancel. Wind now enters as a speed, which a loop pays whichever way it blows, and as a signed
+  tailwind along a course bearing, which only a point-to-point course has. Two courses carry a
+  bearing so far, so the tailwind term has the right sign and an interval that still includes
+  zero, and it is reported that way rather than kept quiet because the sign is pleasing.
+- **One hot race the heat does not explain: the 2026 Tely 10 is still 3.0% too fast.** 18 C,
+  light sun, calm, with a tailwind. No setting of the knee or the sun closes the gap without
+  breaking the other hot races, so it is published as an open problem. Item 30.
+- **Six ideas for the challenger made it worse** and are listed with their numbers:
+  course-normalised form, an init_score offset, linear trees, recency weights, recent years
+  only, and a Huber objective. Item 34.
+- [docs/rejected.md](docs/rejected.md) carries the one approach rejected at length, with the
+  evidence: the straight-line heat model that the felt-heat specification replaced.
 
 ## How it works
 
-See [PLAN.md](PLAN.md). Public road-race results from the Newfoundland and Labrador
-Athletics Association are crawled once, parsed and resolved to runners across races.
-There is no runner identifier anywhere in that archive, and most of the readable races
-print no hometown either, so the resolver works from the name and from the one piece of
-evidence the pages give away for free: a runner cannot get younger. Every printed age band
-on a dated race implies a window of birth years, and one person's windows have to
-intersect. That is the only thing allowed to split a name into two runners. The hometown
-breaks a tie and never splits, because runners move: of the 1,656 names appearing under
-two or more towns, 1,103 show a single clean switch over time. Where a result could belong
-to either of two runners and the page printed no age band, it is held back and counted.
-Each finish is put on one scale as a ratio to a Daniels reference time. A Bayesian
-hierarchical model on that ratio gives every runner a fitness level and a distance fade shrunk
-toward their age-sex group, and a form that walks from one racing year to the next; every race
-gets its course's measured difficulty, a shared effect for its calendar year, and the heat and
-wind observed at St. John's airport that morning. A live prediction walks each runner's form
-forward to race day and draws the weather from the forecast, corrected by how wrong that
-forecast was on past race mornings at the same lead. The design history, including the models
-the data refuted, is PLAN.md section 13; [docs/methods.md](docs/methods.md) is the short
-version.
-Intervals are conformalised on rolling-origin residuals, stratified by how many results a
-runner has. Placing is simulated from the whole field's predictive distributions, and at the
-biggest races the runners with no results here are drawn from how that course's past
-first-timers finished. From a week before a race, each registered runner is predicted the
-first morning they appear on the entrant list; the day before, the whole field is predicted
-again with the latest forecast and given places. Every file is committed, tagged and hashed
-before the gun and scored after, and the website (`finishline site`, rebuilt on every push)
-shows them with a search box for anyone looking for their own name.
+The short version. The long one is [docs/methods.md](docs/methods.md), and the design history is
+[PLAN.md](PLAN.md).
 
-## Part of a portfolio
+1. **Read.** Results pages are crawled once, cached, and parsed into finishes. Five pages will
+   not parse and are named rather than guessed at.
+2. **Resolve.** There is no runner identifier anywhere in the archive and most readable races
+   print no hometown, so the resolver works from the name and from the one piece of evidence the
+   pages give away for free: a runner cannot get younger. Every printed age band on a dated race
+   implies a window of birth years, and one person's windows have to intersect. That is the only
+   thing allowed to split a name into two runners. Hometown breaks a tie and never splits.
+3. **Put every finish on one scale**, the log of the time over a Daniels reference time for that
+   distance, so a 5 km and a marathon are comparable before anything is fitted.
+4. **Fit.** A Bayesian hierarchical model (PyMC) gives every runner a fitness level and a
+   distance fade shrunk toward their age and sex group, and a form that walks from one racing
+   year to the next; every race gets its course's measured difficulty, a shared effect for its
+   calendar year, and the heat and wind observed at the airport that morning. A LightGBM
+   quantile model runs beside it on hand-built features. What publishes is the average of the
+   two on the log scale, weighted 0.65 towards the trees, and that weight was read off 2022 and
+   2023 alone so the races in the tables above never helped choose it.
+5. **Calibrate.** Ranges are conformalised on rolling-origin residuals, stratified by how many
+   results a runner has, so a first-timer's range is not borrowed from a veteran's.
+6. **Simulate the field.** Places come from drawing the whole field together on one shared
+   morning, so the places add up to a race. At the biggest races, entrants with no results here
+   are drawn from how that course's past first-timers actually finished.
+7. **Freeze.** From a week out, each new entrant is predicted the first morning they appear on
+   the list; the day before, the whole field is predicted again with the latest forecast and
+   given places. Every file is committed, tagged and hashed before the gun, and `freeze` refuses
+   inside 24 hours of it.
+8. **Score.** Once the results are posted, each prediction is read back from its tag and scored.
+   Nothing in a prediction file is ever edited after it is tagged, including a defect found
+   later, which is written up instead.
 
-One of fifteen projects. The running arithmetic is borrowed from
+## Run it yourself
+
+Python 3.13 and [uv](https://docs.astral.sh/uv/). Everything reads from a local cache, so a
+rerun costs no requests.
+
+```
+uv sync
+uv run finishline notices      what has to be sent before anything is fetched
+uv run finishline crawl        fetch the results pages, once, one request a second
+uv run finishline dataset      parse, resolve runners, print what came out
+uv run finishline courses      how hard each course is, against what its hills predict
+uv run finishline backtest --hierarchical --challenger
+uv run finishline report       rewrite this file's tables from the measurement
+uv run finishline site         build the website into site/
+```
+
+`crawl`, `weather` and `snapshot` refuse to run until the courtesy notices to the two
+organisations whose pages this reads have gone out, and CI asserts that they refuse: the rail is
+in code rather than in a document, and [docs/emails.md](docs/emails.md) carries what was sent.
+`uv run finishline --help` lists the rest, including `freeze`, `score`, `page` and `serve`.
+
+Checks: `uv run ruff check .`, `uv run mypy`, `uv run pytest`.
+
+## How it is built
+
+- **Python 3.13, typed throughout**, `mypy --strict` and `ruff` clean in CI, 330 tests.
+- **Tests that fail meaningfully**: golden pages for the parser, labelled pairs for identity
+  resolution, closed-form checks for Daniels' tables and the grade model, coverage on a
+  synthetic fixture, schema and hash on the prediction file, and a leakage test that plants a
+  future result and asserts the backtest cannot see it.
+- **One object owns the leakage rail.** `History.before(date)` is the only way to build a
+  history, it keeps nothing dated on or after that day, and every model is handed one and has no
+  other access to the archive. That turns leakage from something to remember into something a
+  model cannot reach.
+- **The measurement is cached, the conclusion is not.** A saved backtest row is reused only when
+  the dataset fingerprint and the source of every module that shaped it are unchanged, so a
+  table can never describe code that no longer exists.
+- **No raw pages, entrant lists, resolved histories or credentials are committed.** That cache is
+  derived personal data and stays out of git.
+- Layout: `src/finishline/` with `ingest/`, `identity/`, `models/`, `conformal/`, `placing/`,
+  `backtest/` and `publish/`; `data/` for the committed inputs (`courses.toml`, `live.toml`,
+  `starts.toml`) and the gitignored cache; `web/` for the site's template, styles and charts;
+  `tests/`; and `predictions/` for the tagged files.
+
+## Judgement, and what is borrowed
+
+Design, methodology, evaluation choices and judgement are Peter Parker's, including years of
+racing and coaching on these courses. Two of those calls are in the model: that the Tely's
+prevailing westerly is a tailwind for almost the whole race, and that heat does not act in a
+straight line. The weather model is the clearest case. Four reasonable designs failed first:
+heat as a straight line, humidity, dew point, and sunshine as an effect of its own. What worked
+came off the road rather than out of the data. Below a threshold heat costs nothing; above it
+each degree costs more than the last, and it costs more the longer the race; sunshine has no
+effect of its own but raises the temperature a runner feels. Written that way it explains about
+twice as much of the edition-to-edition variation as the straight line did.
+
+The running arithmetic is borrowed from
 [Overload](https://peterparker.ca/projects/overload/), Peter's AI coaching team for runners:
-Daniels' VDOT, the heat and wind corrections and the age-grading tables, here in a public
-repository with tests. Constants that came across from Overload, including the full-sun
-figure it takes from the US National Weather Service, are used as priors and labelled as
-priors wherever they appear; anything this archive can measure is measured here instead, and
-PLAN.md section 13 item 30 has what the measurement said about that figure.
+Daniels' VDOT, the heat and wind corrections, and the age-grading tables, here in a public
+repository with tests. Constants that came across from Overload, including the full-sun figure
+it takes from the US National Weather Service, are used as priors and labelled as priors
+wherever they appear. Anything this archive can measure is measured here instead, and section 13
+item 30 has what the measurement said about that figure.
 
-## How this was built
-
-Design, methodology, evaluation choices and judgement are Peter Parker's, including years
-of racing and coaching himself on these courses. Two of those calls are in the model: that
-the Tely's prevailing westerly is a tailwind for almost the whole race, and that heat does
-not act in a straight line. The weather model is the clearest case. Four reasonable designs
-failed first, heat as a straight line, humidity, dew point and sunshine as an effect of its
-own; what worked was the specification that came off the road rather than out of the data.
-Below a threshold heat costs nothing, above it each degree costs more than the last, and it
-costs more the longer the race; sunshine has no effect of its own but raises the temperature
-a runner feels. Written that way it explains about twice as much of the edition-to-edition
-variation as the straight line did (PLAN.md section 13 item 30). AI coding
-assistants (Claude Code) were used for implementation and drafting, the way a senior
-engineer uses them in 2026. Every
-number in the results tables is reproducible from this repository with one command, and
-every live prediction is verifiable from a tag that predates the race it predicts.
+AI coding assistants (Claude Code) were used for implementation and drafting, the way a senior
+engineer uses them in 2026. Every number in the tables above is reproducible from this
+repository with one command, and every live prediction will be verifiable from a tag that
+predates the race it describes.

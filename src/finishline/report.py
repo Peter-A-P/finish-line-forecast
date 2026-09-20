@@ -393,7 +393,7 @@ def distance_table(
         "beside it: half of these runners were predicted closer than the one, nine in ten closer "
         "than the other. The percent in brackets is of each runner's own finish time.",
         "",
-        "| Race length | Runners | Middle of the field | Average miss, whole field "
+        "| Race length | Runners | Typical finish, minutes | Average miss, whole field "
         "| Half within | 9 in 10 within | Average miss, 4+ races |",
         "|---|---:|---:|---:|---:|---:|---:|",
     ]
