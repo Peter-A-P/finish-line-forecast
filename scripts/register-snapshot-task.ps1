@@ -41,7 +41,7 @@ try { Unregister-ScheduledTask -TaskName $name -Confirm:$false } catch {}
 
 Register-ScheduledTask `
     -TaskName $name `
-    -Description 'Daily snapshot of the Athletics NorthEAST entrant lists for Finish Line Forecast. One request a second, identifying user agent, nothing committed.' `
+    -Description 'Daily snapshot of the Athletics NorthEAST entrant lists for The Whole Field, Called Before the Gun. One request a second, identifying user agent, nothing committed.' `
     -Action $action `
     -Trigger $trigger `
     -Settings $settings | Out-Null

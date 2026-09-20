@@ -38,7 +38,7 @@ try { Unregister-ScheduledTask -TaskName $name -Confirm:$false } catch {}
 
 Register-ScheduledTask `
     -TaskName $name `
-    -Description 'Finish Line Forecast prediction week: snapshot the entrant list, freeze the daily or final prediction file, render the race page, commit, tag and push. Does nothing outside a prediction week.' `
+    -Description 'The Whole Field, Called Before the Gun, prediction week: snapshot the entrant list, freeze the daily or final prediction file, render the race page, commit, tag and push. Does nothing outside a prediction week.' `
     -Action $action `
     -Trigger $trigger `
     -Settings $settings | Out-Null

@@ -55,10 +55,12 @@ BASE = "https://results.raceroster.com/v2/api"
 RESULTS = BASE + "/result-events/{event_id}/sub-events/{sub_event_id}/results"
 TIMEOUT = 60.0
 
+# Both names, for the reason in `nlaa.USER_AGENT`: the organiser was told about this
+# project under its first one.
 USER_AGENT = (
-    "finishline/0.1 (Finish Line Forecast, a personal running-analytics project using "
-    "NLAA race results with the organiser's knowledge; one request per race; "
-    "peter.alexander.parker@outlook.com)"
+    "finishline/0.1 (The Whole Field, Called Before the Gun, formerly Finish Line Forecast, "
+    "a personal running-analytics project using NLAA race results with the organiser's "
+    "knowledge; one request per race; peter.alexander.parker@outlook.com)"
 )
 
 

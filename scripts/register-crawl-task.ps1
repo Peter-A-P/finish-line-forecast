@@ -39,7 +39,7 @@ try { Unregister-ScheduledTask -TaskName $name -Confirm:$false } catch {}
 
 Register-ScheduledTask `
     -TaskName $name `
-    -Description 'Weekly crawl of newly posted NLAA road results for Finish Line Forecast. One request a second, identifying user agent, nothing committed. Pauses around live races.' `
+    -Description 'Weekly crawl of newly posted NLAA road results for The Whole Field, Called Before the Gun. One request a second, identifying user agent, nothing committed. Pauses around live races.' `
     -Action $action `
     -Trigger $trigger `
     -Settings $settings | Out-Null

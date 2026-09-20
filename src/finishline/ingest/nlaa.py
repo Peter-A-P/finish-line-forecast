@@ -41,9 +41,15 @@ from finishline.schema import HALF_MARATHON_M, MARATHON_M, MILE_M, Race
 BASE = "https://www.nlaa.ca/results/"
 INDEX = BASE + "index.php?year={year}"
 
+# ⚠️ **The old name stays in here for a season.** This is what identifies the crawler in
+# nlaa.ca's logs, and the courtesy note that went out before the first request described the
+# project under its first name. A crawler that renames itself overnight reads as a new and
+# unannounced one, so the rename of 2026-09-20 carries both names until the association has
+# seen the new one in a season's worth of logs.
 USER_AGENT = (
-    "finishline/0.1 (Finish Line Forecast, a personal running-analytics project; "
-    "one request per second, each page fetched once; peter.alexander.parker@outlook.com)"
+    "finishline/0.1 (The Whole Field, Called Before the Gun, formerly Finish Line Forecast, "
+    "a personal running-analytics project; one request per second, each page fetched once; "
+    "peter.alexander.parker@outlook.com)"
 )
 
 # Seconds between requests. One a second is slower than a person clicking through the
