@@ -11,7 +11,7 @@ the model's race effect (section 13 item 27), the LightGBM challenger, and the p
 model.
 
 **Section 13 is the log of what the data refuted**, and it is the first thing to read after
-this line: thirty-five numbered entries, each one a design in this plan that measurement
+this line: thirty-six numbered entries, each one a design in this plan that measurement
 overturned. What is open and who owns it is in [docs/todo.md](docs/todo.md).
 
 **Build:** planned in relative weeks. Earliest start: now. The first live target fixes the
@@ -308,7 +308,13 @@ elevation figure can do better than bracket it. The physics (`metrics/grade.py`)
 prior for a course with no history and the cross-check on one that has it, and on Cape to
 Cabot the two agree: +9.3 percent implies a 10.3 percent average grade from the published
 550 m of climb, against a race page that says "grades of more than 10 per cent in some
-parts". Only the conditions factors come from the forecast, as they always did.
+parts". Only the conditions factors come from the forecast, as they always did. **Amended
+again 2026-09-20, section 13 item 36:** a measured factor also carries this population's
+departure from Daniels' fade at that distance, which cannot be separated from it because
+every course is run at one distance. It belongs in a prediction for that course and it does
+not belong in a comparison between courses of different lengths, so the factor is published
+beside a second figure against the courses of the same length, and Cape to Cabot's implied
+grade is a ballpark of 8 to 10 percent rather than 10.3.
 
 ⚠️ `gamma_i` is not droppable. Fitted without it, edition effects absorb population ageing
 and every course drifts upward at a median of +0.60 percent a year, which reads as Cape to
@@ -1451,3 +1457,65 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     answered for, so a reader can tell which of the two moved their time. A run with no saved
     challenger backtest matching the code refuses to freeze rather than quietly publishing the
     hierarchical model with intervals calibrated on something else.
+
+36. **A course factor is only comparable inside its own race length, and the chart was
+    inviting the other comparison.** Peter, 2026-09-20, on the website's course chart: the
+    Tely 10 is one of the fastest 10 mile courses anywhere, net downhill with the prevailing
+    westerly behind the field, and the chart had it at +0.2 percent, an ordinary road. His
+    guess was the field: a big recreational race dragging the average down. That is not the
+    mechanism, because the fit removes each runner's own level and trend, so who turns up
+    cannot move a course effect. The second half of his message named the real one: "for an
+    individual measure for 10 mile from VDOT the race would exceed their typical
+    predictions". The outcome is a finish over Daniels' time for VDOT 50 **at that
+    distance**, and a runner carries one level for a whole career, so a population that
+    fades over distance differently from Daniels' curve has nowhere to put that difference
+    except the effects of the long courses. `models/courses.py` said this was unidentifiable
+    and section 5.4 of the page said it too. What neither said is that a chart which then
+    ranks all fifty courses on one axis is asking the reader to make exactly the comparison
+    the number cannot support.
+
+    **How large it is.** Unweighted mean factor by race length: 5 km -1.3, 8 km -2.7, 10 km
+    -0.9, 11 km +1.6, 15 km +1.2, 10 mile +2.4, half marathon +1.2, marathon +8.5 percent.
+    Across the fifty courses the factor correlates 0.68 with log distance, about +3.8 points
+    per e-fold, or +8 points from 5 km to the marathon. The marathons are the tell: all five
+    read between +4.5 and +11.2 percent, which would make every marathon in the province
+    about as hard as Signal Hill, and measured against each other they spread from -4.6 to
+    +3.1 and mostly straddle zero, which is what five ordinary road marathons should do.
+
+    **The mechanism, caught in the act.** Refitting on runners split by what else they race:
+    the Tely reads -0.37 percent from runners who also race a half marathon or longer and
+    +0.90 percent from runners who never go beyond 15 km, a gap of 1.3 points in the
+    predicted direction, while the Bell Island Blast, a genuinely hilly 10 mile course, is
+    +4.55 and +4.71 in the two subgroups, unmoved. A road is a road to everybody; a distance
+    is not.
+
+    **What is published now.** `CourseFactor` carries `versus_peers`, the same course against
+    the other measured courses of the same length, with its interval taken inside the same
+    bootstrap draws rather than differenced off two published intervals, which would report
+    an uncertainty neither number has. The Tely is **-4.1 percent [-5.0, -3.4] against the
+    only other 10 mile course on the archive**, which is Peter's point measured: a fast road,
+    and clear of zero. Turkey Tea is -4.5 [-5.0, -3.9] against the other fourteen 10 km
+    courses. The chart is now a column per race length with the typical course of that length
+    drawn in it, the hover gives both figures, the README table has both, and `finishline
+    courses` prints in blocks by length with "compare inside a block" over it. Where a length
+    has one measured course (Cape to Cabot at 20 km, Run to Remember at 11 km, the ANE mile)
+    `versus_peers` is None and the page says there is nothing to compare it with, rather than
+    printing a zero.
+
+    **What this costs item 13's claim, honestly.** Cape to Cabot's +9.2 percent has no peer
+    at 20 km, so it still carries whatever the reference does at that distance. Courses of
+    nearby length read about a point above flat, which puts the road's share near +8 and the
+    grade that explains it near 8.3 percent rather than 10.3. The race's course page says
+    "grades of more than 10 per cent in some parts", which is not an average anyway, so the
+    two routes still agree, but the agreement is a ballpark and the README, the plan and the
+    page now say so instead of matching to a decimal.
+
+    **No prediction moves.** A course factor is only ever applied to that course, at its own
+    distance, where the race length belongs in the answer: the entanglement is a problem for
+    reading a chart, not for making a prediction. Nothing in the hierarchical model, the
+    challenger or the blend changed, and no saved hierarchical run went stale. The challenger's
+    cache key hashes `models/courses.py`, so its rows were refitted and came back identical.
+    A synthetic test (two 10 km courses, one ten percent harder, and two flat marathons with a
+    five percent population fade planted at the distance) asserts what the fit must do: the
+    flat marathon reads harder than the flat 10 km against the reference, level against the
+    other marathon, and the planted ten percent survives in the peer comparison.

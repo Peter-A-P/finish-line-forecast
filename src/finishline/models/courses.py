@@ -10,6 +10,19 @@ settle. It is the same structure as the hierarchical model's `alpha_i` and `delt
 (PLAN.md 5.3) without the shrinkage, and its job here is to say what those effects look
 like before a prior is put on them.
 
+⚠️ **A course factor is only comparable with other courses of the same length.** The
+outcome is scored against Daniels' time for VDOT 50 *at that distance*, and a runner effect
+is one level for a whole career, so anything the population does differently from Daniels'
+fade over distance has nowhere to go but the course effects of the long courses. It shows:
+all five marathons on the archive measure between +4.5 and +11.2 percent, which would make
+every marathon in the province as hilly as Signal Hill, and the Tely 10 measures +0.2
+percent although it is a net-downhill course that the only other 10 mile course on record
+is 4.3 points slower than. The two cannot be separated from finishes alone (every course is
+run at one distance), so this module reports both numbers and neither is dressed up as the
+other: `factor` against an equal-VDOT flat time, and `versus_peers` against the other
+courses of the same length, which is the comparison that means what a reader thinks it
+means. PLAN.md 13 item 36.
+
 ⚠️ **The per-runner career trend is not optional, and leaving it out is a trap that looks
 like a finding.** Fitted without one, Cape to Cabot's edition effect climbs almost
 monotonically from +3.8 percent in 2013 to +14.4 percent in 2025, which reads as a course
@@ -23,6 +36,7 @@ points of course inflation that does not exist.
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
 import numpy as np
@@ -49,18 +63,34 @@ REFERENCE_VDOT = 50.0
 
 @dataclass(frozen=True, slots=True)
 class CourseFactor:
-    """One course's difficulty, as a fraction of an equal-VDOT flat time."""
+    """One course's difficulty, as a fraction of an equal-VDOT flat time.
+
+    `factor` carries whatever the population does differently from Daniels' fade at this
+    distance; `versus_peers` is the same course against the other measured courses of the
+    same length, where that departure has cancelled. Where a length has only one measured
+    course (Cape to Cabot at 20 km, Run to Remember at 11 km, the ANE mile) there is nothing
+    to compare with and `versus_peers` is None rather than zero.
+    """
 
     course_id: str
     finishes: int
     editions: int
+    distance_m: float
     factor: float
     low: float
     high: float
+    peers: int = 0
+    versus_peers: float | None = None
+    peers_low: float | None = None
+    peers_high: float | None = None
 
     @property
     def percent(self) -> float:
         return self.factor * 100
+
+    @property
+    def peers_percent(self) -> float | None:
+        return None if self.versus_peers is None else self.versus_peers * 100
 
 
 @dataclass(frozen=True, slots=True)
@@ -153,20 +183,36 @@ def fit(
     for course, edition in zip(course_ix, edition_ix, strict=True):
         editions_per_course.setdefault(int(course), set()).add(int(edition))
 
-    spread = _bootstrap(values, runner_ix, course_ix, years, course_names.size, seed, draws)
+    sampled = _bootstrap(values, runner_ix, course_ix, years, course_names.size, seed, draws)
+    lengths = {race.course_id: race.distance_m for race in races.values()}
+    peers = _peers(course_names, lengths, counts)
 
     measured: dict[str, CourseFactor] = {}
     for index, name in enumerate(course_names):
         if counts[index] < MIN_FINISHES:
             continue
-        low, high = spread[index]
+        low, high = _interval(sampled[:, index])
+        mine = peers[index]
+        against: float | None = None
+        against_low: float | None = None
+        against_high: float | None = None
+        if mine:
+            gap = course_effect[index] - float(np.mean(course_effect[list(mine)]))
+            against = float(np.expm1(gap))
+            drawn = _interval(_contrast(sampled, index, mine))
+            against_low, against_high = float(np.expm1(drawn[0])), float(np.expm1(drawn[1]))
         measured[str(name)] = CourseFactor(
             course_id=str(name),
             finishes=int(counts[index]),
             editions=len(editions_per_course.get(index, ())),
+            distance_m=float(lengths[str(name)]),
             factor=float(np.expm1(course_effect[index])),
             low=float(np.expm1(low)),
             high=float(np.expm1(high)),
+            peers=len(mine),
+            versus_peers=against,
+            peers_low=against_low,
+            peers_high=against_high,
         )
     return Fit(
         courses=measured,
@@ -175,6 +221,46 @@ def fit(
             for i, name in enumerate(edition_names)
         },
     )
+
+
+def _peers(
+    course_names: np.ndarray, lengths: Mapping[str, float], counts: np.ndarray
+) -> dict[int, tuple[int, ...]]:
+    """For each measured course, the other measured courses run over the same distance.
+
+    Grouped on the distance rounded to the metre: every length in the archive is a standard
+    one, so two courses that group together really are the same race length. A course is
+    never its own peer, and courses too thin to measure are not peers either, because a
+    comparison against noise is not a comparison.
+    """
+    usable = [i for i in range(course_names.size) if counts[i] >= MIN_FINISHES]
+    metres = {i: round(lengths[str(course_names[i])]) for i in usable}
+    return {
+        index: tuple(other for other in usable if other != index and metres[other] == metres[index])
+        for index in usable
+    }
+
+
+def _interval(column: np.ndarray) -> tuple[float, float]:
+    """A 95 percent interval over the draws that had an estimate at all."""
+    if np.all(np.isnan(column)):
+        return (float("nan"), float("nan"))
+    return (float(np.nanpercentile(column, 2.5)), float(np.nanpercentile(column, 97.5)))
+
+
+def _contrast(sampled: np.ndarray, index: int, peers: Sequence[int]) -> np.ndarray:
+    """Per draw, this course against the mean of its peers in that same draw.
+
+    The contrast is taken inside each draw rather than from the two intervals, because the
+    course effects are centred together and move together: differencing the published
+    intervals would report an uncertainty neither number has.
+    """
+    block = sampled[:, list(peers)]
+    present = ~np.isnan(block)
+    seen = present.sum(axis=1)
+    total = np.where(present, block, 0.0).sum(axis=1)
+    mean = np.where(seen > 0, total / np.maximum(seen, 1), np.nan)
+    return sampled[:, index] - mean
 
 
 def _alternate(
@@ -237,8 +323,13 @@ def _bootstrap(
     groups: int,
     seed: int,
     draws: int,
-) -> list[tuple[float, float]]:
-    """A 95 percent interval per course, resampling runners rather than finishes."""
+) -> np.ndarray:
+    """One refit per resample of the runners, as a (draws, courses) array of log effects.
+
+    The draws come back rather than an interval, because two things are read off them: each
+    course's own spread, and its gap to the courses of the same length, which only means
+    anything if both sides come from the same draw.
+    """
     rng = np.random.default_rng(seed)
     people = int(runner.max()) + 1
     order = np.argsort(runner, kind="stable")
@@ -258,14 +349,4 @@ def _bootstrap(
         # course is exactly average", which is a claim the draw did not make.
         present = np.bincount(group[take], minlength=groups) > 0
         sampled[draw, present] = effect[present]
-
-    intervals: list[tuple[float, float]] = []
-    for g in range(groups):
-        column = sampled[:, g]
-        if np.all(np.isnan(column)):
-            intervals.append((float("nan"), float("nan")))
-            continue
-        intervals.append(
-            (float(np.nanpercentile(column, 2.5)), float(np.nanpercentile(column, 97.5)))
-        )
-    return intervals
+    return sampled

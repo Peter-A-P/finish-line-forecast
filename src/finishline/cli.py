@@ -269,16 +269,32 @@ def course_factors(
     The measurement is the answer and the elevation is the check. Where a course publishes
     a climb, the grade that reconciles the two is printed: if it is a grade a road can
     have, the factor is the hills, and if it is not, something else is going on.
+
+    Two factors per course, printed in a block per race length. Against a flat equal-VDOT
+    time the factor still has the race length in it, because the population's fade departs
+    from Daniels' curve and nothing else in the fit can absorb that; against the other
+    courses of the same length it does not. Compare inside a block. PLAN.md 13 item 36.
     """
     data = _dataset(first, last)
     history = History.before(date.today(), data.races, data.resolved)
     fitted = models_courses.fit(history, data.races, draws=draws)
     profiles = course_profiles()
 
+    from finishline.publish import showcase
+
     floor = models_courses.MIN_FINISHES
-    typer.echo(f"{len(fitted.courses)} courses with {floor} or more finishes\n")
-    typer.echo(f"{'course':<40}{'fin':>7}{'ed':>4}{'factor':>9}{'95% CI':>17}   implied grade")
-    for measured in sorted(fitted.courses.values(), key=lambda c: -c.factor):
+    typer.echo(f"{len(fitted.courses)} courses with {floor} or more finishes")
+    typer.echo("compare inside a block: across blocks the race length is in the factor too\n")
+    typer.echo(
+        f"{'course':<40}{'fin':>7}{'ed':>4}{'factor':>9}{'95% CI':>17}"
+        f"{'own length':>12}{'95% CI':>17}   implied grade"
+    )
+    ordered = sorted(fitted.courses.values(), key=lambda c: (c.distance_m, -c.factor))
+    length: float | None = None
+    for measured in ordered:
+        if measured.distance_m != length:
+            length = measured.distance_m
+            typer.echo(f"-- {showcase.distance_label(length)}")
         record = profiles.get(measured.course_id, {})
         implied = ""
         if "climb_m" in record:
@@ -294,9 +310,15 @@ def course_factors(
                 else "the published climb cannot explain it"
             )
         interval = f"[{measured.low * 100:+.1f}, {measured.high * 100:+.1f}]"
+        if measured.peers_percent is None:
+            against, peer_interval = "-", "-"
+        else:
+            assert measured.peers_low is not None and measured.peers_high is not None
+            against = f"{measured.peers_percent:+.1f}%"
+            peer_interval = f"[{measured.peers_low * 100:+.1f}, {measured.peers_high * 100:+.1f}]"
         typer.echo(
             f"{measured.course_id:<40}{measured.finishes:>7,}{measured.editions:>4}"
-            f"{measured.percent:>8.1f}%{interval:>17}   {implied}"
+            f"{measured.percent:>8.1f}%{interval:>17}{against:>12}{peer_interval:>17}   {implied}"
         )
 
 

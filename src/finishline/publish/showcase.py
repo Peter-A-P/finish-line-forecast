@@ -410,9 +410,18 @@ def course_list(fit: courses.Fit, live_courses: Mapping[str, str]) -> list[dict[
             "name": course_name(measured.course_id),
             "finishes": measured.finishes,
             "editions": measured.editions,
+            "distance_m": round(measured.distance_m),
+            "length": distance_label(measured.distance_m),
             "factor": round(measured.factor, 4),
             "low": round(measured.low, 4),
             "high": round(measured.high, 4),
+            # The comparison that means what a reader thinks it means: this course against
+            # the others of the same length, where the reference's drift over distance has
+            # cancelled. None where the length has only one measured course.
+            "peers": measured.peers,
+            "versus": _round(measured.versus_peers),
+            "versus_low": _round(measured.peers_low),
+            "versus_high": _round(measured.peers_high),
             "live": live_courses.get(measured.course_id),
             "named": measured.course_id in busiest,
         }

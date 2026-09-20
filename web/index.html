@@ -344,7 +344,8 @@
         runner's own fade departs from it by a coefficient that shrinks to zero for anyone who
         has raced only one distance. A population-wide departure is not estimated at all: every
         course is run at one distance, so it cannot be told apart from the course effects, and
-        fitting both left it unidentified.
+        fitting both left it unidentified. It is why the course chart further down is read in a
+        column per race length rather than across.
       </p>
     </details>
   </section>
@@ -357,24 +358,57 @@
       themselves: the same people, on different roads. Each dot is a course; the line through it
       is how sure the measurement is.
     </p>
+    <p class="section-lead">
+      <strong>Read down a column, not across the chart.</strong> Every finish is scored against
+      a reference time for its own distance, and this population fades over the long distances a
+      little harder than the reference expects. That departure has nowhere to go but the courses
+      that are long, so the tall columns on the right are partly a race length and not a road.
+      Two courses in the same column are two roads, measured on the same runners, and that
+      comparison is clean.
+    </p>
     <figure class="chart-figure">
       <div id="courses-chart" class="chart"></div>
       <p class="readout" id="courses-readout"></p>
       <div class="legend" id="courses-legend"></div>
-      <figcaption>How much slower than a flat road each course runs, with its 95% interval. Courses with at least 30 finishes; the races on this page are marked.</figcaption>
+      <figcaption>How much slower than a flat road each course runs, with its 95% interval, in a column per race length. Courses with at least 30 finishes; the dashed line is the typical course at that length, and the races on this page are marked. Point at a dot for both numbers: against a flat road, and against the other courses of its own length.</figcaption>
     </figure>
     <div class="verdict">
+      <p>
+        <strong>The Tely 10 is a fast road, and only its own column says so.</strong> Against
+        the flat reference it reads {{tely_factor}}, which looks like any other course. Measured
+        against its own length it is {{tely_peers}}, and that is the comparison with a road in
+        it: the Tely drops more than it climbs and the prevailing westerly is behind the field.
+        Both figures come out of the same fit. The first still has the race length inside it and
+        the second does not. One caveat kept in view: at 10 miles this archive has one other
+        course, the hilly Bell Island Blast, so that is two roads compared and not ten.
+      </p>
       <p>
         <strong>The measurement agrees with the physics, without being tuned to it.</strong>
         Cape to Cabot measures about {{c2c_factor}} slower than flat. Run that number backwards
         through the energy cost of running uphill (Minetti's curve) and the published 550 m of
         climb implies an average grade of about 10 percent on the hills. The race's own course
-        page says "grades of more than 10 per cent in some parts". Two independent routes to
-        one number.
+        page says "grades of more than 10 per cent in some parts". Two independent routes to one
+        number, and the agreement is a ballpark rather than a decimal: at 20 km it is the only
+        course on the archive, so a point or so of that {{c2c_factor}} is the same race-length
+        effect, and the grade that explains the rest is nearer 8 to 10 percent.
       </p>
     </div>
     <details class="disclose">
-      <summary>For the technical reader: separating the course from the runners on it</summary>
+      <summary>For the technical reader: separating the course from the runners on it, and the length from the road</summary>
+      <p>
+        <strong>What the reference costs.</strong> The outcome is a finish over Daniels' time for
+        a reference runner at that distance, and each runner carries one level for their whole
+        career, so a population that fades over distance differently from Daniels' curve leaves
+        that difference in the effects of the long courses. The archive shows it plainly:
+        {{marathon_span}} Measured against each other the marathons scatter around zero, which is
+        what five ordinary road marathons should do. Course and length cannot be separated from
+        finishes alone, because every course is run at one distance, so both numbers are
+        published and neither is dressed up as the other. The Tely read from runners who also
+        race a half marathon or longer is 1.3 points faster than the same course read from
+        runners who never go beyond 15 km, which is the mechanism caught in the act. None of
+        this reaches a prediction: a course factor is only ever applied to that course, at its
+        own distance, where the length belongs in the answer.
+      </p>
       <p>
         Course and edition effects are estimated jointly with per-runner levels and trends by
         alternating least squares on the log-ratio scale, with a bootstrap over runners for the

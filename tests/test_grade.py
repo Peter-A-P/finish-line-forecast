@@ -247,3 +247,104 @@ def test_the_career_trend_stops_ageing_leaking_into_the_course() -> None:
     assert math.isclose(slope, 0.0, abs_tol=0.002), (
         f"edition effects drift {slope * 100:.2f}% a year on a course that never changed"
     )
+
+
+def _two_lengths() -> tuple[dict[str, Race], list[Runner]]:
+    """Four courses at two lengths, where the only thing out of step with Daniels is a length.
+
+    Two 10 km courses, one of them ten percent harder than the other, and two marathons with
+    no hills at all. Every runner is exactly on Daniels' curve at 10 km and five percent
+    slower than it at the marathon, which is what a population that does not train for the
+    distance does. Any marathon difficulty a fit reports here is the fit's own.
+    """
+    from finishline.metrics import daniels
+
+    lengths = {"easy-10000": 10_000.0, "hard-10000": 10_000.0}
+    lengths |= {"mara-a-42195": 42_195.0, "mara-b-42195": 42_195.0}
+    races: dict[str, Race] = {}
+    for year in range(2018, 2026):
+        for course_id, metres in lengths.items():
+            race_id = f"{course_id}-{year}"
+            races[race_id] = Race(
+                race_id=race_id,
+                name=f"{course_id} {year}",
+                date=date(year, 6, 1),
+                distance_m=metres,
+                course_id=course_id,
+                url=f"https://example.invalid/{race_id}",
+            )
+
+    runners: list[Runner] = []
+    for person in range(40):
+        vdot = 42.0 + person * 0.4
+        results = []
+        for year in range(2018, 2026):
+            for course_id, metres in lengths.items():
+                reference = daniels.race_time(vdot, metres)
+                assert reference is not None
+                hills = 1.10 if course_id == "hard-10000" else 1.0
+                fade = 1.05 if metres > 40_000 else 1.0
+                results.append(
+                    Result(
+                        race_id=f"{course_id}-{year}",
+                        place=person + 1,
+                        bib=None,
+                        name=f"Runner {person}",
+                        club=None,
+                        sex="F",
+                        sex_place=None,
+                        age_band=None,
+                        category_place=None,
+                        hometown=None,
+                        gun_seconds=reference * hills * fade,
+                        chip_seconds=None,
+                    )
+                )
+        runners.append(
+            Runner(
+                runner_id=f"p{person}",
+                name=f"Runner {person}",
+                hometown=None,
+                sex="F",
+                results=tuple(results),
+                ambiguous=False,
+            )
+        )
+    return races, runners
+
+
+def test_a_populations_fade_lands_on_the_long_courses_and_not_on_their_peers() -> None:
+    """The reason a course factor is only comparable inside its own race length.
+
+    On the real archive this is what makes five ordinary marathons read as hard as Signal
+    Hill and the net-downhill Tely read as average. Here the truth is known: the marathons
+    are flat, and the five percent is a population that fades, so the factor against a flat
+    reference has to pick it up and the factor against the other marathon must not.
+    """
+    races, runners = _two_lengths()
+    history = History.before(date(2026, 1, 1), races, runners)
+    fitted = courses.fit(history, races, draws=30)
+
+    marathons = [fitted.courses["mara-a-42195"], fitted.courses["mara-b-42195"]]
+    flat_ten = fitted.courses["easy-10000"]
+    # Two flat roads, one at each length. The effects are centred, so what the artefact moves
+    # is the gap between them, and it is the whole of the five percent that was planted.
+    for measured in marathons:
+        assert (1 + measured.factor) / (1 + flat_ten.factor) == pytest.approx(1.05, abs=0.005), (
+            "a flat marathon reads as harder than a flat 10 km, though neither has a hill"
+        )
+    for measured in marathons:
+        assert measured.peers == 1, "a marathon's peer is the other marathon, not a 10 km"
+        assert measured.versus_peers == pytest.approx(0.0, abs=0.005), (
+            "against each other two flat marathons are level, which is the truth"
+        )
+        assert measured.peers_low is not None and measured.peers_high is not None
+        # Noiseless twins, so every resample gives the same zero and the interval collapses
+        # onto it. It has to contain zero; on real data it has width.
+        assert measured.peers_low <= 0.0 <= measured.peers_high
+
+    hard = fitted.courses["hard-10000"]
+    assert hard.versus_peers is not None
+    assert 1 + hard.versus_peers == pytest.approx(1.10, abs=0.005), (
+        "the ten percent that was planted in a road survives the peer comparison"
+    )

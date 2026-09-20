@@ -80,26 +80,37 @@ rather than finishes, because two races by one person are not independent eviden
 hill. The last column is a check and not an input: it asks what average grade would explain
 the measured factor, given the climb the race publishes.
 
+⚠️ **Compare inside a race length, not down the table.** The factor is measured against a
+reference time for the course's own distance, and this population fades over the long
+distances harder than the reference expects, which is why the marathons crowd the hard end:
+all five read between +4.5% and +11.2%, and against each other they straddle zero, as five
+ordinary road marathons should. Course and distance cannot be separated from finishes, since
+every course is run at one distance, so the fifth column gives each course against the other
+measured courses of its own length, where that cancels. It is where the Tely 10 stops looking
+ordinary: +0.2% against a flat reference, and -4.1% [-5.0, -3.4] against the only other 10
+mile course on the archive, which is a fast road measured. PLAN.md section 13 item 36 has how
+large the effect is and why no prediction moves because of it.
+
 <!-- finishline:courses -->
-| Course | Finishes | Editions | Slower than flat | 95% CI | Grade that would explain it |
-|---|---:|---:|---:|---|---|
-| usr-42195 | 32 | 1 | +11.2% | [+7.5, +14.8] |  |
-| huffin-puffin-42195 | 296 | 7 | +9.6% | [+8.3, +10.8] |  |
-| provincial-championship-42195 | 68 | 2 | +9.4% | [+6.2, +12.1] |  |
-| cape-to-cabot-20000 | 5,311 | 15 | +9.2% | [+9.0, +9.5] | 10.3% average, over the published 550 m of climb |
-| run-from-away-42195 | 79 | 1 | +7.8% | [+6.1, +9.6] |  |
-| trapline-5000 | 138 | 6 | +6.3% | [-1.9, +15.1] |  |
-| bell-island-blast-16093 | 181 | 3 | +4.6% | [+3.8, +5.5] |  |
-| trapline-42195 | 55 | 7 | +4.5% | [+0.5, +8.2] |  |
+| Course | Race length | Finishes | Slower than flat | Against its own length | Grade that would explain it |
+|---|---|---:|---|---|---|
+| usr-42195 | marathon | 32 | +11.2% [+7.5, +14.8] | +3.1% [-0.5, +7.1], against 4 |  |
+| huffin-puffin-42195 | marathon | 296 | +9.6% [+8.3, +10.8] | +1.3% [-0.4, +3.1], against 4 |  |
+| provincial-championship-42195 | marathon | 68 | +9.4% [+6.2, +12.1] | +1.0% [-2.2, +3.8], against 4 |  |
+| cape-to-cabot-20000 | 20 km | 5,311 | +9.2% [+9.0, +9.5] | _the only course of this length_ | 10.3% average, over the published 550 m of climb |
+| run-from-away-42195 | marathon | 79 | +7.8% [+6.1, +9.6] | -0.7% [-2.6, +1.2], against 4 |  |
+| trapline-5000 | 5 km | 138 | +6.3% [-1.9, +15.1] | +8.4% [+0.1, +17.4], against 12 |  |
+| bell-island-blast-16093 | 10 mile | 181 | +4.6% [+3.8, +5.5] | +4.3% [+3.5, +5.2], against 1 |  |
+| trapline-42195 | marathon | 55 | +4.5% [+0.5, +8.2] | -4.6% [-8.4, -1.1], against 4 |  |
 | _... 34 more_ | | | | | |
-| five-and-dime-5000 | 1,052 | 10 | -3.0% | [-3.6, -2.4] |  |
-| quidi-vidi-5000 | 334 | 4 | -3.2% | [-3.9, -2.4] |  |
-| ane-mile-1609 | 577 | 12 | -3.7% | [-5.0, -2.3] |  |
-| provincial-championship-5000 | 907 | 8 | -4.0% | [-4.5, -3.5] |  |
-| turkey-tea-10000 | 2,296 | 14 | -5.1% | [-5.4, -4.9] | **the published climb cannot explain it** |
-| mews-memorial-8000 | 4,893 | 16 | -5.3% | [-5.5, -5.1] |  |
-| pearlgate-5000 | 88 | 1 | -5.7% | [-6.8, -4.7] |  |
-| oceanview-5000 | 108 | 1 | -6.3% | [-7.2, -5.5] |  |
+| five-and-dime-5000 | 5 km | 1,052 | -3.0% [-3.6, -2.4] | -1.8% [-2.8, -0.8], against 12 |  |
+| quidi-vidi-5000 | 5 km | 334 | -3.2% [-3.9, -2.4] | -2.0% [-2.9, -0.8], against 12 |  |
+| ane-mile-1609 | mile | 577 | -3.7% [-5.0, -2.3] | _the only course of this length_ |  |
+| provincial-championship-5000 | 5 km | 907 | -4.0% [-4.5, -3.5] | -2.9% [-3.8, -2.0], against 12 |  |
+| turkey-tea-10000 | 10 km | 2,296 | -5.1% [-5.4, -4.9] | -4.5% [-5.0, -3.9], against 14 | **the published climb cannot explain it** |
+| mews-memorial-8000 | 8 km | 4,893 | -5.3% [-5.5, -5.1] | -5.2% [-5.8, -4.6], against 1 |  |
+| pearlgate-5000 | 5 km | 88 | -5.7% [-6.8, -4.7] | -4.8% [-6.1, -3.4], against 12 |  |
+| oceanview-5000 | 5 km | 108 | -6.3% [-7.2, -5.5] | -5.4% [-6.6, -4.4], against 12 |  |
 <!-- finishline:end:courses -->
 
 **The check is worth more than either number alone.** Cape to Cabot is the only course here
@@ -107,7 +118,9 @@ with a published elevation, and the two routes to its difficulty were computed
 independently: 5,310 finishes say +9.3%, and 550 m of climb against 450 m of drop over 20 km
 through Minetti's cost-of-running curve needs a 10.3% average grade to produce that. The
 race's own course page says "grades of more than 10 per cent in some parts". Neither number
-was tuned to the other.
+was tuned to the other. Read it as a ballpark rather than a decimal: at 20 km it is the only
+course on the archive, so a point or so of the +9.3% is the race-length effect above, and the
+grade that explains the rest is nearer 8.3%.
 
 ⚠️ **A per-runner career trend is doing more work here than it looks.** Fitted with one
 constant per runner, Cape to Cabot's edition effect climbs almost monotonically from +3.8%

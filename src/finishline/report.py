@@ -55,15 +55,22 @@ def course_table(
     Both ends, not just the hard end. A reader checking whether this is measuring anything
     real wants to see that the flat 5 km races come out flat, and the spread between the
     ends is the thing a course correction has to be worth.
+
+    ⚠️ **Two figures per course, and the second one is the comparable one.** Against the flat
+    reference a course carries whatever this population does differently from Daniels' fade at
+    its distance, which is why the marathons crowd the hard end of this table; against the
+    courses of its own length that cancels. PLAN.md 13 item 36.
     """
+    from finishline.publish import showcase
+
     ranked = sorted(fit.courses.values(), key=lambda c: -c.factor)
     if not ranked:
         return "_No course has enough finishes to measure yet._"
 
     lines = [
-        "| Course | Finishes | Editions | Slower than flat | 95% CI "
+        "| Course | Race length | Finishes | Slower than flat | Against its own length "
         "| Grade that would explain it |",
-        "|---|---:|---:|---:|---|---|",
+        "|---|---|---:|---|---|---|",
     ]
 
     def row(measured: courses.CourseFactor) -> str:
@@ -81,10 +88,20 @@ def course_table(
                 if solved is not None
                 else "**the published climb cannot explain it**"
             )
+        if measured.versus_peers is None:
+            against = "_the only course of this length_"
+        else:
+            assert measured.peers_low is not None and measured.peers_high is not None
+            against = (
+                f"{measured.versus_peers * 100:+.1f}% "
+                f"[{measured.peers_low * 100:+.1f}, {measured.peers_high * 100:+.1f}], "
+                f"against {measured.peers}"
+            )
         return (
-            f"| {measured.course_id} | {measured.finishes:,} | {measured.editions} "
-            f"| {measured.percent:+.1f}% "
-            f"| [{measured.low * 100:+.1f}, {measured.high * 100:+.1f}] | {explained} |"
+            f"| {measured.course_id} | {showcase.distance_label(measured.distance_m)} "
+            f"| {measured.finishes:,} | {measured.percent:+.1f}% "
+            f"[{measured.low * 100:+.1f}, {measured.high * 100:+.1f}] "
+            f"| {against} | {explained} |"
         )
 
     lines += [row(measured) for measured in ranked[:show]]

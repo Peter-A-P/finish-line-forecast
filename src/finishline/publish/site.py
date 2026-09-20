@@ -270,6 +270,52 @@ def _percent(value: float | None) -> str:
     return "n/a" if value is None else f"{value * 100:.0f}%"
 
 
+def peer_text(course: Mapping[str, Any] | None) -> str:
+    """A course against the other courses of its own length, as a sentence fragment.
+
+    The fragment says the direction in words, because the sign of a course factor is the one
+    thing a reader will read backwards: a negative number is a faster road.
+    """
+    if course is None or course.get("versus") is None:
+        return "n/a"
+    gap = float(course["versus"]) * 100
+    low = float(course["versus_low"]) * 100
+    high = float(course["versus_high"]) * 100
+    peers = int(course["peers"])
+    others = (
+        "the only other course of that length on the archive"
+        if peers == 1
+        else f"the {peers} other courses of that length"
+    )
+    # An interval that contains zero is a comparison that did not come out, and saying
+    # "2 percent faster" off a point estimate like that is how a chart starts lying.
+    if low <= 0.0 <= high:
+        return f"level with {others} (95% interval {low:+.1f}% to {high:+.1f}%, which spans zero)"
+    near, far = sorted((abs(low), abs(high)))
+    return (
+        f"{abs(gap):.1f}% {'faster' if gap < 0 else 'slower'} than {others} "
+        f"(95% interval {near:.1f} to {far:.1f})"
+    )
+
+
+def marathon_text(courses: Sequence[Mapping[str, Any]]) -> str:
+    """What the marathons read against the flat reference, which is the artefact in one line."""
+    rows = [
+        row
+        for row in courses
+        # `.get`: a results.json written before the length was published still builds a page.
+        if abs(float(row.get("distance_m") or 0.0) - 42195) < 60
+    ]
+    if len(rows) < 2:
+        return "n/a"
+    factors = sorted(float(row["factor"]) for row in rows)
+    return (
+        f"the {len(rows)} marathons on it read between {factors[0] * 100:+.1f}% and "
+        f"{factors[-1] * 100:+.1f}% against a flat road, which would make every marathon in "
+        "the province about as hard as Signal Hill."
+    )
+
+
 def _number(value: float | None, places: int = 1) -> str:
     return "n/a" if value is None else f"{value:.{places}f}"
 
@@ -314,6 +360,7 @@ def tokens(
     cov_new = coverage.get(("0", 0.8), {})
     course = {row["course_id"]: row for row in results["courses"]}
     c2c = course.get("cape-to-cabot-20000")
+    tely = course.get("tely-10-16093")
     options = "".join(
         f"<option value=\"{html.escape(str(race['id']))}\">{html.escape(str(race['name']))}, "
         f"{date.fromisoformat(str(race['date'])).day} "
@@ -356,6 +403,10 @@ def tokens(
         "first_year": str(archive["first_year"]),
         "last_year": str(archive["last_year"]),
         "c2c_factor": "n/a" if c2c is None else f"{c2c['factor'] * 100:.0f}%",
+        # Both of the Tely's numbers, because the section's point is that they differ and why.
+        "tely_factor": "n/a" if tely is None else f"{tely['factor'] * 100:+.1f}%",
+        "tely_peers": peer_text(tely),
+        "marathon_span": marathon_text(results["courses"]),
         "race_options": options,
         "vdot_rows": vdot_rows(),
         "distance_rows": distance_rows(results),

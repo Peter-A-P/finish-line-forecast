@@ -33,6 +33,13 @@ Daniels' tables (`metrics/daniels.py`), and the model works on the log of that r
 and a marathon are then on one scale before anything is fitted, and 0.05 means five percent
 of a finish time wherever it was run.
 
+The scale is a reference, not a claim that this population runs Daniels' curve. It does not
+quite: measured against the reference, the marathons on this archive read about eight points
+harder than the 5 km races, which is a field that has not trained for the distance rather
+than a province of hilly marathons. A per-runner fade coefficient (`beta_i`, section 4) takes
+part of it, and what is left is in the course effects of the long courses. Section 13 item 36
+has the size of it and what it does and does not reach.
+
 ## 4. The model
 
 A hierarchical Bayesian model, fitted with PyMC and the nutpie sampler
@@ -49,7 +56,14 @@ A hierarchical Bayesian model, fitted with PyMC and the nutpie sampler
 - **`walk_i`, form**, a random walk over the calendar years the runner raced, drifting with
   their group's ageing. Races in one year share the year's level, and a runner last seen
   years ago is walked forward with a spread that grows with the gap.
-- **`course[c]`**, how hard the road is, shared by every edition on it.
+- **`course[c]`**, how hard the road is, shared by every edition on it. ⚠️ It carries one
+  thing that is not the road: the population's own departure from Daniels' fade at that
+  distance. Every course is run at one distance, so the two cannot be separated from
+  finishes, and the difference lands on the courses that are long. It is harmless in a
+  prediction, because a course effect is only ever applied to that course at its own
+  distance, but it means a factor is comparable only with other courses of the same length,
+  which is what `CourseFactor.versus_peers` and the columns in the website's course chart
+  report. PLAN.md section 13 item 36.
 - **`year[t]`**, what every race in a calendar year shared, as a walk from year to year.
   A steady drift here cannot be fully told apart from ageing or from later starters being
   slower, and the sampler mixes poorly along that line; PLAN.md section 13 item 31 has what

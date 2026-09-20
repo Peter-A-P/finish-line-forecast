@@ -677,46 +677,94 @@
     node.appendChild(root);
   }
 
+  /* Grouped by race length, and it has to be. The factor is measured against Daniels' time
+     for VDOT 50 AT THAT DISTANCE, so anything the population does differently from his fade
+     over distance lands on the course effects of the long races: read across the whole chart
+     and five flat marathons look as hard as Signal Hill. Read down one column and the
+     comparison is courses against courses. PLAN.md 13 item 36. */
+  function courseText(c) {
+    var text = c.name + ", " + (c.length || distanceLabel(c.distance_m)) + ": " +
+      (c.factor >= 0 ? "+" : "") + (c.factor * 100).toFixed(1) + "% against an equal-VDOT flat time (95% interval " +
+      (c.low * 100).toFixed(1) + " to " + (c.high * 100).toFixed(1) + ")";
+    if (isNumber(c.versus)) {
+      var others = c.peers === 1 ? "the only other course of this length" :
+        "the " + c.peers + " other courses of this length";
+      text += ", and " + Math.abs(c.versus * 100).toFixed(1) + "% " + (c.versus < 0 ? "faster" : "slower") +
+        " than " + others + " (interval " + Math.abs(c.versus_high * 100).toFixed(1) + " to " +
+        Math.abs(c.versus_low * 100).toFixed(1) + ")";
+    } else if (c.peers) {
+      text += ", and its own length is too thinly covered to compare against";
+    } else {
+      text += ", the only course of this length on the archive, so there is nothing to compare it with";
+    }
+    return text + ", from " + count(c.finishes) + " finishes over " + plural(c.editions, "edition", "editions");
+  }
+
   function drawCourses(courses) {
     var node = clear(byId("courses-chart"));
-    var H = 400, L = 52, R = WIDTH - 12, T = 30, B = H - 34;
-    var root = frame(H, "How much slower than flat each course runs");
+    var H = 430, L = 52, R = WIDTH - 12, T = 26, B = H - 54;
+    var root = frame(H, "How much slower than flat each course runs, grouped by race length");
     var lo = 0, hi = 0;
     courses.forEach(function (c) { lo = Math.min(lo, c.low); hi = Math.max(hi, c.high); });
     var y = linear([lo * 100 - 1, hi * 100 + 1], [B, T]);
     yAxis(root, y, L, R, function (v) { return (v > 0 ? "+" : "") + v + "%"; }, "slower than flat");
     root.appendChild(svg("line", { x1: L, x2: R, y1: y(0), y2: y(0), "class": "zero" }));
-    var step = (R - L) / courses.length;
-    var labelled = 0;
-    courses.forEach(function (c, i) {
-      var x = L + step * (i + 0.5);
-      root.appendChild(svg("line", { x1: x, x2: x, y1: y(c.low * 100), y2: y(c.high * 100), "class": "whisker" + (c.live ? " live" : "") }));
-      var dot = svg("circle", { cx: x, cy: y(c.factor * 100), r: c.live ? 6 : (c.named ? 5 : 3.8), "class": "course-dot" + (c.live ? " live" : (c.named ? " named" : "")) });
-      hover(dot, "courses-readout", c.name + ": " + (c.factor >= 0 ? "+" : "") + (c.factor * 100).toFixed(1) + "% against a flat road (95% interval " +
-        (c.low * 100).toFixed(1) + " to " + (c.high * 100).toFixed(1) + "), from " + count(c.finishes) + " finishes over " + plural(c.editions, "edition", "editions"));
-      root.appendChild(dot);
-      /* Labelled: the races on this page, and the courses with the deepest history, which are
-         the ones a reader goes looking for. Labels alternate above and below the dot, because
-         two of them can sit side by side on the ranking. */
-      if (c.live || c.named) {
-        var end = i > courses.length * 0.7;
-        var below = labelled % 2 === 1;
-        labelled += 1;
-        root.appendChild(svg("text", {
-          x: x + (end ? -9 : 9),
-          y: y(c.factor * 100) + (below ? 20 : -12),
-          "text-anchor": end ? "end" : "start",
-          "class": "row-label halo" + (c.live ? "" : " faint")
-        }, c.name));
-      }
+
+    var groups = {}, lengths = [];
+    courses.forEach(function (c) {
+      var key = c.distance_m || 0;
+      if (!groups[key]) { groups[key] = []; lengths.push(key); }
+      groups[key].push(c);
     });
-    root.appendChild(svg("text", { x: L + 4, y: B + 20, "class": "tick" }, "hardest"));
-    root.appendChild(svg("text", { x: R - 4, y: B + 20, "text-anchor": "end", "class": "tick" }, "easiest"));
+    lengths.sort(function (a, b) { return a - b; });
+    /* A column of one course still needs room for its dot and for its label underneath, and
+       eight of the ten lengths hold one or two courses. */
+    var weights = lengths.map(function (m) { return Math.max(groups[m].length, 3); });
+    var total = weights.reduce(function (a, b) { return a + b; }, 0);
+    var labelled = 0, x0 = L;
+    lengths.forEach(function (metres, gi) {
+      var group = groups[metres].slice().sort(function (a, b) { return b.factor - a.factor; });
+      var width = (R - L) * weights[gi] / total;
+      if (gi) { root.appendChild(svg("line", { x1: x0, x2: x0, y1: T - 6, y2: B + 6, "class": "divider" })); }
+      var mean = group.reduce(function (a, c) { return a + c.factor; }, 0) / group.length;
+      root.appendChild(svg("line", {
+        x1: x0 + 3, x2: x0 + width - 3, y1: y(mean * 100), y2: y(mean * 100), "class": "nominal"
+      }));
+      group.forEach(function (c, i) {
+        var x = x0 + width * (i + 0.5) / group.length;
+        root.appendChild(svg("line", { x1: x, x2: x, y1: y(c.low * 100), y2: y(c.high * 100), "class": "whisker" + (c.live ? " live" : "") }));
+        var dot = svg("circle", { cx: x, cy: y(c.factor * 100), r: c.live ? 6 : (c.named ? 5 : 3.8), "class": "course-dot" + (c.live ? " live" : (c.named ? " named" : "")) });
+        hover(dot, "courses-readout", courseText(c));
+        root.appendChild(dot);
+        /* Labelled: the races on this page, and the courses with the deepest history, which
+           are the ones a reader goes looking for. Labels alternate above and below the dot,
+           and point back into the chart near the right-hand edge. */
+        if (c.live || c.named) {
+          var end = x > (L + R) / 2;
+          var below = labelled % 2 === 1;
+          labelled += 1;
+          root.appendChild(svg("text", {
+            x: x + (end ? -9 : 9),
+            y: y(c.factor * 100) + (below ? 20 : -12),
+            "text-anchor": end ? "end" : "start",
+            "class": "row-label halo" + (c.live ? "" : " faint")
+          }, c.name));
+        }
+      });
+      /* Bare numbers, with the unit in the axis title: "16.1 km" does not fit a column of
+         two courses, and 16.1 does. */
+      var label = metres ? String(Math.round(metres / 100) / 10) : "all";
+      root.appendChild(svg("text", { x: x0 + width / 2, y: B + 20, "text-anchor": "middle", "class": "tick" }, label));
+      root.appendChild(svg("text", { x: x0 + width / 2, y: B + 34, "text-anchor": "middle", "class": "row-note" }, group.length));
+      x0 += width;
+    });
+    root.appendChild(svg("text", { x: R, y: H - 2, "text-anchor": "end", "class": "axis-title" }, "race length in km, and how many courses"));
     node.appendChild(root);
     legend("courses-legend", [
       ["dot course-sw", "a course"],
       ["dot named-sw", "one of the four busiest, named"],
-      ["dot live-sw", "a race on this page"]
+      ["dot live-sw", "a race on this page"],
+      ["dashed sw-faint", "the typical course at that length"]
     ]);
   }
 

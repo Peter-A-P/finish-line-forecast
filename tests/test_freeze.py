@@ -667,3 +667,43 @@ def test_the_spread_of_the_misses_is_published_beside_their_average() -> None:
     assert shape["median_error_min"] < 30.0 / 60.0, "the middle miss is seconds"
     assert shape["p90_error_min"] == pytest.approx(5.0), "the tail is the bad day"
     assert showcase.spread([]) == {"median_error_min": None, "p90_error_min": None}
+
+
+def test_a_course_is_never_compared_with_a_course_of_another_length() -> None:
+    """The one number the courses chart cannot publish on its own.
+
+    A course factor is measured against a reference time for its own distance, so it carries
+    whatever the population does differently from Daniels' fade there. The page says both
+    numbers or neither: the flat-reference figure, and the figure against the courses of the
+    same length. PLAN.md 13 item 36.
+    """
+    from finishline.publish import site
+
+    template = (Path("web") / "index.html").read_text(encoding="utf-8")
+    for token in ("{{tely_factor}}", "{{tely_peers}}", "{{marathon_span}}"):
+        assert token in template, f"{token} is what keeps the section honest"
+
+    faster = {"versus": -0.0414, "versus_low": -0.0498, "versus_high": -0.0342, "peers": 1}
+    assert site.peer_text(faster) == (
+        "4.1% faster than the only other course of that length on the archive "
+        "(95% interval 3.4 to 5.0)"
+    )
+    slower = {"versus": 0.0432, "versus_low": 0.0354, "versus_high": 0.0524, "peers": 3}
+    assert site.peer_text(slower).startswith("4.3% slower than the 3 other courses")
+    assert "(95% interval 3.5 to 5.2)" in site.peer_text(slower), "the narrow bound first"
+    unclear = {"versus": 0.004, "versus_low": -0.012, "versus_high": 0.019, "peers": 4}
+    assert site.peer_text(unclear).startswith("level with the 4 other courses"), (
+        "an interval that spans zero is not a difference"
+    )
+    assert site.peer_text({"versus": None, "peers": 0}) == "n/a"
+    assert site.peer_text(None) == "n/a", "a course alone at its length claims nothing"
+
+    span = site.marathon_text(
+        [
+            {"distance_m": 42195, "factor": 0.1116},
+            {"distance_m": 42195, "factor": 0.0447},
+            {"distance_m": 5000, "factor": -0.063},
+        ]
+    )
+    assert "the 2 marathons" in span and "+4.5%" in span and "+11.2%" in span
+    assert site.marathon_text([{"distance_m": 5000, "factor": -0.063}]) == "n/a"
