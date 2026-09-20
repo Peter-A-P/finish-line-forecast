@@ -11,7 +11,7 @@ the model's race effect (section 13 item 27), the LightGBM challenger, and the p
 model.
 
 **Section 13 is the log of what the data refuted**, and it is the first thing to read after
-this line: thirty-four numbered entries, each one a design in this plan that measurement
+this line: thirty-five numbered entries, each one a design in this plan that measurement
 overturned. What is open and who owns it is in [docs/todo.md](docs/todo.md).
 
 **Build:** planned in relative weeks. Earliest start: now. The first live target fixes the
@@ -351,8 +351,15 @@ cost, which is a fairer test than handing the challenger the other model's weath
 correction. Refitted per calendar quarter on the history before it, like the hierarchical
 model, on every finish since 2010; hyperparameters fixed before the first run and never tuned
 on the backtest. Its rows are saved and keyed like the hierarchical run's, so `report`
-publishes them beside the others and never refits. It is a challenger only: the published
-predictions stay the hierarchical model's.
+publishes them beside the others and never refits.
+
+**Amended 2026-09-20, section 13 items 33 to 35.** It stopped being a challenger only. It is
+more accurate than the hierarchical model for every runner with a history, and what publishes
+is now the average of the two on the log scale, weighted 0.65 towards the trees, with the
+hierarchical model's draws moved onto the averaged centre (`models/blend.py`). The weight was
+read off 2022 and 2023, never the backtest. So the challenger is fitted at freeze time as well
+as at every backtest origin, and a freeze refuses when the saved challenger run does not match
+the code it would publish with.
 
 ### 5.5 Rolling origin
 
@@ -1314,9 +1321,11 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     one shared morning and the forecast's error as noise, which quantile trees do not give. A
     first look at an average of the two models' medians was better than either at four or more
     prior results (5.05 minutes) and for first-timers; it is not a published number until it
-    has its own paired interval. Which model or blend publishes Cape to Cabot is decided and
-    written here before that race's model lock on 2026-10-11. Turkey Tea is predicted by the
-    hierarchical model as built.
+    has its own paired interval. **Settled in item 35**: the average publishes, weighted 0.65
+    towards the challenger, with the hierarchical model's draws moved onto the averaged centre
+    so that a place and a time stay one prediction. That covers Turkey Tea and Cape to Cabot
+    alike, so the sentence this item first ended on, that Turkey Tea would be predicted by the
+    hierarchical model as built, no longer holds.
 
 34. **Tuning the challenger bought about one percent, and six of the nine ideas made it
     worse.** Peter asked whether more could be squeezed out of the challenger, which is fair:
@@ -1373,3 +1382,72 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     4.2 places closer than carry-forward on the same runners, against the hierarchical model's
     1.8. The tuning window said about one percent and the test set agrees, which is the point
     of having kept them apart.
+
+35. **Neither model publishes: the average of the two does, and the weight was chosen where
+    the backtest could not see it.** Item 33 left a question open. The challenger is more
+    accurate than the hierarchical model for every runner with a history, but the hierarchical
+    model is what a published prediction is made of: a set of joint draws of a whole field on
+    one shared morning, which is what a place in a field of several hundred needs and what
+    seven quantiles per runner cannot supply. A first look at averaging the two medians was
+    better than either at four or more prior results and was written up as not yet a number.
+    This is that number.
+
+    **What is published** (`models/blend.py`). The average is on the log scale, the scale
+    everything here is measured on, log(published) = 0.35 log(hierarchical) + 0.65 log(trees).
+    The distribution is the hierarchical model's, moved: each runner's draws are multiplied by
+    the single factor that puts their median on the averaged centre, so their 80% and 90%
+    ranges and their simulated place move with their time, and the shared morning that makes
+    the places a field rather than a list is untouched. The conformal layer then calibrates on
+    the average's own backtest errors, which is what keeps the published coverage honest. A
+    newcomer drawn from a course's first-timer pool (`placing/unseen.py`, the biggest races
+    only) is left out of the average: that pool is a measurement of how first-timers actually
+    finished there, and the trees have nothing to add to it.
+
+    **Where the weight came from** (`scratch/blend_weight.py`). Both models were run over 2022
+    and 2023 with the same quarterly block scheme as the backtest, the same window the
+    challenger's features and parameters were tuned on in item 34, for the reason given there:
+    a weight read off the 2024+ races would make those races report a number about themselves.
+    On that window, 34 races and 7,602 runners both models answered for, the best weight was
+    0.65 at 9.540 points of a finish time, against 9.996 for the hierarchical model alone and
+    9.681 for the trees alone. The curve is flat: 9.545 at 0.60, 9.540 at 0.65 and 0.70, 9.548
+    at 0.75. Resampling races 2,000 times and re-reading the weight on each draw puts it
+    between 0.50 and 0.80 with a median of 0.70, and no draw below 0.40. So what the window
+    establishes is the direction, lean about two thirds on the trees, rather than the second
+    decimal, and 0.65 is what the code uses.
+
+    **What it buys on the test set** (2026-09-20, the same 53 races from 2024, paired on
+    runners with races resampled). Against the hierarchical model, in points of a finish time:
+    one prior result -0.91 (-1.44 to -0.68), two or three -0.92 (-1.19 to -0.77), four or more
+    -0.51 (-0.63 to -0.40), first-timers +0.07 (-1.05 to +0.65), level. Against the challenger:
+    first-timers -0.59 (-0.96 to -0.13), four or more -0.12 (-0.22 to -0.03), one prior result
+    -0.00 (-0.12 to +0.23), level, two or three +0.08 (+0.02 to +0.20), a shade behind. Over
+    every depth at once, -0.455 (-0.847 to -0.255) against the hierarchical model and -0.217
+    (-0.327 to -0.040) against the challenger. In minutes: 18.1 at no prior results, 8.7 at
+    one, 7.7 at two or three, 5.0 at four or more, and 32% skill against carry-forward at four
+    or more where the hierarchical model had 27% and the challenger 30%. The window predicted
+    a gain of 0.46 points against the hierarchical model and 0.14 against the trees; the test
+    set returned 0.46 and 0.22. Placing: 48.7 mean absolute place error over the whole field
+    against the hierarchical model's 50.9, and on the same runners 4.1 places closer than
+    carry-forward, with the rank correlation 0.876 against carry-forward's 0.849.
+
+    **A side benefit that was not the aim.** The average's own uncalibrated ranges hold better
+    than either parent's at the 80% level: 80% at four or more prior results against the
+    hierarchical model's 77% and the trees' 70%, and 74% at two or three against 71% and 68%.
+    Averaging two centres and keeping one model's spread makes the spread slightly too wide for
+    the sharper centre, which is the right direction to err in. After calibration all three sit
+    between 74 and 80%, so this changes the published intervals very little; it is recorded because
+    the opposite would have been a reason not to ship the average.
+
+    **What is honest about the size of this.** The gain is a few tenths of a percent of a
+    finish time, which is seconds, not minutes, and against the challenger alone it is small
+    enough to be behind at one depth. Averaging models that make different mistakes is the
+    oldest trick in forecasting and it worked here about as well as it usually does. It ships
+    because it is measured on races that never chose it, at both ends, and the alternative was
+    publishing a model that a simpler method already beat.
+
+    **Decided here.** All predictions are the average from now on, including the Turkey Tea
+    10 km dress rehearsal on 2026-10-04 and Cape to Cabot on 2026-10-18, and the prediction
+    file's `model` block records the weight, the formula and how many runners the challenger
+    answered for, so a reader can tell which of the two moved their time. A run with no saved
+    challenger backtest matching the code refuses to freeze rather than quietly publishing the
+    hierarchical model with intervals calibrated on something else.

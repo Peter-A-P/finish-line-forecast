@@ -783,8 +783,9 @@
     ["carry-forward", "Last time", "m-cf"],
     ["best-equal-vdot", "Race calculator", "m-vdot"],
     ["category-median", "Your category", "m-median"],
+    ["hierarchical", "Bayesian model", "m-hier"],
     ["lightgbm", "LightGBM challenger", "m-gbm"],
-    ["hierarchical", "This model", "m-model"]
+    ["blend", "What this site publishes", "m-model"]
   ];
 
   function drawResults(strata) {
@@ -815,7 +816,7 @@
           (isNumber(v.skill) ? "; " + (v.skill >= 0 ? percent(v.skill) + " better" : percent(-v.skill) + " worse") + " than last time" : ""));
         root.appendChild(bar);
         root.appendChild(svg("line", { x1: x + bw / 2, x2: x + bw / 2, y1: y(v.low_min), y2: y(v.high_min), "class": "whisker" }));
-        if (m[0] === "hierarchical") {
+        if (m[0] === "blend") {
           root.appendChild(svg("text", { x: x + bw / 2, y: y(v.high_min) - 6, "text-anchor": "middle", "class": "bar-value" }, v.mae_min.toFixed(1)));
         }
       });

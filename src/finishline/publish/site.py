@@ -39,7 +39,8 @@ from pathlib import Path
 from typing import Any
 
 from finishline.metrics import daniels
-from finishline.publish import daily, predictions
+from finishline.models import blend
+from finishline.publish import daily, predictions, showcase
 from finishline.schema import HALF_MARATHON_M
 
 REPOSITORY = "https://github.com/Peter-A-P/finish-line-forecast"
@@ -287,9 +288,9 @@ def tokens(
     backtest = results["backtest"]
     strata = {row["label"]: row["models"] for row in backtest["strata"]}
     deep = strata.get("4 or more", {})
-    model = deep.get("hierarchical", {})
-    baseline = deep.get("carry-forward", {})
-    newcomer = strata.get("0", {}).get("hierarchical", {})
+    model = deep.get(showcase.MODEL, {})
+    baseline = deep.get(showcase.BASELINE, {})
+    newcomer = strata.get("0", {}).get(showcase.MODEL, {})
     coverage = {(row["stratum"], row["level"]): row for row in backtest["coverage"]}
     cov_deep = coverage.get(("4 or more", 0.8), {})
     cov_new = coverage.get(("0", 0.8), {})
@@ -306,6 +307,10 @@ def tokens(
         "repository": REPOSITORY,
         "gbm_verdict": gbm_verdict,
         "gbm_ranges": gbm_ranges,
+        # From the constant the predictions are made with, so the page cannot state a weight
+        # the model does not use.
+        "blend_weight": f"{blend.WEIGHT:.2f}",
+        "blend_parent_weight": f"{1 - blend.WEIGHT:.2f}",
         "mae_model": _number(model.get("mae_min")),
         "mae_cf": _number(baseline.get("mae_min")),
         "mae_new": _number(newcomer.get("mae_min"), 0),
@@ -334,10 +339,80 @@ def tokens(
     }
 
 
-def challenger_text(results: Mapping[str, Any]) -> tuple[str, str]:
-    """What the page says about the LightGBM challenger, from its numbers, or that it is owed.
+_DEPTHS = {
+    "0": "first-timers",
+    "1": "runners with one past race",
+    "2 to 3": "runners with two or three past races",
+    "4 or more": "runners with four or more past races",
+}
 
-    Worded from the paired comparison on the same runners with a race-level interval
+
+def _blend_sentences(backtest: Mapping[str, Any]) -> list[str]:
+    """What the page says about publishing the average of the two models.
+
+    Silent until both comparisons are in the file, because the claim the page makes is that the
+    average beats both parents, and a page cannot make that claim from one of them.
+    """
+    blend = backtest.get("blend_paired") or {}
+    against_model = blend.get("hierarchical") or []
+    against_trees = blend.get("lightgbm") or []
+    if not against_model or not against_trees:
+        return []
+    said = [
+        "<strong>So what this site publishes is neither model on its own: it is the two "
+        "averaged.</strong> The average is taken on the log scale, leaning about two thirds on "
+        "the trees, and how far to lean was read off the 2022 and 2023 races alone, so nothing "
+        "in the tables on this page helped choose it."
+    ]
+    for name, rows in (("Bayesian model", against_model), ("trees", against_trees)):
+        ahead, level, behind = _phrases(rows)
+        parts = []
+        if ahead:
+            parts.append("better for " + "; ".join(ahead))
+        if level:
+            parts.append("level for " + "; ".join(level))
+        if behind:
+            parts.append("behind for " + "; ".join(behind))
+        if parts:
+            body = parts[0] if len(parts) == 1 else ", ".join(parts[:-1]) + ", and " + parts[-1]
+            said.append(f"Against the {name}, the average is {body}.")
+    said.append(
+        "Averaging two models that make different mistakes is the oldest trick in forecasting, "
+        "and the gain here is real but small: a few tenths of a percent of a finish time, which "
+        "is seconds rather than minutes. It is published because it is measured, at the size it "
+        "was measured."
+    )
+    return said
+
+
+def _phrases(paired: Sequence[Mapping[str, Any]]) -> tuple[list[str], list[str], list[str]]:
+    """Each depth sorted into ahead, level and behind, as the page says them.
+
+    Ahead means the first model named in the comparison is more accurate and the interval is
+    clear of zero. An interval that crosses zero is called level, whichever way it leans.
+    """
+    ahead: list[str] = []
+    level: list[str] = []
+    behind: list[str] = []
+    for row in paired:
+        _point, low, high = row["difference"]
+        who = _DEPTHS.get(row["label"], f"runners with {row['label']} past races")
+        times = f"{row['model_min']:.1f} against {row['other_min']:.1f} minutes"
+        gap = sorted((abs(low), abs(high)))
+        detail = f"{who} ({times}, {gap[0]:.1f} to {gap[1]:.1f} points of a finish time)"
+        if high < 0:
+            ahead.append(detail)
+        elif low > 0:
+            behind.append(detail)
+        else:
+            level.append(f"{who} ({times})")
+    return ahead, level, behind
+
+
+def challenger_text(results: Mapping[str, Any]) -> tuple[str, str]:
+    """What the page says about the challenger and the blend, from their numbers.
+
+    Worded from the paired comparisons on the same runners with a race-level interval
     (`score.paired_error`), not from two marginal MAE intervals, which overlap even when one
     model is consistently ahead. A difference whose interval crosses zero is called level.
     """
@@ -347,52 +422,27 @@ def challenger_text(results: Mapping[str, Any]) -> tuple[str, str]:
         owed = "The LightGBM challenger's backtest is not published yet."
         return owed, owed
 
-    words = {"0": "none", "1": "one", "2 to 3": "two or three", "4 or more": "four or more"}
-    ahead: list[str] = []
-    level: list[str] = []
-    behind: list[str] = []
-    for row in paired:
-        _point, low, high = row["difference"]
-        times = f"{row['challenger_min']:.1f} against {row['model_min']:.1f} minutes"
-        label = f"{words.get(row['label'], row['label'])} ({times}"
-        gap = sorted((abs(low), abs(high)))
-        if high < 0:
-            ahead.append(f"{label}, {gap[0]:.1f} to {gap[1]:.1f} points of a finish time)")
-        elif low > 0:
-            behind.append(f"{label}, {gap[0]:.1f} to {gap[1]:.1f} points of a finish time)")
-        else:
-            who = (
-                "first-timers"
-                if row["label"] == "0"
-                else f"runners with {words.get(row['label'], row['label'])} past races"
-            )
-            level.append(f"{who} ({times})")
+    ahead, level, behind = _phrases(paired)
     sentences = []
     if ahead:
         sentences.append(
-            "<strong>On the same runners, the LightGBM challenger is more accurate than this "
-            "model</strong> for runners with this many past races: " + "; ".join(ahead) + "."
+            "<strong>On the same runners, the LightGBM challenger is more accurate than the "
+            "Bayesian model</strong> for " + "; ".join(ahead) + "."
         )
     if behind:
-        sentences.append(
-            "This model is more accurate for runners with this many: " + "; ".join(behind) + "."
-        )
+        sentences.append("The Bayesian model is more accurate for " + "; ".join(behind) + ".")
     if level:
         sentences.append("The two are level for " + "; ".join(level) + ".")
     challenger_places = backtest.get("challenger_placing")
-    model_places = backtest.get("placing")
-    if challenger_places and model_places:
+    parent_places = backtest.get("parent_placing")
+    if challenger_places and parent_places:
         mine = -challenger_places["difference"][0]
-        theirs = -model_places["difference"][0]
+        theirs = -parent_places["difference"][0]
         sentences.append(
             f"On the order of a field, it is {mine:.1f} places closer than \"last time\" on the "
-            f"same runners, against this model's {theirs:.1f}."
+            f"same runners, against the Bayesian model's {theirs:.1f}."
         )
-    sentences.append(
-        "That is the point of running a challenger, and it is published as measured. Which "
-        "model, or which blend of the two, publishes the Cape to Cabot predictions is decided "
-        "and written down before that race's model is locked on 11 October."
-    )
+    sentences.extend(_blend_sentences(backtest))
     verdict = " ".join(sentence for sentence in sentences if sentence)
 
     held = {

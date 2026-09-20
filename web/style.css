@@ -630,12 +630,15 @@ tbody tr.reference { background: var(--accent-soft); }
 /* ================================================================ Finish Line Forecast */
 
 /* Four methods, five race lengths and five kinds of history, and the colours the charts name
-   them by. The model is the accent; the three baselines are neutral steps, because they are
-   the backdrop the model is measured against. */
+   them by. What the site publishes is the accent; the three baselines are neutral steps,
+   because they are the backdrop it is measured against. The published prediction averages the
+   Bayesian model and the challenger, so those two carry lighter shades of the accent and the
+   alternate, near their average but never mistaken for it. */
 :root {
   --m-cf: #8a8f98;
   --m-vdot: #b5a58a;
   --m-median: #d6d1c6;
+  --m-hier: #5f9fae;
   --d4: #0b4653;
   --d2: #2f8294;
   --d1: #7bb3c0;
@@ -655,6 +658,7 @@ tbody tr.reference { background: var(--accent-soft); }
     --m-cf: #7d838d;
     --m-vdot: #8f8166;
     --m-median: #4a4f58;
+    --m-hier: #40798a;
     --d4: #cbeaf2;
     --d2: #7cc7d6;
     --d1: #3d8ea1;
@@ -868,6 +872,7 @@ input[type="search"]:disabled { opacity: 0.55; }
 .bar.m-cf { fill: var(--m-cf); }
 .bar.m-vdot { fill: var(--m-vdot); }
 .bar.m-median { fill: var(--m-median); }
+.bar.m-hier { fill: var(--m-hier); }
 .bar.m-gbm { fill: var(--alt); }
 .bar.m-model { fill: var(--accent); }
 
@@ -888,6 +893,7 @@ input[type="search"]:disabled { opacity: 0.55; }
 .sw-cf { background: var(--m-cf); }
 .sw-vdot { background: var(--m-vdot); }
 .sw-median { background: var(--m-median); }
+.sw-hier { background: var(--m-hier); }
 .sw-gbm { background: var(--alt); }
 .sw-model { background: var(--accent); }
 

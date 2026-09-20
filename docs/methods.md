@@ -68,9 +68,36 @@ Priors are weak on the log scale, and the few constants taken from elsewhere (Da
 tables, the 12 C knee, the prior scale for the sun from the US National Weather Service's
 15 F) are named where they are used.
 
-## 5. A prediction
+## 5. The second model, and the average that publishes
 
-Draws, not a number (`Posterior.predict`). Each posterior draw is a complete version of the
+A LightGBM quantile challenger runs beside the hierarchical model on the same information
+(`models/gbm.py`): form on the same Daniels scale, history depth and age, course difficulty and
+the six raw weather features, seven quantiles from pinball loss, refitted per quarter. It is
+more accurate than the hierarchical model for every runner with a history (PLAN.md section 13
+items 33 and 34).
+
+What publishes is neither model alone but the average of the two on the log scale
+(`models/blend.py`, PLAN.md section 13 item 35):
+
+    log(published) = 0.35 * log(hierarchical) + 0.65 * log(challenger)
+
+The distribution stays the hierarchical model's, moved. Each runner's draws are multiplied by
+the one factor that puts their median on the averaged centre, because a place in a field needs
+joint draws of everyone on one shared morning and seven quantiles per runner cannot give them;
+their whole range moves with their time, so a published time and a published place are the same
+prediction. The conformal layer then calibrates on the average's own errors, not the
+hierarchical model's. A newcomer drawn from a course's first-timer pool (section 8) is left out
+of the average, since that pool is a measurement rather than either model's guess.
+
+The weight was read off the 2022 and 2023 races alone (`scratch/blend_weight.py`), the same
+window the challenger's own settings were tuned on, so that the races the backtest scores
+(section 10) never helped choose it. On that window the best weight was 0.65, the curve was flat from 0.60
+to 0.75, and resampling races put it between 0.50 and 0.80.
+
+## 6. A prediction
+
+Draws, not a number (`Posterior.predict`), moved onto the averaged centre as section 5
+describes. Each posterior draw is a complete version of the
 runner, the course and the year; each is walked forward to race day and given a fresh
 morning and a fresh bad day, and the median of the resulting finish times is the point
 prediction. A runner the archive has never seen is drawn from their sex's age groups,
@@ -79,7 +106,7 @@ is the day-ahead forecast, with its measured error at this airport added as nois
 (`data/forecast_error.toml`); in the backtest it is the observation, which is the kinder of
 the two and is said so beside the tables.
 
-## 6. Intervals
+## 7. Intervals
 
 The model's own 80% and 90% intervals are checked against races already run and moved until
 they hold: split conformal on the log scale, calibrated separately for runners with no, one,
@@ -88,7 +115,7 @@ being predicted (`conformal/split.py`). The guarantee is on average over races w
 group, provided a new race behaves like the earlier ones, and that assumption is printed
 beside every coverage table.
 
-## 7. Places
+## 8. Places
 
 The whole field is simulated together many times, with one morning per simulated race
 shared by every runner in it, and each runner's place is reported as a median and a range
@@ -101,7 +128,7 @@ returning field, rather than from the group prior (`placing/unseen.py`). It cann
 newcomer will be fast, so the race page shows the places they are expected to take as
 placeholders, with the expected count and its range.
 
-## 8. Who is running
+## 9. Who is running
 
 For a race with a public entrant list (Athletics NorthEAST's, or Trackie's), the list at
 freeze time is the field. Each entrant is linked to at most one runner by name key and sex
@@ -110,7 +137,7 @@ excluded and counted, because the list prints no age to choose between them, unl
 prints a hometown that exactly one of them was ever printed under. Races without a
 list need a participation model, which is not built yet (PLAN.md 5.6).
 
-## 9. The backtest
+## 10. The backtest
 
 Every race from 2024 on is predicted from results dated strictly before it (`backtest/`). The
 model is fitted once per calendar quarter on the history before the quarter's first day, so
@@ -120,7 +147,7 @@ projected by equal VDOT, and the median of the runner's category. Errors are rep
 minutes and in percent, per history depth, with bootstrap intervals; placing is compared both
 as each model ranks its own runners and on the runners both models answered for.
 
-## 10. Freeze and score
+## 11. Freeze and score
 
 From seven days before the race, `finishline freeze --daily` publishes a file a day with the
 entrants no earlier file predicted, each with that morning's forecast at that lead; the day

@@ -77,6 +77,30 @@ def test_the_committed_numbers_name_nobody() -> None:
             assert all(value is None or isinstance(value, int) for value in point)
 
 
+def test_the_committed_numbers_report_the_model_that_publishes() -> None:
+    """The website's numbers are about the blend, and both its parents are still shown.
+
+    A page that reports one model and publishes another is the failure this guards against.
+    """
+    if not COMMITTED.exists():
+        pytest.skip("written by `finishline report`")
+    from finishline.models import blend
+
+    assert showcase.MODEL == blend.NAME
+    payload = json.loads(COMMITTED.read_text(encoding="utf-8"))
+    backtest = payload["backtest"]
+    strata = {row["label"]: row["models"] for row in backtest["strata"]}
+    for label, models in strata.items():
+        assert blend.NAME in models, f"the published model is missing at depth {label}"
+        assert showcase.PARENT in models and showcase.CHALLENGER in models, "both parents shown"
+    paired = backtest["blend_paired"]
+    assert set(paired) == {showcase.PARENT, showcase.CHALLENGER}
+    for rows in paired.values():
+        for row in rows:
+            point, low, high = row["difference"]
+            assert low <= point <= high, "a difference sits inside its own interval"
+
+
 def test_a_rerun_that_changes_nothing_changes_no_bytes(tmp_path: Path) -> None:
     path = tmp_path / "results.json"
     showcase.write(path, {"b": 1, "a": [1.5, None]})

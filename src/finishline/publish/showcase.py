@@ -31,7 +31,12 @@ from finishline.models import conditions, courses
 from finishline.schema import HALF_MARATHON_M, MARATHON_M, MILE_M
 from finishline.store import Dataset
 
-MODEL = "hierarchical"
+# What the website calls "the model" is what `freeze` publishes, and since PLAN.md 13 item 35
+# that is the blend: the hierarchical model's distribution moved onto the average of the two
+# models' centres. Both parents stay in the file, because a page that shows only the winner is
+# not showing the measurement.
+MODEL = "blend"
+PARENT = "hierarchical"
 BASELINE = "carry-forward"
 CHALLENGER = "lightgbm"
 
@@ -147,20 +152,13 @@ def backtest(
     payload["coverage"] = _coverage(scored, MODEL, race_dates)
     if CHALLENGER in names:
         payload["challenger_coverage"] = _coverage(scored, CHALLENGER, race_dates)
-        payload["challenger_paired"] = []
-        for label, _low, _high in score.STRATA:
-            same = [row for row in scored if score.stratum_of(row.depth) == label]
-            both = score.paired_error(same, CHALLENGER, MODEL)
-            if both is None:
-                continue
-            payload["challenger_paired"].append({
-                "label": label,
-                "runners": both.runners,
-                "races": both.races,
-                "challenger_min": _minutes(both.model_mae_seconds),
-                "model_min": _minutes(both.other_mae_seconds),
-                "difference": [round(value, 3) for value in both.difference],
-            })
+        # The challenger against the model it was built to test, which is item 33's finding and
+        # the reason the blend exists, and then the published blend against each parent.
+        payload["challenger_paired"] = _paired(scored, CHALLENGER, PARENT)
+        payload["blend_paired"] = {
+            PARENT: _paired(scored, MODEL, PARENT),
+            CHALLENGER: _paired(scored, MODEL, CHALLENGER),
+        }
         placing = score.paired_placing(scored, CHALLENGER, BASELINE)
         if placing is not None:
             gap, gap_low, gap_high = placing.gap_difference
@@ -169,6 +167,16 @@ def backtest(
                 "baseline": round(placing.baseline_gap, 2),
                 "difference": [round(gap, 2), round(gap_low, 2), round(gap_high, 2)],
                 "spearman": round(placing.spearman, 3),
+            }
+    if PARENT in names:
+        parent = score.paired_placing(scored, PARENT, BASELINE)
+        if parent is not None:
+            gap, gap_low, gap_high = parent.gap_difference
+            payload["parent_placing"] = {
+                "places": round(parent.gap, 2),
+                "baseline": round(parent.baseline_gap, 2),
+                "difference": [round(gap, 2), round(gap_low, 2), round(gap_high, 2)],
+                "spearman": round(parent.spearman, 3),
             }
     paired = score.paired_placing(scored, MODEL, BASELINE)
     if paired is not None:
@@ -185,6 +193,30 @@ def backtest(
             "spearman_difference": [round(rho, 3), round(rho_low, 3), round(rho_high, 3)],
         }
     return payload
+
+
+def _paired(scored: Sequence[score.Scored], model: str, other: str) -> list[dict[str, Any]]:
+    """One model against another on the same runners, by history depth.
+
+    `model_min` is the first model named, `other_min` the second, and `difference` is negative
+    when the first is more accurate. Races are resampled for the interval, because two marginal
+    error intervals overlap even where one model is consistently ahead (`score.paired_error`).
+    """
+    out = []
+    for label, _low, _high in score.STRATA:
+        same = [row for row in scored if score.stratum_of(row.depth) == label]
+        both = score.paired_error(same, model, other)
+        if both is None:
+            continue
+        out.append({
+            "label": label,
+            "runners": both.runners,
+            "races": both.races,
+            "model_min": _minutes(both.model_mae_seconds),
+            "other_min": _minutes(both.other_mae_seconds),
+            "difference": [round(value, 3) for value in both.difference],
+        })
+    return out
 
 
 def _coverage(

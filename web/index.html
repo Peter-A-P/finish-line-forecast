@@ -163,7 +163,7 @@
       <li><span class="step">1</span><strong>Read</strong><span>Every public road-race result in the province since {{first_year}}, fetched once, politely.</span></li>
       <li><span class="step">2</span><strong>Resolve</strong><span>Join results into people, with no ID number to go on.</span></li>
       <li><span class="step">3</span><strong>Adjust</strong><span>Put every race on one scale: distance, course, heat, wind.</span></li>
-      <li><span class="step">4</span><strong>Model</strong><span>Estimate each runner's fitness, borrowing strength from similar runners.</span></li>
+      <li><span class="step">4</span><strong>Model</strong><span>Estimate each runner's fitness, borrowing strength from similar runners, and average that with a second model that learns differently.</span></li>
       <li><span class="step">5</span><strong>Predict</strong><span>A time, an honest range and a likely place for everyone registered.</span></li>
       <li><span class="step">6</span><strong>Lock</strong><span>Commit, fingerprint and date-stamp the prediction in public before the gun.</span></li>
       <li><span class="step">7</span><strong>Score</strong><span>Compare against the official results, and publish the error.</span></li>
@@ -578,8 +578,9 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
       <div><dt><span class="swatch solid sw-cf"></span>Last time</dt><dd>You will run what you ran in your most recent race, adjusted for distance and course. Simple, and hard to beat.</dd></div>
       <div><dt><span class="swatch solid sw-vdot"></span>Race calculator</dt><dd>Your best recent race, converted with Daniels' tables. What most runners use.</dd></div>
       <div><dt><span class="swatch solid sw-median"></span>Your category</dt><dd>The typical time for your age group and sex. All there is for a first-timer.</dd></div>
+      <div><dt><span class="swatch solid sw-hier"></span>Bayesian model</dt><dd>The hierarchical model described above, on its own: every runner estimated together with runners like them.</dd></div>
       <div><dt><span class="swatch solid sw-gbm"></span>LightGBM challenger</dt><dd>Gradient-boosted trees, the workhorse of applied machine learning, on the same history, course and weather. Is the Bayesian model worth its complexity?</dd></div>
-      <div><dt><span class="swatch solid sw-model"></span>This model</dt><dd>Everything above, together.</dd></div>
+      <div><dt><span class="swatch solid sw-model"></span>What this site publishes</dt><dd>The two of them averaged. They make different mistakes, and the average is better than either.</dd></div>
     </dl>
     <figure class="chart-figure">
       <div id="results-chart" class="chart wide-chart"></div>
@@ -597,6 +598,37 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
       </p>
       <p>{{gbm_verdict}}</p>
     </div>
+    <details class="disclose">
+      <summary>For the technical reader: how two models become one prediction</summary>
+      <p>
+        Averaging is on the log scale, which is the scale everything here is measured on, and the
+        weight sits on the trees: log(published) = {{blend_parent_weight}} log(Bayesian) +
+        {{blend_weight}} log(trees). But a
+        published prediction is not one number. It carries two ranges and a place in a field of
+        several hundred, and a place needs every runner drawn together on one shared morning.
+        Quantile trees give seven numbers per runner and no joint draws, so there is nothing to
+        simulate a field from.
+      </p>
+      <p>
+        So the published distribution is the Bayesian model's, moved. Each runner's draws are
+        multiplied by the single factor that puts their median on the averaged centre, which
+        shifts their whole range with their time and leaves the shared morning intact, so the
+        time and the place a runner reads are the same prediction rather than two. The
+        calibration step then runs on the average's own backtest errors, not the Bayesian
+        model's, which is what keeps the published coverage honest. A first-timer at one of the
+        biggest races is drawn instead from how first-timers actually finished on that course,
+        and is left out of the average: that pool is a measurement, and the trees have nothing
+        to add to it.
+      </p>
+      <p>
+        How far to lean was chosen on the 2022 and 2023 races only, the same window the
+        challenger's own settings were tuned on, and never on the races scored above. On that
+        window the best weight was {{blend_weight}}, the curve was flat between 0.60 and 0.75, and
+        resampling races put it between 0.50 and 0.80, so what the window fixes is the
+        direction rather than the second decimal. Reading it off the races in the tables above
+        would have made those races report a number about themselves.
+      </p>
+    </details>
     <details class="disclose">
       <summary>For the technical reader: how the backtest avoids cheating</summary>
       <p>
@@ -770,6 +802,7 @@ sha256sum predictions/tt-2026.json      # the same hash, or the file was changed
         <dt>Bayesian hierarchical model</dt><dd>A statistical model in which each runner's parameters are estimated together with their group's, so runners with little data borrow strength from runners like them.</dd>
         <dt>Conformal prediction</dt><dd>A way of calibrating prediction ranges on past errors so that they hold as often as they claim, on average, under stated assumptions.</dd>
         <dt>Coverage</dt><dd>How often a range actually contained the outcome. An 80% range should cover about 80% of finishes.</dd>
+        <dt>Ensemble, or blend</dt><dd>Averaging the predictions of two models that make different mistakes. Where one is too fast and the other too slow, the average lands closer than either, which is why the published prediction here is an average of two.</dd>
         <dt>Mean absolute error</dt><dd>The average size of a miss, ignoring whether it was too fast or too slow.</dd>
         <dt>Pre-registration</dt><dd>Publishing a prediction, fixed and dated, before the event it predicts, so it cannot be adjusted after the fact.</dd>
         <dt>SHA-256</dt><dd>A fingerprint of a file. Change one character and the fingerprint changes completely.</dd>

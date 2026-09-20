@@ -40,11 +40,12 @@ from finishline.backtest.score import Scored
 
 NAME = "blend"
 
-# PROVISIONAL, and no prediction file has been written with it. 0.6 is a first look at the
-# 2024+ rows, which is exactly the wrong place to read a weight from: it would make those races
-# report a number about themselves. `scratch/blend_weight.py` is running both models over
-# 2022-2023 to fix it honestly, and item 35 records the answer when it lands.
-WEIGHT = 0.6
+# Read off 2022 and 2023 only, never the backtest (`scratch/blend_weight.py`, PLAN.md 13 item
+# 35): both models run over the same window the challenger was tuned on, 34 races and 7,602
+# runners they both answered for. The curve is flat from 0.60 to 0.75, and resampling races puts
+# the best weight between 0.50 and 0.80, so what the window establishes is the direction, lean
+# about two thirds on the challenger, rather than this second decimal.
+WEIGHT = 0.65
 
 
 def centre(hierarchical: float, challenger: float, weight: float = WEIGHT) -> float:

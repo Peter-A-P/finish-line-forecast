@@ -801,24 +801,27 @@ def write_report(
     )
     baseline_text = report.baseline_table(scored, names)
     if saved_rows is not None and challenger is not None:
+        # The challenger against the model it was built to test, and then the published blend
+        # against each of its parents: the comparisons two overlapping MAE intervals cannot make.
         baseline_text += "\n\n" + report.paired_error_table(scored, gbm.NAME, "hierarchical")
+        if blended is not None:
+            baseline_text += "\n\n" + report.paired_error_table(
+                scored, blend.NAME, "hierarchical"
+            )
+            baseline_text += "\n\n" + report.paired_error_table(scored, blend.NAME, gbm.NAME)
     text = report.replace_between(text, "baselines", baseline_text)
     text = report.replace_between(text, "placing", report.placing_table(scored, names))
-    text = report.replace_between(
-        text,
-        "coverage",
-        _coverage(
-            data,
-            scored,
-            "hierarchical" if saved_rows is not None else None,
-            assumption=challenger is None,
-        )
-        + (
-            ""
-            if challenger is None
-            else "\n\n" + _coverage(data, scored, gbm.NAME)
-        ),
-    )
+    # The published model's coverage comes first, then each parent's, and the conformal
+    # assumption is stated once, under the last table.
+    published = None
+    if saved_rows is not None:
+        published = blend.NAME if blended is not None else "hierarchical"
+    shown = [published, *(n for n in ("hierarchical", gbm.NAME) if n in names and n != published)]
+    tables = [
+        _coverage(data, scored, name, assumption=position == len(shown) - 1)
+        for position, name in enumerate(shown)
+    ]
+    text = report.replace_between(text, "coverage", "\n\n".join(tables))
     readme.write_text(text, encoding="utf-8", newline="\n")
     _write_live_rows()
     typer.echo("README.md tables rewritten from the measurement")

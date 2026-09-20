@@ -548,3 +548,34 @@ def test_the_places_follow_the_blended_times() -> None:
     )
     assert scaled[:, 0] == pytest.approx(plain[:, 0] * 0.5)
     assert scaled[:, 1] == pytest.approx(plain[:, 1]), "nobody else moves"
+
+
+def test_the_page_states_the_weight_the_predictions_are_made_with() -> None:
+    """The website cannot state a blend weight the model does not use.
+
+    The page reads the weight through a token rather than in prose, so a change to
+    `blend.WEIGHT` reaches the page with the next build and this test fails if it is ever
+    typed by hand instead.
+    """
+    from finishline.models import blend
+    from finishline.publish import site
+
+    template = (Path("web") / "index.html").read_text(encoding="utf-8")
+    assert "{{blend_weight}}" in template and "{{blend_parent_weight}}" in template
+
+    empty = {
+        "archive": {
+            "finishes": 1, "runners": 1, "races": 1, "courses": 1,
+            "ambiguous": 0, "unparsed": 0, "first_year": 2008, "last_year": 2026,
+        },
+        "backtest": {
+            "strata": [], "coverage": [], "predictions": 0, "races": 0,
+            "first_race": "2024-01-01", "last_race": "2026-09-13",
+        },
+        "courses": [],
+    }
+    values = site.tokens(
+        empty, [], refuted=35, tests=1, code_lines=1, today=date(2026, 9, 20)
+    )
+    assert values["blend_weight"] == f"{blend.WEIGHT:.2f}"
+    assert float(values["blend_weight"]) + float(values["blend_parent_weight"]) == 1.0

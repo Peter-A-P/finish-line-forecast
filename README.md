@@ -8,11 +8,13 @@ time with an honest interval instead of a hunch.
 
 **Status: building.** Eighteen years of Newfoundland road results are read, 23,830
 runners resolved out of them, the three baselines are measured on every race since 2024,
-every course's difficulty is measured from the results, and the hierarchical model now beats
-the strongest of those baselines by 27% for the runners with four or more prior results, 5.4
-minutes of mean absolute error against carry-forward's 7.4, with no bias left to speak of. A
-LightGBM challenger given the same information is slightly more accurate still for every
-runner with a history, and that is published beside it rather than hidden. No prediction has
+every course's difficulty is measured from the results, and two models are measured against
+them: a Bayesian hierarchical model and a LightGBM challenger, which is the more accurate of
+the two for every runner with a history. What gets published is neither alone but the average
+of the two, which beats both, and that average is 32% closer than the strongest baseline for
+runners with four or more prior results, 5.0 minutes of mean absolute error against
+carry-forward's 7.4, with no bias left to speak of. The weight between them was chosen on
+2022 and 2023 alone, so the races reported here never helped pick it. No prediction has
 been made yet. The first live race is the Cape to Cabot 20 km in St. John's
 on 2026-10-18, with a second on a frozen model on 2026-11-11; predictions are committed,
 tagged and hashed in this repository before each race and scored against the official
@@ -178,21 +180,25 @@ it.
 |  |  | `category-median` | 95% | 18.4 (17.9 to 18.9) | 18% | - |
 |  |  | `hierarchical` | 100% | 18.3 (17.9 to 18.8) | 18% | - |
 |  |  | `lightgbm` | 100% | 18.6 (18.1 to 19.1) | 17% | - |
+|  |  | `blend` | 100% | 18.1 (17.6 to 18.6) | 17% | - |
 | 1 | 2713 | `carry-forward` | 100% | 9.6 (9.2 to 10.0) | 10% | baseline |
 |  |  | `best-equal-vdot` | 64% | 7.5 (7.1 to 8.0) | 8% | 21% |
 |  |  | `category-median` | 96% | 16.1 (15.5 to 16.7) | 16% | -68% |
 |  |  | `hierarchical` | 100% | 9.4 (9.0 to 9.9) | 10% | 2% |
 |  |  | `lightgbm` | 100% | 8.8 (8.4 to 9.2) | 9% | 8% |
+|  |  | `blend` | 100% | 8.7 (8.3 to 9.1) | 9% | 9% |
 | 2 to 3 | 2910 | `carry-forward` | 100% | 9.3 (8.9 to 9.7) | 9% | baseline |
 |  |  | `best-equal-vdot` | 73% | 7.8 (7.4 to 8.2) | 8% | 16% |
 |  |  | `category-median` | 95% | 15.8 (15.2 to 16.4) | 16% | -70% |
 |  |  | `hierarchical` | 100% | 8.5 (8.2 to 8.9) | 9% | 8% |
 |  |  | `lightgbm` | 100% | 7.7 (7.4 to 8.1) | 8% | 17% |
+|  |  | `blend` | 100% | 7.7 (7.4 to 8.1) | 8% | 17% |
 | 4 or more | 7490 | `carry-forward` | 100% | 7.4 (7.2 to 7.6) | 8% | baseline |
 |  |  | `best-equal-vdot` | 87% | 7.2 (7.0 to 7.4) | 7% | 2% |
 |  |  | `category-median` | 95% | 14.0 (13.7 to 14.4) | 18% | -90% |
 |  |  | `hierarchical` | 100% | 5.4 (5.2 to 5.6) | 6% | 27% |
 |  |  | `lightgbm` | 100% | 5.2 (5.0 to 5.3) | 6% | 30% |
+|  |  | `blend` | 100% | 5.0 (4.8 to 5.2) | 5% | 32% |
 
 `lightgbm` against `hierarchical` on the same runners. The difference is in mean absolute error as a percent of each runner's own finish time; negative favours `lightgbm`, and the 95% CI resamples races.
 
@@ -202,6 +208,24 @@ it.
 | 1 | 2,707 | 52 | 8.8 vs 9.4 | -0.91 (-1.65 to -0.57) |
 | 2 to 3 | 2,904 | 52 | 7.7 vs 8.5 | -1.00 (-1.39 to -0.79) |
 | 4 or more | 7,480 | 51 | 5.2 vs 5.4 | -0.39 (-0.59 to -0.21) |
+
+`blend` against `hierarchical` on the same runners. The difference is in mean absolute error as a percent of each runner's own finish time; negative favours `blend`, and the 95% CI resamples races.
+
+| Prior results | Runners | Races | MAE, minutes, `blend` vs `hierarchical` | Difference, points of a finish time (95% CI) |
+|---|---:|---:|---|---|
+| 0 | 5,703 | 53 | 18.1 vs 18.3 | +0.07 (-1.05 to +0.65) |
+| 1 | 2,707 | 52 | 8.7 vs 9.4 | -0.91 (-1.44 to -0.68) |
+| 2 to 3 | 2,904 | 52 | 7.7 vs 8.5 | -0.92 (-1.19 to -0.77) |
+| 4 or more | 7,480 | 51 | 5.0 vs 5.4 | -0.51 (-0.63 to -0.40) |
+
+`blend` against `lightgbm` on the same runners. The difference is in mean absolute error as a percent of each runner's own finish time; negative favours `blend`, and the 95% CI resamples races.
+
+| Prior results | Runners | Races | MAE, minutes, `blend` vs `lightgbm` | Difference, points of a finish time (95% CI) |
+|---|---:|---:|---|---|
+| 0 | 5,703 | 53 | 18.1 vs 18.6 | -0.59 (-0.96 to -0.13) |
+| 1 | 2,707 | 52 | 8.7 vs 8.8 | -0.00 (-0.12 to +0.23) |
+| 2 to 3 | 2,904 | 52 | 7.7 vs 7.7 | +0.08 (+0.02 to +0.20) |
+| 4 or more | 7,480 | 51 | 5.0 vs 5.2 | -0.12 (-0.22 to -0.03) |
 <!-- finishline:end:baselines -->
 
 ⚠️ **The LightGBM challenger is more accurate than the hierarchical model for every runner with
@@ -214,10 +238,22 @@ field better, 4.2 places closer than carry-forward against the hierarchical mode
 own quantile ranges under-cover at every depth (68 to 74% at 80%) and the conformal layer
 repairs them, which is the coverage table below. Its features and parameters were searched on
 2022 and 2023 only, never on these races, and that search bought about one percent (PLAN.md
-section 13 item 34, which also has the six ideas that made it worse). The published predictions are still the
-hierarchical model's, because the placing simulation needs joint draws of a whole field on one
-morning, which quantile trees do not give; which model or blend publishes Cape to Cabot is
-decided before its model lock on 2026-10-11. PLAN.md section 13 item 33 has the detail.
+section 13 item 34, which also has the six ideas that made it worse). PLAN.md section 13 item 33
+has the detail.
+
+⚠️ **What is published is the average of the two models, not either one, because the average
+beats both.** On the log scale, weighted 0.65 towards the challenger: the paired tables above
+give 0.4 to 0.6 points of a finish time against the hierarchical model at four or more prior
+results and 0.0 to 0.2 against the challenger, and the average is level with the challenger at
+one prior result and a fraction behind it at two or three. The weight was read off the 2022 and
+2023 races alone (`scratch/blend_weight.py`), where the curve is flat from 0.60 to 0.75 and
+resampling races puts the best weight between 0.50 and 0.80; reading it off the races in these
+tables would have made them report a number about themselves. The published distribution is
+still the hierarchical model's, moved: each runner's posterior draws are multiplied by the one
+factor that puts their median on the averaged centre, because a place in a field needs joint
+draws of everyone on one shared morning and quantile trees do not give them. A first-timer drawn
+from a course's newcomer pool is left out of the average, since that pool is a measurement
+rather than either model's guess. `models/blend.py` and PLAN.md section 13 item 35.
 
 ⚠️ **The first run of this model lost to carry-forward. This is the second run, and what
 changed is in [PLAN.md](PLAN.md) section 13 items 28 and 29.** Two things were wrong at once:
@@ -292,6 +328,7 @@ measured against, and why the knee is fixed at 12 C rather than fitted.
 | `category-median` | 46 | 95.4 | 0.349 |
 | `hierarchical` | 53 | 50.9 | 0.706 |
 | `lightgbm` | 53 | 49.6 | 0.733 |
+| `blend` | 53 | 48.7 | 0.728 |
 
 The same runners: each model against `carry-forward`, both ranked among the runners both answered for in each race (races with at least 10 of them). Negative place error and positive Spearman differences favour the model; the 95% CI resamples races.
 
@@ -301,6 +338,7 @@ The same runners: each model against `carry-forward`, both ranked among the runn
 | `category-median` | 44 | 12,427 | 68.9 vs 27.9 | +41.1 (+20.3 to +66.9) | 0.368 vs 0.852 | -0.484 (-0.536 to -0.439) |
 | `hierarchical` | 51 | 13,081 | 23.7 vs 25.5 | -1.8 (-3.1 to -0.7) | 0.857 vs 0.849 | +0.008 (-0.005 to +0.023) |
 | `lightgbm` | 51 | 13,081 | 21.3 vs 25.5 | -4.2 (-6.7 to -2.0) | 0.875 vs 0.849 | +0.027 (+0.016 to +0.037) |
+| `blend` | 51 | 13,081 | 21.3 vs 25.5 | -4.1 (-6.7 to -2.0) | 0.876 vs 0.849 | +0.027 (+0.015 to +0.039) |
 <!-- finishline:end:placing -->
 
 ⚠️ **Read the second table, not the first.** The first ranks each model among the runners it
@@ -317,6 +355,19 @@ second one is checked here: the model's own 80% and 90% intervals, and the same 
 after conformal adjustment on the races before each one, by how much history a runner has.
 
 <!-- finishline:coverage -->
+`blend`, every race from 2024 on. Each race's intervals are adjusted using only races dated before it, separately for each history depth. Coverage is the share of runners whose finish fell inside; the 95% CI resamples races, not runners, because runners in one race share its morning.
+
+| Prior results | Level | Runners checked | Races | Model's own interval | After conformal | Median width, minutes (own to conformal) |
+|---|---:|---:|---:|---|---|---|
+| 0 | 80% | 5,641 | 51 | 77% (75 to 81) | 78% (74 to 84) | 52.1 to 52.8 |
+| 1 | 80% | 2,648 | 47 | 75% (73 to 78) | 74% (69 to 79) | 20.8 to 20.4 |
+| 2 to 3 | 80% | 2,835 | 47 | 74% (71 to 77) | 77% (75 to 79) | 18.4 to 19.8 |
+| 4 or more | 80% | 7,380 | 50 | 80% (77 to 82) | 77% (74 to 80) | 13.4 to 12.2 |
+| 0 | 90% | 5,641 | 51 | 87% (85 to 90) | 89% (85 to 93) | 67.9 to 72.6 |
+| 1 | 90% | 2,648 | 47 | 85% (83 to 87) | 88% (85 to 90) | 28.5 to 31.4 |
+| 2 to 3 | 90% | 2,835 | 47 | 84% (82 to 87) | 88% (87 to 90) | 24.7 to 28.2 |
+| 4 or more | 90% | 7,380 | 50 | 89% (87 to 91) | 88% (86 to 90) | 18.3 to 17.2 |
+
 `hierarchical`, every race from 2024 on. Each race's intervals are adjusted using only races dated before it, separately for each history depth. Coverage is the share of runners whose finish fell inside; the 95% CI resamples races, not runners, because runners in one race share its morning.
 
 | Prior results | Level | Runners checked | Races | Model's own interval | After conformal | Median width, minutes (own to conformal) |
