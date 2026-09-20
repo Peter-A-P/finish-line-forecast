@@ -1,11 +1,13 @@
 """A race run before this project published anything, and the rules that keep it honest.
 
-Three of these tests exist because the obvious version of this feature is wrong:
+Most of these tests exist because the obvious version of this feature is wrong:
 
 - an already-run race must never be reachable as a prediction, so nothing here writes into
   `predictions/` and the record carries no hash and no tag;
 - an event on a road with no earlier edition is not scored, because the error there is mostly
   the cost of a missing course factor;
+- a finisher the resolver refused keeps their row and their real place, and reaches none of
+  the figures, because showing somebody and scoring them are different jobs (PLAN 13 item 38);
 - the start list a retrospective may use is the one from before the gun, not the latest, and
   the scheduled task went on looking at the USR list for days afterwards.
 """
@@ -46,7 +48,7 @@ def dataset() -> Dataset:
         Runner("ann", "Ann Hynes", None, "F", (results[3], results[0]), False, ""),
         Runner("bea", "Bea Power", None, "F", (results[1],), False, ""),
         # Refused by the resolver: two runners of this name and nothing to choose between
-        # them. They finished, and they are not in the table.
+        # them. They finished, so they are in the table, with no prediction and a reason.
         Runner("cal", "Cal Noseworthy", None, None, (results[2],), True, "two of this name"),
         Runner("dot", "Dot Squires", None, "F", (results[4],), False, ""),
     ]
@@ -107,16 +109,16 @@ def test_a_finisher_with_no_prediction_keeps_their_row_and_says_why() -> None:
     assert cal["place"] == 3, "the place the results page printed"
     assert cal["actual"] == pytest.approx(3000.0)
     assert cal["excluded"] == "two of this name"
-    assert cal["seconds"] is None and cal["predicted_place"] is None
+    assert cal["seconds"] is None
     assert cal["places_out"] is None, "a runner with no prediction is out by no places"
 
 
 def test_no_row_is_renumbered_when_a_finisher_ahead_has_no_prediction() -> None:
     """A table that deletes the winner and calls the runner-up first is a second race.
 
-    The whole of PLAN.md 13 item 38. The place in this table is the place in the race that was
-    run, and the predicted place is on the same scale, which is what makes their difference
-    mean anything.
+    The whole of PLAN.md 13 item 38. The only place printed is the place in the race that was
+    run; the ordering error beside it is a difference over the predicted field and never an
+    absolute place, so there is no second scale to be mistaken for the first.
     """
     results = [
         result("r-2026", 1, "Cal Noseworthy", 2300.0),  # refused by the resolver
@@ -134,10 +136,36 @@ def test_no_row_is_renumbered_when_a_finisher_ahead_has_no_prediction() -> None:
     rows = {row["name"]: row for row in block["runners"]}
     assert rows["Cal Noseworthy"]["place"] == 1, "he won it, and the table says so"
     assert rows["Ann Hynes"]["place"] == 2, "second, not first"
-    # Cal is held at the place he finished, so the fastest prediction gets the next slot.
-    assert rows["Ann Hynes"]["predicted_place"] == 2
+    assert "predicted_place" not in rows["Ann Hynes"], "no absolute place on a second scale"
+    # The winner having no prediction changes nothing about the order of the two who do.
     assert rows["Ann Hynes"]["places_out"] == 0
-    assert rows["Bea Power"]["predicted_place"] == 3
+    assert rows["Bea Power"]["places_out"] == 0
+
+
+def test_a_finisher_with_no_prediction_does_not_move_the_place_error() -> None:
+    """The model is not charged for somebody the resolver could not identify.
+
+    The same two predicted runners, in the same order, with a third finisher dropped in ahead
+    of them who has no prediction. Their place error must not notice.
+    """
+    plain = retrospect.race(dataset(), scored_rows(), intervals(), "r-2026", [])
+    results = [
+        result("r-2026", 1, "Cal Noseworthy", 2300.0),
+        result("r-2026", 2, "Ann Hynes", 2400.0),
+        result("r-2026", 3, "Bea Power", 2700.0),
+    ]
+    runners = [
+        Runner("ann", "Ann Hynes", None, "F", (results[1],), False, ""),
+        Runner("bea", "Bea Power", None, "F", (results[2],), False, ""),
+        Runner("cal", "Cal Noseworthy", None, None, (results[0],), True, "two of this name"),
+    ]
+    ahead = retrospect.race(
+        Dataset(races={TEN_K.race_id: TEN_K}, results=results, runners=runners, failures=[]),
+        scored_rows(), intervals(), "r-2026", [],
+    )
+    assert plain is not None and ahead is not None
+    assert plain["places_out"] == ahead["places_out"]
+    assert plain["median_places_out"] == ahead["median_places_out"]
 
 
 def test_out_by_is_signed_so_a_reader_can_see_which_way_it_missed() -> None:
@@ -153,7 +181,7 @@ def test_places_out_is_signed_so_a_reader_can_see_which_way_the_order_missed() -
     block = retrospect.race(dataset(), scored_rows(), intervals(), "r-2026", [])
     assert block is not None
     rows = {row["name"]: row for row in block["runners"]}
-    assert rows["Ann Hynes"]["place"] == 1 and rows["Ann Hynes"]["predicted_place"] == 1
+    assert rows["Ann Hynes"]["place"] == 1
     assert rows["Ann Hynes"]["places_out"] == 0
     assert rows["Bea Power"]["place"] == 2 and rows["Bea Power"]["places_out"] == 0
 

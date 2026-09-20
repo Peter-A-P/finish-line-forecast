@@ -302,7 +302,8 @@ reason. On the 161 of 171 finishers the archive can identify: **4.74 min average
 **3.81 against carry-forward's 4.43 paired** on the 136 carry-forward can answer for at all.
 Every one of the 171 finishers is in the table on the site at the place the results page
 printed, the ten with no prediction included, each carrying the reason the resolver refused
-them; the place error is 15 at the middle.
+them; the place error is 14 at the middle, measured over the runners with a prediction
+so that a runner nobody could identify neither helps it nor hurts it.
 The minutes grow down the field and the share of a finish time does not: 3.6, 4.5 and 6.4
 minutes from the front quarter to the last, which is 7.5%, 7.5% and 7.9% of a finish time.
 Of 198 listed in the 10 km, 171 finished and 168 were found, so 15.2% were not found, an

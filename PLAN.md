@@ -539,7 +539,7 @@ beside it has been told half of it.
 Measured, blend against the baselines, on the 161 of 171 finishers the archive can identify:
 **4.74 min average miss** against carry-forward's 4.43 over the 136 carry-forward can answer
 for at all, and **3.81 against 4.43 paired on those 136**; 78% of finishes inside the 80%
-range; 15 places out at the middle. Split by where a runner finished in their own field, the
+range; 14 places out at the middle. Split by where a runner finished in their own field, the
 minutes grow down the field and the share of a finish time does not: 3.6 min at the front
 quarter, 4.5 mid-pack, 6.4 in the last quarter, and 7.5%, 7.5%, 7.9% of a finish time. The
 start list against the finish list: 198 listed in the 10 km, 171 finished, 168 found, so
@@ -1676,9 +1676,25 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     identify, and is not charged for them. Caines now reads: finished 2, predicted to finish
     2, nought places out.
 
-    **It costs a little accuracy to say it honestly**, and that is reported rather than
-    absorbed. On the real scale the place error is 20.4 places mean and 15 median, against
-    19.3 and 14 on the renumbered one, because the ten held at their finishing places push the
-    others out. The band table moves the same way (12.5, 25.4, 18.3 places from the front
-    quarter to the last, against 12.3, 24.2, 16.7). Nothing about the time predictions moved:
-    the MAE, the paired comparison and the coverage are over the same 161 runners as before.
+    **The third version separates showing from scoring, and costs nothing.** The second put
+    the predicted order back onto real places by holding the ten where they finished, which
+    made the two place columns comparable and quietly charged the model for the gaps: the real
+    places of the predicted runners have holes in them where the others finished, so the same
+    ordering scores worse the more people the resolver had to refuse. Peter: "it's not the
+    model's fault that some people couldn't be identified... can we display them along the
+    predictions without any metrics being affected?" Yes, and the way to is to stop asking one
+    column to do two jobs. The table prints the real place and no absolute predicted place at
+    all; beside it is "places out", the model's ordering error over the field it was actually
+    given, the predicted runners ranked among themselves by prediction against the same
+    runners ranked among themselves by result. Nothing about the ten reaches it.
+
+    **What each version measured**, on the same predictions, which is the reason to write this
+    down: 19.4 places mean and 14 median over the predicted field, against 20.4 and 15 when
+    the ranks were mapped back onto real places. The band table the same way: 12.3, 24.2, 16.7
+    places from the front quarter to the last, against 12.5, 25.4, 18.3. The published numbers
+    are the first pair. No time prediction moved at any point: the MAE, the paired comparison
+    and the coverage were always over the same 161 runners.
+
+    **The rule that falls out of it.** A number about a real event may be incomplete and may
+    not be restated; and the fix for an incomplete number is a row that says why it is
+    missing, not a rescaling of the rows around it.

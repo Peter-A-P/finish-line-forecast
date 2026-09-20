@@ -25,21 +25,27 @@ missing course as if it were the model's accuracy. They are listed, with the rea
 not scored. The rule is mechanical rather than a judgement made race by race: an event is
 scored when its course has an edition before it, and is not when it does not.
 
-⚠️ **Every finisher is in the table, and the place in it is the place in the race that was
-run.** A finisher the archive cannot tell apart from another runner of the same name has no
-prediction, and is listed with the resolver's reason where the prediction would be rather
-than dropped. An earlier version dropped them and ranked the rest among themselves, which
-printed the man who finished second as "actual place 1" because the winner was one of the
-ones it had dropped: a second, invented race beside the real one (PLAN.md 13 item 38). The
-finishers with no prediction are now held at the place they actually finished and the rest
-are ordered around them, so a predicted place and a finishing place are the same kind of
-thing and their difference means what it says. The model is not asked to place the runners it
-could not identify and is not charged for them.
+⚠️ **Every finisher is in the table, and the only place printed is the place in the race
+that was run.** A finisher the archive cannot tell apart from another runner of the same name
+has no prediction, and is listed with the resolver's reason where the prediction would be
+rather than dropped. An earlier version dropped them and ranked the rest among themselves,
+which printed the man who finished second as "actual place 1" because the winner was one of
+the ones it had dropped: a second, invented race beside the real one (PLAN.md 13 item 38).
 
-⚠️ **A place here is a rank, not a simulation.** For a live race the published place comes
-from drawing the whole field thousands of times (`placing/simulate.py`), which needs a
-posterior; the backtest saved scored rows and let its posteriors go. So the predicted place
-on this page is the order of the predicted times and carries no range, and the page says so
+⚠️ **Showing them and scoring them are different jobs, and one column may not do both.** The
+place error is measured over the field the model was actually given, the predicted runners
+ranked among themselves by prediction against the same runners ranked among themselves by
+result, so nothing about the unidentified ten reaches it. Mapping those ranks back onto real
+places was tried and is wrong: the real places of the predicted runners have gaps in them
+where the others finished, so the same ordering scores worse the more people the resolver had
+to refuse. That charged the model 1.1 places for a fault it has no part in. What the table
+prints per runner is therefore the difference and never an absolute predicted place, because
+an absolute place on that scale would be a claim about the race.
+
+⚠️ **The ordering here is a rank, not a simulation.** For a live race the published place
+comes from drawing the whole field thousands of times (`placing/simulate.py`), which needs a
+posterior; the backtest saved scored rows and let its posteriors go. So the order behind
+"places out" is the order of the predicted times, with no range on it, and the page says so
 rather than letting it look like the same object.
 """
 
@@ -258,29 +264,24 @@ def race(
         row = prediction_for(result)
         return float(row.predicted or 0.0) if row is not None else 0.0
 
-    # ⚠️ **The place in this table is the place in the race that was run, always.** An
-    # earlier version ranked the predicted runners among themselves, so the man who finished
-    # second was "actual place 1" because the winner had no prediction. That is a second,
-    # invented race printed next to the real one, and no footnote rescues it (PLAN 13 item
-    # 38). Instead the finishers with no prediction are held at the place they actually
-    # finished and the rest are ordered around them, so a predicted place and a finishing
-    # place are the same kind of thing and their difference means what it says. The model is
-    # not asked to place the runners it could not identify, and is not charged for them.
-    unplaceable = {
-        result.place for result in finishers if prediction_for(result) is None
-    }
-    free = [
-        place
-        for place in range(1, len(finishers) + 1)
-        if place not in unplaceable
-    ]
-    by_predicted = sorted(
-        (result for result in finishers if prediction_for(result) is not None),
-        key=predicted_seconds,
-    )
-    predicted_place = {
-        result.place: free[position] for position, result in enumerate(by_predicted)
-    }
+    # ⚠️ **The place shown is the place in the race that was run, and the place error is
+    # measured without the runners who have no prediction.** Those are two different jobs and
+    # an earlier version tried to make one column do both, which printed the man who finished
+    # second as "actual place 1" because the winner could not be identified (PLAN 13 item 38).
+    #
+    # So: the table prints the real place and nothing else absolute, and "places out" is the
+    # model's ordering error over the field it was actually given, the predicted runners
+    # ranked among themselves by prediction against the same runners ranked among themselves
+    # by result. **Nothing about the ten reaches this number.** Mapping those ranks back onto
+    # real places was tried and is wrong: the real places of the predicted runners have gaps
+    # in them where the unidentified runners finished, so the same ordering scores worse the
+    # more people the resolver had to refuse, and that is not the model's doing. It cost 1.1
+    # places of accuracy to a fault the model has no part in.
+    predicted_only = [result for result in finishers if prediction_for(result) is not None]
+    by_prediction = sorted(predicted_only, key=predicted_seconds)
+    by_result = sorted(predicted_only, key=lambda result: float(result.seconds or 0.0))
+    predicted_rank = {result.place: i + 1 for i, result in enumerate(by_prediction)}
+    actual_rank = {result.place: i + 1 for i, result in enumerate(by_result)}
 
     runners: list[dict[str, Any]] = []
     ranged: list[tuple[float, int, int]] = []
@@ -297,7 +298,6 @@ def race(
                 "seconds": None,
                 "out_by": None,
                 "i80": None,
-                "predicted_place": None,
                 "places_out": None,
                 # Why there is no prediction, in the resolver's own words. It is always the
                 # same kind of reason: the archive holds more than one runner this result
@@ -315,7 +315,6 @@ def race(
         if low is not None and high is not None and math.isfinite(low) and math.isfinite(high):
             edges = [round(low), round(high)]
             ranged.append((actual, edges[0], edges[1]))
-        slot = predicted_place[result.place]
         runners.append({
             "name": result.name,
             "place": result.place,
@@ -324,8 +323,11 @@ def race(
             "actual": round(actual, 1),
             "out_by": round(predicted - actual, 1),
             "i80": edges,
-            "predicted_place": slot,
-            "places_out": slot - (result.place or slot),
+            # How far out the model had this runner in the order of the field it was given.
+            # Positive means it expected them further back than they finished. Not an
+            # absolute place, and deliberately so: an absolute place on this scale would be a
+            # claim about the race, and the race is the `place` above.
+            "places_out": predicted_rank[result.place] - actual_rank[result.place],
             "excluded": None,
         })
 

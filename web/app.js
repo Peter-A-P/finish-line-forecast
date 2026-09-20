@@ -602,21 +602,24 @@
       count(info.ambiguous) + " of the " + count(info.finishers) + " have no prediction, and " +
       "say so in their own row: the archive holds more than one runner their result could " +
       "belong to and the results page prints nothing that would tell them apart. They are " +
-      "left exactly where they finished, and the rest are placed around them, so \"predicted " +
-      "to finish\" and \"finished\" are the same kind of number and the difference between " +
-      "them means what it says. The model is not asked to place the runners it could not " +
-      "identify and is not charged for them. It carries no range either: a published place is " +
-      "drawn from thousands of simulated races, and the backtest kept its scored rows rather " +
-      "than the fits that would let that be redone here."));
+      "here because they ran, and they reach none of the figures above. \"Places out\" is how " +
+      "far out the model had a runner in the order of the " + count(info.scored) + " it was " +
+      "given, plus meaning it expected them further back than they finished, so somebody the " +
+      "resolver could not identify neither helps nor hurts it. There is no predicted place " +
+      "column: an absolute place would be a second claim about who finished where, and the " +
+      "race is the first column. The order behind it carries no range either, because a " +
+      "published place is drawn from thousands of simulated races and the backtest kept its " +
+      "scored rows rather than the fits that would let that be redone here."));
 
     var wrap = el("div", { "class": "table-wrap tall" });
     var table = el("table", { id: "everyone", "class": "tight" });
     var head = el("tr");
     /* One place, and it is the place in the race that was run. Every finisher is a row,
-       including the ones with no prediction, which carry the reason instead. */
-    var NUMERIC = { 0: 1, 2: 1, 3: 1, 5: 1, 6: 1, 7: 1, 8: 1 };
+       including the ones with no prediction, which carry the reason instead. "Places out" is
+       a difference and not a place, so there is no second scale to mistake for this one. */
+    var NUMERIC = { 0: 1, 2: 1, 3: 1, 5: 1, 6: 1, 7: 1 };
     ["Finished", "Name", "Past races", "Predicted", "80% range", "Actual", "Out by",
-      "Predicted to finish", "Places out"]
+      "Places out"]
       .forEach(function (label, i) { head.appendChild(el("th", { "class": NUMERIC[i] ? "num" : "" }, label)); });
     table.appendChild(append(el("thead"), [head]));
     var body = el("tbody");
@@ -633,11 +636,12 @@
           el("td", { "class": "num" }, isNumber(r.place) ? String(r.place) : ""),
           el("td", null, r.name),
           el("td", { "class": "num" }, "-"),
-          el("td", { colspan: "3", "class": "why" }, "No prediction: " + r.excluded),
+          el("td", { colspan: "2", "class": "why" }, "No prediction: " + r.excluded),
           el("td", { "class": "num" }, clock(r.actual)),
           el("td", { "class": "num" }, "-"),
           el("td", { "class": "num" }, "-")
         ]);
+        /* Nothing in this row reaches a single number above it, which is the point. */
         body.appendChild(row);
         return;
       }
@@ -655,7 +659,6 @@
           r.i80 ? clock(r.i80[0]) + " to " + clock(r.i80[1]) : ""),
         el("td", { "class": "num" }, clock(r.actual)),
         el("td", { "class": "num" }, signedClock(r.out_by)),
-        el("td", { "class": "num" }, String(r.predicted_place)),
         el("td", { "class": "num" }, (r.places_out > 0 ? "+" : "") + r.places_out)
       ]);
       row.addEventListener("click", function () { drawField(runners, r); });
