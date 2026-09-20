@@ -614,6 +614,30 @@
 
   /* ================================================================== how it works */
 
+  /* The hero strip: the error at each race length for one part of the field. The page is served
+     with one group already in it, so a reader without JavaScript sees numbers; this redraws it
+     when the picker changes. Nothing here computes an error: it reads what report measured. */
+  function drawHeroDistances(group) {
+    var node = byId("hero-distances");
+    if (!node || !state.results) { return; }
+    var groups = state.results.distance_groups || {};
+    var rows = (groups.rows || {})[group] || [];
+    clear(node);
+    if (!rows.length) {
+      node.appendChild(el("span", { "class": "hero-strip-label" }, "Not measured for this part of the field yet."));
+      return;
+    }
+    rows.forEach(function (row) {
+      var card = el("span", { "class": "hero-distance" });
+      append(card, [
+        el("span", { "class": "hd-race" }, row.label),
+        el("span", { "class": "hd-min" }, row.mae_min.toFixed(1) + " min"),
+        el("span", { "class": "hd-pct" }, percent(row.mape, 1) + " of the time")
+      ]);
+      node.appendChild(card);
+    });
+  }
+
   function drawYears(archive) {
     var node = clear(byId("years-chart"));
     var rows = archive.finishes_by_year;
@@ -874,6 +898,11 @@
       var wanted = (window.location.hash || "").replace("#", "");
       selectRace(state.races.some(function (r) { return r.id === wanted; }) ? wanted : state.races[0].id, false);
       byId("race").addEventListener("change", function (event) { selectRace(event.target.value, true); });
+      var speed = byId("speed");
+      if (speed) {
+        drawHeroDistances(speed.value);
+        speed.addEventListener("change", function (event) { drawHeroDistances(event.target.value); });
+      }
       byId("find").addEventListener("input", function (event) { state.query = event.target.value; applySearch(); });
     }).catch(fail);
   }

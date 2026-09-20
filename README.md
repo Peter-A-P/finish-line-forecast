@@ -264,6 +264,25 @@ and the share of a runner's own finish time, which is what compares a 5 km with 
 | Marathon | 323 | 271.7 | 26.0 | 10% | 17.4 | 6% |
 <!-- finishline:end:distances -->
 
+**And the same error by where a runner finishes in their own race.** The front of a field is
+predicted more tightly than the back of it, in both units, which a single average hides: a
+runner's own day-to-day variation is what the model cannot know, and there is more of it further
+back. Runners with four or more prior results only, so these columns differ by speed rather than
+by how much history each group happens to have.
+
+<!-- finishline:speeds -->
+`blend`, every race from 2024 on, for runners with four or more prior results, by race length and by where they finished in their own race. Each cell is the mean absolute error in minutes and as a percent of the runner's own finish time.
+
+| Race length | Front of the field (fastest quarter) | Mid-pack (middle half) | Later finishers (last quarter) |
+|---|---|---|---|
+| 5 km | 0.8 min, 3.8% (372) | 1.3 min, 5.1% (572) | 3.4 min, 9.8% (158) |
+| 8 km | 1.1 min, 3.3% (223) | 1.8 min, 4.2% (336) | 3.1 min, 5.6% (135) |
+| 10 km | 1.6 min, 3.6% (319) | 2.5 min, 4.3% (441) | 4.8 min, 6.4% (192) |
+| 16 km (the Tely 10) | 3.6 min, 4.7% (1,177) | 6.1 min, 5.9% (1,710) | 13.7 min, 9.3% (585) |
+| 20 km | 4.3 min, 4.2% (304) | 6.1 min, 4.7% (555) | 8.5 min, 5.2% (264) |
+| Marathon | 10.4 min, 4.8% (39) | 18.8 min, 6.8% (67) | 23.2 min, 6.9% (31) |
+<!-- finishline:end:speeds -->
+
 ⚠️ **The LightGBM challenger is more accurate than the hierarchical model for every runner with
 a history.** Gradient-boosted quantile trees on hand-built features (`models/gbm.py`: form on
 the same Daniels scale, history depth and age, course difficulty, the raw weather), refitted

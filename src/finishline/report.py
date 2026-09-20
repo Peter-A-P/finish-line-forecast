@@ -396,3 +396,49 @@ def distance_table(
             f"| {'-' if experienced is None else _percent(experienced.mape)} |"
         )
     return "\n".join(lines)
+
+
+def speed_table(
+    scored: Sequence[score.Scored],
+    model: str,
+    metres: Mapping[str, float],
+    field: Mapping[str, Sequence[float]],
+) -> str:
+    """One model's error by race length and by where a runner finishes in their own race.
+
+    The front of a field is predicted more tightly than the back of it, in minutes and as a
+    share of a finish time both, and a single average hides that. Runners with four or more
+    prior results only, so the three columns differ by speed and not by how much history each
+    group happens to have.
+    """
+    from finishline.publish import showcase
+
+    groups = showcase.distance_groups(scored, metres, field, model)
+    rows = groups["rows"]
+    headings = " | ".join(
+        f"{label} ({note})" for _key, label, note, _low, _high in showcase.SPEED_GROUPS
+    )
+    lines = [
+        f"`{model}`, every race from 2024 on, for runners with four or more prior results, by "
+        "race length and by where they finished in their own race. Each cell is the mean "
+        "absolute error in minutes and as a percent of the runner's own finish time.",
+        "",
+        f"| Race length | {headings} |",
+        "|---|---|---|---|",
+    ]
+    ordered = [label for label, _low, _high in DISTANCE_BANDS]
+    for label in ordered:
+        cells = []
+        for key, _label, _note, _low, _high in showcase.SPEED_GROUPS:
+            found = next((row for row in rows.get(key, []) if row["label"] == label), None)
+            if found is None:
+                cells.append("-")
+            else:
+                share = found["mape"] * 100
+                cells.append(
+                    f"{found['mae_min']:.1f} min, {share:.1f}% ({found['runners']:,})"
+                )
+        if all(cell == "-" for cell in cells):
+            continue
+        lines.append(f"| {label} | " + " | ".join(cells) + " |")
+    return "\n".join(lines)

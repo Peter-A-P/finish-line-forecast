@@ -16,6 +16,7 @@ entrant. A test asserts that no name-like field gets in.
 
 from __future__ import annotations
 
+import bisect
 import json
 import math
 import statistics
@@ -226,6 +227,91 @@ def distances(
             "deep_mape": None if experienced is None else _round(experienced.mape),
         })
     return out
+
+
+# Where a runner finished in their own race, as a share of the field, and what the page calls
+# that. The words are a runner's own: nobody minds being told they are mid-pack, and "slow" is
+# not a word this project puts on a stranger. The cut is quarter, half, quarter.
+SPEED_GROUPS: tuple[tuple[str, str, str, float, float], ...] = (
+    ("front", "Front of the field", "fastest quarter", 0.0, 0.25),
+    ("mid", "Mid-pack", "middle half", 0.25, 0.75),
+    ("back", "Later finishers", "last quarter", 0.75, 1.0001),
+)
+
+
+def field_times(data: Dataset) -> dict[str, list[float]]:
+    """Every finisher's time in each race, sorted, so a runner can be placed in their own field.
+
+    Over every finisher of the race, not only the runners a model answered for, because "the
+    front quarter of the field" means the field that ran, not the subset with a history.
+    """
+    times: dict[str, list[float]] = {}
+    for result in data.results:
+        if result.finished and result.seconds:
+            times.setdefault(result.race_id, []).append(float(result.seconds))
+    for finishers in times.values():
+        finishers.sort()
+    return times
+
+
+def _share_of_field(seconds: float, sorted_times: Sequence[float]) -> float:
+    """Where this finish time sits in its field: 0.0 at the front, 1.0 at the back."""
+    if not sorted_times:
+        return -1.0
+    return (bisect.bisect_left(sorted_times, seconds) + 0.5) / len(sorted_times)
+
+
+def distance_groups(
+    scored: Sequence[score.Scored],
+    metres: Mapping[str, float],
+    field: Mapping[str, Sequence[float]],
+    model: str = MODEL,
+    depth: str = "4 or more",
+) -> dict[str, Any]:
+    """The same error by race length, split by where a runner finishes in their own race.
+
+    A five-minute miss is not the same claim for somebody racing the front of the field as for
+    somebody out there twice as long: the minutes grow with the time on the road, and the share
+    of a finish time is what compares them. Reported for runners with `depth` prior results, the
+    same population as the page's headline figure, so switching between the two is not a change
+    of subject.
+    """
+    from finishline import report
+
+    rows = [
+        row
+        for row in scored
+        if row.model == model
+        and row.predicted is not None
+        and score.stratum_of(row.depth) == depth
+    ]
+    groups: dict[str, Any] = {"depth": depth, "labels": {}, "rows": {}}
+    for key, label, note, low, high in SPEED_GROUPS:
+        groups["labels"][key] = f"{label} ({note})"
+        picked = [
+            row
+            for row in rows
+            if low <= _share_of_field(row.actual, field.get(row.race_id, ())) < high
+        ]
+        band_rows = []
+        for band_label, band_low, band_high in report.DISTANCE_BANDS:
+            band = [row for row in picked if band_low <= metres.get(row.race_id, -1.0) < band_high]
+            if len(band) < MIN_IN_BAND:
+                continue
+            summary = score.summarise(band, model)
+            band_rows.append({
+                "label": band_label,
+                "runners": len(band),
+                "median_min": _minutes(statistics.median(row.actual for row in band)),
+                "mae_min": _minutes(summary.mae_seconds),
+                "mape": _round(summary.mape),
+            })
+        groups["rows"][key] = band_rows
+    return groups
+
+
+# Below this many runners a race-length row is a handful of people, not a measurement.
+MIN_IN_BAND = 30
 
 
 def _paired(scored: Sequence[score.Scored], model: str, other: str) -> list[dict[str, Any]]:

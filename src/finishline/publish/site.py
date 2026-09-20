@@ -360,6 +360,7 @@ def tokens(
         "vdot_rows": vdot_rows(),
         "distance_rows": distance_rows(results),
         "hero_distances": hero_distances(results),
+        "speed_options": speed_options(),
         "refuted": str(refuted),
         "tests": f"{tests:,}",
         "code_lines": f"{code_lines:,}",
@@ -437,21 +438,40 @@ def _phrases(paired: Sequence[Mapping[str, Any]]) -> tuple[list[str], list[str],
     return ahead, level, behind
 
 
-def hero_distances(results: Mapping[str, Any]) -> str:
-    """The typical error at each race length, for the hero strip under the headline figures.
+DEFAULT_SPEED = "front"
 
-    The same population as the headline error, runners with four or more past races, because a
-    reader comparing the two should not have to notice that one of them changed subject. The
-    full table further down carries the whole field, first-timers included.
+
+def speed_options(selected: str = DEFAULT_SPEED) -> str:
+    """The three parts of a field, as options for the strip's picker.
+
+    The words come from `showcase.SPEED_GROUPS`, so the page, the JSON and any future table
+    say the same thing about the same runners.
     """
-    rows = [row for row in results.get("distances") or [] if row.get("deep_mae_min") is not None]
+    return "".join(
+        f'<option value="{html.escape(key)}"{" selected" if key == selected else ""}>'
+        f"{html.escape(label)}, the {html.escape(note)}"
+        "</option>"
+        for key, label, note, _low, _high in showcase.SPEED_GROUPS
+    )
+
+
+def hero_distances(results: Mapping[str, Any], group: str = DEFAULT_SPEED) -> str:
+    """The typical error at each race length, for one part of the field, as the hero strip.
+
+    The population is runners with four or more past races, the same as the headline figure, so
+    a reader comparing the two is not quietly changed subject on. Rendered here for the group
+    the page opens on, so a reader without JavaScript still gets numbers; `app.js` redraws the
+    strip from the same JSON when the picker changes.
+    """
+    groups = results.get("distance_groups") or {}
+    rows = (groups.get("rows") or {}).get(group) or []
     if not rows:
         return ""
     return "".join(
         "<span class=\"hero-distance\">"
         f"<span class=\"hd-race\">{html.escape(str(row['label']))}</span>"
-        f"<span class=\"hd-min\">{row['deep_mae_min']:.1f} min</span>"
-        f"<span class=\"hd-pct\">{_percent(row['deep_mape'])}</span>"
+        f"<span class=\"hd-min\">{row['mae_min']:.1f} min</span>"
+        f"<span class=\"hd-pct\">{row['mape'] * 100:.1f}% of the time</span>"
         "</span>"
         for row in rows
     )

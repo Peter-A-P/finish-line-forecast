@@ -770,6 +770,7 @@ def write_report(
         scored += ablation
         names.append(NO_WEATHER)
     from finishline.models import blend, gbm
+    from finishline.publish import showcase as showcase_module
 
     challenger = _challenger_rows(data, scored_from, covariates, fit_if_missing=False)
     if challenger is not None:
@@ -820,6 +821,18 @@ def write_report(
             scored,
             published_model,
             {race_id_: race.distance_m for race_id_, race in data.races.items()},
+        )
+        if saved_rows is not None
+        else "Not measured yet: run `backtest --hierarchical --challenger`.",
+    )
+    text = report.replace_between(
+        text,
+        "speeds",
+        report.speed_table(
+            scored,
+            published_model,
+            {race_id_: race.distance_m for race_id_, race in data.races.items()},
+            showcase_module.field_times(data),
         )
         if saved_rows is not None
         else "Not measured yet: run `backtest --hierarchical --challenger`.",
@@ -895,6 +908,11 @@ def _write_showcase(
             "backtest": showcase.backtest(scored, names, dates),
             "distances": showcase.distances(
                 scored, {rid: race.distance_m for rid, race in data.races.items()}
+            ),
+            "distance_groups": showcase.distance_groups(
+                scored,
+                {rid: race.distance_m for rid, race in data.races.items()},
+                showcase.field_times(data),
             ),
             "courses": showcase.course_list(
                 fitted, {str(r["course_id"]): rid for rid, r in live.items()}

@@ -293,10 +293,19 @@ strong { font-weight: 600; }
    minutes means something different over 5 km and over a marathon, so the strip carries both the
    minutes and the share of a finish time, and the share is what makes the row comparable. It
    wraps on a phone rather than scrolling sideways. */
+/* The picker over the hero strip. Narrow, because it governs six small cards rather than the
+   page, and left-aligned with them. */
+.hero-slicer {
+  max-width: 22rem;
+  margin: 1.5rem 0 0;
+}
+
+.hero-slicer label { display: block; font-weight: 600; font-size: 0.9rem; }
+
 .hero-strip-label {
   font-size: 0.84rem;
   color: var(--ink-faint);
-  margin: 1.25rem 0 0.5rem;
+  margin: 0.9rem 0 0.5rem;
   line-height: 1.45;
 }
 

@@ -581,12 +581,46 @@ def test_the_page_states_the_weight_the_predictions_are_made_with() -> None:
     assert float(values["blend_weight"]) + float(values["blend_parent_weight"]) == 1.0
 
 
-def test_the_hero_strip_says_both_units_and_survives_an_unmeasured_run() -> None:
-    """The error by race length, in minutes and as a share, or nothing at all.
+def test_the_hero_strip_follows_the_part_of_the_field_it_is_asked_for() -> None:
+    """One group's numbers at a time, both units, and a valid page before anything is measured.
 
-    Before a backtest has run there is no `distances` block, and the page still has to build:
-    the strip is empty rather than the token being missing.
+    The strip and the picker are the same three groups as `showcase.SPEED_GROUPS`, and the page
+    is served with the default group already in it so a reader without JavaScript sees numbers.
     """
+    from finishline.publish import showcase, site
+
+    measured = {
+        "distance_groups": {
+            "depth": "4 or more",
+            "labels": {"front": "Front of the field (fastest quarter)"},
+            "rows": {
+                "front": [
+                    {"label": "5 km", "runners": 372, "median_min": 19.4,
+                     "mae_min": 0.8, "mape": 0.038},
+                ],
+                "back": [
+                    {"label": "5 km", "runners": 158, "median_min": 34.1,
+                     "mae_min": 3.4, "mape": 0.098},
+                ],
+            },
+        }
+    }
+    front = site.hero_distances(measured)
+    assert "0.8 min" in front and "3.8% of the time" in front
+    back = site.hero_distances(measured, "back")
+    assert "3.4 min" in back and "9.8% of the time" in back, "a slower group is not flattered"
+    assert site.hero_distances(measured, "mid") == "", "a group with no rows shows nothing"
+    assert site.hero_distances({}) == "", "no backtest, no strip, and still a valid page"
+
+    options = site.speed_options()
+    for key, label, note, _low, _high in showcase.SPEED_GROUPS:
+        assert f'value="{key}"' in options and label in options and note in options
+    assert options.count("selected") == 1, "exactly one group is the one the page opens on"
+    assert f'value="{site.DEFAULT_SPEED}" selected' in options
+
+
+def test_the_distance_table_keeps_the_whole_field() -> None:
+    """The table under the results keeps everybody, and says where it cannot answer."""
     from finishline.publish import site
 
     measured = {
@@ -597,11 +631,7 @@ def test_the_hero_strip_says_both_units_and_survives_an_unmeasured_run() -> None
              "mape": 0.10, "deep_runners": 0, "deep_mae_min": None, "deep_mape": None},
         ]
     }
-    strip = site.hero_distances(measured)
-    assert "5 km" in strip and "1.4 min" in strip and "5%" in strip
-    assert "Marathon" not in strip, "a band with nobody deep enough is left out of the strip"
-    assert site.hero_distances({}) == "", "no backtest, no strip, and still a valid page"
-
     rows = site.distance_rows(measured)
-    assert "26.0 min, 10%" in rows, "the table keeps the whole field, deep or not"
-    assert "<td class=\"num\">-</td>" in rows, "and says so where it cannot answer"
+    assert "3.5 min, 10%" in rows and "1.4 min, 5%" in rows
+    assert "26.0 min, 10%" in rows, "a band with nobody experienced still reports the field"
+    assert '<td class="num">-</td>' in rows, "and says so where it cannot answer"
