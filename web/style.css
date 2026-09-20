@@ -904,6 +904,11 @@ td.close { color: var(--good); }
 
 .table-wrap.tall { max-height: 34rem; overflow-y: auto; border: 1px solid var(--line); border-radius: var(--radius); }
 .table-wrap.tall thead th { position: sticky; top: 0; z-index: 1; }
+/* The runner table, which a race already run gives ten columns. The last of them is what
+   stops the two place scales reading as an off-by-one, so it has to be on screen at an
+   ordinary desktop width rather than behind a horizontal scroll nobody knows is there. The
+   live prediction table shares this id and is a little tighter for it, which costs nothing. */
+#everyone th, #everyone td { padding-left: 0.5rem; padding-right: 0.5rem; }
 #everyone tbody tr { cursor: pointer; }
 #everyone tbody tr:hover { background: var(--accent-soft); }
 .muted-cell { color: var(--ink-faint); font-size: 0.8rem; }

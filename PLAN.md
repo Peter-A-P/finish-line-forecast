@@ -545,6 +545,21 @@ quarter, 4.5 mid-pack, 6.4 in the last quarter, and 7.5%, 7.5%, 7.9% of a finish
 start list against the finish list: 198 listed in the 10 km, 171 finished, 168 found, so
 15.2% not found (an upper bound on no-shows, section 5.6), and 3 finishers on no list.
 
+**Two place scales sit in the runner table and they are not the same scale**, which read as
+an off-by-one to Peter on 2026-09-20 and was not one. "Finished" is the place the results
+page printed, in the race everybody ran; the predicted and actual place columns count only
+the runners who have a prediction. Brian Caines finished second, is predicted first and is
+nought places out, because Adam Guy won it and is one of the ten the archive cannot identify.
+The fix was presentational and not arithmetical: the actual place among the scored is now a
+column of its own beside the predicted one, so the difference is visible rather than inferred,
+and both headers name the population. If the person who wrote the thing misreads a table, the
+table is wrong.
+
+**Green in that table marks the published range holding**, and briefly marked a miss under a
+minute, which is a threshold nobody declared and this project does not measure: a runner whose
+finish landed inside their own range could read as a failure. It is now the same green, with
+the same meaning, as the scatter plot directly above it.
+
 Two things this cannot do, and the page says both. **A place here is a rank, not a
 simulation**: a published place is drawn from thousands of simulated races and needs a
 posterior, and the backtest kept its scored rows rather than its fits, so the predicted place

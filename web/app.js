@@ -593,37 +593,53 @@
     target.appendChild(el("h3", null, "Every runner, against what the model would have said"));
     target.appendChild(el("p", { "class": "note" },
       "Sorted by finishing time. \"Out by\" is the prediction minus the finish, so a minus " +
-      "sign means the model called that runner faster than they ran. \"Finished\" is the " +
-      "place the results page printed, in the race everybody ran; \"predicted place\" and " +
-      "\"places out\" are positions among the " + count(info.scored) + " runners here, " +
-      "because a runner with no prediction cannot be out by any number of places. The " +
-      "predicted place has no range: a published place is drawn from thousands of simulated " +
-      "races, and the backtest kept its scored rows rather than the fits that would let that " +
-      "be redone here."));
+      "sign means the model called that runner faster than they ran. The 80% range is green " +
+      "where the finish landed inside it, which is the one promise made about a single " +
+      "runner; " + percent(info.coverage80, 0) + " of them did, against the 80% promised."));
+    target.appendChild(el("p", { "class": "note" },
+      "\"Finished\" is the place the results page printed, in the race everybody ran. The two " +
+      "place columns after it count only the " + count(info.scored) + " runners in this " +
+      "table, because a finisher with no prediction cannot be out by any number of places. " +
+      "That is why somebody can finish second and be predicted first and nought places out: " +
+      "the runner who beat them is one of the " + count(info.ambiguous) + " the archive " +
+      "cannot identify. The predicted place has no range either, because a published place is " +
+      "drawn from thousands of simulated races and the backtest kept its scored rows rather " +
+      "than the fits that would let that be redone here."));
 
     var wrap = el("div", { "class": "table-wrap tall" });
     var table = el("table", { id: "everyone", "class": "tight" });
     var head = el("tr");
-    var NUMERIC = { 0: 1, 2: 1, 3: 1, 5: 1, 6: 1, 7: 1, 8: 1 };
+    /* Two place scales sit in this table and they are not the same scale. "Finished" is the
+       race everybody ran; the last three columns count only the runners with a prediction.
+       The actual place is a column rather than a number to be inferred, because without it
+       "finished second, predicted first, nought places out" reads as an off-by-one, which is
+       how it read to the person who built it. The note under the table says which is which. */
+    var NUMERIC = { 0: 1, 2: 1, 3: 1, 5: 1, 6: 1, 7: 1, 8: 1, 9: 1 };
     ["Finished", "Name", "Past races", "Predicted", "80% range", "Actual", "Out by",
-      "Predicted place", "Places out"]
+      "Predicted place", "Actual place", "Places out"]
       .forEach(function (label, i) { head.appendChild(el("th", { "class": NUMERIC[i] ? "num" : "" }, label)); });
     table.appendChild(append(el("thead"), [head]));
     var body = el("tbody");
     runners.forEach(function (r) {
       var row = el("tr");
       row.setAttribute("data-key", r.name.toLowerCase());
+      /* Green marks the one promise this project makes about a single runner: that the
+         finish would land inside the published range. It used to mark a miss under a
+         minute, which is a threshold nobody declared and which this project does not
+         measure, so a runner whose finish was inside their range could read as a failure. */
+      var held = r.i80 && r.i80[0] <= r.actual && r.actual <= r.i80[1];
       append(row, [
         el("td", { "class": "num" }, isNumber(r.finish_place) ? String(r.finish_place) : ""),
         el("td", null, r.name),
         el("td", { "class": "num" }, String(r.prior)),
         el("td", { "class": "num" }, clock(r.seconds)),
-        el("td", null, r.i80 ? clock(r.i80[0]) + " to " + clock(r.i80[1]) : ""),
+        el("td", { "class": held ? "close" : "" },
+          r.i80 ? clock(r.i80[0]) + " to " + clock(r.i80[1]) : ""),
         el("td", { "class": "num" }, clock(r.actual)),
-        el("td", { "class": "num " + (Math.abs(r.out_by) <= 60 ? "close" : "") }, signedClock(r.out_by)),
+        el("td", { "class": "num" }, signedClock(r.out_by)),
         el("td", { "class": "num" }, String(r.place)),
-        el("td", { "class": "num " + (r.places_out === 0 ? "close" : "") },
-          (r.places_out > 0 ? "+" : "") + r.places_out)
+        el("td", { "class": "num" }, String(r.actual_place)),
+        el("td", { "class": "num" }, (r.places_out > 0 ? "+" : "") + r.places_out)
       ]);
       row.addEventListener("click", function () { drawField(runners, r); });
       body.appendChild(row);
