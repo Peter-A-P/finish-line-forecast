@@ -572,7 +572,12 @@ times, and nothing else.
 **The gender and age group columns are therefore borrowed, and dated** (added 2026-09-20 at
 Peter's request; the decision it settles was parked in `docs/todo.md`). They are what the
 association's own results last printed for that runner before this race, which is public on
-nlaa.ca under the same name, and the page says at which race and on what date. 136 of the 171
+nlaa.ca under the same name, and the page says at which race and on what date. **This race's
+own page wins as soon as it has them**: `store.build` drops the club's copy the moment nlaa.ca
+carries the same date and course, `printed_category` then reads the new page's own columns,
+and `store.borrowed` (printed by `finishline dataset`) is where that swap can be seen having
+happened. The swap was always automatic and was always silent, which for a swap that changes
+what may be published about a person is not good enough. 136 of the 171
 have a gender and 133 an age group. Three rules keep it honest, all in
 `retrospect.printed_category`: only results dated before this race count, because a
 description taken from a later page would be the one thing on a held-out page a reader cannot

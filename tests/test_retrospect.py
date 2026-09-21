@@ -206,11 +206,39 @@ def test_the_gender_and_age_group_are_borrowed_and_say_where_from() -> None:
     rows = {row["name"]: row for row in block["runners"]}
     assert rows["Ann Hynes"]["sex"] == "F"
     assert rows["Ann Hynes"]["age"] == "40-49"
-    assert rows["Ann Hynes"]["age_from"] == "Club 10k, 2025-09-14"
+    assert rows["Ann Hynes"]["age_from"] == "Printed at the Club 10k, 2025-09-14"
+    assert rows["Ann Hynes"]["borrowed"] is True
     # Bea has one result and it printed nothing, so there is nothing to show and no guess.
     assert rows["Bea Power"]["age"] is None
     assert rows["Bea Power"]["age_from"] is None
     assert block["with_age"] == 1
+    assert block["borrowed"] == 1
+
+
+def test_this_race_s_own_page_wins_the_moment_it_prints_the_columns() -> None:
+    """The swap the association makes is meant to need no change here, so it is tested here.
+
+    Athletics NorthEAST timed the USR and printed no sex and no age; nlaa.ca republishes the
+    same races later with both. `store.build` drops the outside copy on that day, and from
+    then on this race's own line is what the row shows, dated to itself and no longer
+    borrowed. Nothing in the website or the model changes with it.
+    """
+    data = dataset()
+    republished = result("r-2026", 1, "Ann Hynes", 2400.0, sex="F", band="50-59")
+    ann = next(runner for runner in data.runners if runner.runner_id == "ann")
+    kept = [row for row in data.results if not (row.race_id == "r-2026" and row.place == 1)]
+    runners = [runner for runner in data.runners if runner.runner_id != "ann"]
+    runners.append(Runner("ann", ann.name, None, "F", (ann.results[0], republished), False, ""))
+    data = Dataset(
+        races=data.races, results=[*kept, republished], runners=runners, failures=[]
+    )
+    block = retrospect.race(data, scored_rows(), intervals(), "r-2026", [])
+    assert block is not None
+    rows = {row["name"]: row for row in block["runners"]}
+    assert rows["Ann Hynes"]["age"] == "50-59", "its own page, not the one from last year"
+    assert rows["Ann Hynes"]["age_from"] == "Printed on this race's own results page"
+    assert rows["Ann Hynes"]["borrowed"] is False
+    assert block["borrowed"] == 0
 
 
 def test_a_band_the_runner_has_certainly_grown_out_of_is_not_printed() -> None:

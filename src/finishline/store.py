@@ -52,6 +52,43 @@ class Dataset:
         return counts
 
 
+@dataclass(frozen=True, slots=True)
+class Borrowed:
+    """One race read from somewhere other than the association, and whether it still is."""
+
+    race_id: str
+    name: str
+    source: str
+    superseded_by: str | None
+
+    @property
+    def still_read(self) -> bool:
+        return self.superseded_by is None
+
+
+def borrowed(races: list[Race]) -> list[Borrowed]:
+    """Every race in the two outside registers, and the association's race that replaced it.
+
+    The swap itself is automatic and always has been: `build` drops an outside copy the
+    moment nlaa.ca carries the same date and course, so no edition is counted twice and the
+    association's page, with its sex, age and hometown columns, wins. **What was missing was
+    any way to see that it had happened**, and a silent swap that changes what the website
+    can say about a runner is not something to find out about by noticing the columns
+    changed. `finishline dataset` prints this, so one command answers it.
+    """
+    posted = {(race.date, race.course_id): race for race in races}
+    out = []
+    for listed in ane.REGISTER:
+        winner = posted.get((listed.date, listed.course_id))
+        out.append(Borrowed(listed.race_id, listed.name, "Athletics NorthEAST",
+                            None if winner is None else winner.race_id))
+    for entry in raceroster.REGISTER:
+        winner = posted.get((entry.date, entry.course_id))
+        out.append(Borrowed(entry.race_id, entry.name, "Race Roster",
+                            None if winner is None else winner.race_id))
+    return out
+
+
 def build(
     cache: nlaa.Cache,
     races: list[Race],

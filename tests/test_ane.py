@@ -6,7 +6,7 @@ from datetime import date
 from pathlib import Path
 
 from finishline import store
-from finishline.ingest import ane, nlaa
+from finishline.ingest import ane, nlaa, raceroster
 from finishline.schema import Race
 
 # The layout of the 2026 half marathon list, names invented: splits and a division before
@@ -59,3 +59,33 @@ def test_a_posted_list_gives_way_once_the_association_carries_the_race(tmp_path:
     assert listed.race_id not in both.races, "one race, counted once"
     assert same.race_id in both.races
     assert date(2026, 9, 13) == listed.date
+
+
+def test_the_swap_is_visible_and_not_only_silent() -> None:
+    """`store.build` has always dropped the outside copy. Nothing ever said that it had.
+
+    A race changing hands changes what may be published about the runners in it: the club's
+    lists print no sex, no age and no hometown, and the association's pages print all three.
+    `finishline dataset` prints this list every time, so the day the USR moves is a line of
+    output rather than something noticed later from a column that filled itself in.
+    """
+    listed = ane.REGISTER[1]
+    before = {row.race_id: row for row in store.borrowed([])}
+    assert before[listed.race_id].still_read
+    assert before[listed.race_id].superseded_by is None
+    assert before[listed.race_id].source == "Athletics NorthEAST"
+
+    same = Race("20260913-usr-half-marathon", "USR Half", listed.date, listed.distance_m,
+                listed.course_id, nlaa.BASE + "x")
+    after = {row.race_id: row for row in store.borrowed([same])}
+    assert not after[listed.race_id].still_read
+    assert after[listed.race_id].superseded_by == same.race_id
+    # The other events of the same day are on their own courses and are untouched by it.
+    assert all(row.still_read for key, row in after.items() if key != listed.race_id)
+
+
+def test_every_outside_race_is_in_that_list_and_says_where_it_came_from() -> None:
+    rows = store.borrowed([])
+    assert len(rows) == len(ane.REGISTER) + len(raceroster.REGISTER)
+    assert {row.source for row in rows} == {"Athletics NorthEAST", "Race Roster"}
+    assert all(row.name for row in rows)

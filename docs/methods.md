@@ -184,14 +184,22 @@ prediction, so a runner who took two minutes longer than the model called reads 
 is the opposite sign to `score.Scored.error` and to the bias tables, which are read on the
 model rather than on the runner, and the flip happens at the last step before the page.
 
-The gender and age group in that table are **not from this race**. The club's finish lists
-print neither, nor a hometown. They are what the association's own results last printed for
-that runner before this race, public on nlaa.ca under the same name, and the page carries the
-race and date they were printed at. Only results before the race count, a band the runner has
-certainly grown out of since is left blank rather than aged forward
-(`retrospect.still_possible`, from the resolver's own birth-year windows), and a finisher with
-no prediction gets neither column, because the row exists to say this project does not know
-which runner it is.
+The gender and age group in that table come from this race's own page where it has them, and
+are borrowed where it does not. The club's finish lists print neither, nor a hometown, so for
+the USR they are what the association's own results last printed for that runner before this
+race, public on nlaa.ca under the same name, with the race and date they were printed at on
+the page. Only results before the race count, a band the runner has certainly grown out of
+since is left blank rather than aged forward (`retrospect.still_possible`, from the resolver's
+own birth-year windows), and a finisher with no prediction gets neither column, because the
+row exists to say this project does not know which runner it is.
+
+**A race read from outside the association gives way the moment the association posts it**,
+and that is the one swap that changes what may be published about a runner. `store.build` has
+always dropped an outside copy where nlaa.ca carries the same date and course, so no edition
+is counted twice; `store.borrowed` now says which races that has happened to, and
+`finishline dataset` prints it every run. On the day the USR is republished, its own page
+carries a sex, an age band and a hometown, `retrospect.printed_category` reads those instead
+of borrowing, and the page says so without anything here being edited.
 
 ## 10. The backtest
 

@@ -103,8 +103,13 @@ no sex, no age and no hometown, so the columns are borrowed and dated on the pag
 (`retrospect.printed_category`); only results from before the race count, and a band the
 runner has certainly grown out of is left blank rather than aged forward. 133 of the 171 USR
 finishers have one. When nlaa.ca republishes the USR its own pages carry all three and
-`store.build` swaps the club's copy out automatically, at which point these columns stop
-being borrowed for that race and the hometown column becomes possible too. The scheduled crawl stands down from ten days before each live
+`store.build` swaps the club's copy out automatically; `retrospect.printed_category` then
+reads that page's own columns rather than borrowing, with no edit here, and
+`finishline dataset` prints which outside races have been superseded (`store.borrowed`) so
+the day it happens is a line of output rather than something noticed later. **What is still
+open at that point is the hometown column**, which the association prints and this project
+does not yet show anywhere; that is a further widening of the publishing rule and is Peter's
+call, not the assistant's. The scheduled crawl stands down from ten days before each live
 race to the day after, and with the Turkey Tea rehearsal on 2026-10-04 and Cape to Cabot on
 2026-10-18 the only Sunday it runs before 2026-10-25 is 2026-09-20. Results posted after that
 are fetched by hand (`finishline crawl --refresh-index`) before the backtest each freeze uses,

@@ -55,14 +55,17 @@ runner's row is not reading a bias; they are reading a runner who took two minut
 than they were told, and they expect +2:00. The flip lives here, at the last step before the
 page, so nothing measured is touched by it.
 
-⚠️ **The gender and age group are from another race's page, and are dated.** The club's
-finish list for this race prints neither, nor a hometown (`ingest/ane.py`): a name, a place
-and a time is all of it. So the two columns carry what the association's own results last
-printed for that runner before this race, which is public on nlaa.ca under that runner's
-name, and they carry the race and date they were printed at. `printed_category` refuses a
-band the runner has certainly grown out of since, and prints nothing rather than a guess for
-a finisher the resolver could not identify, because an age band is a claim about a person and
-a row with no prediction is a row where this project does not know which person it is.
+⚠️ **The gender and age group come from this race's own page where it has them, and are
+borrowed and dated where it does not.** The club's finish list for this race has neither, nor
+a hometown (`ingest/ane.py`): a name, a place and a time is all of it. So the two columns
+carry what the association's own results last printed for that runner before this race, which
+is public on nlaa.ca under that runner's name, with the race and date on the page. The day the
+association republishes this race, `store.build` drops the club's copy and `printed_category`
+reads the new page's own columns instead, with no change here: `store.borrowed` is where that
+swap can be seen having happened. `printed_category` refuses a band the runner has certainly
+grown out of since, and prints nothing rather than a guess for a finisher the resolver could
+not identify, because an age band is a claim about a person and a row with no prediction is a
+row where this project does not know which person it is.
 """
 
 from __future__ import annotations
@@ -189,42 +192,59 @@ def still_possible(band: str, printed_on: date, when: date) -> bool:
     return when.year - window[1] <= ages[1] and ages[0] <= when.year - window[0]
 
 
-def printed_category(data: Dataset, runner: Runner | None, when: date) -> dict[str, Any]:
-    """The gender and age group the association's results printed for this runner.
+def printed_category(
+    data: Dataset, runner: Runner | None, target: Race, here: Result
+) -> dict[str, Any]:
+    """The gender and age group the results print for this runner, borrowing if they must.
 
-    ⚠️ **Nothing here is inferred and nothing here is from this race.** The club's list for
-    this race prints no sex and no age at all, so these come from that runner's other results
-    on nlaa.ca, where they are public under the same name. Only results before this race
-    count: a description taken from a later page would be true and still wrong to put beside
-    a held-out prediction, because the whole claim of this page is that nothing after the
-    race was used. The band is the one printed most recently, with the race it was printed
-    at, and it is dropped rather than aged forward when `still_possible` refuses it.
+    ⚠️ **This race's own page wins, and today it prints neither.** Athletics NorthEAST timed
+    the USR and its finish lists carry a place, a name, a service affiliation, a bib and the
+    times, and nothing else. The association republishes the same races later with a sex, an
+    age band and a hometown on them, and `store.build` drops the outside copy the moment it
+    does (`store.borrowed` is where that swap can be seen). So this reads `here`, the
+    runner's own line in this race, first: the day nlaa.ca carries the USR, these columns
+    stop being borrowed by themselves and `age_from` says so.
+
+    ⚠️ **Until then they are borrowed, and nothing is inferred.** They come from that
+    runner's other results on nlaa.ca, where they are public under the same name. Only
+    results before this race count: a description taken from a later page would be true and
+    still wrong beside a held-out prediction, because the whole claim of this page is that
+    nothing after the race was used. The band is the one printed most recently, it carries
+    the race and date it was printed at, and it is dropped rather than aged forward when
+    `still_possible` refuses it.
 
     A runner the resolver would not commit to gets nothing. Their row has no prediction
     precisely because the archive holds more than one person it could be, and printing one of
     those people's age beside the other's finish would be inventing the thing the row is
     there to say is unknown.
     """
-    blank: dict[str, Any] = {"sex": None, "age": None, "age_from": None}
+    blank: dict[str, Any] = {"sex": None, "age": None, "age_from": None, "borrowed": False}
     if runner is None or runner.ambiguous:
         return blank
+    found: dict[str, Any] = {
+        "sex": here.sex or runner.sex, "age": None, "age_from": None, "borrowed": False
+    }
+    if here.age_band and age_range(here.age_band):
+        found["age"] = here.age_band
+        found["age_from"] = "Printed on this race's own results page"
+        return found
     dated = [
         (data.races[result.race_id].date, result)
         for result in runner.results
         if result.age_band
         and result.race_id in data.races
-        and data.races[result.race_id].date < when
+        and data.races[result.race_id].date < target.date
     ]
-    found = {"sex": runner.sex, "age": None, "age_from": None}
     if not dated:
         return found
     printed_on, latest = max(dated, key=lambda pair: pair[0])
     band = latest.age_band or ""
-    if not still_possible(band, printed_on, when):
+    if not still_possible(band, printed_on, target.date):
         return found
     source = data.races[latest.race_id]
     found["age"] = band
-    found["age_from"] = f"{source.name}, {printed_on.isoformat()}"
+    found["age_from"] = f"Printed at the {source.name}, {printed_on.isoformat()}"
+    found["borrowed"] = True
     return found
 
 
@@ -371,7 +391,7 @@ def race(
                 "out_by": None,
                 "i80": None,
                 "places_out": None,
-                **printed_category(data, found, target.date),
+                **printed_category(data, found, target, result),
                 # Why there is no prediction, in the resolver's own words. It is always the
                 # same kind of reason: the archive holds more than one runner this result
                 # could belong to, and nothing on the page says which.
@@ -406,7 +426,7 @@ def race(
             # claim about the race, and the race is the `place` above.
             "places_out": predicted_rank[result.place] - actual_rank[result.place],
             "excluded": None,
-            **printed_category(data, runner_of(result), target.date),
+            **printed_category(data, runner_of(result), target, result),
         })
 
     field = showcase.field_times(data).get(race_id, ())
@@ -442,6 +462,7 @@ def race(
         # let a column of blanks look like a bug.
         "with_sex": sum(1 for item in runners if item["sex"]),
         "with_age": sum(1 for item in runners if item["age"]),
+        "borrowed": sum(1 for item in runners if item["borrowed"]),
         "paired": len(both),
         "paired_model_min": None if not both else round(
             statistics.mean(

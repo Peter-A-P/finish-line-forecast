@@ -303,6 +303,25 @@ def dataset(
         if not failures and len(data.failures) > 5:
             typer.echo(f"  ... and {len(data.failures) - 5} more; pass --failures")
 
+    # Which races are still read from outside the association, and which it has since
+    # republished. The swap itself is automatic (`store.build` drops the outside copy the
+    # moment nlaa.ca carries the same date and course); this is the only place it is
+    # visible. A race changing hands changes what may be published about the runners in it,
+    # so it prints every time rather than behind a flag.
+    with nlaa.Cache(CACHE) as cache:
+        catalogue, _skipped = cache_catalogue(cache, first, last)
+    outside = store.borrowed(catalogue)
+    if outside:
+        typer.echo("\nRaces read from outside the association:")
+        for entry in outside:
+            if entry.still_read:
+                typer.echo(f"  {entry.race_id}: still read from {entry.source}")
+            else:
+                typer.echo(
+                    f"  {entry.race_id}: SUPERSEDED by {entry.superseded_by} on nlaa.ca, "
+                    f"which prints sex, age band and hometown where {entry.source} does not"
+                )
+
     if data.ambiguous:
         typer.echo("\nWhy runners were held back, most common first:")
         reasons: dict[str, int] = {}

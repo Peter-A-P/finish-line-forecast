@@ -38,7 +38,9 @@ finishline crawl        fetch the results pages, once, one a second  (needs --no
                         between one and a freeze; the weekly task runs it with --scheduled,
                         which pauses around every race in data/live.toml)
 finishline weather      fetch the ECCC observations per race month   (needs --notices-sent)
-finishline dataset      parse, resolve runners, print what came out
+finishline dataset      parse, resolve runners, print what came out, and which races are
+                        still read from outside the association (`store.borrowed`: the
+                        swap to nlaa.ca's own page is automatic, this is where it shows)
 finishline courses      how hard each course is, against what its hills predict
 finishline conditions   what heat and wind cost, by distance
 finishline backtest     score the baselines at every origin (--hierarchical adds the model)

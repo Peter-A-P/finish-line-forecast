@@ -578,7 +578,7 @@
   /* An age group this race never printed, so it says where it came from. */
   function ageCell(r) {
     if (!r.age) { return el("td", null, ""); }
-    return el("td", r.age_from ? { title: "Printed at the " + r.age_from } : null, r.age);
+    return el("td", r.age_from ? { title: r.age_from } : null, r.age);
   }
 
   function drawRetrospect(race, data) {
@@ -710,13 +710,16 @@
     var borrowed = el("p", { "class": "note" });
     append(borrowed, [
       el("strong", null, "Gender and age group"),
-      document.createTextNode(": this race's finish list prints neither, and no hometown " +
-        "either. They are what the association's own results last printed for that runner " +
-        "before this race, public on nlaa.ca under the same name; hover one for the race and " +
-        "the date it was printed at. " + count(info.with_age) + " of the " +
-        count(info.finishers) + " have one. A band the runner has certainly grown out of " +
-        "since is left blank rather than aged forward, and the bands differ in width because " +
-        "the races that printed them do.")
+      document.createTextNode(info.borrowed
+        ? ": this race's finish list prints neither, and no hometown either. They are what " +
+          "the association's own results last printed for that runner before this race, " +
+          "public on nlaa.ca under the same name; hover one for the race and the date it " +
+          "was printed at. " + count(info.with_age) + " of the " + count(info.finishers) +
+          " have one. A band the runner has certainly grown out of since is left blank " +
+          "rather than aged forward, and the bands differ in width because the races that " +
+          "printed them do."
+        : ": as this race's own results page prints them, for " + count(info.with_age) +
+          " of the " + count(info.finishers) + " finishers.")
     ]);
     target.appendChild(borrowed);
     target.appendChild(el("p", { id: "find-count", "class": "note" }));
@@ -907,11 +910,12 @@
       var pm = p[0] / 60, am = p[1] / 60;
       if (pm < lo || pm > hi || am < lo || am > hi) { return; }
       var held = isNumber(p[2]) && isNumber(p[3]) ? (p[1] >= p[2] && p[1] <= p[3]) : null;
-      var dot = svg("circle", { cx: x(pm), cy: y(am), r: 3.2, "class": "pt " + (held === null ? "pt-none" : held ? "pt-hit" : "pt-miss") });
-      var history = p[4] === 0 ? "first race here" : p[4] >= 4 ? "4 or more past races" : p[4] + " past race" + (p[4] === 1 ? "" : "s");
-      hover(dot, "preview-readout", "Predicted " + clock(p[0]) + ", ran " + clock(p[1]) + " (" + history + ")" +
-        (held === null ? "" : held ? "; inside the 80% range" : "; outside the 80% range"));
-      root.appendChild(dot);
+      /* No readout on a dot here. A thousand nameless dots each said the same three things
+         in a different order, which is a tooltip that fires whenever the pointer crosses the
+         cloud and tells a reader nothing they cannot see from where the dot sits. It also
+         put every one of them in the tab order. The runner table below is where a single
+         runner is looked up. */
+      root.appendChild(svg("circle", { cx: x(pm), cy: y(am), r: 3.2, "class": "pt " + (held === null ? "pt-none" : held ? "pt-hit" : "pt-miss") }));
     });
     node.appendChild(root);
     legend("preview-legend", [["dot pt-hit-sw", "finish inside its 80% range"], ["dot pt-miss-sw", "outside it"], ["dashed sw-faint", "a perfect prediction"]]);
@@ -944,11 +948,19 @@
       var h = scale(e.finishers);
       var bar = svg("rect", { x: xs(i) - step * 0.3, y: BARS - h, width: step * 0.6, height: h, "class": "bar lv2" });
       root.appendChild(bar);
+      /* The count over its own column. It was only in the readout before, which meant the
+         one number the bars are drawn from could be read only by pointing at them. */
+      root.appendChild(svg("text", {
+        x: xs(i), y: BARS - h - 5, "text-anchor": "middle", "class": "bar-value"
+      }, count(e.finishers)));
       root.appendChild(svg("text", { x: xs(i), y: H - 6, "text-anchor": "middle", "class": "tick" }, "'" + e.date.slice(2, 4)));
       lines.median_s.push([xs(i), y(e.median_s / 60)]);
       lines.fastest_s.push([xs(i), y(e.fastest_s / 60)]);
-      var text = e.date.slice(0, 4) + ": " + count(e.finishers) + " finishers, middle of the field " + clock(e.median_s) +
-        ", fastest " + clock(e.fastest_s) + (isNumber(e.temp_c) ? ", " + Math.round(e.temp_c) + " C at the airport during the race" : "");
+      /* The two times, which are what the lines are. The finisher count left it when it went
+         over the bar, and so did the morning temperature, which belonged to a different
+         question than the one this chart asks. */
+      var text = e.date.slice(0, 4) + ": fastest " + clock(e.fastest_s) +
+        ", middle of the field " + clock(e.median_s);
       var hit = svg("rect", { x: xs(i) - step / 2, y: T, width: step, height: BARS - T, "class": "catcher" });
       hover(hit, "history-readout", text);
       root.appendChild(hit);
@@ -958,10 +970,11 @@
       root.appendChild(svg("path", { d: d, "class": "series " + pair[1] + "-line" }));
       lines[pair[0]].forEach(function (p) { root.appendChild(svg("circle", { cx: p[0], cy: p[1], r: 3.5, "class": "dot " + pair[1] + "-dot" })); });
     });
-    root.appendChild(svg("text", { x: L, y: BARS - 38, "class": "axis-title" }, "finishers"));
+    /* Above the tallest bar and the number over it, not through them. */
+    root.appendChild(svg("text", { x: L, y: BARS - 74, "class": "axis-title" }, "finishers"));
     node.appendChild(root);
     legend("history-legend", [["sw-median-line", "middle of the field"], ["sw-fastest-line", "fastest finish"], ["solid sw-lv2", "finishers"]]);
-    byId("history-caption").textContent = "Every edition of this course in the archive. Point at a year for its finishers, times and morning temperature.";
+    byId("history-caption").textContent = "Every edition of this course in the archive, with the number of finishers over each column. Point at a year for its two times.";
   }
 
   /* ================================================================== how it works */
@@ -1103,10 +1116,11 @@
          two courses, and 16.1 does. */
       var label = metres ? String(Math.round(metres / 100) / 10) : "all";
       root.appendChild(svg("text", { x: x0 + width / 2, y: B + 20, "text-anchor": "middle", "class": "tick" }, label));
-      root.appendChild(svg("text", { x: x0 + width / 2, y: B + 34, "text-anchor": "middle", "class": "row-note" }, group.length));
       x0 += width;
     });
-    root.appendChild(svg("text", { x: R, y: H - 2, "text-anchor": "end", "class": "axis-title" }, "race length in km, and how many courses"));
+    /* Centred under the axis it names, and no longer counting the courses in each column:
+       the dots are the courses and they are already there to be counted. */
+    root.appendChild(svg("text", { x: (L + R) / 2, y: H - 2, "text-anchor": "middle", "class": "axis-title" }, "race length in km"));
     node.appendChild(root);
     legend("courses-legend", [
       ["dot course-sw", "a course"],
