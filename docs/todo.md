@@ -94,6 +94,16 @@ degrees). Flat Out was checked on 2026-09-21 and has none on purpose: nearly two
 block, start and finish 363 m apart, 7.9% of the route with a net direction, and a test
 recomputes that from its waypoints.
 
+**A decision for after Cape to Cabot: should the tailwind be scaled by how much of a course
+it describes?** A bearing is start to finish, and the legs of any route sum to that
+displacement, so displacement over distance is the share of the race that runs that way:
+37% for Cape to Cabot (7.4 km of 20), 7.9% for Flat Out, which is why it has none. The model
+applies the whole projected wind to every course with a bearing, so a winding course and a
+straight one are charged alike. Multiplying the tailwind by that share is one line in
+`models/weather.py`, but that file is in the hierarchical backtest's cache key and the term
+does not yet clear zero, so it waits for a backtest that is running anyway. It needs start
+and finish points per bearing, which only Cape to Cabot stores so far. PLAN.md 13 item 41.
+
 ## Waiting on an outside event
 
 ### 3. New results between now and Cape to Cabot

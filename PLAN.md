@@ -1778,3 +1778,24 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     that turns downhill-then-uphill into the reverse with the same climb, drop and physics,
     so the 2025 edition stays pooled with the ten before it. If the 2026 freeze wants a
     check on that, the 2025 edition effect against the earlier ones is where to look.
+
+41. **A course bearing describes only part of a course, and now says how much (2026-09-21).**
+    Checking Cape to Cabot against the race's own 2006 chart and a course map: the published
+    550 m up and 450 m down stand, and two coarser readings (the chart's labelled heights,
+    about 496 m and 415 m; a profile trace of the certified course, about 495 m and 395 m)
+    undercount them the way coarse sampling does, as the watch's 519 m does. Each still needs
+    a road's grade for the measured +9.2%, 11.7 to 12.3% against 10.3%; the final 150 m from
+    the bottom of Temperance Street to Cabot Tower in under 2 km is where the race's "more
+    than 10 per cent" lives.
+
+    **The new number is the share of the course its bearing covers.** The legs of any route
+    sum to the displacement from start to finish, so displacement over distance is exactly
+    the share with a net direction: 7.4 km of 20 km, 37%, for Cape to Cabot; 7.9% for Flat
+    Out (item 39). The tailwind term projects the whole wind onto the bearing as though the
+    field ran that way throughout, so it charges a course that winds (Cape to Cabot) the same
+    as one that mostly runs straight. Scaling the tailwind by the share is the obvious fix and
+    is **not made**: `models/weather.py` is in the hierarchical backtest's cache key, the
+    freeze is on 2026-10-17, and the tailwind coefficient does not yet clear zero, so the
+    change waits for a backtest that runs anyway and is measured then (docs/todo.md).
+    `courses.toml` now stores Cape to Cabot's start and finish, and a test recomputes the
+    bearing from them and the 37%.

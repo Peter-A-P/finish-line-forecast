@@ -18,11 +18,22 @@ distance_m = 20000
 climb_m = 550
 drop_m = 450
 bearing_deg = 321
+start = [47.5189, -52.6197]
+finish = [47.5707, -52.6815]
 bearing_source = """\
 Great-circle bearing from Cape Spear (47.5189 N, 52.6197 W) to Cabot Tower on Signal Hill \
 (47.5707 N, 52.6815 W). North-west, so the westerly that pushes the Tely along is a \
 headwind here: the same 30 km/h wind is +28.5 km/h of tailwind at the Tely and 18.5 km/h \
-against on this course.\
+against on this course.
+
+⚠️ **The bearing describes 37 percent of the race.** Start and finish are 7.4 km apart on \
+a 20 km course, and the headings of every stretch of road sum to exactly that displacement \
+whatever the route does in between, so 37 percent of the distance has a net direction and \
+the rest cancels. The course map Peter supplied on 2026-09-21 shows why: east-west along \
+Blackhead Road, a swing south and west, then north to Southside Road and Signal Hill. The \
+tailwind term projects the whole wind onto 321 degrees as if the field ran that way \
+throughout, so it overstates this course's exposure next to a course that mostly runs one \
+way; Flat Out, at 7.9 percent, is why a loop gets no bearing at all. PLAN.md 13 item 41.\
 """
 source = """\
 capetocabot.com and the race's press coverage: "four major climbs, a 550-metre elevation \
@@ -41,7 +52,20 @@ notes = """\
 Start at Cape Spear, finish at Cabot Tower on Signal Hill, so the course climbs about 100 m \
 net. Named climbs: the height of land before Blackhead, the ridge before Freshwater Bay, \
 the long climb to the top of the Southside Hills, Temperance Street, and the final pull to \
-Cabot Tower.\
+Cabot Tower.
+
+The race's own 2006 chart (capetocabot.com/course.html, heights labelled at roughly 500 m \
+spacing, read off it on 2026-09-21): 75 m at the lighthouse, down to 14 m, \
+106 m at the first top, 27 m below Blackhead, 127 m, 66 m at the Petty Harbour Road bottom, \
+206 m at the top of the Southside Hills near 10.5 km, sea level along Southside Road and \
+Water Street, then 6 m at the bottom of Temperance Street to 155 m at Cabot Tower in under \
+two kilometres, which is where "more than 10 per cent" lives. Summing those labelled points \
+gives about 496 m up and 415 m down, net +80 from lighthouse to tower. A second profile image \
+Peter supplied, of the certified 20.1 km with the longer harbour flat, reads about 495 m up \
+and 395 m down, 32 m at the start line to 132 m at the finish line; where it was made is not \
+recorded. Both undercount the published 550 m the way coarse sampling and smoothing do, like \
+the watch's 519 m, and each still needs a road's grade to produce the measured +9.2%: 11.7 \
+to 12.3 percent against 10.3 for the published figures.\
 """
 
 [run-to-remember-11000]

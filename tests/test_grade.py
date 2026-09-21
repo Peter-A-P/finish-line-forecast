@@ -201,6 +201,19 @@ def _leg(start: list[float], end: list[float]) -> complex:
     return complex(east, north)
 
 
+def test_cape_to_cabots_bearing_is_its_start_and_finish_and_covers_a_third_of_it() -> None:
+    """The stored bearing is computed from the two ends, and says how much of the race it is.
+
+    The legs of any route sum to the displacement from start to finish, so displacement over
+    distance is the share of the course that has a net direction: 7.4 km of 20 km here.
+    """
+    record = tomllib.loads(COURSES.read_text(encoding="utf-8"))["cape-to-cabot-20000"]
+    net = _leg(record["start"], record["finish"])
+    bearing = math.degrees(math.atan2(net.real, net.imag)) % 360
+    assert bearing == pytest.approx(record["bearing_deg"], abs=1)
+    assert abs(net) / record["distance_m"] == pytest.approx(0.37, abs=0.01)
+
+
 def test_flat_out_has_no_bearing_because_it_goes_nowhere() -> None:
     """A loop gets no bearing, and for Flat Out that is measured from its waypoints.
 
