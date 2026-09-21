@@ -396,14 +396,17 @@ it.
 | oceanview-5000 | 5 km | 108 | -6.3% [-7.2, -5.5] | -5.4% [-6.6, -4.4], against 12 |  |
 <!-- finishline:end:courses -->
 
-**The check is worth more than either number alone.** Cape to Cabot is the only course here with
-a published elevation, and the two routes to its difficulty were computed independently: 5,310
-finishes say +9.3%, and 550 m of climb against 450 m of drop over 20 km through Minetti's
-cost-of-running curve needs about a 10% average grade to produce that, against a course page
+**The check is worth more than either number alone.** Cape to Cabot is the course here with a
+published elevation that most rides on, and the two routes to its difficulty were computed
+independently: 5,310 finishes say +9.3%, and 550 m of climb against 450 m of drop over 20 km
+through Minetti's cost-of-running curve needs about a 10% average grade to produce that, against a course page
 that says "grades of more than 10 per cent in some parts". Neither number was tuned to the
 other. Read it as a ballpark rather than a decimal: at 20 km it is the only course on the
 archive, so a point or so of that +9.3% is the race-length effect above, and the grade that
-explains the rest is nearer 8.3%.
+explains the rest is nearer 8.3%. Two more courses carry a climb, and the check cuts both ways
+on them: Turkey Tea's segment figures cannot make it faster than -4.3% at their gentlest grade
+against a measured -5.1%, and Flat Out's hills, read off a profile image, agree with its -0.9%
+at a 2.0% average grade, narrowly. Both are in `data/courses.toml` with the numbers.
 
 ⚠️ **A per-runner career trend is doing more work here than it looks.** Fitted with one constant
 per runner, Cape to Cabot's edition effect climbs almost monotonically from +3.8% in 2013 to

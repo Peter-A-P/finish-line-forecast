@@ -69,6 +69,12 @@ def penalty(
     climbing = climb_m / grade
     descending = drop_m / grade
     flat = distance_m - climbing - descending
+    # ⚠️ At the gentlest feasible grade the flat is zero by construction, and the division
+    # lands a few ulps either side of it. Refusing that as "more graded road than the course"
+    # crashed `implied_grade` on about a quarter of plausible courses (PLAN.md 13 item 39),
+    # because it evaluates exactly there. A millionth of the distance is rounding; more is real.
+    if -1e-6 * distance_m < flat < 0:
+        flat = 0.0
     if flat < 0:
         raise ValueError(
             f"{climb_m:.0f} m up and {drop_m:.0f} m down at {grade:.1%} needs "

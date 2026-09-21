@@ -1725,3 +1725,36 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     **The rule that falls out of it.** A number about a real event may be incomplete and may
     not be restated; and the fix for an incomplete number is a row that says why it is
     missing, not a rescaling of the rows around it.
+
+39. **The grade check crashed on a quarter of the courses it could be given, and a loop's
+    bearing was measured rather than assumed (2026-09-21).** Adding Flat Out 5 km to
+    `data/courses.toml` (39 m up, 52 m down, read by eye off a profile image Peter supplied;
+    the race's own page prints no figure) turned up two things.
+
+    **`implied_grade` raised on inputs it should answer.** It evaluates the penalty exactly
+    at the gentlest feasible grade, where the flat is zero by construction, and the division
+    lands a few ulps either side of zero. `penalty` read the negative side as "more graded
+    road than the course" and raised. Over climbs of 10 to 120 m, drops of 10 to 130 m and
+    five race lengths, 5,615 of 22,000 combinations crashed, among them 35 m and 47 m over
+    4,950 m, a reading of this very profile. Cape to Cabot and Turkey Tea happened to miss
+    it, so `finishline courses` and `finishline report` would have fallen over on the next
+    course added with about one chance in four. Fixed by treating a shortfall under a
+    millionth of the distance as rounding; the genuinely infeasible case still raises, and a
+    test sweeps the grid.
+
+    **The hills and the results agree, narrowly, and the read decides which side of the
+    line.** Measured -0.93% [-1.27, -0.60] from 2,753 finishes. Through Minetti, 39 m and
+    52 m give -0.98% at the gentlest grade and need a 2.0% average grade for the point
+    estimate; 38 m and 50 m put the floor at -0.90%, just past it. Nothing rides on it: a
+    course with fifteen editions is measured far better than any profile, and no prediction
+    moves. Turkey Tea, for contrast, is a real disagreement: its segment figures bottom out
+    at -4.3% against a measured -5.1% [-5.4, -4.9].
+
+    **No bearing, with the number that says why.** The race's page calls it "almost two
+    complete loops"; nine waypoints along it put start and finish 363 m apart, and the eight
+    legs' headings sum to those same 363 m out of 4,604 m, so 7.9% of the route has a net
+    direction. A bearing on that would charge the whole field for a wind that is behind them
+    for a few hundred metres. The waypoints are in `courses.toml` and a test recomputes the
+    figure. No elevation was taken from Google Maps, where the waypoints were placed: its
+    terms bar extracting content and its elevation service may not be stored or shown away
+    from its own map (docs/data-terms.md, which also gains the Turkey Tea row it was missing).

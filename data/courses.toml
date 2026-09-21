@@ -103,3 +103,56 @@ notes = """\
 Net downhill, most of the drop in the second half. The measured course factor from the \
 results is about -5% (faster than flat), which is what a net 85 m descent should produce.\
 """
+
+[flat-out-5000]
+name = "Flat Out 5 km"
+distance_m = 5000
+climb_m = 39
+drop_m = 52
+source = """\
+An elevation profile image of the course, 90 m to 112 m over about 4.95 km, which Peter \
+supplied on 2026-09-21. No figure is printed on it: 39 m up and 52 m down is the sum of \
+every rise and fall read off the chart by eye, feature by feature, and each is good to a \
+metre or so. The net is -12 m, from about 110 m at the start to 98 m at the finish, and the \
+two totals agree with it. The race's own course page, \
+athleticsnortheast.com/FlatOut5k/course.html, publishes a map and no elevation figure.\
+"""
+notes = """\
+Almost two laps of one block, by Aberdeen Avenue and Stavanger Drive. The race's page: \
+"almost two complete loops, finishing on Stavanger Drive just after the Carrick Drive \
+intersection. This avoids repeating the incline up to Aberdeen on the 2nd loop." Start in \
+front of Princess Auto on Aberdeen Avenue. Course certification NL-2012-005-BDC, so the 2011 \
+edition, which the measured factor pools with the other fourteen, predates the certified \
+course. The profile shows the two laps as two matching humps, and the finish at 98 m rather \
+than back at 110 m is the skipped climb to Aberdeen.
+
+No `bearing_deg`, deliberately, and checked rather than assumed. From the waypoints below, \
+start and finish are 363 m apart on a bearing of 96, and the distance-weighted sum of the \
+eight legs' headings is those same 363 m out of 4,604 m of straight-line legs: 7.9 percent \
+of the route has a net direction and the rest cancels. A tailwind term on 96 would be \
+charging the whole field for a wind that helps them for a few hundred metres.
+
+The hills and the results agree, narrowly. The measured factor is -0.93% [-1.27, -0.60]; \
+through Minetti these totals need a 2.0% average grade on the graded sections for the point \
+estimate and 3.4% for the slow end, and the fast end is past the -0.98% these hills can give \
+at their gentlest. That floor is a knife-edge on the read: 38 m and 50 m puts it at -0.90%, \
+just the other side of the point estimate. Nothing rides on it; 2,753 finishes over 15 \
+editions measure this course far better than any profile could.\
+"""
+waypoints_source = """\
+Nine points Peter placed on Google Maps on 2026-09-21 along the course the race's page \
+draws: the start, the corners of each lap and the finish, as latitude and longitude. Typed \
+by him onto a public road, not read out of Google's product; nothing else from Google is \
+used, and no elevation is taken from it.\
+"""
+waypoints = [
+    [47.6148217, -52.7126740],
+    [47.6200433, -52.7125668],
+    [47.6215744, -52.7062249],
+    [47.6148268, -52.7043479],
+    [47.6146958, -52.7125244],
+    [47.6190464, -52.7133464],
+    [47.6219458, -52.7071937],
+    [47.6147570, -52.7043601],
+    [47.6144578, -52.7078575],
+]

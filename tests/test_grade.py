@@ -9,6 +9,7 @@ from __future__ import annotations
 import math
 import tomllib
 from datetime import date
+from itertools import pairwise
 from pathlib import Path
 
 import pytest
@@ -102,6 +103,23 @@ def test_a_factor_the_hills_cannot_explain_comes_back_as_none() -> None:
     ) == pytest.approx(0.05, abs=1e-3)
 
 
+def test_the_gentlest_feasible_grade_is_not_refused_for_rounding() -> None:
+    """`implied_grade` evaluates the penalty exactly at the grade where no flat is left.
+
+    Before the fix, 35 m up and 47 m down over 4,950 m raised "needs 5.0 km of graded road,
+    more than the 5.0 km course", because the graded lengths summed to the distance plus a
+    few ulps; so did about a quarter of every climb, drop and distance a course could have.
+    The genuinely infeasible case still raises.
+    """
+    grade.implied_grade(distance_m=4_950, climb_m=35, drop_m=47, factor=0.0)
+    for distance in (4_950, 5_000, 10_000, 20_000):
+        for climb in range(10, 120, 7):
+            for drop in range(10, 130, 3):
+                grade.implied_grade(distance_m=distance, climb_m=climb, drop_m=drop, factor=0.0)
+    with pytest.raises(ValueError, match="more than"):
+        grade.penalty(distance_m=5_000, climb_m=39, drop_m=52, grade=0.017)
+
+
 def test_the_course_file_parses_and_cites_every_number() -> None:
     """A published elevation figure with no source is a rumour."""
     loaded = tomllib.loads(COURSES.read_text(encoding="utf-8"))
@@ -149,6 +167,39 @@ def test_cape_to_cabot_physics_agrees_with_the_measured_factor() -> None:
     )
     assert watch is not None
     assert 0.09 < watch < 0.14
+
+
+def _leg(start: list[float], end: list[float]) -> complex:
+    """One straight leg as a vector in metres, east as real and north as imaginary.
+
+    Flat-earth over a few hundred metres, which is centimetres from the great circle here.
+    """
+    metres_per_degree = 6_371_008.8 * math.pi / 180
+    north = (end[0] - start[0]) * metres_per_degree
+    east = (end[1] - start[1]) * metres_per_degree * math.cos(math.radians(start[0]))
+    return complex(east, north)
+
+
+def test_flat_out_has_no_bearing_because_it_goes_nowhere() -> None:
+    """A loop gets no bearing, and for Flat Out that is measured from its waypoints.
+
+    Nearly two laps of one block: the legs sum to the 363 m from start to finish, which is
+    under a tenth of the route. A bearing on those 363 m would put a tailwind term on 4.6 km
+    of road running every other way.
+    """
+    record = tomllib.loads(COURSES.read_text(encoding="utf-8"))["flat-out-5000"]
+    assert "bearing_deg" not in record
+    points = record["waypoints"]
+    legs = [_leg(a, b) for a, b in pairwise(points)]
+    travelled = sum(abs(leg) for leg in legs)
+    net = abs(sum(legs))
+    assert net == pytest.approx(363, abs=5)
+    assert travelled == pytest.approx(4_604, abs=20)
+    assert net / travelled < 0.10
+    # The laps repeat: the second pass of the start corner and of the far corner lands
+    # within a few metres of the first.
+    assert abs(_leg(points[0], points[4])) < 25
+    assert abs(_leg(points[3], points[7])) < 25
 
 
 def _synthetic() -> tuple[dict[str, Race], list[Runner]]:

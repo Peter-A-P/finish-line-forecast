@@ -244,11 +244,13 @@ to check the measurement rather than to feed it.
 |---|---|---|
 | Cape to Cabot, 550 m of climb against 450 m of drop over 20 km | `capetocabot.com/course.html`, and the same figures in the race's press coverage | A fact about a public road, published by the race about itself. Read once by hand, not crawled. |
 | Cape to Cabot, 519 m of climb | Peter Parker's own watch, 2025 edition | His own data about his own run. Six percent under the published figure, which is the usual disagreement between a barometric ascent total and a surveyed one, and it is kept as a bracket rather than a replacement. |
+| Turkey Tea 10 km, 38 m up and 123 m down, and a bearing of 79 degrees | The summary of the public Strava segment "Turkey Day 10K" (segment 10652676), from a screenshot Peter supplied on 2026-09-19 | Recorded here on 2026-09-21; it went into `data/courses.toml` without a row, which this document says should come first. A segment is a line along public roads, drawn by a Strava user; its printed distance, gain and high and low points describe the road, not anyone's run. No activity and no leaderboard was read, nothing was fetched, and the numbers can be replaced by any other published figure for the same road. It is the one place a number in this repository came off a Strava page, and it is written down so that can be judged. |
+| Flat Out 5 km, 39 m up and 52 m down | An elevation profile image of the course Peter supplied on 2026-09-21, with no figures printed on it; the totals are read off the chart by eye. The route is from the race's page, `athleticsnortheast.com/FlatOut5k/course.html`, read once by hand, and nine waypoints Peter placed on a map along it | The race's page is a race describing its own public road, as Cape to Cabot's is. The waypoints are coordinates typed onto a public road. **Where the profile image was made is not recorded yet**, and the row should name it. Nothing was taken from Google Maps beyond the nine points Peter typed: its terms bar extracting content, and its elevation service may not be stored or shown away from its own map, so no profile or elevation from it is used. |
 
-Both are in `data/courses.toml` with the source beside the number, and a test refuses a
-course that states a climb without one. The race publishes an elevation profile image for
-its 2006 test run only, and no GPX or KML; the street-by-street route description is on the
-same page. **No third-party elevation service is used**, and none is needed: what the
+All of these are in `data/courses.toml` with the source beside the number, and a test
+refuses a course that states a climb without one. Cape to Cabot publishes an elevation
+profile image for its 2006 test run only, and no GPX or KML; the street-by-street route
+description is on the same page. **No third-party elevation service is used**, and none is needed: what the
 physics wants is the grade distribution, which nobody publishes, and the results already
 answer the question the profile would have been used to answer.
 
