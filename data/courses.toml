@@ -47,10 +47,37 @@ Cabot Tower.\
 [run-to-remember-11000]
 name = "Run to Remember"
 distance_m = 11000
+climb_m = 56
+drop_m = 56
+source = """\
+The course profile on the organisers' page, striderunningnl.ca/run-to-remember/ (Stride \
+Running NL), as Peter read it on 2026-09-21: 56 m of elevation gain and 56 m of loss. The \
+figures are on the profile chart; the page's text prints none. The chart runs from about \
+165 m at the start down to about 114 m at the 5.5 km turnaround and back, so 51 m of the 56 \
+is one steady grade and the rest is small undulation.\
+"""
 notes = """\
-No published elevation figure found. The measured course factor from 1,029 finishes is the \
-only number this project has for it, and it is enough: the interval on it is tighter than \
-any prior derived from a climb total would be.\
+An out-and-back on the T'Railway, a gravel rail trail, which the page calls an "11km Trail \
+Race". Start and finish at the T'Railway access at Burnaby Street, the Paradise end on the \
+course map; turnaround on the T'Railway just before Commonwealth Avenue, Mount Pearl, at 5.5 \
+km. No `bearing_deg`: an out-and-back has \
+no net direction by construction.
+
+⚠️ **The page says the start and turnaround were switched in 2025.** On an out-and-back that \
+reverses the profile, downhill first and uphill to the finish instead of the other way round, \
+and leaves the climb, the drop and the Minetti penalty unchanged; so the 2025 edition is \
+pooled with the earlier ten. Which way the older editions ran is the page's word only.
+
+⚠️ **The hills explain about a tenth of the measured factor, and the rest is not hills.** The \
+course measures +1.64% [+1.17, +2.10] from 1,042 finishes. Through Minetti, 56 m up and 56 m \
+down over 11 km cost +0.13% at the gentlest grade they allow (1.0%, which is about what the \
+profile shows: 51 m over 5.5 km), +0.26% at 2% and +1.04% at 8%. To produce +1.64% they would \
+need a 12.7% average grade on the graded sections (9.0% to 16.3% over the interval), and a \
+rail bed does not have one. `finishline courses` will print that 12.7% because it is the \
+arithmetic; read it as the size of what the hills are not. The likely rest: the gravel, and \
+the race length, since this is the only 11 km course on the archive and so has no peers to \
+cancel this population's fade against Daniels' reference (PLAN.md 13 item 36), which is worth \
+about a point at Cape to Cabot's 20 km.\
 """
 
 # ---------------------------------------------------------------------------------------

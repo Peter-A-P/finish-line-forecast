@@ -169,6 +169,27 @@ def test_cape_to_cabot_physics_agrees_with_the_measured_factor() -> None:
     assert 0.09 < watch < 0.14
 
 
+def test_run_to_remembers_hills_are_not_its_course_factor() -> None:
+    """The check can fail, and here it does: the measurement is not the hills.
+
+    1,042 finishes put Run to Remember at +1.64 percent [+1.17, +2.10]. Its 56 m up and 56 m
+    down are one steady grade of about 1 percent along a rail bed, and even at 3 percent,
+    steeper than a railway is built, they cost +0.39 percent, a third of the fast end of that
+    interval. The arithmetic will still solve for a grade; the grade is not a rail trail.
+    """
+    record = tomllib.loads(COURSES.read_text(encoding="utf-8"))["run-to-remember-11000"]
+    assert "bearing_deg" not in record
+    shape = {
+        "distance_m": record["distance_m"],
+        "climb_m": record["climb_m"],
+        "drop_m": record["drop_m"],
+    }
+    assert grade.penalty(**shape, grade=0.03) < 0.0117 * 0.4
+    solved = grade.implied_grade(**shape, factor=0.0164)
+    assert solved is not None
+    assert solved > 0.10, f"{solved:.1%} would be a grade a rail bed could have"
+
+
 def _leg(start: list[float], end: list[float]) -> complex:
     """One straight leg as a vector in metres, east as real and north as imaginary.
 

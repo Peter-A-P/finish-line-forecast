@@ -1758,3 +1758,23 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     figure. No elevation was taken from Google Maps, where the waypoints were placed: its
     terms bar extracting content and its elevation service may not be stored or shown away
     from its own map (docs/data-terms.md, which also gains the Turkey Tea row it was missing).
+
+40. **Run to Remember's course factor is not its hills (2026-09-21).** The organisers' page
+    (Stride Running NL) gives 56 m of gain and 56 m of loss on an 11 km out-and-back along
+    the T'Railway, a gravel rail trail, with the profile one steady grade of about 1% from
+    about 165 m down to 114 m at the turnaround. Through Minetti that is worth +0.13% at the
+    grade the profile shows and +0.39% at 3%, steeper than a rail bed is built. The course
+    measures +1.64% [+1.17, +2.10] from 1,042 finishes; `implied_grade` solves it at 12.7%,
+    which is arithmetic and not a trail, and a test now asserts exactly that so nobody reads
+    the number as a finding about the grade.
+
+    Where the other point and a half most likely comes from: the surface, which nothing in
+    this project models, and the race length, since this is the only 11 km course and has no
+    peers to cancel the population's fade against Daniels' reference (item 36), which is
+    about a point at Cape to Cabot. They cannot be separated with one course. **No prediction
+    moves**: the factor used is the measured one, and an out-and-back gets no bearing.
+
+    The same page says the start and turnaround were switched for 2025. On an out-and-back
+    that turns downhill-then-uphill into the reverse with the same climb, drop and physics,
+    so the 2025 edition stays pooled with the ten before it. If the 2026 freeze wants a
+    check on that, the 2025 edition effect against the earlier ones is where to look.

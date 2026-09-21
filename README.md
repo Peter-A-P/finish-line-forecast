@@ -403,10 +403,12 @@ through Minetti's cost-of-running curve needs about a 10% average grade to produ
 that says "grades of more than 10 per cent in some parts". Neither number was tuned to the
 other. Read it as a ballpark rather than a decimal: at 20 km it is the only course on the
 archive, so a point or so of that +9.3% is the race-length effect above, and the grade that
-explains the rest is nearer 8.3%. Two more courses carry a climb, and the check cuts both ways
-on them: Turkey Tea's segment figures cannot make it faster than -4.3% at their gentlest grade
-against a measured -5.1%, and Flat Out's hills, read off a profile image, agree with its -0.9%
-at a 2.0% average grade, narrowly. Both are in `data/courses.toml` with the numbers.
+explains the rest is nearer 8.3%. Three more courses carry a climb, and the check cuts both
+ways on them: Turkey Tea's segment figures cannot make it faster than -4.3% at their gentlest
+grade against a measured -5.1%; Flat Out's hills, read off a profile image, agree with its
+-0.9% at a 2.0% average grade, narrowly; and Run to Remember's 56 m each way, one steady grade
+of about 1% along a rail trail, are worth about +0.13% of its measured +1.6%, so most of that
+is not hills. All three are in `data/courses.toml` with the numbers.
 
 ⚠️ **A per-runner career trend is doing more work here than it looks.** Fitted with one constant
 per runner, Cape to Cabot's edition effect climbs almost monotonically from +3.8% in 2013 to

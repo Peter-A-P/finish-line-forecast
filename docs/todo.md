@@ -29,9 +29,9 @@ comparable straight across race lengths.
 550 m spread over 11 km at 5% costs 5.9% and the same 550 m packed into 5.5 km at 10% costs
 9.0%, which is why `metrics/grade.penalty` takes the grade as an explicit argument. So the view
 wants elevation sampled along each route, not one ascent figure, and that means a traced route
-per course. Today 3 of the 50 measured courses have a climb at all (Cape to Cabot, Turkey Tea
-and Flat Out, the last read by eye off a profile image), so the second view would be a chart
-with three dots in it and has not been built. Six or eight of the busiest courses would make it
+per course. Today 4 of the 50 measured courses have a climb at all (Cape to Cabot, Turkey Tea,
+Flat Out, read by eye off a profile image, and Run to Remember), so the second view would be a
+chart with four dots in it and has not been built. Six or eight of the busiest courses would make it
 worth drawing.
 
 **The rest of the case, which has not changed.** Course difficulty is measured from the results
@@ -58,13 +58,14 @@ Courses that would be worth having, in order of how much history rides on them:
 | Mews Memorial 8 km | 16 | 4,891 | -5.3% |
 | Mundy Pond 5 km | 17 | 3,192 | -1.8% |
 | Harbour Front 10 km | 12 | 2,472 | -1.8% |
-| Run to Remember 11 km | 11 | 1,042 | +1.6% |
 | Tely 10 | 11 | 25,620 | +0.2% |
 
 Done: Turkey Tea (2026-09-19, off a Strava segment summary; the physics floor is -4.3% and the
 results say -5.1%, so the published climb does not explain it) and Flat Out (2026-09-21, the
 hills and the results agree narrowly; the notes in `courses.toml` have the numbers). A printed
-figure for Flat Out would still beat one read by eye off a chart.
+figure for Flat Out would still beat one read by eye off a chart. Run to Remember (2026-09-21,
+56 m each way from the organisers' profile): the hills are worth about +0.13% of its +1.6%, so
+most of that factor is the gravel and the race length, not the climb.
 
 ⚠️ **Not a runner's GPS track.** A watch file is training data about an identifiable person,
 which is the line this project drew for Strava and it does not move because the file
@@ -88,7 +89,7 @@ must not be given one**; those courses feel the wind as a cost whichever way it 
 `courses.toml` leaving `bearing_deg` out is how that is said.
 
 Candidates worth checking, all with real history: Mews Memorial 8 km, Mundy Pond 5 km,
-Harbour Front 10 km, Run to Remember 11 km. Turkey Tea has had one since 2026-09-19 (79
+Harbour Front 10 km. Run to Remember is an out-and-back and has none. Turkey Tea has had one since 2026-09-19 (79
 degrees). Flat Out was checked on 2026-09-21 and has none on purpose: nearly two laps of one
 block, start and finish 363 m apart, 7.9% of the route with a net direction, and a test
 recomputes that from its waypoints.
