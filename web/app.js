@@ -116,15 +116,19 @@
     return out;
   }
 
+  /* ⚠️ **No `<title>` child here.** An SVG title element is a native tooltip over the whole
+     chart, so a bubble saying "Predicted against actual finish times for the 2026 race"
+     followed the pointer everywhere on the plot and sat on top of the thing being read. The
+     same string is the chart's accessible name through `aria-label` on `role="img"`, which
+     is what it is for. The readout under each chart is where a reader is told about the
+     point they are actually on, and that is a different job. */
   function frame(height, title) {
-    var root = svg("svg", {
+    return svg("svg", {
       viewBox: "0 0 " + WIDTH + " " + height,
       role: "img",
       "aria-label": title,
       preserveAspectRatio: "xMidYMid meet"
     });
-    root.appendChild(svg("title", null, title));
-    return root;
   }
 
   function yAxis(root, y, left, right, format, label) {
@@ -910,12 +914,11 @@
       var pm = p[0] / 60, am = p[1] / 60;
       if (pm < lo || pm > hi || am < lo || am > hi) { return; }
       var held = isNumber(p[2]) && isNumber(p[3]) ? (p[1] >= p[2] && p[1] <= p[3]) : null;
-      /* No readout on a dot here. A thousand nameless dots each said the same three things
-         in a different order, which is a tooltip that fires whenever the pointer crosses the
-         cloud and tells a reader nothing they cannot see from where the dot sits. It also
-         put every one of them in the tab order. The runner table below is where a single
-         runner is looked up. */
-      root.appendChild(svg("circle", { cx: x(pm), cy: y(am), r: 3.2, "class": "pt " + (held === null ? "pt-none" : held ? "pt-hit" : "pt-miss") }));
+      var dot = svg("circle", { cx: x(pm), cy: y(am), r: 3.2, "class": "pt " + (held === null ? "pt-none" : held ? "pt-hit" : "pt-miss") });
+      var history = p[4] === 0 ? "first race here" : p[4] >= 4 ? "4 or more past races" : p[4] + " past race" + (p[4] === 1 ? "" : "s");
+      hover(dot, "preview-readout", "Predicted " + clock(p[0]) + ", ran " + clock(p[1]) + " (" + history + ")" +
+        (held === null ? "" : held ? "; inside the 80% range" : "; outside the 80% range"));
+      root.appendChild(dot);
     });
     node.appendChild(root);
     legend("preview-legend", [["dot pt-hit-sw", "finish inside its 80% range"], ["dot pt-miss-sw", "outside it"], ["dashed sw-faint", "a perfect prediction"]]);
@@ -956,11 +959,11 @@
       root.appendChild(svg("text", { x: xs(i), y: H - 6, "text-anchor": "middle", "class": "tick" }, "'" + e.date.slice(2, 4)));
       lines.median_s.push([xs(i), y(e.median_s / 60)]);
       lines.fastest_s.push([xs(i), y(e.fastest_s / 60)]);
-      /* The two times, which are what the lines are. The finisher count left it when it went
-         over the bar, and so did the morning temperature, which belonged to a different
-         question than the one this chart asks. */
-      var text = e.date.slice(0, 4) + ": fastest " + clock(e.fastest_s) +
-        ", middle of the field " + clock(e.median_s);
+      /* Everything the archive holds about the year under the pointer. The count is over its
+         bar as well now, which does not make it redundant here: this line is read without
+         moving the eye off the year being pointed at. */
+      var text = e.date.slice(0, 4) + ": " + count(e.finishers) + " finishers, middle of the field " + clock(e.median_s) +
+        ", fastest " + clock(e.fastest_s) + (isNumber(e.temp_c) ? ", " + Math.round(e.temp_c) + " C at the airport during the race" : "");
       var hit = svg("rect", { x: xs(i) - step / 2, y: T, width: step, height: BARS - T, "class": "catcher" });
       hover(hit, "history-readout", text);
       root.appendChild(hit);
@@ -974,7 +977,7 @@
     root.appendChild(svg("text", { x: L, y: BARS - 74, "class": "axis-title" }, "finishers"));
     node.appendChild(root);
     legend("history-legend", [["sw-median-line", "middle of the field"], ["sw-fastest-line", "fastest finish"], ["solid sw-lv2", "finishers"]]);
-    byId("history-caption").textContent = "Every edition of this course in the archive, with the number of finishers over each column. Point at a year for its two times.";
+    byId("history-caption").textContent = "Every edition of this course in the archive, with the number of finishers over each column. Point at a year for its finishers, times and morning temperature.";
   }
 
   /* ================================================================== how it works */
