@@ -103,7 +103,7 @@ prediction. The conformal layer then calibrates on the average's own errors, not
 hierarchical model's. A newcomer drawn from a course's first-timer pool (section 8) is left out
 of the average, since that pool is a measurement rather than either model's guess.
 
-The weight was read off the 2022 and 2023 races alone (`scratch/blend_weight.py`), the same
+The weight was read off the 2022 and 2023 races alone (`experiments/blend_weight.py`), the same
 window the challenger's own settings were tuned on, so that the races the backtest scores
 (section 10) never helped choose it. On that window the best weight was 0.65, the curve was flat from 0.60
 to 0.75, and resampling races put it between 0.50 and 0.80.
@@ -148,8 +148,22 @@ For a race with a public entrant list (Athletics NorthEAST's, or Trackie's), the
 freeze time is the field. Each entrant is linked to at most one runner by name key and sex
 (`identity/link.py`): one candidate is linked, none is a newcomer, and more than one is
 excluded and counted, because the list prints no age to choose between them, unless the list
-prints a hometown that exactly one of them was ever printed under. Races without a
-list need a participation model, which is not built yet (PLAN.md 5.6).
+prints a hometown that exactly one of them was ever printed under.
+
+A race without a list (Run to Remember) has its field forecast (`models/participation.py`,
+PLAN.md 5.6 and section 13 item 42). Every runner with a finish in the eighteen months before
+the race is a candidate, and a logistic regression on what the archive says about them (did
+they run this course last time, how often, how recently and how much this year, how far this
+race is from their usual distance, and how much of their usual races' crowd ran this course
+last time) gives each a probability of finishing it. The file names the most likely of them,
+as many as the model expects to finish times 0.9, the scale at which recall and precision were
+level on the 2022 and 2023 races. On the races from 2024 that named 27.7% (23.9 to 31.6) of
+the finishers who had a recent result, and 30.2% (24.8 to 35.3) of the runners named finished;
+61.5% of all finishers had a recent result at all, which is as far as any forecast without a
+list can see. Each named runner's place is where they finish if they run, in a simulated field
+that also draws who else turns up, including runners the archive cannot see, whose times come
+from the course's first-timers. The file carries those backtest numbers, and the score after
+the race sets the promised precision beside the one measured.
 
 Which races exist at all comes from the association's own calendar of events
 (`ingest/calendar.py`), read by `finishline calendar` into `data/calendar.json`, so the

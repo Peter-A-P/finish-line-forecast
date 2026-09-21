@@ -69,6 +69,8 @@ packages = ["src/finishline"]
 line-length = 100
 target-version = "py313"
 src = ["src", "tests"]
+# Records of a search, not supported code (experiments/README.md): kept as they ran.
+extend-exclude = ["experiments"]
 
 [tool.ruff.lint]
 # Pinned explicitly so the ruleset does not drift when ruff changes its defaults.

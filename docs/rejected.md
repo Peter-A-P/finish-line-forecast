@@ -32,7 +32,7 @@ one, and it was first misread as "weather does not matter here", which is in PLA
 **The straight line is the worst shape the data was offered, by a margin the intervals
 clear.** Two tests, each scored leave one year out so that a warm year cannot pose as
 weather, and each difference given a 95% interval from resampling years
-(`scratch/sun_experiment.py`, read from a 9 am start before the organisers' start times were
+(`experiments/sun_experiment.py`, read from a 9 am start before the organisers' start times were
 on file):
 
 | Test | Linear from 10 C | Best hinge on felt heat | Best minus linear |
@@ -59,7 +59,7 @@ Heat as a hinge on felt temperature: nothing below 12 C; above it, a cost per de
 grows with distance; and the sun raising the felt temperature by a number of degrees the
 model estimates rather than assumes (PLAN.md section 13 item 30). On the same backtest, with
 each run's race-level bias regressed on one common measure of the heat (the felt-heat cost at
-the whole-archive estimates, `scratch/rejected_slope.py`):
+the whole-archive estimates, `experiments/rejected_slope.py`):
 
 | | No weather | Linear from 10 C | Felt heat above 12 C |
 |---|---:|---:|---:|

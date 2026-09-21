@@ -836,3 +836,96 @@ def test_a_course_is_never_compared_with_a_course_of_another_length() -> None:
     )
     assert "the 2 marathons" in span and "+4.5%" in span and "+11.2%" in span
     assert site.marathon_text([{"distance_m": 5000, "factor": -0.063}]) == "n/a"
+
+
+def forecast_field(presence: dict[str, float]) -> tuple[list[link.Link], freeze.FieldForecast]:
+    """The runners a participation model named, linked as a list would have linked them."""
+    _posterior, _links, history = setup()
+    named = [
+        link.Link(
+            entrant=Entrant(history.runners[runner_id].name, history.runners[runner_id].sex),
+            status=link.Status.LINKED,
+            runner=history.runners[runner_id],
+            reason="field forecast",
+        )
+        for runner_id, p in sorted(presence.items(), key=lambda item: -item[1])
+        if p >= 0.5
+    ]
+    field = freeze.FieldForecast(
+        presence=presence,
+        sexes={runner_id: history.runners[runner_id].sex for runner_id in presence},
+        unseen_expected=0.0,
+        record={"method": "participation model", "named": len(named)},
+    )
+    return named, field
+
+
+def test_a_race_with_no_list_publishes_its_named_runners_with_places_in_a_drawn_field() -> None:
+    posterior, _links, history = setup()
+    named, field = forecast_field({"r1": 0.9, "r2": 0.3})
+    doc = freeze.assemble(
+        posterior=posterior,
+        links=named,
+        history=history,
+        live=freeze.LiveRace(race=LIVE.race, gun=LIVE.gun, entrant_list=None),
+        now=NOW,
+        snapshot={"file": None, "sha256": None, "source": "none: the field is forecast"},
+        model={"name": "hierarchical", "commit": "0" * 40},
+        calibration={0.80: {}, 0.90: {}},
+        seed=7,
+        forecast=field,
+    )
+    assert pf.validate(doc) == []
+    assert [runner["name"] for runner in doc["runners"]] == ["Ann Hynes"]
+    simulated = doc["field_forecast"]["simulated_field"]
+    # Ann always runs in her own place; Bea turns up in about three draws in ten.
+    assert simulated["low"] == 1 and simulated["high"] == 2 and simulated["largest"] == 2
+    assert doc["field_forecast"]["method"] == "participation model"
+
+
+def test_a_forecast_field_has_no_daily_files() -> None:
+    posterior, _links, history = setup()
+    named, field = forecast_field({"r1": 0.9})
+    with pytest.raises(ValueError, match="daily"):
+        freeze.assemble(
+            posterior=posterior,
+            links=named,
+            history=history,
+            live=freeze.LiveRace(race=LIVE.race, gun=LIVE.gun, entrant_list=None),
+            now=NOW,
+            snapshot={},
+            model={"name": "hierarchical", "commit": "0" * 40},
+            calibration={0.80: {}, 0.90: {}},
+            seed=7,
+            only_new=True,
+            forecast=field,
+        )
+
+
+def test_a_live_race_may_have_no_entrant_list(tmp_path: Path) -> None:
+    path = tmp_path / "live.toml"
+    path.write_text(
+        '[r2r-2026]\nname = "Run to Remember"\ndate = "2026-11-11"\ndistance_m = 11000\n'
+        'course_id = "run-to-remember-11000"\ngun = "2026-11-11T08:00:00-03:30"\n',
+        encoding="utf-8",
+    )
+    assert freeze.load_live(path, "r2r-2026").entrant_list is None
+
+
+def test_runners_the_archive_cannot_see_take_places_ahead_of_the_named() -> None:
+    from finishline.placing import simulate, unseen
+
+    posterior, _links, _history = setup()
+    fast = unseen.Pool("c2c-20000", {}, np.array([-1.0]), 1)  # far quicker than anyone known
+    places, fields = simulate.forecast_places(
+        posterior,
+        [simulate.Entrant("r1", "F")],
+        np.array([1.0]),
+        ["r1"],
+        LIVE.race,
+        np.random.default_rng(3),
+        unseen_expected=5.0,
+        pool=fast,
+    )
+    assert 4 <= places[0].median <= 7
+    assert fields.max() >= places[0].high

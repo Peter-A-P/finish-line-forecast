@@ -354,8 +354,9 @@
     if (info.entrants) { card.appendChild(fieldBar(info.entrants)); }
     else if (!race.entrant_list && race.predicted) {
       card.appendChild(el("p", { "class": "note" },
-        "This race publishes no entrant list, so who will run has to be predicted too. That " +
-        "participation model is not built yet, and this race's predictions will say so."));
+        "This race publishes no entrant list, so who will run is predicted too, from who ran " +
+        "it before and who has been racing lately. On past races about three in ten of the " +
+        "runners named that way were at the start, and the file says so beside the names."));
     }
     if (race.newcomer_pool) {
       card.appendChild(el("p", { "class": "note" },

@@ -377,7 +377,7 @@ def evaluate(
         by_stratum_errors[label] = _errors(mine, carry_forward)
         by_stratum_intervals[label] = _intervals(mine)
 
-    return {
+    card: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "race": dict(doc["race"]),
         "gun": doc["gun"],
@@ -405,10 +405,34 @@ def evaluate(
         "intervals": {"all": _intervals(finishes), "by_stratum": by_stratum_intervals},
         "placing": _placing(finishes, carry_forward),
     }
+    forecast = doc.get("field_forecast")
+    if forecast is not None:
+        # A race with no start list: the file named its runners from the participation
+        # model, and promised a precision from its backtest. This is that promise checked.
+        test = (forecast.get("backtest") or {}).get("test") or {}
+        card["field_forecast"] = {
+            "named": predicted_count,
+            "promised_precision": test.get("precision"),
+            "measured_precision": share(len(finishes), predicted_count),
+        }
+    return card
 
 
 # Rendering. The race page and the README row are both written from the score card alone, so
 # `finishline report` can rewrite them from the committed files without the cache.
+
+
+def _forecast_rows(card: Mapping[str, Any]) -> list[str]:
+    """For a race with no start list, the precision its backtest promised beside the real one."""
+    forecast = card.get("field_forecast")
+    if not forecast or not forecast.get("promised_precision"):
+        return []
+    point, low, high = forecast["promised_precision"]
+    return [
+        f"| No start list: the runners were named by the participation model; its backtest "
+        f"said {100 * point:.0f}% ({100 * low:.0f} to {100 * high:.0f}) of them would finish | "
+        f"{_share(forecast['measured_precision'])} did |",
+    ]
 
 
 def _clock(seconds: float) -> str:
@@ -480,6 +504,7 @@ def race_page(card: Mapping[str, Any], matching: Matching) -> str:
         f"{_share(card['shares']['finishers_with_a_prediction'])} |",
         f"| Share of predictions that finished | "
         f"{_share(card['shares']['predictions_that_finished'])} |",
+        *_forecast_rows(card),
         "",
         NOT_FOUND_NOTE,
         "",

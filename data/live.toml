@@ -26,8 +26,10 @@ course_id = "turkey-tea-10000"
 entrant_list = "tt-2026"
 gun = "2026-10-04T08:00:00-02:30"   # confirmed by Peter 2026-09-19
 
-# Field-forecast mode: the race publishes no start list, so `freeze` cannot run on it until
-# the participation model exists (PLAN.md 5.6). Remembrance Day is after the clocks go back.
+# Field-forecast mode: the race publishes no start list, so `freeze` names its field from the
+# participation model (models/participation.py, PLAN.md 5.6), reading the backtest that
+# `finishline participation` writes to data/participation.json. One final file, no daily ones.
+# Remembrance Day is after the clocks go back.
 [r2r-2026]
 name = "Run to Remember"
 date = "2026-11-11"

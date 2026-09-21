@@ -1,0 +1,86 @@
+{
+  "by_course": {
+    "run-to-remember-11000": {
+      "finished_named": 78,
+      "finishers": 369,
+      "finishers_visible": 317,
+      "named": 342,
+      "precision": [
+        0.238,
+        0.169,
+        0.34
+      ],
+      "race_ids": [
+        "20221111-Run-2-Remember",
+        "20231111-Run-2-Remember",
+        "20251111-Run-2-Remember"
+      ],
+      "races": 3,
+      "recall": [
+        0.254,
+        0.221,
+        0.293
+      ],
+      "scale": 0.9,
+      "visible": [
+        0.86,
+        0.851,
+        0.872
+      ]
+    }
+  },
+  "key": "58fdffe7adaf816c8e9530da7d14972393001590ce82b2cb7d693b75dd8c8df3",
+  "scale": 0.9,
+  "scored_from": 2024,
+  "test": {
+    "finished_named": 3921,
+    "finishers": 18987,
+    "finishers_visible": 10829,
+    "named": 7892,
+    "precision": [
+      0.302,
+      0.248,
+      0.353
+    ],
+    "races": 53,
+    "recall": [
+      0.277,
+      0.239,
+      0.316
+    ],
+    "scale": 0.9,
+    "visible": [
+      0.615,
+      0.564,
+      0.663
+    ]
+  },
+  "tuning": {
+    "finished_named": 1871,
+    "finishers": 7624,
+    "finishers_visible": 4638,
+    "named": 4203,
+    "precision": [
+      0.304,
+      0.247,
+      0.362
+    ],
+    "races": 32,
+    "recall": [
+      0.303,
+      0.246,
+      0.359
+    ],
+    "scale": 0.9,
+    "visible": [
+      0.643,
+      0.572,
+      0.707
+    ]
+  },
+  "tuning_years": [
+    2022,
+    2023
+  ],
+  "written": "2026-09-21"
+}

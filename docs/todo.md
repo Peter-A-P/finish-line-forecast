@@ -156,21 +156,34 @@ layout is defensible, but it should be a written exception rather than something
 in. The other four unparsed pages are named in [data-terms.md](data-terms.md) and are not
 this kind of question.
 
-### 5. The two tuning scripts are not in the repository, and two published numbers come from them
+### 5. Whether Run to Remember's file should name a field that is mostly wrong
 
-The challenger's features and parameters (PLAN.md section 13 item 34) and the blend weight
-(item 35) were both chosen on the 2022 and 2023 races, by `scratch/tune_gbm.py` and
-`scratch/blend_weight.py`. Both items cite those scripts, and `scratch/` is gitignored, so a
-reader can check every number measured on the test races and cannot rerun the two searches
-that produced the settings. That is a gap in the one rule this project is built on.
+Run to Remember publishes no start list, so its field is forecast (`models/participation.py`,
+PLAN.md 5.6 and section 13 item 42). The backtest says about 30% of the runners named that way
+finish (24% on Run to Remember's own three scored editions), so a final file of about 120
+names will hold about 30 people who run and 90 who do not. The file says so beside the names,
+and the score afterwards checks the promise. That is what the plan asked for and it is built:
+`freeze r2r-2026` runs on 2026-11-10 unless told otherwise.
 
-**The case for moving them in**, say to `experiments/`, is that the settings are as much a
-result as the errors are: a weight of 0.65 and a 40-set random search are claims about what
-was tried, and the scripts are the evidence. **The case against** is that they are scratch
-code, not held to the typing and lint bar the package is, and committing them invites a
-reader to treat them as part of the tool.
+**The case against** is that a public list saying a named person is predicted to run a race
+they had no intention of running is a small claim about them that the results never made.
+**The alternatives**, both one change to `freeze`: publish the field forecast as counts only
+(expected finishers, their predicted spread and the places) with no names; or name only the
+runners the model gives at least an even chance, which on the races from 2024 was right about
+70% of the time but named 8% of the finishers and nobody at all at 19 of 53 races (at Run to
+Remember: 31, 34 and 2 names, of whom 11, 15 and 2 ran). Peter's call, before 2026-11-10.
 
-Either is defensible; what is not defensible is citing a file nobody else can see. A
-middle course is to commit them under `experiments/` with a README saying they are records
-of a search rather than supported code, excluded from `mypy --strict` the way the tests
-are not. Peter's call.
+## Waiting on Peter's labels
+
+### 6. The resolver's precision and recall: 200 pairs to mark
+
+PLAN.md 5.2 promises a precision and recall for runner resolution from about 200 hand-labelled
+pairs, and the definition of done lists it; nothing had measured it. The sheet is now drawn:
+`data/labels/resolution-pairs.csv` (from `finishline pairs`, 2026-09-21), 40 pairs from each
+of five kinds of decision (joined with one town, joined across two towns, split by age, held
+back, and near names the resolver never joins), with the resolver's answer beside each. Mark
+the `label` column `same`, `different` or `unsure`, then `finishline pairs --score` prints
+both numbers reweighted to how often each decision occurs in the archive (8,710 / 2,361 /
+280 / 381 / 259), with 95% intervals. The sheet holds names, towns, age bands and times as the
+results printed them, and is gitignored until Peter decides whether a labelled sample of named
+people belongs in the public repository; the published figure is only reproducible if it does.

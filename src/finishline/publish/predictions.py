@@ -29,6 +29,14 @@ from the day they entered. Those files have `"kind": "daily"` and no places, bec
 needs the whole field. The final file, the day before, holds everyone with places, every
 runner recomputed with the day-before forecast; `first_published` names the daily file a
 runner first appeared in.
+
+FORECAST FIELDS
+---------------
+A race with no start list has no daily files and one final file whose runners are the ones
+the participation model named (`models.participation`). Its `field_forecast` block says how
+they were chosen and how many of them the backtest says to expect at the start (recall and
+precision, with intervals); each place is where that runner finishes if they run, in a field
+that also draws who else turns up.
 """
 
 from __future__ import annotations
@@ -225,6 +233,16 @@ def validate(doc: dict[str, Any]) -> list[str]:
     if doc["entrants"].get("predicted") != field:
         problems.append(f"entrants.predicted is not the {field} runners in the file")
     daily = doc.get("kind") == "daily"
+    # A forecast field (no start list, PLAN.md 5.6) places each named runner among everyone
+    # who might turn up, so a place can exceed the names in the file; the bound is the largest
+    # field the simulation drew.
+    bound = field
+    forecast = doc.get("field_forecast")
+    if forecast is not None:
+        try:
+            bound = int(forecast["simulated_field"]["largest"])
+        except (KeyError, TypeError, ValueError):
+            problems.append("field_forecast.simulated_field.largest missing")
     allowed = {
         "name", "hometown", "prior_results", "seconds", "interval_80", "interval_90", "place",
         "first_published",
@@ -257,8 +275,8 @@ def validate(doc: dict[str, Any]) -> list[str]:
             problems.append(f"{where} 80% interval does not contain the prediction")
         if not (low90 <= low80 and high80 <= high90):
             problems.append(f"{where} 90% interval does not contain the 80%")
-        if not 1 <= low <= median <= high <= field:
-            problems.append(f"{where} place range is not inside a field of {field}")
+        if not 1 <= low <= median <= high <= bound:
+            problems.append(f"{where} place range is not inside a field of {bound}")
         if not isinstance(runner.get("prior_results"), int) or runner["prior_results"] < 0:
             problems.append(f"{where} prior_results is not a count")
     return problems

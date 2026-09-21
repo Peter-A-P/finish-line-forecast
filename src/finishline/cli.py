@@ -1245,6 +1245,227 @@ def forecast_error(
     typer.echo(f"written to {FORECAST_ERROR_BY_LEAD}")
 
 
+PAIRS = DATA / "labels" / "resolution-pairs.csv"
+
+
+@app.command(name="pairs")
+def pairs(
+    score_sheet: Annotated[
+        bool, typer.Option("--score", help="Score the labelled sheet instead of drawing one.")
+    ] = False,
+    first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
+    last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+) -> None:
+    """The resolver's precision and recall, from pairs a person has labelled (PLAN.md 5.2).
+
+    Without `--score`: draws 40 pairs from each of five kinds of decision the resolver makes
+    and writes them to data/labels/resolution-pairs.csv, with its answer beside each, for a
+    person to mark `same`, `different` or `unsure` in the `label` column. Refuses to replace a
+    sheet that exists. With `--score`: the precision and recall, reweighted to how often each
+    kind of decision occurs in the archive, with 95% intervals.
+    """
+    from finishline.identity import review
+
+    if score_sheet:
+        if not PAIRS.exists():
+            typer.echo(f"no {PAIRS}; run `finishline pairs` and label it first")
+            raise typer.Exit(code=2)
+        rows, population = review.read(PAIRS)
+        measured = review.score(rows, population)
+        typer.echo(
+            f"{measured.labelled} pairs labelled, {measured.unsure} unsure, "
+            f"{measured.unlabelled} not yet labelled"
+        )
+        for stratum, counts in measured.by_stratum.items():
+            typer.echo(f"  {stratum:18} {counts}")
+        for name, value in (("precision", measured.precision), ("recall", measured.recall)):
+            shown = (
+                "not enough labels"
+                if value is None
+                else f"{100 * value[0]:.1f}% ({100 * value[1]:.1f} to {100 * value[2]:.1f})"
+            )
+            typer.echo(f"{name:10} {shown}")
+        return
+    data = _dataset(first, last)
+    sample = review.draw(data.runners)
+    try:
+        review.write(PAIRS, sample, data.races)
+    except FileExistsError as refusal:
+        typer.echo(f"refused: {refusal}", err=True)
+        raise typer.Exit(code=2) from refusal
+    typer.echo(f"wrote {len(sample.pairs)} pairs to {PAIRS}; decisions in the archive:")
+    for stratum in review.STRATA:
+        typer.echo(f"  {stratum:18} {sample.population[stratum]:,}")
+
+
+PARTICIPATION = DATA / "participation.json"
+
+
+def _participation_key(data: Dataset) -> str:
+    """What `data/participation.json` has to match: this archive and this model's code."""
+    from finishline.backtest import saved
+    from finishline.models import participation as model
+
+    return saved.key(
+        {"dataset": saved.dataset_fingerprint(data.races, data.results)},
+        [Path(model.__file__), Path(__file__).with_name("history.py")],
+    )
+
+
+@app.command(name="participation")
+def participation(
+    first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
+    last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+) -> None:
+    """Backtest the field forecast for races with no start list, and write what freeze reads.
+
+    Every race from 2022 is predicted by a model fitted before its year. The scale (how many
+    runners to name, as a multiple of the number expected to finish) is chosen on 2022 and
+    2023, and recall and precision are measured on 2024 and after, each a mean over races
+    with a 95% interval. Written to data/participation.json with a key on the archive and the
+    code, so `freeze` refuses a stale one. A few minutes; nothing is fetched.
+    """
+    from datetime import UTC, datetime
+
+    from finishline.models import participation as model
+
+    data = _dataset(first, last)
+    typer.echo("predicting each race from 2022 from a model fitted before its year ...")
+    scored = model.backtest(data.races, data.runners)
+    scale = model.choose_scale(scored)
+    tuning = [item for item in scored if item.year in model.TUNING_YEARS]
+    tested = [item for item in scored if item.year >= model.SCORED_FROM]
+    record: dict[str, Any] = {
+        "key": _participation_key(data),
+        "written": datetime.now(UTC).strftime("%Y-%m-%d"),
+        "scale": scale,
+        "tuning_years": list(model.TUNING_YEARS),
+        "tuning": model.coverage(tuning, scale).as_record(),
+        "scored_from": model.SCORED_FROM,
+        "test": model.coverage(tested, scale).as_record(),
+        "by_course": {},
+    }
+
+    def pct(value: list[float]) -> str:
+        return f"{100 * value[0]:.1f}% ({100 * value[1]:.1f} to {100 * value[2]:.1f})"
+
+    for label, key in (("2022-2023, tuning", "tuning"), ("2024 on, test", "test")):
+        block = record[key]
+        typer.echo(
+            f"{label}: {block['races']} races, scale {scale}\n"
+            f"  recall     {pct(block['recall'])} of finishers with a recent result were named\n"
+            f"  precision  {pct(block['precision'])} of the runners named finished\n"
+            f"  visible    {pct(block['visible'])} of all finishers had a recent result"
+        )
+    # Each live race's own course, over every scored edition, so its file can quote them.
+    live_courses = {
+        str(entry["course_id"])
+        for entry in tomllib.loads(LIVE.read_text(encoding="utf-8")).values()
+        if entry.get("entrant_list") is None
+    }
+    for course_id in sorted(live_courses):
+        editions = [item for item in scored if data.races[item.race_id].course_id == course_id]
+        if not editions:
+            continue
+        measured = model.coverage(editions, scale)
+        record["by_course"][course_id] = {
+            **measured.as_record(),
+            "race_ids": [item.race_id for item in editions],
+        }
+        typer.echo(
+            f"{course_id}, {measured.races} editions: recall {pct(list(measured.recall))}, "
+            f"precision {pct(list(measured.precision))}, visible {pct(list(measured.visible))}"
+        )
+    PARTICIPATION.write_text(
+        json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
+    )
+    typer.echo(f"written to {PARTICIPATION}")
+
+
+def _field_forecast(
+    data: Dataset, history: History, live: Any
+) -> tuple[list[Any], list[Any], Any] | None:
+    """The named runners as links, every candidate as links, and the pool as a `FieldForecast`.
+
+    Every candidate is linked too, because the challenger has to answer for all of them: the
+    named runners are placed among everyone who might turn up, blended like them.
+
+    None, with the reason printed, when the saved backtest does not match this archive and
+    code: the recall and precision a forecast file quotes have to be about this model.
+    """
+    from finishline.identity.link import Link, Status
+    from finishline.models import participation as model
+    from finishline.publish import freeze as freezing
+
+    if not PARTICIPATION.exists():
+        typer.echo(f"no {PARTICIPATION}; run `finishline participation`")
+        return None
+    saved_record = json.loads(PARTICIPATION.read_text(encoding="utf-8"))
+    if saved_record.get("key") != _participation_key(data):
+        typer.echo(
+            f"{PARTICIPATION} is stale for this archive or code; run `finishline participation`"
+        )
+        return None
+    fitted = model.fit(history)
+    if fitted is None:
+        typer.echo("the participation model has nothing to fit")
+        return None
+    field = model.forecast(fitted, history, live.race)
+    scale = float(saved_record["scale"])
+    named = field.named(scale)
+    runners = {runner.runner_id: runner for runner in data.resolved}
+
+    def as_link(runner_id: str, probability: float) -> Link:
+        runner = runners[runner_id]
+        return Link(
+            entrant=entrants.Entrant(name=runner.name, sex=runner.sex),
+            status=Status.LINKED,
+            runner=runner,
+            reason=f"field forecast: {probability:.2f} to finish",
+        )
+
+    links = [as_link(runner_id, probability) for runner_id, probability in named]
+    everyone = [
+        as_link(runner_id, float(probability))
+        for runner_id, probability in zip(field.runner_ids, field.probabilities, strict=True)
+    ]
+    # How many finishers to expect whom the model cannot see: the visible share measured on
+    # this course's own scored editions where there are any, else on every test race.
+    course = saved_record["by_course"].get(live.race.course_id) or saved_record["test"]
+    visible = float(course["visible"][0])
+    unseen_expected = field.expected * (1.0 - visible) / visible if visible > 0 else 0.0
+    record = {
+        "method": "participation model (models/participation.py), no start list",
+        "fit_rows": fitted.rows,
+        "fit_races": fitted.races,
+        "candidates": len(field.runner_ids),
+        "expected_finishers_seen": round(field.expected, 1),
+        "scale": scale,
+        "named": len(named),
+        "backtest": {
+            "test": saved_record["test"],
+            "course": saved_record["by_course"].get(live.race.course_id),
+            "tuning_years": saved_record["tuning_years"],
+            "written": saved_record["written"],
+        },
+    }
+    forecast = freezing.FieldForecast(
+        presence={
+            runner_id: float(probability)
+            for runner_id, probability in zip(field.runner_ids, field.probabilities, strict=True)
+        },
+        sexes={runner_id: runners[runner_id].sex for runner_id in field.runner_ids},
+        unseen_expected=unseen_expected,
+        record=record,
+    )
+    typer.echo(
+        f"field forecast: {len(field.runner_ids):,} candidates, {field.expected:.0f} expected to "
+        f"finish, {len(named)} named at scale {scale}, {unseen_expected:.0f} more expected "
+        "with no recent result"
+    )
+    return links, everyone, forecast
+
+
 LIVE = DATA / "live.toml"
 # The fit a prediction week reuses (publish/daily.py). Local: it is every runner's draws.
 FREEZE_FITS = DATA / "cache" / "freeze"
@@ -1295,6 +1516,13 @@ def freeze(
         raise typer.Exit(code=2) from refusal
     today = datetime.now(UTC).astimezone(live.gun.tzinfo).date()
     lead_days = (live.race.date - today).days
+    if daily_file and live.entrant_list is None:
+        typer.echo(
+            "refused: this race has no start list, so its field is forecast once, in the final "
+            "file; there are no daily files",
+            err=True,
+        )
+        raise typer.Exit(code=2)
     if daily_file and lead_days > daily.FIRST_LEAD_DAYS:
         typer.echo(
             f"refused: daily files start {daily.FIRST_LEAD_DAYS} days out; "
@@ -1317,10 +1545,12 @@ def freeze(
         ["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True
     ).stdout.strip()
 
-    snapshot_path = entrants.latest_snapshot(ENTRANTS, live.entrant_list)
-    if snapshot_path is None:
-        typer.echo(f"no snapshot of the {live.entrant_list} list; run `finishline snapshot`")
-        raise typer.Exit(code=2)
+    snapshot_path = None
+    if live.entrant_list is not None:
+        snapshot_path = entrants.latest_snapshot(ENTRANTS, live.entrant_list)
+        if snapshot_path is None:
+            typer.echo(f"no snapshot of the {live.entrant_list} list; run `finishline snapshot`")
+            raise typer.Exit(code=2)
 
     data = _dataset(first, last)
     covariates, _missing = _edition_weather(data)
@@ -1367,7 +1597,8 @@ def freeze(
     )
     already = daily.published(PREDICTIONS, race_id)
     pool = None
-    if live.newcomers == "course":
+    # A forecast field also needs the pool: its unseen runners are placed from it.
+    if live.newcomers == "course" or live.entrant_list is None:
         from finishline.placing import unseen
 
         pool = unseen.pool(
@@ -1379,19 +1610,28 @@ def freeze(
                 f"editions of {pool.course_id}"
             )
 
-    listed = entrants.load(snapshot_path)
-    links_ = link.link(listed, data.runners)
-    challenger = _challenger_predictions(history, links_, live, covariates, conditions)
+    field = None
+    if snapshot_path is not None:
+        links_ = link.link(entrants.load(snapshot_path), data.runners)
+        challenger = _challenger_predictions(history, links_, live, covariates, conditions)
+        snapshot: dict[str, Any] = {
+            "file": snapshot_path.name,
+            "sha256": predictions.sha256(snapshot_path.read_bytes()),
+        }
+    else:
+        forecast_field = _field_forecast(data, history, live)
+        if forecast_field is None:
+            raise typer.Exit(code=2)
+        links_, everyone, field = forecast_field
+        challenger = _challenger_predictions(history, everyone, live, covariates, conditions)
+        snapshot = {"file": None, "sha256": None, "source": "none: the field is forecast"}
     doc = freezing.assemble(
         posterior=posterior,
         links=links_,
         history=history,
         live=live,
         now=datetime.now(UTC),
-        snapshot={
-            "file": snapshot_path.name,
-            "sha256": predictions.sha256(snapshot_path.read_bytes()),
-        },
+        snapshot=snapshot,
         model=_model_record(commit, live, posterior, challenger),
         calibration=calibration,
         seed=backtest_seed(race_id),
@@ -1401,6 +1641,7 @@ def freeze(
         only_new=daily_file,
         pool=pool,
         challenger=challenger,
+        forecast=field,
     )
     if daily_file:
         path = daily.daily_path(PREDICTIONS, race_id, today)
@@ -1596,8 +1837,9 @@ def _git_bytes(*args: str) -> bytes | None:
 def due() -> None:
     """Which live races want a prediction file today, and which kind: one line per race.
 
-    `daily` from seven days before the race to two, `final` the day before. Read by
-    scripts/daily-predictions.ps1, which runs each morning in the prediction week.
+    `daily` from seven days before the race to two, `final` the day before. A race with no
+    start list only ever wants its final file: its field is forecast, not entered day by day.
+    Read by scripts/daily-predictions.ps1, which runs each morning in the prediction week.
     """
     from datetime import UTC, datetime
 
@@ -1606,8 +1848,6 @@ def due() -> None:
 
     records: dict[str, Any] = tomllib.loads(LIVE.read_text(encoding="utf-8"))
     for race_id in sorted(records):
-        if "entrant_list" not in records[race_id]:
-            continue
         try:
             live = freezing.load_live(LIVE, race_id)
         except (KeyError, ValueError):
@@ -1615,7 +1855,7 @@ def due() -> None:
         lead = (live.race.date - datetime.now(UTC).astimezone(live.gun.tzinfo).date()).days
         if lead == 1:
             typer.echo(f"{race_id} final")
-        elif 2 <= lead <= daily.FIRST_LEAD_DAYS:
+        elif 2 <= lead <= daily.FIRST_LEAD_DAYS and live.entrant_list is not None:
             typer.echo(f"{race_id} daily")
 
 

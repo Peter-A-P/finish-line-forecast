@@ -17,6 +17,13 @@ What happens to each entrant:
 4. **A place range** from simulating the whole predicted field with one shared morning
    (`placing.simulate`).
 
+**A race with no start list** (Run to Remember) has its field forecast instead
+(`models.participation`, PLAN.md 5.6): the caller links the named runners as if a list had
+printed them, and hands the whole candidate pool over as a `FieldForecast`. Their lines are
+made exactly as above; their places come from a simulation that also draws who turns up
+(`simulate.forecast_places`), and the file carries the backtest's recall and precision so a
+reader knows how many of the names to expect at the start.
+
 ⚠️ **Two repairs, and why they are allowed.** Conformal shifts are computed separately per
 level and may be negative, so an adjusted 80 percent interval can in principle shrink past the
 median, and an adjusted 90 can come out narrower than the adjusted 80 on one side. Both would
@@ -57,7 +64,8 @@ class LiveRace:
 
     race: Race
     gun: datetime
-    entrant_list: str
+    # None for a race that publishes no start list: its field is forecast (PLAN.md 5.6).
+    entrant_list: str | None
     # "course" draws newcomers from this course's past first-timers (`placing.unseen`); set
     # only for the few biggest races, where visitors with no results here reach the top ten.
     newcomers: str | None = None
@@ -93,10 +101,11 @@ def load_live(path: Path, race_id: str) -> LiveRace:
     newcomers = record.get("newcomers")
     if newcomers not in (None, "course"):
         raise ValueError(f"{race_id}: newcomers = {newcomers!r} is not a method this knows")
+    listing = record.get("entrant_list")
     return LiveRace(
         race=race,
         gun=gun,
-        entrant_list=str(record["entrant_list"]),
+        entrant_list=None if listing is None else str(listing),
         newcomers=None if newcomers is None else str(newcomers),
     )
 
@@ -131,6 +140,22 @@ def crawl_paused(path: Path, today: date) -> str | None:
     return None
 
 
+@dataclass(frozen=True, slots=True)
+class FieldForecast:
+    """Who might run a race with no start list, for the placing simulation and the file.
+
+    `presence` holds every candidate the participation model scored, named or not, because
+    the named runners are placed against everyone who might turn up, not only each other.
+    `unseen_expected` is how many finishers are expected with no result in the window, drawn
+    from `pool` when there is one. `record` is what the file says about all of it.
+    """
+
+    presence: Mapping[str, float]
+    sexes: Mapping[str, str | None]
+    unseen_expected: float
+    record: dict[str, Any]
+
+
 def entrant_ids(links: Sequence[Link]) -> list[str]:
     """The id each predicted entrant is known by, in list order.
 
@@ -162,6 +187,7 @@ def assemble(
     only_new: bool = False,
     pool: unseen.Pool | None = None,
     challenger: Mapping[str, float] | None = None,
+    forecast: FieldForecast | None = None,
 ) -> dict[str, Any]:
     """The prediction file for this race, validated by the caller's `write`.
 
@@ -188,8 +214,14 @@ def assemble(
     (`models.blend`), in their own line and in the simulated field alike, so a published place
     and a published time are the same prediction. A runner drawn from the newcomer pool is
     left alone.
+
+    `forecast`, for a race with no start list, replaces the simulation of a listed field with one
+    that also draws who turns up (`simulate.forecast_places`); `links` are then the runners
+    the participation model named, and `pool` places the runners it cannot see.
     """
     check_gun(live.gun, now)
+    if forecast is not None and only_new:
+        raise ValueError("a forecast field has no daily files: nobody enters it day by day")
     race = live.race
     earlier = already or {}
 
@@ -222,7 +254,27 @@ def assemble(
 
     places: dict[str, simulate.Place] = {}
     newcomers: dict[str, Any] | None = None
-    if not only_new:
+    field_sizes: np.ndarray | None = None
+    if forecast is not None:
+        candidates = sorted(forecast.presence)
+        placed_field, field_sizes = simulate.forecast_places(
+            posterior,
+            [
+                simulate.Entrant(runner_id, forecast.sexes.get(runner_id))
+                for runner_id in candidates
+            ],
+            np.array([forecast.presence[runner_id] for runner_id in candidates]),
+            ids,
+            race,
+            np.random.default_rng(seed),
+            conditions,
+            challenger,
+            forecast.unseen_expected,
+            pool,
+            scale,
+        )
+        places = {place.runner_id: place for place in placed_field}
+    elif not only_new:
         simulated, placed = simulate.simulate_field(
             posterior, field, race, np.random.default_rng(seed), conditions, pool, scale
         )
@@ -243,7 +295,7 @@ def assemble(
                 }
     # A newcomer drawn from the pool stands against the known field of the same morning.
     known_field: np.ndarray | None = None
-    if pool is not None:
+    if pool is not None and forecast is None:
         known = [entrant for entrant in field if entrant.runner_id in posterior.design.runner_index]
         if known:
             known_field = np.log(
@@ -341,6 +393,20 @@ def assemble(
         runners=lines,
         daily=only_new,
     )
-    if pool is not None:
+    if pool is not None and forecast is None:
         doc["newcomers"] = newcomers or {"method": "course pool", "course_id": pool.course_id}
+    if forecast is not None:
+        assert field_sizes is not None
+        low, middle, high = np.quantile(field_sizes, [0.10, 0.5, 0.90])
+        doc["field_forecast"] = {
+            **forecast.record,
+            "unseen_expected": round(forecast.unseen_expected, 1),
+            "unseen_placed_from": None if pool is None else f"course pool: {pool.course_id}",
+            "simulated_field": {
+                "median": round(float(middle)),
+                "low": round(float(low)),
+                "high": round(float(high)),
+                "largest": int(field_sizes.max()),
+            },
+        }
     return doc

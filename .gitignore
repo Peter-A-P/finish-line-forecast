@@ -34,3 +34,7 @@ data/entrants/snapshot.log
 # Observed weather: Open Government Licence data, but a big local cache, not committed
 data/cache/eccc/
 /site/
+
+# The hand-labelled resolution pairs (names as printed): kept local until it is decided
+# whether a labelled sample of named people is committed (docs/todo.md item 6)
+data/labels/

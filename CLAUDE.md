@@ -48,6 +48,8 @@ finishline report       rewrite the README tables from the measurement, and
                         data/site/results.json, the website's numbers, from the same run
                         (also data/retrospect/<race>.json, runner by runner, for a race that
                         ran with no prediction tagged before it: publish/retrospect.py)
+finishline participation the field forecast for a race with no start list: backtested,
+                        written to data/participation.json, which `freeze` reads
 finishline freeze <race> the prediction file, hashed, refused inside 24 hours of the gun
                         (--daily from seven days out: only entrants no earlier file had)
 finishline due          which live races want a daily or final file today

@@ -405,6 +405,13 @@ distance against their usual distance. Predict for everyone above a threshold ch
 backtest to balance the two coverage numbers; publish both numbers with the predictions so
 the reader knows what a list would have added.
 
+**Built 2026-09-21, section 13 item 42**, with two changes the backtest made: the series
+standings are computed from the results rather than fetched, with a feature for how much a
+runner's usual races share their crowd with this one; and the field is named by count (the
+expected number of finishers times a scale set on 2022 and 2023) rather than by a probability
+threshold, which named nobody at small races. On 2024 and after: recall 27.7%, precision
+30.2%, and 61.5% of finishers visible to any list-free forecast at all.
+
 ### 5.7 Freeze, publish, score
 
 `finishline freeze c2c-2026` pulls the forecast, writes the prediction file and its hash,
@@ -686,18 +693,18 @@ but it was never tried as a published design, so it is recorded there rather tha
 ## 11. Definition of done
 
 - [x] Data-terms check done for Strava and for the results provider, recorded here (2026-09-12)
-- [ ] `docs/data-terms.md` in the repository with dates, the NLAA courtesy contact and the removal path
-- [ ] Every NLAA road result 2016 to 2026 parsed; resolution precision and recall stated
-- [ ] Baselines (carry-forward, best equal-VDOT, category median) reported first, with every later result as skill against carry-forward
-- [ ] Rolling-origin backtest over 2024 to 2026 editions: MAE, percentage error, coverage at 80% and 90%, width, place error and Spearman, per history-depth stratum, bootstrap CIs
-- [ ] Normalisation ablation and course factors per course with CIs
-- [ ] Hierarchical model against the challenger, paired, per stratum
-- [ ] Conformal assumption stated beside every coverage table
+- [x] `docs/data-terms.md` in the repository with dates, the NLAA courtesy contact and the removal path (notices sent 2026-09-12)
+- [ ] Every NLAA road result 2016 to 2026 parsed; resolution precision and recall stated. **Open on both halves (2026-09-21):** the pages not read are named in docs/data-terms.md (a few PDFs, the 2017 Turkey Tea's HTML table), and the hand-labelled pairs of section 5.2 have not been labelled, so no precision or recall is stated yet (docs/todo.md item 6)
+- [x] Baselines (carry-forward, best equal-VDOT, category median) reported first, with every later result as skill against carry-forward
+- [x] Rolling-origin backtest over 2024 to 2026 editions: MAE, percentage error, coverage at 80% and 90%, width, place error and Spearman, per history-depth stratum, bootstrap CIs
+- [ ] Normalisation ablation and course factors per course with CIs. **Half done (2026-09-21):** course factors with CIs and the weather ablation are in the README; an ablation of the course normalisation is not
+- [x] Hierarchical model against the challenger, paired, per stratum (and the blend against each)
+- [x] Conformal assumption stated beside every coverage table
 - [ ] A dress-rehearsal prediction file tagged before a real race and scored after
 - [ ] Predictions for Cape to Cabot 2026 committed, tagged and hashed at least 24 hours before the gun
 - [ ] Error published after Cape to Cabot 2026: finish-time MAE in minutes, coverage, placing error, field coverage
 - [ ] The same for Run to Remember 2026 on the frozen model
-- [ ] One rejected approach documented with evidence (`docs/rejected.md`)
+- [x] One rejected approach documented with evidence (`docs/rejected.md`; the scripts behind it are in `experiments/`)
 - [x] Public name decided (Finish Line Forecast, 2026-09-06; renamed The Whole Field, Called Before the Gun, 2026-09-20)
 - [x] Repository public before the first live race (2026-09-19); `v0.1.0` tagged after the first scored race
 
@@ -1352,7 +1359,7 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     applied (whole-archive posterior medians, so approximate): the no-weather run leaves
     +0.42 (+/- 0.30) of each point of heat cost in its errors, the felt-heat run -0.15 (+/-
     0.30), and -0.14 with calendar year in the regression. Item 29's linear run, regressed on
-    the same felt-heat cost (`scratch/rejected_slope.py`), leaves +0.11 (+/- 0.31): the
+    the same felt-heat cost (`experiments/rejected_slope.py`), leaves +0.11 (+/- 0.31): the
     backtest cannot tell the two weather models apart, and item 29's "-0.69, half the effect
     unapplied" was measured against the conditions layer's own adjustment, a different
     regressor, so it does not compare with these. The case for the hinge rests on the
@@ -1460,7 +1467,7 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     worse.** Peter asked whether more could be squeezed out of the challenger, which is fair:
     item 33's configuration was fixed before its first run and never touched. Doing that on
     the 2024+ backtest would turn the test set into a validation set, so the search
-    (`scratch/tune_gbm.py`) runs on **2022 and 2023 only**: each half-year's races predicted
+    (`experiments/tune_gbm.py`) runs on **2022 and 2023 only**: each half-year's races predicted
     from history strictly before it, the same block scheme as the backtest, 7,598 finishes
     scored on mean absolute log error, and the 2024+ rows rerun once afterwards with what the
     search chose. Numbers below are points of a finish time (0.10 is a tenth of a percent),
@@ -1532,7 +1539,7 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     only) is left out of the average: that pool is a measurement of how first-timers actually
     finished there, and the trees have nothing to add to it.
 
-    **Where the weight came from** (`scratch/blend_weight.py`). Both models were run over 2022
+    **Where the weight came from** (`experiments/blend_weight.py`). Both models were run over 2022
     and 2023 with the same quarterly block scheme as the backtest, the same window the
     challenger's features and parameters were tuned on in item 34, for the reason given there:
     a weight read off the 2024+ races would make those races report a number about themselves.
@@ -1799,3 +1806,53 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     change waits for a backtest that runs anyway and is measured then (docs/todo.md).
     `courses.toml` now stores Cape to Cabot's start and finish, and a test recomputes the
     bearing from them and the 37%.
+
+42. **The field forecast names about three runners in ten correctly, and the rule it names them
+    by is a count, not a threshold (2026-09-21).** Section 5.6's participation model is built
+    (`models/participation.py`, `finishline participation`, `data/participation.json`), for
+    Run to Remember, which publishes no start list. Every resolved runner with a finish in the
+    eighteen months before the race is a candidate; a ridge logistic regression on fourteen
+    features computed from results before the race's own day gives each a probability of
+    finishing it. Two departures from the paragraph in 5.6, both measured:
+
+    - **The series standings are not read.** They are points in the association's series
+      races, and those races' results are already in the archive, so "this year's
+      participation" is computed from them directly (`this_year`, `recent_60d`,
+      `recent_183d`). Fetching and parsing a second page type for a number the archive
+      already holds bought nothing. What the plan did not have, and turned out to matter
+      more, is **`crowd`**: of the runner's recent races, how much of the field also ran this
+      course last time. A small club race shares its crowd with another; the Tely shares
+      little. Adding it raised the race-mean recall on 2022-2023 from 28.9% to 31.8% at the
+      same precision.
+    - **The field is named by count, not by a probability threshold.** A single threshold
+      balanced the pooled numbers and named nobody at all at ten of the thirty-four tuning
+      races, because a small race's candidates all sit below it; at the 2025 Run to Remember
+      it named 13 of an expected 104. The rule shipped names the most likely runners, as many
+      as the model expects to finish times a scale, and the scale is where recall and
+      precision are level on 2022 and 2023: **0.9**. Numbers are means over races, not
+      pooled over runners, because pooled, the Tely is half of every figure.
+
+    **Measured on the 53 races from 2024** (a model fitted before each race's year, races
+    resampled for the intervals): **recall 27.7% (23.9 to 31.6)** of the finishers who had a
+    recent result were named, **precision 30.2% (24.8 to 35.3)** of the runners named
+    finished, and **61.5% (56.4 to 66.3)** of all finishers had a recent result at all, which
+    is the ceiling any list-free forecast works under. On Run to Remember's own three scored
+    editions: recall 25.4%, precision 23.8% (16.9 to 34.0), and 86% of its finishers visible,
+    because it is a race of regulars; that is also why a count of 104 to 145 named is the
+    right size and why most of them will still be the wrong 104 to 145. The archive has no
+    2024 edition of it, so "ran last time" reaches back two years for 2025 and for 2026.
+
+    **What the file does with it.** The named runners are predicted exactly as listed
+    entrants are. Their places come from a simulation that also draws who turns up: every
+    candidate runs with their own probability, and a Poisson number of runners the archive
+    cannot see (the expected count scaled by the course's visible share) run with times from
+    the course's first-timer pool (`simulate.forecast_places`). A place is where the runner
+    finishes if they run. The file's `field_forecast` block carries the backtest's recall and
+    precision with their intervals, so a reader knows before the gun that about seven in ten
+    of the names will not be there; `finishline score` sets the promised precision beside the
+    measured one. `freeze` refuses a daily file for such a race and refuses without a
+    `data/participation.json` whose key matches the archive and the code.
+
+    **Whether to publish names that are mostly wrong is a real question** and is left open in
+    docs/todo.md: a list of 120 people of whom about 30 will run is what the plan asked for
+    and what the numbers support, but it is not the only defensible choice.
