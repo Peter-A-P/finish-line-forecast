@@ -372,17 +372,28 @@ def course_factors(
         record = profiles.get(measured.course_id, {})
         implied = ""
         if "climb_m" in record:
-            solved = grade.implied_grade(
-                distance_m=float(record["distance_m"]),
-                climb_m=float(record["climb_m"]),
-                drop_m=float(record["drop_m"]),
-                factor=measured.factor,
-            )
-            implied = (
-                f"{solved:.1%} over {record['climb_m']:.0f} m up"
-                if solved is not None
-                else "the published climb cannot explain it"
-            )
+            # Against its own length where there is a peer, as in `report.course_table`:
+            # that is the factor the hills agree with (PLAN.md 13 item 43).
+            shape = {
+                "distance_m": float(record["distance_m"]),
+                "climb_m": float(record["climb_m"]),
+                "drop_m": float(record["drop_m"]),
+            }
+            own = measured.versus_peers
+            target = own if own is not None else measured.factor
+            tail = "" if own is not None else " (flat ref)"
+            solved = grade.implied_grade(**shape, factor=target)
+            if solved is not None:
+                implied = f"{solved:.1%} over {record['climb_m']:.0f} m up{tail}"
+            else:
+                gentlest = grade.penalty(
+                    **shape, grade=(shape["climb_m"] + shape["drop_m"]) / shape["distance_m"]
+                )
+                implied = (
+                    f"faster than its hills allow ({gentlest:+.1%}){tail}"
+                    if target < gentlest
+                    else f"no road grade explains it{tail}"
+                )
         interval = f"[{measured.low * 100:+.1f}, {measured.high * 100:+.1f}]"
         if measured.peers_percent is None:
             against, peer_interval = "-", "-"

@@ -60,6 +60,20 @@ def course_table(
     reference a course carries whatever this population does differently from Daniels' fade at
     its distance, which is why the marathons crowd the hard end of this table; against the
     courses of its own length that cancels. PLAN.md 13 item 36.
+
+    ⚠️ **The last column solves the own-length figure**, and says so in the cell when it
+    cannot, which is the two courses with no other race of their length. Nine courses now have
+    an elevation profile measured off the road, and on every one of the eight with a peer the
+    hills agree with the own-length factor and not with the flat one (PLAN.md 13 item 43).
+    Solving the flat one printed "the published climb cannot explain it" beside courses whose
+    published climb explains them perfectly well.
+
+    ⚠️ **A solved grade is not the grade the road has.** It is the average grade the graded
+    sections would need to produce the measured figure, and where a profile gives the real
+    grade window (`data/courses.toml`) it is usually far gentler: the marathon solves at 7.8%
+    and has no 2.6 km steeper than 1.5%. A point estimate can also fall just past the gentlest
+    grade the hills allow while its interval still contains it, which is Turkey Tea and Mews
+    Memorial by a tenth of a point; the cell says that rather than saying no grade explains it.
     """
     from finishline.publish import showcase
 
@@ -69,7 +83,7 @@ def course_table(
 
     lines = [
         "| Course | Race length | Finishes | Slower than flat | Against its own length "
-        "| Grade that would explain it |",
+        "| Grade that would explain its own length |",
         "|---|---|---:|---|---|---|",
     ]
 
@@ -77,17 +91,33 @@ def course_table(
         record = profiles.get(measured.course_id, {})
         explained = ""
         if "climb_m" in record:
-            solved = grade.implied_grade(
-                distance_m=float(record["distance_m"]),
-                climb_m=float(record["climb_m"]),
-                drop_m=float(record["drop_m"]),
-                factor=measured.factor,
-            )
-            explained = (
-                f"{solved:.1%} average, over the published {record['climb_m']:.0f} m of climb"
-                if solved is not None
-                else "**the published climb cannot explain it**"
-            )
+            shape = {
+                "distance_m": float(record["distance_m"]),
+                "climb_m": float(record["climb_m"]),
+                "drop_m": float(record["drop_m"]),
+            }
+            own = measured.versus_peers
+            target = own if own is not None else measured.factor
+            basis = "" if own is not None else ", against the flat reference"
+            solved = grade.implied_grade(**shape, factor=target)
+            if solved is not None:
+                explained = (
+                    f"{solved:.1%} average, over {record['climb_m']:.0f} m of climb{basis}"
+                )
+            else:
+                # ⚠️ No solution has two meanings and they are opposite: either the course
+                # measures faster than these hills can make it even spread as gently as the
+                # distance allows, or harder than a road can be steep. One sentence for both
+                # read as "the elevation figure is wrong" on courses whose own-length
+                # interval contains the floor to within a tenth of a point.
+                gentlest = grade.penalty(
+                    **shape, grade=(shape["climb_m"] + shape["drop_m"]) / shape["distance_m"]
+                )
+                explained = (
+                    f"**faster than its hills allow**, which is {gentlest:+.1%}{basis}"
+                    if target < gentlest
+                    else f"**no grade a road can have explains it**{basis}"
+                )
         if measured.versus_peers is None:
             against = "_the only course of this length_"
         else:

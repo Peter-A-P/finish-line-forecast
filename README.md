@@ -374,24 +374,34 @@ archive**, which is a fast road measured. No prediction is affected, because a c
 only ever applied to that course at its own distance; PLAN.md section 13 item 36 has the size of
 it.
 
+The last column is the check, and since 2026-09-25 it is a real one. Ten of these courses have a
+measured elevation profile, eight of them with the grade of their steepest and fastest stretch,
+and the column asks what average grade the hills would need to produce the fifth column's figure.
+**On every one of the eight the hills agree with the own-length figure and not with the fourth
+column**, which is independent confirmation that the fourth column carries the population's fade
+over distance and the fifth does not. The Huffin Puffin marathon is the clearest: 273 m of climb
+against 270 m of descent, inside a 59 m band, is worth a quarter of a point, and the course reads
++9.6% against a flat reference and +1.3% against the other marathons. PLAN.md section 13 item 43
+has the table.
+
 <!-- finishline:courses -->
-| Course | Race length | Finishes | Slower than flat | Against its own length | Grade that would explain it |
+| Course | Race length | Finishes | Slower than flat | Against its own length | Grade that would explain its own length |
 |---|---|---:|---|---|---|
 | usr-42195 | marathon | 32 | +11.2% [+7.5, +14.8] | +3.1% [-0.5, +7.1], against 4 |  |
-| huffin-puffin-42195 | marathon | 296 | +9.6% [+8.3, +10.8] | +1.3% [-0.4, +3.1], against 4 |  |
+| huffin-puffin-42195 | marathon | 296 | +9.6% [+8.3, +10.8] | +1.3% [-0.4, +3.1], against 4 | 7.8% average, over 273 m of climb |
 | provincial-championship-42195 | marathon | 68 | +9.4% [+6.2, +12.1] | +1.0% [-2.2, +3.8], against 4 |  |
-| cape-to-cabot-20000 | 20 km | 5,311 | +9.2% [+9.0, +9.5] | _the only course of this length_ | 10.3% average, over the published 550 m of climb |
+| cape-to-cabot-20000 | 20 km | 5,311 | +9.2% [+9.0, +9.5] | _the only course of this length_ | 10.3% average, over 550 m of climb, against the flat reference |
 | run-from-away-42195 | marathon | 79 | +7.8% [+6.1, +9.6] | -0.7% [-2.6, +1.2], against 4 |  |
 | trapline-5000 | 5 km | 138 | +6.3% [-1.9, +15.1] | +8.4% [+0.1, +17.4], against 12 |  |
 | bell-island-blast-16093 | 10 mile | 181 | +4.6% [+3.8, +5.5] | +4.3% [+3.5, +5.2], against 1 |  |
 | trapline-42195 | marathon | 55 | +4.5% [+0.5, +8.2] | -4.6% [-8.4, -1.1], against 4 |  |
 | _... 34 more_ | | | | | |
-| five-and-dime-5000 | 5 km | 1,052 | -3.0% [-3.6, -2.4] | -1.8% [-2.8, -0.8], against 12 |  |
+| five-and-dime-5000 | 5 km | 1,052 | -3.0% [-3.6, -2.4] | -1.8% [-2.8, -0.8], against 12 | 3.7% average, over 20 m of climb |
 | quidi-vidi-5000 | 5 km | 334 | -3.2% [-3.9, -2.4] | -2.0% [-2.9, -0.8], against 12 |  |
 | ane-mile-1609 | mile | 577 | -3.7% [-5.0, -2.3] | _the only course of this length_ |  |
 | provincial-championship-5000 | 5 km | 907 | -4.0% [-4.5, -3.5] | -2.9% [-3.8, -2.0], against 12 |  |
-| turkey-tea-10000 | 10 km | 2,296 | -5.1% [-5.4, -4.9] | -4.5% [-5.0, -3.9], against 14 | **the published climb cannot explain it** |
-| mews-memorial-8000 | 8 km | 4,893 | -5.3% [-5.5, -5.1] | -5.2% [-5.8, -4.6], against 1 |  |
+| turkey-tea-10000 | 10 km | 2,296 | -5.1% [-5.4, -4.9] | -4.5% [-5.0, -3.9], against 14 | **faster than its hills allow**, which is -4.2% |
+| mews-memorial-8000 | 8 km | 4,893 | -5.3% [-5.5, -5.1] | -5.2% [-5.8, -4.6], against 1 | **faster than its hills allow**, which is -4.7% |
 | pearlgate-5000 | 5 km | 88 | -5.7% [-6.8, -4.7] | -4.8% [-6.1, -3.4], against 12 |  |
 | oceanview-5000 | 5 km | 108 | -6.3% [-7.2, -5.5] | -5.4% [-6.6, -4.4], against 12 |  |
 <!-- finishline:end:courses -->

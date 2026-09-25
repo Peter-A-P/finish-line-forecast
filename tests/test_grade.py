@@ -172,10 +172,15 @@ def test_cape_to_cabot_physics_agrees_with_the_measured_factor() -> None:
 def test_run_to_remembers_hills_are_not_its_course_factor() -> None:
     """The check can fail, and here it does: the measurement is not the hills.
 
-    1,042 finishes put Run to Remember at +1.64 percent [+1.17, +2.10]. Its 56 m up and 56 m
-    down are one steady grade of about 1 percent along a rail bed, and even at 3 percent,
-    steeper than a railway is built, they cost +0.39 percent, a third of the fast end of that
-    interval. The arithmetic will still solve for a grade; the grade is not a rail trail.
+    1,042 finishes put Run to Remember at +1.64 percent [+1.17, +2.10]. The segment stream
+    gives 91 m up and 91 m down over 11 km of rail trail with nothing steeper than 2.4 percent
+    over 700 m anywhere on it, and at that grade they cost half a point, under half the fast
+    end of that interval. The arithmetic will still solve for a grade; it asks for more than
+    three times the steepest stretch the course has, so the grade is not a rail trail.
+
+    ⚠️ **The numbers moved on 2026-09-25 and the conclusion did not**, which is the useful
+    part. The organisers' chart gave 56 m each way and put the solved grade at 12.7 percent;
+    the measured stream gives 91 and 7.7 percent. Both are miles off a rail bed.
     """
     record = tomllib.loads(COURSES.read_text(encoding="utf-8"))["run-to-remember-11000"]
     assert "bearing_deg" not in record
@@ -184,10 +189,20 @@ def test_run_to_remembers_hills_are_not_its_course_factor() -> None:
         "climb_m": record["climb_m"],
         "drop_m": record["drop_m"],
     }
-    assert grade.penalty(**shape, grade=0.03) < 0.0117 * 0.4
+    steepest = 0.024  # the steepest 700 m the profile labels
+    assert grade.penalty(**shape, grade=steepest) < 0.0117 * 0.5
     solved = grade.implied_grade(**shape, factor=0.0164)
     assert solved is not None
-    assert solved > 0.10, f"{solved:.1%} would be a grade a rail bed could have"
+    assert solved > 3 * steepest, f"{solved:.1%} would be a grade this trail could have"
+
+    # And the reading it replaced reached the same verdict from different totals.
+    older = {
+        **shape,
+        "climb_m": record["independent_climb_m"],
+        "drop_m": record["independent_drop_m"],
+    }
+    was = grade.implied_grade(**older, factor=0.0164)
+    assert was is not None and was > solved
 
 
 def _leg(start: list[float], end: list[float]) -> complex:
@@ -234,6 +249,188 @@ def test_flat_out_has_no_bearing_because_it_goes_nowhere() -> None:
     # within a few metres of the first.
     assert abs(_leg(points[0], points[4])) < 25
     assert abs(_leg(points[3], points[7])) < 25
+
+
+# A course factor measured against Daniels' flat reference at the course's own distance
+# carries this population's departure from that curve, and the same factor measured against
+# the courses of the same race length does not (PLAN.md 13 item 36). Until 2026-09-25 there
+# was no way to say which of the two the hills agreed with, because four courses had an
+# elevation figure and none of them had the grades. These are the ten that do now: the
+# measured pair from `finishline courses` on the 2026-09-25 archive, and the grade window
+# each profile labels. PLAN.md 13 item 43.
+#
+# course_id, steepest labelled grade either way, (factor, low, high), (peers, low, high)
+PROFILED: tuple[
+    tuple[str, float, tuple[float, float, float], tuple[float, float, float] | None], ...
+] = (
+    ("five-and-dime-5000", 0.028, (-0.0299, -0.0359, -0.0237), (-0.0178, -0.0282, -0.0076)),
+    ("mundy-pond-5000", 0.016, (-0.0180, -0.0211, -0.0153), (-0.0047, -0.0136, 0.0045)),
+    ("flat-out-5000", 0.035, (-0.0093, -0.0127, -0.0060), (0.0048, -0.0050, 0.0133)),
+    ("mews-memorial-8000", 0.029, (-0.0532, -0.0552, -0.0512), (-0.0519, -0.0583, -0.0460)),
+    ("five-and-dime-10000", 0.031, (-0.0083, -0.0196, -0.0007), (0.0012, -0.0109, 0.0103)),
+    ("harbour-front-10000", 0.023, (-0.0177, -0.0209, -0.0141), (-0.0088, -0.0144, -0.0026)),
+    ("turkey-tea-10000", 0.028, (-0.0512, -0.0540, -0.0488), (-0.0451, -0.0501, -0.0393)),
+    ("run-to-remember-11000", 0.024, (0.0164, 0.0117, 0.0210), None),
+    ("tely-10-16093", 0.046, (0.0024, 0.0011, 0.0037), (-0.0414, -0.0498, -0.0342)),
+    ("cape-to-cabot-20000", 0.087, (0.0924, 0.0899, 0.0948), None),
+    ("huffin-puffin-42195", 0.015, (0.0962, 0.0831, 0.1078), (0.0133, -0.0045, 0.0308)),
+)
+
+
+def _physics(course_id: str, steepest: float) -> tuple[float, float]:
+    """What the hills are worth, from the gentlest grade the totals allow to the steepest
+    grade the profile labels, which is an upper bound on the typical graded-section grade."""
+    record = tomllib.loads(COURSES.read_text(encoding="utf-8"))[course_id]
+    shape = {
+        "distance_m": float(record["distance_m"]),
+        "climb_m": float(record["climb_m"]),
+        "drop_m": float(record["drop_m"]),
+    }
+    gentlest = (shape["climb_m"] + shape["drop_m"]) / shape["distance_m"]
+    low = grade.penalty(**shape, grade=gentlest)
+    high = grade.penalty(**shape, grade=max(gentlest, steepest))
+    return low, high
+
+
+def _overlaps(band: tuple[float, float], interval: tuple[float, float, float]) -> bool:
+    return not (band[1] < interval[1] or band[0] > interval[2])
+
+
+def test_the_profiles_side_with_the_own_length_factor_and_never_with_the_flat_one() -> None:
+    """The elevation cross-check was built to check the measurement. It ended up saying
+    which measurement to read, and this test is the claim in PLAN.md 13 item 43.
+
+    For each course with a profile and at least one other course of its race length: does
+    the Minetti penalty the profile implies fall inside the factor measured against Daniels'
+    flat reference, inside the factor measured against the courses of its own length, inside
+    both (the intervals are too wide to separate them) or inside neither?
+    """
+    verdicts: dict[str, list[str]] = {"flat": [], "peers": [], "both": [], "neither": []}
+    for course_id, steepest, flat, peers in PROFILED:
+        if peers is None:
+            continue
+        band = _physics(course_id, steepest)
+        with_flat = _overlaps(band, flat)
+        with_peers = _overlaps(band, peers)
+        key = (
+            "both"
+            if with_flat and with_peers
+            else "flat"
+            if with_flat
+            else ("peers" if with_peers else "neither")
+        )
+        verdicts[key].append(course_id)
+
+    assert verdicts["flat"] == [], (
+        "no course's hills should agree with the flat reference alone; these do: "
+        f"{verdicts['flat']}"
+    )
+    assert len(verdicts["peers"]) == 5, verdicts["peers"]
+    # Flat Out and the Five and Dime 10 km have intervals wide enough to hold either answer.
+    assert set(verdicts["both"]) == {"flat-out-5000", "five-and-dime-10000"}, verdicts["both"]
+    # The two rolling courses with no net drop, where the model charges for undulation and
+    # the results do not pay it. Reported, not averaged away.
+    assert set(verdicts["neither"]) == {"mundy-pond-5000", "harbour-front-10000"}
+
+
+def test_the_two_misses_are_the_rolling_courses_with_no_net_drop() -> None:
+    """The exceptions are reported, not rounded away, and this is how far off they are.
+
+    Mundy Pond and Harbour Front climb almost exactly what they descend, +3 m over 5 km and
+    +7 m over 10 km, so the grade model charges them for the undulation: a metre climbed
+    takes more than the same metre descended gives back. Both measure faster than that
+    against the other courses of their length, one by a tenth of a point and one by nine.
+    """
+    for course_id, steepest, peers_high, margin in (
+        ("mundy-pond-5000", 0.016, 0.0045, 0.002),
+        ("harbour-front-10000", 0.023, -0.0026, 0.010),
+    ):
+        low, _high = _physics(course_id, steepest)
+        assert low > 0, f"{course_id}: a rolling course with no net drop costs time"
+        assert 0 < low - peers_high < margin, f"{course_id}: {low:.4f} against {peers_high:.4f}"
+
+
+def test_mews_is_faster_than_its_net_descent_can_explain() -> None:
+    """The strongest form of the check, because it needs no reading of the chart at all.
+
+    The profile labels 88 m at the start and 14 m at the finish. A course that shed those
+    74 m with no climb anywhere, spread as gently as 8 km allows, is the fastest a course of
+    this shape can be, and 4,893 finishes say this one is faster than that.
+    """
+    record = tomllib.loads(COURSES.read_text(encoding="utf-8"))["mews-memorial-8000"]
+    net = record["drop_m"] - record["climb_m"]
+    assert net == pytest.approx(74, abs=1), "the labelled start and finish, 88 m and 14 m"
+    fastest_possible = grade.penalty(
+        distance_m=record["distance_m"],
+        climb_m=0.0,
+        drop_m=net,
+        grade=net / record["distance_m"],
+    )
+    assert fastest_possible == pytest.approx(-0.049, abs=0.001)
+    assert fastest_possible > -0.0512, "the whole measured interval is past the bound"
+
+
+def test_the_marathon_is_flat_and_measures_nine_points_hard() -> None:
+    """The clearest case in the archive that the flat-reference factor is not the road.
+
+    273 m up and 270 m down over 42 km, in a 59 m band, with no 2.6 km window steeper than
+    1.5 percent. The course reads +9.6 percent against Daniels' reference at the marathon
+    and +1.3 percent against the four other marathons.
+    """
+    low, high = _physics("huffin-puffin-42195", 0.015)
+    assert high < 0.004, f"{high:.4f}: these hills are worth a quarter of a point"
+    assert _overlaps((low, high), (0.0133, -0.0045, 0.0308)), "the own-length figure holds it"
+    assert not _overlaps((low, high), (0.0962, 0.0831, 0.1078)), "the flat one misses by nine"
+
+
+def test_the_telys_hills_say_it_is_fast_and_the_flat_reference_says_it_is_not() -> None:
+    """The widest gap here between the two ways of measuring one course, on the archive's
+    best-measured course: 25,664 finishes over 11 editions.
+
+    A course that drops 124 m in 16 km does not cost a runner time. The factor against the
+    flat reference says +0.2 percent, and the factor against the other 10 mile course says
+    -4.1 percent. The hills, read off the profile, say between -3.0 and -3.7.
+    """
+    low, high = _physics("tely-10-16093", 0.046)
+    assert high < 0, "the hills cannot make this course slow"
+    assert _overlaps((low, high), (-0.0414, -0.0498, -0.0342))
+    assert not _overlaps((low, high), (0.0024, 0.0011, 0.0037))
+
+
+def test_cape_to_cabot_needs_a_steeper_grade_than_any_kilometre_of_it_has() -> None:
+    """The check that passed on the published totals is weaker on the measured grades.
+
+    The published 550 m against 450 m solve at a 10.3 percent average, and the race's page
+    says "more than 10 per cent in some parts", which is how the two were reconciled. The
+    profile's own 508 m and 400 m need 11.1 percent, and no 1.3 km of the course is steeper
+    than 8.7. Both can be true, because a 1.3 km window is a smoothing; what cannot be said
+    any more is that the physics and the results land on the same number.
+    """
+    record = tomllib.loads(COURSES.read_text(encoding="utf-8"))["cape-to-cabot-20000"]
+    solved = grade.implied_grade(
+        distance_m=record["distance_m"],
+        climb_m=record["independent_climb_m"],
+        drop_m=record["independent_drop_m"],
+        factor=0.0924,
+    )
+    assert solved is not None
+    assert solved == pytest.approx(0.111, abs=0.003)
+    assert solved > 0.087, "steeper than the steepest 1.3 km the profile labels"
+
+
+def test_every_profiled_course_states_where_its_totals_came_from() -> None:
+    """A second figure is only worth keeping if the file says what produced it."""
+    loaded = tomllib.loads(COURSES.read_text(encoding="utf-8"))
+    for course_id, _steepest, _flat, _peers in PROFILED:
+        record = loaded[course_id]
+        assert record["climb_m"] and record["drop_m"], course_id
+        assert record.get("source"), course_id
+        if "independent_climb_m" in record:
+            assert record.get("independent_source"), course_id
+            assert "independent_drop_m" in record, (
+                f"{course_id}: an ascent total with no drop beside it cannot be read "
+                "through the grade model"
+            )
 
 
 def _synthetic() -> tuple[dict[str, Race], list[Runner]]:

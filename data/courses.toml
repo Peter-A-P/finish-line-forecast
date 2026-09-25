@@ -42,11 +42,24 @@ course page publishes an elevation profile image for the 2006 test run only; the
 course added a 1 km out-and-back on the flat of Southside Road, so the image understates \
 the distance and not the climb. No GPX or KML is offered.\
 """
-independent_climb_m = 519
+independent_climb_m = 508
+independent_drop_m = 400
 independent_source = """\
-Peter Parker's own watch on the 2025 edition. Six percent under the published figure, \
-which is the usual disagreement between a barometric or GPS ascent total and a surveyed \
-one, and it is kept because it brackets the number rather than replacing it.\
+The Overload profile of 2026-09-25 (the note above the 5 km courses has the provenance and \
+what is left out of it), from Peter Parker's own recording of the 2025 edition: 20.13 km \
+recorded, 508 m of climb and 400 m of descent on the smoothed series, 32 m at the start line \
+and 141 m at the finish, a high of 198 m at 10.5 km and a low of -16 m, steepest 1.3 km +8.7% \
+and fastest -8.2%. The raw stream of the same recording totals 519 m, which is the figure this \
+file carried from 2026-09-16 until the profile replaced it; the pair kept here is the smoothed \
+one, because 508 and 400 describe one series and 519 had no drop to go with it. Both are 6 to \
+8 percent under the published 550 m, the usual disagreement between a barometric or GPS ascent \
+total and a surveyed one, and they are kept as a bracket rather than a replacement.
+
+⚠️ **A low of -16 m is the size of the error.** The course runs at sea level along \
+Southside Road and Water Street, so 16 m below it is drift, and nothing here is good to better \
+than that. It is also why the start reads 32 m against the 2006 chart's 75 m at the lighthouse: \
+the start line is not the lighthouse. The profile Peter supplied on 2026-09-21 read that same \
+32 m, which is one reason to think it came off this same recording.\
 """
 notes = """\
 Start at Cape Spear, finish at Cabot Tower on Signal Hill, so the course climbs about 100 m \
@@ -66,19 +79,55 @@ and 395 m down, 32 m at the start line to 132 m at the finish line; where it was
 recorded. Both undercount the published 550 m the way coarse sampling and smoothing do, like \
 the watch's 519 m, and each still needs a road's grade to produce the measured +9.2%: 11.7 \
 to 12.3 percent against 10.3 for the published figures.\
+
+⚠️ **The 2026-09-25 profile is the first thing here that gives the grades rather than the \
+totals, and the cross-check comes out weaker than the published figures made it look.** No \
+1.3 km of this course is steeper than +8.7% climbing or -8.2% descending. Through Minetti, \
+508 m up and 400 m down over 20 km are worth +5.6% at the gentlest grade they allow (4.5%) and \
++7.9% at that 8.7%, while the measured factor is +9.24% [+8.99, +9.48] from 5,311 finishes; \
+reconciling the two still asks for an 11.1% average over the graded sections, steeper than any \
+1.3 km of the race. The race's "grades of more than 10 per cent in some parts" is not \
+contradicted by that, because a 1.3 km window is a smoothing and a 300 m pitch inside it can \
+be far steeper. What has gone is the claim that the physics and the results land on the same \
+number.
+
+**This is the one profiled course with no other race of its length to compare against**, and \
+so the only one where PLAN.md 13 item 43's correction cannot be checked. The gap between the \
+flat-reference factor and the profile's band is +1.1 to +3.7 points here, the same sign and \
+order as the Tely's +3.6 at 16 km and the marathon's +9.4 at 42 km, and not a straight line in \
+distance. Cape to Cabot's band is also the widest of the seven, because a 1.3 km window pins \
+its grade least well.\
 """
 
 [run-to-remember-11000]
 name = "Run to Remember"
 distance_m = 11000
-climb_m = 56
-drop_m = 56
+climb_m = 91
+drop_m = 91
 source = """\
+The Overload profile of 2026-09-25 (the note above the 5 km courses has the provenance of the \
+set), drawn like Turkey Tea's **from Strava's own segment stream and not from anyone's watch \
+trace**, so it carries no clock, no heart rate and no splits: 10.91 km, 91 m of climb and 91 m \
+of descent on the smoothed series against the segment's own 96 m, 119 m at the start and 119 m \
+at the finish, a high of 169 m at 6.0 km and a low of 119 m, steepest 700 m +2.4% and fastest \
+-2.4%. Net zero, which is what an out-and-back is.
+
+⚠️ **This replaced 56 m each way, and the two are not measuring the same thing.** The \
+figure here until 2026-09-25 came off the organisers' own chart at \
+striderunningnl.ca/run-to-remember/ (Stride Running NL), read by Peter on 2026-09-21. The most \
+likely explanation for 56 against 91 is that the page's number is the **range** between its \
+chart's ends, about 165 m down to 114 m, and not a cumulative climb: 51 m of range, 56 m \
+printed. A stream summed metre by metre over a trail that undulates the whole way gives 91. \
+Neither source is checkable against the other, so both are kept.\
+"""
+independent_climb_m = 56
+independent_drop_m = 56
+independent_source = """\
 The course profile on the organisers' page, striderunningnl.ca/run-to-remember/ (Stride \
-Running NL), as Peter read it on 2026-09-21: 56 m of elevation gain and 56 m of loss. The \
-figures are on the profile chart; the page's text prints none. The chart runs from about \
-165 m at the start down to about 114 m at the 5.5 km turnaround and back, so 51 m of the 56 \
-is one steady grade and the rest is small undulation.\
+Running NL), as Peter read it on 2026-09-21: 56 m of elevation gain and 56 m of loss, with the \
+figures on the profile chart and none in the page's text. That chart runs from about 165 m at \
+the start down to about 114 m at the 5.5 km turnaround and back, which reads as one steady \
+grade; the segment stream says the trail is not steady and climbs 91 m in small pieces.\
 """
 notes = """\
 An out-and-back on the T'Railway, a gravel rail trail, which the page calls an "11km Trail \
@@ -87,21 +136,276 @@ course map; turnaround on the T'Railway just before Commonwealth Avenue, Mount P
 km. No `bearing_deg`: an out-and-back has \
 no net direction by construction.
 
-⚠️ **The page says the start and turnaround were switched in 2025.** On an out-and-back that \
-reverses the profile, downhill first and uphill to the finish instead of the other way round, \
-and leaves the climb, the drop and the Minetti penalty unchanged; so the 2025 edition is \
-pooled with the earlier ten. Which way the older editions ran is the page's word only.
+⚠️ **The page says the start and turnaround were switched in 2025, and the segment agrees \
+that there are two directions.** The organisers' chart starts high, at about 165 m, and runs \
+down to about 114 m at the turnaround. The segment stream starts at 119 m and climbs to 169 m \
+at 6.0 km before coming back. Those are the same out-and-back read from opposite ends, four or \
+five metres apart on the datum, which is independent confirmation of a claim that was the \
+page's word only. **Which profile belongs to which era neither source settles**, and it does \
+not matter for the model: reversing an out-and-back leaves the climb, the drop and the Minetti \
+penalty untouched, so the 2025 edition stays pooled with the earlier ten.
 
-⚠️ **The hills explain about a tenth of the measured factor, and the rest is not hills.** The \
-course measures +1.64% [+1.17, +2.10] from 1,042 finishes. Through Minetti, 56 m up and 56 m \
-down over 11 km cost +0.13% at the gentlest grade they allow (1.0%, which is about what the \
-profile shows: 51 m over 5.5 km), +0.26% at 2% and +1.04% at 8%. To produce +1.64% they would \
-need a 12.7% average grade on the graded sections (9.0% to 16.3% over the interval), and a \
-rail bed does not have one. `finishline courses` will print that 12.7% because it is the \
-arithmetic; read it as the size of what the hills are not. The likely rest: the gravel, and \
-the race length, since this is the only 11 km course on the archive and so has no peers to \
-cancel this population's fade against Daniels' reference (PLAN.md 13 item 36), which is worth \
-about a point at Cape to Cabot's 20 km.\
+⚠️ **The hills explain a quarter to a third of the measured factor, and the rest is not \
+hills.** The course measures +1.64% [+1.17, +2.10] from 1,042 finishes. Through Minetti, 91 m \
+up and 91 m down over 11 km cost +0.35% at the gentlest grade they allow (1.7%) and +0.51% at \
+the 2.4% of the steepest 700 m, which is the steepest the profile has anywhere. To produce \
++1.64% they would need a 7.7% average grade on the graded sections (5.5% to 9.9% over the \
+interval), more than three times the steepest stretch of the course, and a rail bed does not \
+have one. `finishline courses` will print that 7.7% because it is the arithmetic; read it as \
+the size of what the hills are not. The old 56 m reading put the same figure at 12.7% and the \
+hills at a tenth of the factor; the measured profile roughly halves the gap without closing \
+it. The likely rest: the gravel, and the race length, since this is the only 11 km course on \
+the archive and so has no peers to cancel this population's fade against Daniels' reference \
+(PLAN.md 13 item 36), worth about a point and a half at this distance on the reading in \
+item 43.\
+"""
+
+# ---------------------------------------------------------------------------------------
+# The profiles supplied on 2026-09-25, and what they settled.
+#
+# All eleven courses in this file now carry an elevation profile built by project 11
+# (Overload), supplied as chart images on 2026-09-25. Eight are from Peter Parker's own
+# recording of the route; three, Turkey Tea, Run to Remember and Harbour Front, are drawn from
+# Strava's own segment streams and have no clock in them at all. Seven are courses that had no
+# elevation figure of any kind before, the Tely among them. The other four had one and it is
+# kept beside the profile, which is the only way to see how far apart two readings of one road
+# land: Turkey Tea and Flat Out agree to a metre or three, Cape to Cabot's profile comes in 8
+# percent under the surveyed figure the race publishes, as barometric totals do, and Run to
+# Remember disagrees outright, for the reason its entry gives.
+# Each chart prints the climb and descent of its smoothed series, the start, finish, high and
+# low heights, and the steepest and fastest windows, which is the grade distribution: the
+# thing `metrics/grade.py` actually wants and that no published ascent total gives.
+#
+# ⚠️ **Only the road is taken.** Each chart also prints a distance, a moving time and an
+# average pace, and one of them a heart rate. None of that is here, and no track, split or
+# stream is. A watch file is training data about an identifiable person, which is the line
+# this project drew for Strava, and the line does not move because the file arrived by a
+# different route; an ascent total and a shape about a public road are a different thing.
+# See docs/data-terms.md, which has the row.
+#
+# ⚠️ **One recording each, not a survey.** The charts resample by distance and smooth before
+# totalling, and each prints the raw stream's own total beside it, 2 to 18 percent away. The
+# recorded distance runs 0.1 to 1.2 percent over the certified one, as GPS does; `distance_m`
+# stays the certified distance the results are scored at. Where a published figure exists it
+# is kept as well, and only Cape to Cabot has one.
+#
+# ⚠️ **What they settled: the profiles side with `versus_peers`, not with the factor against
+# Daniels' flat reference** (PLAN.md 13 item 43, and item 36 for why there are two figures).
+# Nine courses in this file have both an elevation figure and another course of the same race
+# length to compare against. On five of them the Minetti penalty the profile implies is inside
+# the own-length interval and outside the flat-reference one; on two (Flat Out and the Five
+# and Dime 10 km) the intervals are wide enough to hold it either way, so they separate
+# nothing; on two, Mundy Pond and Harbour Front, it is outside both, by a tenth of a point and
+# by nine tenths against their own length and by two and a half points against the flat
+# reference. **Not one of the nine picks the flat reference.** The size of that disagreement
+# tracks the race length and changes sign: from 5 to 10 km these courses measure 0.1 to 2.5
+# points faster than their hills can account for, and from 11 km up 1.1 to 9.4 points slower,
+# which is a population fading more over distance than Daniels' reference does and is not a
+# hill anywhere. The two misses are the two rolling courses with no net drop, and their entries
+# say so.
+
+[five-and-dime-5000]
+name = "Five and Dime 5 km"
+distance_m = 5000
+climb_m = 20
+drop_m = 42
+source = """\
+The Overload profile of 2026-09-25 (see the note above): 5.05 km recorded, 20 m of climb and \
+42 m of descent on the smoothed series against the raw stream's own 17 m, 133 m at the start \
+down to 111 m at the finish, which are also the high and the low, and no 500 m window steeper \
+than +1.0% climbing or -2.8% descending. Net 22 m down. Nothing is published for this course.\
+"""
+notes = """\
+Two small rises in the first kilometre, then a flat middle and a long gentle drop. The profile \
+never leaves a 22 m band and its steepest 500 m is +1.0%, which is as close to flat as any \
+course in this file.
+
+The hills cover about two thirds of one of the two measured factors and all of the other. \
+1,052 finishes over 10 editions read -2.99% [-3.59, -2.37] against the flat reference and \
+-1.78% [-2.82, -0.76] against the twelve other 5 km courses. Through Minetti these totals are \
+worth -2.18% at the gentlest grade they allow (1.2%) and -1.93% at the 2.8% of the fastest \
+window: inside the own-length interval, past the end of the other.
+
+Point to point, or at any rate not a loop: it finishes 22 m below where it starts, which is \
+how a profile answers a question the route description could not. No `bearing_deg` yet, \
+because the chart carries no start or finish position (docs/todo.md item 2).\
+"""
+
+[mundy-pond-5000]
+name = "Mundy Pond 5 km"
+distance_m = 5000
+climb_m = 36
+drop_m = 33
+source = """\
+The Overload profile of 2026-09-25 (see the note above): 5.01 km recorded, 36 m of climb and \
+33 m of descent on the smoothed series against the raw stream's own 35 m, 90 m at the start \
+and 94 m at the finish, a high of 101 m at 1.3 km and a low of 90 m, steepest 500 m +1.6% and \
+fastest -1.5%. The chart is titled for the edition it was recorded on, \
+Sunday 11 May 2025. Its own net is +3 m and its two labelled ends give +4; that one metre \
+is the rounding, and it is the size of everything uncertain here. Nothing is published for \
+this course.\
+"""
+notes = """\
+Rolling and small: two humps of about 10 m in an 11 m band, no 500 m window steeper than 1.6% \
+either way. This is the course whose undulation costs the most relative to its size, because \
+its climbs and descents very nearly cancel in metres and do not cancel in seconds.
+
+⚠️ **The one course here whose profile agrees with neither measured factor, and it misses by \
+a tenth of a point.** 3,197 finishes over 17 editions read -1.80% [-2.11, -1.53] against the \
+flat reference and -0.47% [-1.36, +0.45] against the twelve other 5 km courses. Through \
+Minetti, 36 m up and 33 m down over 5 km cost +0.57% at the gentlest grade they allow (1.4%) \
+and +0.61% at the 1.6% of the steepest window: a cost and not a saving, because a metre \
+climbed takes more than a metre descended gives back. That is 0.12 points past the top of the \
+own-length interval and 2.1 points past the flat one, so the pattern in the note above holds \
+in direction and fails in detail here, which is worth recording more than the six agreements.
+
+Almost certainly a loop, and the profile is the evidence: over 5 km it returns to within 4 m \
+of the height it started at. It gets no `bearing_deg` on that basis, and a start and a finish \
+position would settle it rather than leaving it at almost certainly (docs/todo.md item 2).\
+"""
+
+[mews-memorial-8000]
+name = "Mews Memorial 8 km"
+distance_m = 8000
+climb_m = 26
+drop_m = 100
+source = """\
+The Overload profile of 2026-09-25 (see the note above), in an earlier rendering that prints \
+no totals: 26 m up and 100 m down is the sum of every rise and fall read off the chart by eye, \
+feature by feature, each good to a metre or two, and the net agrees with the two heights the \
+chart does label, 88 m at the start and 14 m at the finish. It also labels the high point \
+(101 m at 2.3 km), the steepest 500 m (+1.7%) and the fastest (-2.9%). **Read this one again \
+off a rendering with the header** and replace the two totals; the six others came with theirs. \
+Nothing is published for this course.\
+"""
+notes = """\
+Flat and slightly rising to the high point at 2.3 km, undulating to about 3.9 km, then \
+downhill the whole way in, 86 m over the last 4.1 km, about 2%. Nothing on it is steep: the \
+steepest and the fastest 500 m are +1.7% and -2.9%.
+
+⚠️ **The hills do not explain the factor measured against the flat reference, and the two \
+labelled ends alone prove it.** The course reads -5.32% [-5.52, -5.12] from 4,893 finishes \
+over 16 editions. Through Minetti, 26 m up and 100 m down over 8 km are worth -4.69% at the \
+gentlest grade they allow (1.6%, about what the profile shows) and less at every steeper one. \
+That bound holds without reading the chart at all: a course that shed the labelled 74 m net \
+with no climb anywhere, as gently as 8 km allows, is -4.90%, and the whole measured interval \
+is past it. So `finishline courses` prints "the published climb cannot explain it" here, \
+which is the finding and not a gap.
+
+Against the one other 8 km course it reads -5.19% [-5.83, -4.60], which the physics does \
+reach. With a single peer that agreement is worth less than the Tely's or the marathon's, and \
+PLAN.md 13 item 43 counts it for what it is.
+
+Point to point, and the profile is how we know: it finishes 74 m below where it starts, which \
+no loop and no out-and-back can. So this course wants a bearing more than most, and the image \
+carries no position to compute one from (docs/todo.md item 2).\
+"""
+
+[harbour-front-10000]
+name = "Harbour Front 10 km"
+distance_m = 10000
+climb_m = 72
+drop_m = 64
+source = """\
+The Overload profile of 2026-09-25 (the note above the 5 km courses has the provenance of the \
+set), drawn like Turkey Tea's and Run to Remember's **from Strava's own segment stream and not \
+from anyone's watch trace**, so it carries no clock, no heart rate and no splits: 10.01 km, \
+72 m of climb and 64 m of descent on the smoothed series against the segment's own 69 m, 6 m \
+at the start and 13 m at the finish, a high of 43 m at 4.6 km and a low of 5 m, steepest 600 m \
++2.3% and fastest -2.2%. Net 7 m up. Nothing is published for this course.\
+"""
+notes = """\
+Two kilometres along the harbour between 5 and 8 m, which is the flattest stretch of road in \
+this file, then up to the high point of 43 m at 4.6 km, a dip, a second bump of much the same \
+size at 6.9 km, and down to finish at 13 m. Nothing on it is steep: no 600 m window steeper \
+than +2.3% or -2.2%.
+
+⚠️ **The second course whose profile agrees with neither measured factor, and this one \
+misses by a point.** 2,473 finishes over 12 editions read -1.77% [-2.09, -1.41] against the \
+flat reference and -0.88% [-1.44, -0.26] against the fourteen other 10 km courses. Through \
+Minetti, 72 m up and 64 m down over 10 km **cost** +0.67% at the gentlest grade they allow \
+(1.4%) and +0.83% at the 2.3% of the steepest window, because a metre climbed takes more than \
+the same metre descended gives back and this course climbs a little more than it descends. \
+That is 0.93 points past the fast end of the own-length interval and 2.5 past the flat one.
+
+⚠️ **Both misses look alike and two is not a rule.** This and Mundy Pond are the two \
+rolling courses here with essentially no net drop, +7 m over 10 km and +3 m over 5 km, and on \
+both the grade model charges for the undulation and the results decline to pay: Mundy Pond by \
+a tenth of a point, this by nine tenths. Every course whose profile has a real net descent or \
+a real net climb lands where the own-length factor says it should. Whether that is the \
+constant-power model overstating what rolling ground costs, or something about these two \
+roads, two cases cannot say. It is counted honestly in PLAN.md 13 item 43 rather than \
+averaged away.
+
+No `bearing_deg`. Start and finish are 7 m apart in height over 10 km, which a loop, an \
+out-and-back and a short point-to-point course all do, so unlike Mews Memorial this profile \
+does not settle the question; it only says the course does not go anywhere far uphill or \
+down. A start and a finish position would settle it (docs/todo.md item 2).\
+"""
+
+[five-and-dime-10000]
+name = "Five and Dime 10 km"
+distance_m = 10000
+climb_m = 63
+drop_m = 84
+source = """\
+The Overload profile of 2026-09-25 (see the note above): 10.01 km recorded, 63 m of climb and \
+84 m of descent on the smoothed series against the raw stream's own 65 m, 134 m at the start \
+down to 112 m at the finish, a high of 134 m and a low of 112 m, steepest 600 m +3.1% and \
+fastest -2.5%. Net 21 m down. Nothing is published for this course.\
+"""
+notes = """\
+Four rolling rises in a 22 m band, the sharpest of them at 5 to 6 km, and a net 21 m down. \
+The 5 km race is run on the same ground, and the two profiles share their first kilometre \
+and their band; they are recorded as separate courses because they are separate routes and \
+separate distances, as everything in this file is.
+
+⚠️ **This one separates nothing, and that is worth saying.** 843 finishes over 10 editions \
+give -0.83% [-1.96, -0.07] against the flat reference and +0.12% [-1.09, +1.03] against the \
+fourteen other 10 km courses, and the physics, -0.86% at the gentlest grade these totals allow \
+(1.5%) to -0.55% at the 3.1% of the steepest window, is inside both. With that few finishes \
+the intervals are wide enough to hold almost any answer, so this course is counted in PLAN.md \
+13 item 43 as a course that did not discriminate rather than as an agreement.
+
+No `bearing_deg`: the profile finishes 21 m below its start, so this is not a loop and a \
+bearing would be worth having, but no position comes with the chart (docs/todo.md item 2).\
+"""
+
+[huffin-puffin-42195]
+name = "Huffin Puffin Marathon"
+distance_m = 42195
+climb_m = 273
+drop_m = 270
+source = """\
+The Overload profile of 2026-09-25 (see the note above): 42.32 km recorded, 273 m of climb and \
+270 m of descent on the smoothed series against the raw stream's own 321 m, 47 m at the start \
+and 50 m at the finish, a high of 61 m near the end at 41.6 km, which the chart's own label \
+rounds to 60, and a low of 2 m; steepest 2.6 km +1.4% and fastest -1.5%. Net 3 m. Nothing is \
+published for this course.\
+"""
+notes = """\
+⚠️ **This is the road, not the name.** `ingest/nlaa.SAME_ROUTE` puts the Capital Subaru \
+marathon and every USR marathon up to 2025 on this course id, and the profile describes all \
+of them. The USR ran a **new** marathon route in 2026, which keeps `usr-42195` and starts with \
+no history; nothing here describes that one.
+
+Flat, by the standards of this file: 543 m of total elevation change over 42 km, inside a 59 m \
+band between 2 m and 61 m, with no 2.6 km window steeper than 1.5% either way. The chart draws \
+at about 185 times vertical exaggeration, which is what makes a course that never leaves a \
+59 m band look like a mountain range.
+
+⚠️ **This is the clearest case in the archive that the factor against the flat reference is \
+not the road** (PLAN.md 13 items 36 and 43). 296 finishes over 7 editions read +9.62% [+8.31, \
++10.78] against Daniels' flat reference at the marathon and +1.33% [-0.45, +3.08] against the \
+four other marathons. Through Minetti, 273 m up and 270 m down over 42 km are worth +0.25% at \
+the gentlest grade they allow (1.3%) and +0.29% at the 1.5% of the steepest window. A quarter \
+of a point of road against nine and a half points measured. The own-length figure contains the \
+physics; the flat one misses it by nine points, and nine points of marathon is the population's \
+fade over that distance, not a hill.
+
+No `bearing_deg`. The profile starts at 47 m and finishes at 50 m, which is what a course that \
+ends where it began does, and nothing here suggests otherwise; settling it properly needs a \
+start and a finish position, which these totals do not carry.\
 """
 
 # ---------------------------------------------------------------------------------------
@@ -120,8 +424,10 @@ about a point at Cape to Cabot's 20 km.\
 [tely-10-16093]
 name = "Tely 10"
 distance_m = 16093
+climb_m = 93
+drop_m = 217
 bearing_deg = 70
-source = """\
+bearing_source = """\
 Great-circle bearing from the start in Paradise to the finish at Bannerman Park, \
 St. John's. Peter's local knowledge, which the geometry then confirmed: the wind at this \
 time of year is usually westerly, and a westerly is close to a straight tailwind on this \
@@ -129,11 +435,38 @@ bearing. A 30 km/h westerly projects to +28.5 km/h of tailwind here and to 18.5 
 headwind on Cape to Cabot, which is why one wind-speed number for the whole province was \
 measuring nothing.\
 """
+source = """\
+The Overload profile of 2026-09-25 (the note above the 5 km courses has where these come from \
+and what is deliberately left out of them): 16.29 km recorded, 93 m of climb and 217 m of \
+descent on the smoothed series against the raw stream's own 96 m, 152 m at the start and 28 m \
+at the finish, a high of 180 m at 1.1 km and a low of 28 m, steepest 1 km +2.7% and fastest \
+-4.6%. Net 124 m down. The race publishes no elevation figure.\
+"""
+notes = """\
+The climb is over early: 28 m up in the first 1.1 km to the high point at 180 m, then down \
+most of the way, steepest between 6 and 8 km, and a flat, gently rolling last 8 km along the \
+bottom at about 40 m. The profile agrees with the bearing: a course that drops 124 m from \
+Paradise to Bannerman Park is point to point, and its displacement is most of its length.
 
+⚠️ **This is the widest gap in the archive between the two ways of measuring one course, \
+and the profile picks a side** (PLAN.md 13 items 36 and 43). 25,664 finishes over 11 editions, \
+more than any other course here, read **+0.24% [+0.11, +0.37]** against Daniels' flat reference \
+at 10 miles and **-4.14% [-4.98, -3.42]** against the one other course of that length. Through \
+Minetti, 93 m up and 217 m down over 16.1 km are worth -3.69% at the gentlest grade they allow \
+(1.9%) and -3.02% at the 4.6% of the fastest window. The own-length figure contains that; the \
+flat one is three and a half points the other side of it and has the wrong sign. A course that \
+loses 124 m does not cost a runner time, and the flat reference says it does, because that \
+reference is a VDOT-50 time at 10 miles and this population fades more over distance than \
+Daniels' curve does.
+
+This is also the answer to the objection that opened item 36: the Tely is one of the fastest \
+10 mile courses anywhere and the chart had it at +0.2%. It is fast, the hills say so without \
+reference to the results, and the number to read is the one against its own length.\
+"""
 [turkey-tea-10000]
 name = "Turkey Tea 10k"
 distance_m = 10000
-climb_m = 38
+climb_m = 39
 drop_m = 123
 bearing_deg = 79
 bearing_source = """\
@@ -145,28 +478,69 @@ and south-east down Old Placentia Road and back north-east to the finish, so the
 is the net direction and much of the route is not on it.\
 """
 source = """\
-The same segment page: 10.01 km, 38 m of elevation gain, highest point 183 m, lowest 98 m, \
-an 85 m difference and an average grade of -0.8%, so 38 m up and 123 m down. A segment is a \
-line along public roads, read from the page by Peter; nothing here comes from any runner's \
-activity, and the leaderboard on the same page is not read.\
+The Overload profile of 2026-09-25 (the note above the 5 km courses has the provenance of the \
+others), and this one is the odd one of the set: **it is drawn from Strava's own segment \
+stream, not from anyone's watch trace**, so it has no clock, no heart rate and no splits to \
+leave out. 10.01 km, 39 m of climb and 123 m of descent on the smoothed series against the \
+segment's own 38 m, 182 m at the start and 99 m at the finish, a high of 183 m and a low of \
+99 m, steepest 600 m +2.8% and fastest -2.5%. Net 84 m down.
+
+⚠️ **A segment stream is more of Strava than this repository had taken before**, and what \
+crosses is still only the aggregate: two totals and two grade windows about a line of public \
+road. No stream, no coordinates, no effort and no leaderboard is stored, and docs/data-terms.md \
+carries the row. It is also the one course where drawing a profile on the website would raise \
+a terms question the other nine do not (docs/todo.md item 2b).\
+"""
+independent_climb_m = 38
+independent_drop_m = 123
+independent_source = """\
+The segment page's own printed summary, read by Peter from a screenshot on 2026-09-19: \
+10.01 km, 38 m of elevation gain, highest point 183 m, lowest 98 m, an 85 m difference and an \
+average grade of -0.8%, so 38 m up and 123 m down. That is the figure this file carried until \
+the profile measured 39 m off the same road, a metre apart, which is the agreement two \
+readings of one segment should have.\
 """
 notes = """\
-Net downhill, most of the drop in the second half. The measured course factor from the \
-results is about -5% (faster than flat), which is what a net 85 m descent should produce.\
+Net downhill, and the profile says where: gently down to 2.5 km, the one climb of the course \
+back to 183 m by 3 km, a shelf to 4 km, then down the whole rest of the way. Nothing on it is \
+steep; the steepest and fastest 600 m are +2.8% and -2.5%.
+
+⚠️ **Faster than its hills allow, and the profile narrows it rather than settling it.** \
+2,296 finishes over 14 editions read -5.12% [-5.40, -4.88] against the flat reference and \
+-4.51% [-5.01, -3.93] against the fourteen other 10 km courses. Through Minetti, 39 m up and \
+123 m down over 10 km are worth -4.21% at the gentlest grade they allow (1.6%) and -3.96% at \
+the 2.8% of the steepest window. The own-length interval holds that; the flat one is more than \
+half a point past it. Turkey Tea was the first course where the climb failed to explain the \
+factor (2026-09-19) and it now reads as one of eight courses saying the same thing about which \
+factor to read: PLAN.md 13 item 43.\
 """
 
 [flat-out-5000]
 name = "Flat Out 5 km"
 distance_m = 5000
-climb_m = 39
-drop_m = 52
+climb_m = 38
+drop_m = 49
 source = """\
-An elevation profile image of the course, 90 m to 112 m over about 4.95 km, which Peter \
-supplied on 2026-09-21. No figure is printed on it: 39 m up and 52 m down is the sum of \
-every rise and fall read off the chart by eye, feature by feature, and each is good to a \
-metre or so. The net is -12 m, from about 110 m at the start to 98 m at the finish, and the \
-two totals agree with it. The race's own course page, \
+The Overload profile of 2026-09-25 (the note above the 5 km courses has the provenance and \
+what is left out of it), of the 2025 edition run on 27 April: 5.00 km recorded, 38 m of climb \
+and 49 m of descent on the smoothed series against the raw stream's own 35 m, 108 m at the \
+start and 97 m at the finish, a high of 116 m at 0.6 km and a low of 89 m, steepest 500 m \
++2.6% and fastest -3.5%. Net 11 m down. The race's own course page, \
 athleticsnortheast.com/FlatOut5k/course.html, publishes a map and no elevation figure.\
+"""
+independent_climb_m = 39
+independent_drop_m = 52
+independent_source = """\
+An elevation profile image of the course, 90 m to 112 m over about 4.95 km, which Peter \
+supplied on 2026-09-21, with no figure printed on it: 39 m up and 52 m down is the sum of \
+every rise and fall read off that chart by eye, feature by feature, each good to a metre or \
+so, and the net is -12 m from about 110 m at the start to 98 m at the finish.
+
+⚠️ **The two readings agree to within 3 m on every number they share**, which is worth \
+more than either alone: 39 against 38 up, 52 against 49 down, -12 against -11 net, 110 \
+against 108 at the start and 98 against 97 at the finish. It is also the best evidence we \
+have that the 2026-09-21 image came from this same module, which docs/data-terms.md has been \
+recording as unknown; Peter can confirm it and close that row.\
 """
 notes = """\
 Almost two laps of one block, by Aberdeen Avenue and Stavanger Drive. The race's page: \
@@ -183,12 +557,17 @@ eight legs' headings is those same 363 m out of 4,604 m of straight-line legs: 7
 of the route has a net direction and the rest cancels. A tailwind term on 96 would be \
 charging the whole field for a wind that helps them for a few hundred metres.
 
-The hills and the results agree, narrowly. The measured factor is -0.93% [-1.27, -0.60]; \
-through Minetti these totals need a 2.0% average grade on the graded sections for the point \
-estimate and 3.4% for the slow end, and the fast end is past the -0.98% these hills can give \
-at their gentlest. That floor is a knife-edge on the read: 38 m and 50 m puts it at -0.90%, \
-just the other side of the point estimate. Nothing rides on it; 2,753 finishes over 15 \
-editions measure this course far better than any profile could.\
+⚠️ **This course cannot tell the two measured factors apart, and that is the finding.** \
+2,753 finishes over 15 editions read -0.93% [-1.27, -0.60] against the flat reference and \
++0.48% [-0.50, +1.33] against the twelve other 5 km courses. Through Minetti, 38 m up and \
+49 m down over 5 km are worth -0.80% at the gentlest grade they allow (1.7%) and -0.41% at \
+the 3.5% of the fastest window, which is inside both intervals. So Flat Out is counted in \
+PLAN.md 13 item 43 among the courses that did not discriminate, and not as an agreement.
+
+The earlier by-eye read put the floor at -0.98% and called the agreement a knife-edge: 38 m \
+and 50 m would have moved it to -0.90%, the other side of the point estimate. The measured \
+totals land where that sensitivity said they might, which is the useful part of having \
+written the sensitivity down.\
 """
 waypoints_source = """\
 Nine points Peter placed on Google Maps on 2026-09-21 along the course the race's page \

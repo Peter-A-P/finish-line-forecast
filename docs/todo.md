@@ -14,7 +14,7 @@ another machine, the task and the gitignored `data/` have to move with it; neith
 The weekly results crawl is registered the same way (`scripts/register-crawl-task.ps1`, log in
 `data/cache/nlaa/crawl.log`) and moves with it.
 
-### 1. Elevation figures for the other courses, if and when they are easy to get
+### 1. Elevation figures for the other courses: ten have one now, Harbour Front does not
 
 **This blocks nothing, and since 2026-09-20 it would buy something it would not have bought
 before.** Peter asked for the website's course chart to have a second view: difficulty from
@@ -23,16 +23,19 @@ in who turns up. It is a good idea for a reason beyond that. A factor measured f
 measured against Daniels' reference time for the course's own distance, so it carries this
 population's departure from that curve (PLAN.md 13 item 36); a factor integrated from a
 gradient profile has no reference time in it at all, and is the one number here that would be
-comparable straight across race lengths.
+comparable straight across race lengths. **That turned out to be the important part**: the
+profiles Peter supplied on 2026-09-25 are what showed that the factor against the flat
+reference carries the population's fade and the factor against a course's own length does not
+(PLAN.md 13 item 43).
 
 **What it needs, and it is more than a total.** Not the climb total: the grade distribution.
 550 m spread over 11 km at 5% costs 5.9% and the same 550 m packed into 5.5 km at 10% costs
 9.0%, which is why `metrics/grade.penalty` takes the grade as an explicit argument. So the view
 wants elevation sampled along each route, not one ascent figure, and that means a traced route
-per course. Today 4 of the 50 measured courses have a climb at all (Cape to Cabot, Turkey Tea,
-Flat Out, read by eye off a profile image, and Run to Remember), so the second view would be a
-chart with four dots in it and has not been built. Six or eight of the busiest courses would make it
-worth drawing.
+per course. As of 2026-09-25, 10 of the 50 measured courses have a climb, and eight of
+those also have the grade of their steepest and fastest stretch, which is what
+`metrics/grade.penalty` actually takes. The chart is worth drawing now and has not been drawn
+yet; the ten dots cover 5 km to the marathon and 48,000 of the archive's finishes.
 
 **The rest of the case, which has not changed.** Course difficulty is measured from the results
 (`finishline courses`), and on every course that matters the interval is tighter than an
@@ -51,21 +54,51 @@ total climb, total drop, and where the figure came from. An independent second f
 watch total, a different publication) is kept alongside rather than instead of, because the
 two bracket the truth; Cape to Cabot has both.
 
-Courses that would be worth having, in order of how much history rides on them:
+Courses that were worth having, in order of how much history rides on them.
+Every one but the last arrived on 2026-09-25:
 
-| Course | Editions | Finishes | Measured factor |
-|---|---:|---:|---:|
-| Mews Memorial 8 km | 16 | 4,891 | -5.3% |
-| Mundy Pond 5 km | 17 | 3,192 | -1.8% |
-| Harbour Front 10 km | 12 | 2,472 | -1.8% |
-| Tely 10 | 11 | 25,620 | +0.2% |
+| Course | Editions | Finishes | Measured factor | Profile |
+|---|---:|---:|---:|---|
+| Tely 10 | 11 | 25,664 | +0.2% | 93 up, 217 down |
+| Mews Memorial 8 km | 16 | 4,893 | -5.3% | 26 up, 100 down, read by eye |
+| Mundy Pond 5 km | 17 | 3,197 | -1.8% | 36 up, 33 down |
+| Five and Dime 5 km | 10 | 1,052 | -3.0% | 20 up, 42 down |
+| Five and Dime 10 km | 10 | 843 | -0.8% | 63 up, 84 down |
+| Huffin Puffin marathon | 7 | 296 | +9.6% | 273 up, 270 down |
+| Harbour Front 10 km | 12 | 2,473 | -1.8% | 72 up, 64 down |
 
-Done: Turkey Tea (2026-09-19, off a Strava segment summary; the physics floor is -4.3% and the
-results say -5.1%, so the published climb does not explain it) and Flat Out (2026-09-21, the
-hills and the results agree narrowly; the notes in `courses.toml` have the numbers). A printed
-figure for Flat Out would still beat one read by eye off a chart. Run to Remember (2026-09-21,
-56 m each way from the organisers' profile): the hills are worth about +0.13% of its +1.6%, so
-most of that factor is the gravel and the race length, not the climb.
+**Done, and the answer was worth more than the cross-check it was asked for (2026-09-25).**
+Peter supplied Overload profiles for eight courses, five of which had no elevation figure at
+all: the Five and Dime 5 km and 10 km, Mundy Pond, Flat Out, Mews Memorial, the Tely, Cape to
+Cabot and the Huffin Puffin marathon, the last of which is also every pre-2026 USR and Capital
+Subaru marathon. Ten of the fifty measured courses now carry a climb, which is enough dots to
+draw the chart Peter asked for. They also carry the grade, which is the thing this section
+said was missing and no ascent total gives. **What they showed: on all eight courses with a
+peer of their own race length, the hills agree with `versus_peers` and never with the factor
+against the flat reference** (PLAN.md 13 item 43 has the table). That is independent
+confirmation of item 36 and the strongest argument yet that the own-length figure is the one
+to lead with.
+
+The earlier three stand, and Turkey Tea's was redrawn the same day from Strava's own segment
+stream: 39 m up and 123 m down against the 38 m the summary printed, plus the grade windows
+the summary never gave (the physics floor is -4.2% and the results say -5.1% against the flat
+reference, -4.5% against the other 10 km courses), Flat Out (2026-09-21, read by eye, and the
+2026-09-25 measurement agreed with it to within 3 m on every number, which retired the doubt),
+and Run to Remember, whose 2026-09-21 figure of 56 m each way off the organisers' chart was
+**replaced on 2026-09-25** by 91 m each way off Strava's segment stream for the same course.
+The organisers' number looks like the range between their chart's ends rather than a
+cumulative climb. The hills are now worth +0.35 to +0.51% of its +1.64% instead of +0.13%, so
+most of that factor is still the gravel and the race length, and the stream also confirmed
+the 2025 switch of start and turnaround, which had been the page's word alone.
+
+**Nothing on this list is outstanding any more.** Harbour Front, the last course with real
+history and no figure, came in the same batch: 72 m up and 64 m down off its segment stream.
+All eleven courses in `data/courses.toml` now carry a profile and a grade window.
+
+Still wanted, but neither blocks anything: a **printed** figure for any of these, because
+every one except Cape to Cabot rests on a single recording or a single segment; and a fresh
+rendering of the **Mews Memorial** chart with its header, since that one arrived without the
+totals printed and 26 m up and 100 m down were read off it by eye.
 
 ⚠️ **Not a runner's GPS track.** A watch file is training data about an identifiable person,
 which is the line this project drew for Strava and it does not move because the file
@@ -88,11 +121,29 @@ the compass direction the field generally runs. **A loop or out-and-back has no 
 must not be given one**; those courses feel the wind as a cost whichever way it blows, and
 `courses.toml` leaving `bearing_deg` out is how that is said.
 
-Candidates worth checking, all with real history: Mews Memorial 8 km, Mundy Pond 5 km,
-Harbour Front 10 km. Run to Remember is an out-and-back and has none. Turkey Tea has had one since 2026-09-19 (79
+**The 2026-09-25 profiles answered which courses need one, and none of what
+a bearing needs.** A profile settles whether a course returns to where it began, because a
+loop cannot finish at a different height. Mews Memorial finishes 74 m below its start, the
+Five and Dime 5 km 22 m below and the 10 km 21 m below, so all three are point to point and
+all three want a bearing. Mundy Pond comes back to within 4 m over 5 km and the Huffin Puffin
+marathon to within 3 m over 42 km, so neither gets one. **Harbour Front is the one that stayed
+unanswered**: its ends are 7 m apart in height over 10 km, which a loop, an out-and-back and a
+short point-to-point course all do. None of the images carries a start or a finish position,
+which is all a bearing needs: two coordinates per course, as Cape to Cabot and Flat Out
+already store.
+
+Run to Remember is an out-and-back and has none. Turkey Tea has had one since 2026-09-19 (79
 degrees). Flat Out was checked on 2026-09-21 and has none on purpose: nearly two laps of one
 block, start and finish 363 m apart, 7.9% of the route with a net direction, and a test
 recomputes that from its waypoints.
+
+⚠️ **Adding a bearing is not like adding a climb, and the cache will not warn you.** A climb
+feeds the grade cross-check and nothing else. A bearing feeds `ingest/eccc.tailwind`, which
+feeds the conditions every hierarchical fit is built on, and `backtest/saved.key` hashes the
+module sources and the dataset, **not `data/courses.toml`**. So a bearing added on its own
+would silently change a model input while every saved backtest still looked current and
+`freeze` still ran. Add one only alongside a backtest rerun, and consider putting the file in
+the key.
 
 **A decision for after Cape to Cabot: should the tailwind be scaled by how much of a course
 it describes?** A bearing is start to finish, and the legs of any route sum to that
@@ -103,6 +154,30 @@ straight one are charged alike. Multiplying the tailwind by that share is one li
 `models/weather.py`, but that file is in the hierarchical backtest's cache key and the term
 does not yet clear zero, so it waits for a backtest that is running anyway. It needs start
 and finish points per bearing, which only Cape to Cabot stores so far. PLAN.md 13 item 41.
+
+### 2b. A course profile on the website, drawn from heights and nothing else
+
+**Peter, 2026-09-25: use the profile graphics for the course descriptions on the site as
+well as for the arithmetic.** The arithmetic is done (`data/courses.toml`, PLAN.md 13 item
+43). The graphics are the part that needs a decision, because the chart images cannot be
+published as they stand: each header prints a distance, a moving time and an average pace,
+and one of them a heart rate, which is exactly the training data about an identifiable person
+this project refuses to publish about anyone, Peter included (docs/data-terms.md).
+
+**What to do instead, and it is better anyway.** Store the heights, not the picture: an array
+of distance and elevation pairs per course in `data/courses.toml` or a file beside it, and
+let `web/app.js` draw it as an SVG like the other charts, themed with the site and hoverable
+at every kilometre. A height above sea level on a public road carries nothing about the run
+that measured it. The course card already shows `climb_m` and `drop_m`; the profile would sit
+under them, with the measured factor, the grade the factor implies and the grade the profile
+shows side by side, which is the comparison PLAN.md 13 item 43 is about and which no words
+make as quickly as a picture.
+
+**What is needed from Peter**: an export from Overload of distance and elevation for each
+course, resampled as the chart already resamples it (about 20 m for a 5 km course, 70 m for
+the marathon, which is 250 to 600 points each), with no time, pace or heart-rate column.
+Those numbers are the same ones the charts were drawn from, so nothing new is measured.
+Then the work here is a renderer and a test, and it is not large.
 
 ## Waiting on an outside event
 
