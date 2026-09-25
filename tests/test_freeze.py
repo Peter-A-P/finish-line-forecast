@@ -516,9 +516,12 @@ def test_the_picker_has_three_shelves_and_a_race_already_run(tmp_path: Path) -> 
                 {"date": "2026-09-13", "name": "Club day", "place": "St. John's",
                  "family": "club", "url": None, "end": None, "skipped": None},
                 # A real road race this project does not predict, listed all the same.
-                {"date": "2026-10-11", "name": "Trapline Marathon / 10km", "place": "Goose Bay",
-                 "family": "trapline", "url": "https://example.invalid/", "end": None,
+                {"date": "2026-10-11", "name": "Commander Gander 10km", "place": "Gander",
+                 "family": "commander-gander", "url": "https://example.invalid/", "end": None,
                  "skipped": None},
+                # One it weighed and declined (site.DECLINED), which stays off the picker.
+                {"date": "2026-10-11", "name": "Trapline Marathon / 10km", "place": "Goose Bay",
+                 "family": "trapline", "url": None, "end": None, "skipped": None},
                 {"date": "2026-10-18", "name": "Capital Subaru Cape to Cabot 20km",
                  "place": "St. John's", "family": "cape-to-cabot", "url": None, "end": None,
                  "skipped": None},
@@ -562,13 +565,14 @@ def test_the_picker_has_three_shelves_and_a_race_already_run(tmp_path: Path) -> 
     assert shelves == {
         "c2c-2026": "open",
         "r2r-2026": "announced",
-        "trapline-2026": "announced",
+        "commander-gander-2026": "announced",
         "r-2026": "run",
     }
+    assert "trapline-2026" not in shelves, "a declined race is not a dead end in the picker"
     # Run before this project was watching: archive, not record, and not on the page.
     assert "tely-10-2026" not in shelves
     assert [race["id"] for race in races] == [
-        "c2c-2026", "trapline-2026", "r2r-2026", "r-2026"
+        "c2c-2026", "commander-gander-2026", "r2r-2026", "r-2026"
     ], "open first, then announced soonest first, then what has already run"
 
     closed = next(race for race in races if race["id"] == "r-2026")
@@ -578,9 +582,9 @@ def test_the_picker_has_three_shelves_and_a_race_already_run(tmp_path: Path) -> 
     assert not (out / "data" / "predictions" / "r-2026.json").exists()
     assert (out / "data" / "retrospect" / "r-2026.json").exists()
 
-    trapline = next(race for race in races if race["id"] == "trapline-2026")
-    assert trapline["predicted"] is False and trapline["stage"] == "calendar"
-    assert trapline["url"] == "https://example.invalid/"
+    gander = next(race for race in races if race["id"] == "commander-gander-2026")
+    assert gander["predicted"] is False and gander["stage"] == "calendar"
+    assert gander["url"] == "https://example.invalid/"
 
     page = (out / "index.html").read_text(encoding="utf-8")
     assert "{{" not in page

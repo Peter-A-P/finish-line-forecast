@@ -241,13 +241,23 @@ def race_record(
     }
 
 
+# Course families this project looked at, decided not to predict, and leaves out of the race
+# picker, each with where the decision is written down. Peter's call, not the code's: a race
+# with nothing but a name, a date and a place under it is a dead end in the picker once the
+# reason it has nothing is a decision rather than an absence of data.
+DECLINED: dict[str, str] = {
+    "trapline": "PLAN.md 13 item 44: considered for 2026 and dropped on the evidence",
+}
+
+
 def calendar_record(event: Mapping[str, Any], closed: Mapping[str, Any]) -> dict[str, Any]:
     """A race from the association's calendar that this project does not predict.
 
     ⚠️ **It is on the page anyway.** A list of races that silently omits the ones this
-    project has nothing to say about is a list that flatters it. The Trapline is a real road
-    race on a real Sunday; what this project has for it is a name, a date and a place, and
-    saying so is more use to a reader than leaving a hole they cannot see.
+    project has nothing to say about is a list that flatters it. What this project has for
+    such a race is a name, a date and a place, and saying so is more use to a reader than
+    leaving a hole they cannot see. The exception is `DECLINED`: a race the project weighed
+    and chose not to predict, where the reason is in the plan rather than on the page.
     """
     race_id = f"{event['family']}-{str(event['date'])[:4]}"
     return {
@@ -874,6 +884,8 @@ def build(
             before_watching += 1
             continue
         if event["family"] in known or any(day == str(when) for day, _course in seen_days):
+            continue
+        if event["family"] in DECLINED:
             continue
         if when < today:
             # Run, but with nothing measured for it: no course history, or no results posted

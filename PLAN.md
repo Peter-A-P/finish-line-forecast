@@ -2015,6 +2015,12 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     snapshot block records the events. The list is not fetched any more, and the one look at it
     (2026-09-25) was deleted.
 
+    **Off the race picker too**, at Peter's request the same evening: the website lists every
+    road race on the association's calendar, predicted or not, so the page cannot flatter the
+    project by leaving out what it has nothing to say about. A race it weighed and declined is
+    the exception, since its reason is here rather than on the page: `site.DECLINED` names the
+    Trapline, and a test holds it off the picker while a race merely not predicted stays on.
+
     **What would change the answer in 2027**: Trapline results in the archive for more of its
     regulars (the 2026 edition itself, once posted, is one more year of history for every
     returning runner), and a profile of its courses (asked of project 11 on 2026-09-25) to check
