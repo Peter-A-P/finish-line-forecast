@@ -139,14 +139,16 @@ def _cells(row: str) -> list[str]:
     ]
 
 
-def parse_trackie(page: str) -> list[Entrant]:
-    """Every entrant on a Trackie entry list, as its data request returns it.
+# A Trackie list that covers several races prints one table per sex and event, each under a
+# heading like "Female  Half Marathon - Entries: 10" (the Trapline's, 2026-09-25).
+_TRACKIE_GROUP = re.compile(
+    r"<h4[^>]*>\s*(?P<sex>Male|Female)\s+(?P<event>.*?)\s*-\s*Entries:\s*\d+\s*</h4>",
+    re.DOTALL | re.IGNORECASE,
+)
 
-    Names are printed "Surname, Given", and are turned round to read the way a results page
-    prints them, which is what the linker matches against. Columns are found by their
-    headers rather than their position, because an organiser chooses which ones to show.
-    """
-    table = page.split(_TRACKIE_SPLIT, 1)[0]
+
+def _trackie_table(table: str, sex: str | None, event: str | None) -> list[Entrant]:
+    """One Trackie table's entrants, with the sex and event its heading gave, if any."""
     headers = [
         clean(html.unescape(re.sub(r"<[^>]+>", " ", cell))).lower()
         for cell in re.findall(r"<th[^>]*>(.*?)</th>", table, re.DOTALL | re.IGNORECASE)
@@ -164,12 +166,69 @@ def parse_trackie(page: str) -> list[Entrant]:
         name = clean(f"{given} {surname}" if given else printed)
         if len(name) < 3:
             continue
-        sex = cells[column["gender"]][:1].upper() if "gender" in column else ""
+        printed_sex = cells[column["gender"]][:1].upper() if "gender" in column else sex or ""
         town = cells[column["hometown"]] if "hometown" in column else ""
         entrants.append(
-            Entrant(name=name, sex=sex if sex in ("M", "F") else None, hometown=town or None)
+            Entrant(
+                name=name,
+                sex=printed_sex if printed_sex in ("M", "F") else None,
+                event=event,
+                hometown=town or None,
+            )
         )
     return entrants
+
+
+def parse_trackie(page: str) -> list[Entrant]:
+    """Every entrant on a Trackie entry list, as its data request returns it.
+
+    Names are printed "Surname, Given", and are turned round to read the way a results page
+    prints them, which is what the linker matches against. Columns are found by their
+    headers rather than their position, because an organiser chooses which ones to show.
+
+    A list for one race is one table (the Turkey Tea's). A list for several is a table per
+    sex and event under a heading that says which (the Trapline's), and the sex and event are
+    read from the heading, since those tables print neither.
+
+    ⚠️ **Trackie prints some of those tables more than once**, the same entrants under the
+    same heading two or three times over (on 2026-09-25, "Male 5km U19 - Entries: 11" twice),
+    so an entrant is kept once per name, sex and event. The "Category" column is an age band
+    and the "Team" column a club; neither is read, as the Turkey Tea's club is not.
+    """
+    body = page.split(_TRACKIE_SPLIT, 1)[0]
+    groups = list(_TRACKIE_GROUP.finditer(body))
+    if not groups:
+        return _trackie_table(body, None, None)
+    entrants: list[Entrant] = []
+    seen: set[tuple[str, str | None, str | None]] = set()
+    for index, group in enumerate(groups):
+        end = groups[index + 1].start() if index + 1 < len(groups) else len(body)
+        sex = group.group("sex")[:1].upper()
+        event = clean(html.unescape(group.group("event")))
+        for entrant in _trackie_table(body[group.end() : end], sex, event):
+            key = (entrant.name, entrant.sex, entrant.event)
+            if key not in seen:
+                seen.add(key)
+                entrants.append(entrant)
+    return entrants
+
+
+def for_events(entered: list[Entrant], events: tuple[str, ...]) -> list[Entrant]:
+    """The entrants of one race on a list that covers several, by the event each chose.
+
+    An entry for two events at once is printed as one, joined with a comma ("5km U19, Kids
+    Race U12 - 3km"), so an entrant belongs to a race when any part of their event is one of
+    `events`, compared without case. An empty `events` means the list is one race.
+    """
+    if not events:
+        return list(entered)
+    wanted = {event.casefold() for event in events}
+    return [
+        entrant
+        for entrant in entered
+        if entrant.event is not None
+        and any(part.strip().casefold() in wanted for part in entrant.event.split(","))
+    ]
 
 
 def parse(page: str) -> list[Entrant]:

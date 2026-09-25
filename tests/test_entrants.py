@@ -273,3 +273,58 @@ def test_a_trackie_snapshot_is_filed_as_one(
     (seen,) = entrants.snapshot(tmp_path, lists={"tt-2026": url})
     assert seen.path.name.startswith("tt-2026_trackie-list_")
     assert seen.entrants == 2
+
+
+def _group(heading: str, rows: list[tuple[str, str]]) -> str:
+    """One of a multi-race Trackie list's tables, under the heading that says what it is."""
+    body = "".join(
+        f"<tr><td><a href='#'>{name}</a></td><td>{band}</td><td>TTRC</td></tr>"
+        for name, band in rows
+    )
+    return (
+        f"<div><h4>{heading}</h4><table><thead><tr><th><span>Full Name</span></th>"
+        f"<th><span>Category</span></th><th><span>Team</span></th></tr></thead>"
+        f"<tbody><tr><td colspan='6'>Category: 30-39</td></tr>{body}</tbody></table></div>"
+    )
+
+
+# A Trackie list for several races at once, laid out as the Trapline Marathon's of 2026-09-25:
+# a table per sex and event, one of them printed twice, one entry for two events. Invented names.
+TRAPLINE_LIST = (
+    "<div><h3>Total entries: 5</h3></div>"
+    + _group("Male  Marathon - Entries: 1", [("Trapper, Onslow", "40-49")])
+    + _group("Female  Half Marathon - Entries: 1", [("Birch, Wren", "30-39")])
+    + _group("Female  5km U19 - Entries: 1", [("Spruce, Ivy", "U19")])
+    + _group("Female  5km U19 - Entries: 1", [("Spruce, Ivy", "U19")])
+    + _group("Male  5km U19, Kids Race U12 - 3km - Entries: 1", [("Tamarack, Ash", "U19")])
+    + _group("Female  Kids Race U12 - 1km - Entries: 1", [("Alder, Pip", "U12")])
+    + "^:|:^5^:|:^5"
+)
+
+
+def test_a_list_for_several_races_says_which_race_and_which_sex() -> None:
+    """The Trapline prints neither in its columns; both are in the heading over each table,
+    and a table Trackie printed twice is read once."""
+    field = entrants.parse(TRAPLINE_LIST)
+    assert field == [
+        entrants.Entrant("Onslow Trapper", "M", event="Marathon"),
+        entrants.Entrant("Wren Birch", "F", event="Half Marathon"),
+        entrants.Entrant("Ivy Spruce", "F", event="5km U19"),
+        entrants.Entrant("Ash Tamarack", "M", event="5km U19, Kids Race U12 - 3km"),
+        entrants.Entrant("Pip Alder", "F", event="Kids Race U12 - 1km"),
+    ]
+    assert "40-49" not in repr(field) and "TTRC" not in repr(field)
+
+
+def test_one_race_is_taken_out_of_a_list_that_covers_several() -> None:
+    field = entrants.parse(TRAPLINE_LIST)
+    assert [e.name for e in entrants.for_events(field, ("Marathon",))] == ["Onslow Trapper"]
+    # "Marathon" is not "Half Marathon": a part matches whole, never inside a longer name.
+    assert [e.name for e in entrants.for_events(field, ("half marathon",))] == ["Wren Birch"]
+    # An entry for two events belongs to each of them.
+    assert [e.name for e in entrants.for_events(field, ("5km U19",))] == [
+        "Ivy Spruce",
+        "Ash Tamarack",
+    ]
+    # A list for one race is left whole.
+    assert entrants.for_events(field, ()) == field

@@ -929,3 +929,53 @@ def test_runners_the_archive_cannot_see_take_places_ahead_of_the_named() -> None
     )
     assert 4 <= places[0].median <= 7
     assert fields.max() >= places[0].high
+
+
+def _trapline(tmp_path: Path, extra: str = "") -> Path:
+    """Two of the Trapline's four races, sharing one list and one fit, as live.toml has them."""
+    path = tmp_path / "live.toml"
+    path.write_text(
+        '[trapline-2026-42k]\nname = "Trapline Marathon"\ndate = "2026-10-11"\n'
+        'distance_m = 42195\ncourse_id = "trapline-42195"\nentrant_list = "trapline-2026"\n'
+        'entrant_events = ["Marathon"]\nfit = "trapline-2026"\n'
+        'gun = "2026-10-11T08:00:00-03:00"\n\n'
+        '[trapline-2026-21k]\nname = "Trapline Half Marathon"\ndate = "2026-10-11"\n'
+        'distance_m = 21097.5\ncourse_id = "trapline-21097"\nentrant_list = "trapline-2026"\n'
+        'entrant_events = ["Half Marathon"]\nfit = "trapline-2026"\n'
+        'gun = "2026-10-11T08:00:00-03:00"\n' + extra,
+        encoding="utf-8",
+    )
+    return path
+
+
+def test_races_that_share_a_list_take_their_own_events_and_share_one_fit(
+    tmp_path: Path,
+) -> None:
+    """The Trapline's four distances are one Trackie list and one morning: each race reads its
+    own event off the list, and all of them file their fit under one id, so the week samples
+    the archive once rather than four times."""
+    path = _trapline(tmp_path)
+    marathon = freeze.load_live(path, "trapline-2026-42k")
+    half = freeze.load_live(path, "trapline-2026-21k")
+    assert marathon.entrant_events == ("Marathon",)
+    assert half.entrant_events == ("Half Marathon",)
+    assert marathon.fit_id == half.fit_id == "trapline-2026"
+    # A race that shares nothing keeps its own fit, as every race did before.
+    solo = tmp_path / "solo.toml"
+    solo.write_text(
+        '[r2r-2026]\nname = "Run to Remember"\ndate = "2026-11-11"\ndistance_m = 11000\n'
+        'course_id = "run-to-remember-11000"\ngun = "2026-11-11T08:00:00-03:30"\n',
+        encoding="utf-8",
+    )
+    assert freeze.load_live(solo, "r2r-2026").fit_id == "r2r-2026"
+
+
+def test_events_on_a_list_the_race_does_not_have_are_refused(tmp_path: Path) -> None:
+    path = tmp_path / "live.toml"
+    path.write_text(
+        '[x-2026]\nname = "X"\ndate = "2026-10-11"\ndistance_m = 5000\ncourse_id = "x-5000"\n'
+        'entrant_events = ["5k"]\ngun = "2026-10-11T08:00:00-03:00"\n',
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="does not have"):
+        freeze.load_live(path, "x-2026")

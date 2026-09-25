@@ -1982,3 +1982,41 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     the Flat Out and Cape to Cabot profile images of 2026-09-21, which this item's first draft
     had guessed it had: its first profile is from 2026-09-25. Their origin stays unrecorded, and
     Flat Out's by-eye reading agreeing with the series to 3 m is now two independent readings.
+
+44. **The Trapline was considered as a live race and dropped, on the evidence (2026-09-25).**
+    Peter pointed to its Trackie entry list and first decided to predict all four distances on
+    2026-10-11 in Happy Valley-Goose Bay; the same evening, shown the fields and the backtest,
+    he dropped the race for this year, to revisit in 2027. Nothing was frozen or tagged, so
+    the pre-registered record is untouched. Recorded because the reasons will hold next year
+    unless something changes:
+
+    | Race | Entered | No result in the archive | 2025 edition, average error | Per km | With history: model vs last time |
+    |---|---:|---:|---:|---:|---|
+    | 5 km | 37 | 27 (73%) | 11.1 min | 2.2 min | 2.9 vs 3.0 min |
+    | 10 km | 27 | 12 (44%) | 10.4 min | 1.0 min | 8.8 vs 9.9 min |
+    | Half marathon | 25 | 13 (52%) | 13.0 min | 0.6 min | 9.7 vs 9.3 min |
+    | Marathon | 9 | 4 (44%) | 19.2 min | 0.45 min | 18.4 vs 24.0 min |
+    | *Turkey Tea 10 km* | 342 | 30 (9%) | 3.5 min | 0.35 min | 3.0 vs 5.7 min |
+    | *Cape to Cabot 20 km* | 500 | 35 (7%) | 7.8 min | 0.39 min | 6.4 vs 14.4 min |
+
+    The fields are mostly runners the archive has never seen, because Labrador runners seldom
+    race the Avalon's events, and the backtest's held-out 2025 edition missed by three to six
+    times what it misses by on the Avalon, per kilometre. The ranges were honest (75 to 79% of
+    2025 finishers inside their 80% range, at every distance), so the predictions would have
+    been wide rather than wrong; wide enough to say little. It would also have put a prediction
+    week between the Turkey Tea's and Cape to Cabot's, with no gap left to add the Turkey Tea
+    results to the archive before Cape to Cabot's week.
+
+    **What was built for it and kept**, because it is general and tested and it is what a 2027
+    attempt would need: `entrants.parse_trackie` reads a Trackie list that covers several races
+    (a table per sex and event under a heading, some printed twice); `entrants.for_events`
+    takes one race's entrants out of it; `live.toml` accepts `entrant_events` for that and
+    `fit` for races on one morning to share one sampling run; and the prediction file's
+    snapshot block records the events. The list is not fetched any more, and the one look at it
+    (2026-09-25) was deleted.
+
+    **What would change the answer in 2027**: Trapline results in the archive for more of its
+    regulars (the 2026 edition itself, once posted, is one more year of history for every
+    returning runner), and a profile of its courses (asked of project 11 on 2026-09-25) to check
+    course factors measured from 55 to 186 finishes. Its weather is an average morning either
+    way: St. John's airport cannot speak for Goose Bay.

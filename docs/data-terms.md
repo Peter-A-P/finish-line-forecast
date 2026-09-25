@@ -233,6 +233,14 @@ one of them was ever printed under that town (on the 2026-09-19 list, 2 of 7 suc
 prediction file publishes the hometown the results printed, never the list's. The club is not
 used.
 
+**The Trapline Marathon's list, read once on 2026-09-25 and not kept.** Peter pointed to it
+(`trackie.com/entry-list/2026-trapline-marathon/1036085/`) and the race was considered for
+prediction. It is the same site under the same terms, and it was read the same way, two
+requests a second apart under the identifying user agent. One list covers four races and the
+kids' races, so the event each entrant chose was read too, to count each race's field. The race
+was not predicted (PLAN.md 13 item 44), the list was taken out of the daily snapshot, and the
+one snapshot was deleted; only its manifest row, a URL and two hashes, remains.
+
 ## Course elevation
 
 ⚠️ **Nothing is fetched for this, and nothing needs to be.** The course factor this project

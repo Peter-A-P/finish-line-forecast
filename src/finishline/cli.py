@@ -1050,7 +1050,9 @@ def _write_showcase(
         listing = record.get("entrant_list")
         snapshot = entrants.latest_snapshot(ENTRANTS, str(listing)) if listing else None
         if snapshot is not None:
-            links = link.link(entrants.load(snapshot), data.runners)
+            events = tuple(str(event) for event in record.get("entrant_events", []))
+            entered = entrants.for_events(entrants.load(snapshot), events)
+            links = link.link(entered, data.runners)
             as_of = date.fromtimestamp(snapshot.stat().st_mtime).isoformat()
             story["entrants"] = showcase.entrants(links, as_of)
         races[race_id] = story
@@ -1599,11 +1601,15 @@ def freeze(
     history = History.before(live.race.date, data.races, data.resolved)
     # One fit for the whole week (publish/daily.py): made on the first day, reused after, and
     # refused if the archive or the model code moved in between.
+    # Races sharing a morning share it (`LiveRace.fit`): the Trapline's four distances are
+    # one fit, since the posterior depends on the date and the archive and not on the race.
+    # The meta still names the id it is filed under, so a fit is never picked up by a race
+    # that does not share it.
     fit_meta = {
-        "race_id": race_id,
+        "race_id": live.fit_id,
         "key": _hierarchical_key(data, 2024, dict(HIERARCHICAL_DEFAULTS), covariates),
     }
-    saved_fit = daily.posterior_path(FREEZE_FITS, race_id)
+    saved_fit = daily.posterior_path(FREEZE_FITS, live.fit_id)
     try:
         posterior = daily.load_posterior(saved_fit, fit_meta)
     except ValueError as refusal:
@@ -1638,12 +1644,18 @@ def freeze(
 
     field = None
     if snapshot_path is not None:
-        links_ = link.link(entrants.load(snapshot_path), data.runners)
+        # Only this race's entrants, where one list covers several (`LiveRace.entrant_events`).
+        entered = entrants.for_events(entrants.load(snapshot_path), live.entrant_events)
+        links_ = link.link(entered, data.runners)
         challenger = _challenger_predictions(history, links_, live, covariates, conditions)
         snapshot: dict[str, Any] = {
             "file": snapshot_path.name,
             "sha256": predictions.sha256(snapshot_path.read_bytes()),
         }
+        if live.entrant_events:
+            # Which of the list's events this race is, so the field can be rebuilt from the
+            # hashed snapshot by anyone holding it.
+            snapshot["events"] = list(live.entrant_events)
     else:
         forecast_field = _field_forecast(data, history, live)
         if forecast_field is None:

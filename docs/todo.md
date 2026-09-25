@@ -205,6 +205,26 @@ needs a saved backtest that matches the code and the data on the day, so nothing
 stays committed through the week. The repository is public (2026-09-19) and the website
 redeploys on every push (docs/deploy.md). Cape to Cabot's week starts 2026-10-11.
 
+**Decided by Peter, 2026-09-25: the Turkey Tea results go into Cape to Cabot's predictions.**
+64 of Cape to Cabot's 499 entrants are on the Turkey Tea list, and their race two weeks
+before is the freshest result they will have. The window is 2026-10-04 to 06:15 on
+2026-10-11, between the Turkey Tea's gun and Cape to Cabot's first daily file, and it is free
+now that the Trapline is not predicted (PLAN.md 13 item 44). In order, as soon as NLAA posts
+the results:
+
+1. `finishline crawl --refresh-index` (the scheduled crawl is standing down around both races,
+   so this is by hand).
+2. `finishline backtest --hierarchical --challenger`: 8 to 10 hours, checkpointed per block, so
+   start it by the morning of 2026-10-10 at the latest to have it finished before 06:15 on
+   2026-10-11.
+3. `finishline report`, then commit and push, so the site and README follow.
+4. `finishline score tt-2026` any time after step 1; scoring has no deadline.
+
+⚠️ **Nothing enters the archive after step 2 starts** until Cape to Cabot's final file on
+2026-10-17: every file in its week needs a backtest that matches the archive. If the Turkey Tea
+results are not posted in time to finish step 2 before 06:15 on 2026-10-11, Cape to Cabot runs
+on the pre-week backtest without them, and they are fetched after 2026-10-17.
+
 ## Open questions the assistant should not settle alone
 
 ### 4. The 2013 Tely 10, which the parser refuses on principle

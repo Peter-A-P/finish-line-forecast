@@ -69,6 +69,18 @@ class LiveRace:
     # "course" draws newcomers from this course's past first-timers (`placing.unseen`); set
     # only for the few biggest races, where visitors with no results here reach the top ten.
     newcomers: str | None = None
+    # The events on a shared entrant list that are this race (`entrants.for_events`). Empty
+    # for a list that is one race. The Trapline's one list covers four races and kids' ones.
+    entrant_events: tuple[str, ...] = ()
+    # Races on one morning with one archive have one fit, not one each: the posterior depends
+    # on the date and the data and nothing else about the race, and a fit on the whole
+    # archive is half an hour and 27 GB. None means the race's own id.
+    fit: str | None = None
+
+    @property
+    def fit_id(self) -> str:
+        """Which saved fit this race uses and makes."""
+        return self.fit or self.race.race_id
 
 
 def load_live(path: Path, race_id: str) -> LiveRace:
@@ -102,11 +114,17 @@ def load_live(path: Path, race_id: str) -> LiveRace:
     if newcomers not in (None, "course"):
         raise ValueError(f"{race_id}: newcomers = {newcomers!r} is not a method this knows")
     listing = record.get("entrant_list")
+    events = record.get("entrant_events", [])
+    if events and listing is None:
+        raise ValueError(f"{race_id}: entrant_events names events on a list it does not have")
+    fit = record.get("fit")
     return LiveRace(
         race=race,
         gun=gun,
         entrant_list=None if listing is None else str(listing),
         newcomers=None if newcomers is None else str(newcomers),
+        entrant_events=tuple(str(event) for event in events),
+        fit=None if fit is None else str(fit),
     )
 
 
