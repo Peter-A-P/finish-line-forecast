@@ -522,6 +522,23 @@ figcaption { font-size: 0.83rem; color: var(--ink-faint); margin-top: 0.5rem; }
 .row-label.faint { fill: var(--ink-soft); font-weight: 500; }
 .row-note { fill: var(--ink-faint); font-size: 10.5px; }
 .divider { stroke: var(--line-2); stroke-width: 1; stroke-dasharray: 4 3; }
+
+/* The course profile. The road is one line in the accent over a faint fill, and the two
+   stretches the grade model reads are bars under the axis: warm for the steepest climb, the
+   accent for the fastest drop, so the pair reads the same way in dark mode. */
+.profile-area { fill: var(--accent); fill-opacity: 0.12; stroke: none; }
+.profile-line { fill: none; stroke: var(--accent); stroke-width: 1.75; stroke-linejoin: round; }
+.dot.profile-end { fill: var(--paper-soft); stroke: var(--ink); stroke-width: 1.5; }
+/* A halo in the page colour, so a label the line runs through (Cape to Cabot's start, where
+   the road climbs straight through the words) stays readable. */
+.profile-label {
+  fill: var(--ink-soft); font-size: 11px;
+  paint-order: stroke; stroke: var(--paper); stroke-width: 4px; stroke-linejoin: round;
+}
+.steep-bar { fill: var(--warn); }
+.fast-bar { fill: var(--accent); }
+.sw-steep { background: var(--warn); }
+.sw-fast { background: var(--accent); }
 .divider-label { fill: var(--ink-faint); font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; }
 
 .legend { display: flex; flex-wrap: wrap; gap: 0.45rem; margin: 0.25rem 0 0.5rem; }

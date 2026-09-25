@@ -865,7 +865,8 @@ hand.**
 
     **The check passes, and that is the point of doing both.** Peter supplied the
     elevation: the race publishes 550 m of climb against 450 m of drop, and his own watch
-    recorded 519 m of climb on the 2025 edition. Put through Minetti's cost-of-running
+    recorded 519 m of climb on the 2024 edition (corrected 2026-09-25: this said 2025, and
+    there is no 2025 recording; item 43). Put through Minetti's cost-of-running
     curve, +9.3 percent implies an average grade of **10.3 percent on the graded sections**,
     and the race's own course page says "grades of more than 10 per cent in some parts".
     Two independent routes, one from physics and one from revealed performance, agreeing on
@@ -1869,12 +1870,25 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     Front, drawn from Strava's own segment streams, which carry no clock, no heart rate and no
     splits at all. That is every course in `data/courses.toml`. **Seven of the eleven had no
     elevation figure of any kind**, the Tely among them, and one, Run to Remember, had a figure
-    the profile contradicts: 56 m each way off the organisers' chart against 91 m off the
-    stream, which is the difference between a range and a cumulative climb. Each
+    the profile contradicts: 56 m each way off the organisers' chart against 92.5 m off the
+    stream. That is a difference of scale, not an error in either: on a steady out-and-back the
+    cumulative climb is the range, which is what a coarse chart prints, and the stream also
+    counts the rolling along the top. Each
     chart prints the climb and descent of a distance-sampled, smoothed series and, for the
     first time here, **the grade**: the steepest and the fastest window on the course. Only the
     road is taken from them; the pace, the moving time and the one heart rate are not in this
     repository and the images are not committed (docs/data-terms.md).
+
+    **The same day project 11 delivered the height series themselves**, at Peter's request
+    and to a written specification (its `courses-instructions.md`): one smoothed series per
+    course on a 20 m grid, heights and nothing else. **Every number in this item is the
+    series', not the charts'.** The charts had used a grid that grew with the course, so their
+    totals differ from the series' by a metre or two on the short courses, 5 m on the Tely and
+    35 m on the marathon, where the climb total moves with the smoothing scale and is known to
+    about 30 m either way. No verdict below changed. The eight recordings' series are committed
+    at `data/profiles/`, with a test that refuses any field about the run and a test that holds
+    `data/courses.toml` to them; the three segment series joined them once Peter decided,
+    the same day, that a public segment's profile may be stored and drawn.
 
     **The result.** Item 36 split every course factor in two: against Daniels' flat reference
     at the course's own distance, which carries this population's departure from Daniels' fade,
@@ -1882,41 +1896,42 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     elevation figure, and nine of those have a peer of their own length. The Minetti penalty
     the profile implies lands inside the own-length interval and outside the flat one on five
     of the nine; inside both on two, whose intervals are too wide to separate them; and outside
-    both on two, Mundy Pond and Harbour Front, by a tenth of a point and by nine tenths against
-    their own length, and by two and a half points against the flat reference. **Not one of the
+    both on two, Mundy Pond and Harbour Front, by 0.15 and 0.83 points against their own
+    length, and by about two points against the flat reference. **Not one of the
     nine picks the flat reference**, and no course lands inside the flat interval and outside
     the own-length one, which is the comparison that would have refuted this.
 
     **The two misses are the same shape and are reported rather than averaged away.** Mundy
     Pond and Harbour Front are the two rolling courses here with essentially no net drop, +3 m
-    over 5 km and +7 m over 10 km. On both, the grade model charges for the undulation, +0.6%
-    and +0.7%, and the results decline to pay it. Every course with a real net descent or climb
-    lands where the own-length factor says. Whether that is the constant-power model
+    over 5 km and +6 m over 10 km. On both, the grade model charges about +0.6% for the
+    undulation, and the results decline to pay it. Every course with a real net descent or
+    climb lands where the own-length factor says. Whether that is the constant-power model
     overstating what rolling ground costs, or something about these two roads, two cases cannot
     say; it is the obvious thing to test if a third rolling course ever gets a profile.
 
     | Course | Race length | Profile | The hills, through Minetti | Against the flat reference | Against its own length |
     |---|---|---|---|---:|---:|
-    | Five and Dime 5 km | 5 km | 20 up, 42 down | -2.18 to -1.93% | -2.99% [-3.59, -2.37] | -1.78% [-2.82, -0.76] |
-    | Mundy Pond 5 km | 5 km | 36 up, 33 down | +0.57 to +0.61% | -1.80% [-2.11, -1.53] | -0.47% [-1.36, +0.45] |
-    | Flat Out 5 km | 5 km | 38 up, 49 down | -0.80 to -0.41% | -0.93% [-1.27, -0.60] | +0.48% [-0.50, +1.33] |
-    | Mews Memorial 8 km | 8 km | 26 up, 100 down | -4.69 to -4.41% | -5.32% [-5.52, -5.12] | -5.19% [-5.83, -4.60] |
-    | Five and Dime 10 km | 10 km | 63 up, 84 down | -0.86 to -0.55% | -0.83% [-1.96, -0.07] | +0.12% [-1.09, +1.03] |
-    | Harbour Front 10 km | 10 km | 72 up, 64 down | +0.67 to +0.83% | -1.77% [-2.09, -1.41] | -0.88% [-1.44, -0.26] |
-    | Turkey Tea 10 km | 10 km | 39 up, 123 down | -4.21 to -3.96% | -5.12% [-5.40, -4.88] | -4.51% [-5.01, -3.93] |
-    | Run to Remember 11 km | 11 km | 91 up, 91 down | +0.35 to +0.51% | +1.64% [+1.17, +2.10] | no course of this length |
-    | Tely 10 | 10 mile | 93 up, 217 down | -3.69 to -3.02% | +0.24% [+0.11, +0.37] | -4.14% [-4.98, -3.42] |
-    | Cape to Cabot 20 km | 20 km | 508 up, 400 down | +5.56 to +7.93% | +9.24% [+8.99, +9.48] | no course of this length |
-    | Huffin Puffin marathon | marathon | 273 up, 270 down | +0.25 to +0.29% | +9.62% [+8.31, +10.78] | +1.33% [-0.45, +3.08] |
+    | Five and Dime 5 km | 5 km | 19.9 up, 42.1 down | -2.21 to -1.96% | -2.99% [-3.59, -2.37] | -1.78% [-2.82, -0.76] |
+    | Mundy Pond 5 km | 5 km | 36.0 up, 32.7 down | +0.60 to +0.63% | -1.80% [-2.11, -1.53] | -0.47% [-1.36, +0.45] |
+    | Flat Out 5 km | 5 km | 38.4 up, 49.3 down | -0.78 to -0.38% | -0.93% [-1.27, -0.60] | +0.48% [-0.50, +1.33] |
+    | Mews Memorial 8 km | 8 km | 28.2 up, 103.2 down | -4.73 to -4.45% | -5.32% [-5.52, -5.12] | -5.19% [-5.83, -4.60] |
+    | Five and Dime 10 km | 10 km | 63.4 up, 83.8 down | -0.83 to -0.52% | -0.83% [-1.96, -0.07] | +0.12% [-1.09, +1.03] |
+    | Harbour Front 10 km | 10 km | 71.5 up, 65.5 down | +0.57 to +0.73% | -1.77% [-2.09, -1.41] | -0.88% [-1.44, -0.26] |
+    | Turkey Tea 10 km | 10 km | 39.5 up, 123.4 down | -4.20 to -3.95% | -5.12% [-5.40, -4.88] | -4.51% [-5.01, -3.93] |
+    | Run to Remember 11 km | 11 km | 92.5 up, 92.0 down | +0.39 to +0.54% | +1.64% [+1.17, +2.10] | no course of this length |
+    | Tely 10 | 10 mile | 97.3 up, 221.5 down | -3.67 to -3.00% | +0.24% [+0.11, +0.37] | -4.14% [-4.98, -3.42] |
+    | Cape to Cabot 20 km | 20 km | 513.7 up, 403.8 down | +5.67 to +8.08% | +9.24% [+8.99, +9.48] | no course of this length |
+    | Huffin Puffin marathon | marathon | 308.1 up, 306.3 down | +0.30% | +9.62% [+8.31, +10.78] | +1.33% [-0.45, +3.08] |
 
     The band is the penalty from the gentlest grade the totals allow to the steepest grade the
-    chart labels, which is an upper bound on the typical graded-section grade. A test asserts
-    the whole table.
+    series has either way, over a sixteenth of the course and at least 500 m, which is an upper
+    bound on the typical graded-section grade. Cape to Cabot's row is its series, the race's
+    published 550 m and 450 m being its first reading. A test asserts the whole table.
 
     **The gap changes sign at about 10 km, which is what item 36 predicted and could not
-    measure.** Flat reference minus hills: -0.9, -2.4, -0.3 at 5 km, -0.8 at 8 km, -0.1 and
-    -0.9 at 10 km, then +1.5 at 11 km, +3.6 at 16.1 km, +2.5 at 20 km and +9.4 at the
-    marathon. Short courses measure faster than their hills can account for and long ones
+    measure.** Flat reference minus hills: -0.9, -2.4 and -0.4 at 5 km, -0.7 at 8 km, -0.2, -2.4
+    and -1.0 at 10 km, then +1.2 at 11 km, +3.6 at 16.1 km, +2.4 at 20 km and +9.3 at
+    the marathon. Short courses measure faster than their hills can account for and long ones
     slower, because the reference is a VDOT-50 time at the course's own distance and this
     population fades more over distance than Daniels' curve does. It is not a straight line in
     distance, and the 20 km reading is under the 16 km one.
@@ -1925,9 +1940,9 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     numbers".** The Tely is the widest gap in the archive, on its best-measured course: 25,664
     finishes read +0.24% against the flat reference and -4.14% against the only other 10 mile
     course, and a course that drops 124 m does not cost a runner time. Cape to Cabot's check
-    is now weaker than the published totals made it look: 508 m up and 400 m down need an
-    11.1% average over the graded sections to give the measured +9.24%, and no 1.3 km of the
-    race is steeper than +8.7%. The race's "grades of more than 10 per cent in some parts"
+    is now weaker than the published totals made it look: 514 m up and 404 m down need a
+    10.8% average over the graded sections to give the measured +9.24%, and no 1.3 km of the
+    race is steeper than +8.8%. The race's "grades of more than 10 per cent in some parts"
     survives, because a 1.3 km window is a smoothing; the claim that the physics and the
     results land on the same number does not.
 
@@ -1937,8 +1952,33 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     backtest cache key, and no bearing was added, which is the field that would have changed a
     model input without changing that key. That hazard is written down in docs/todo.md item 2.
 
-    **What the profiles also settled, for free.** Mews Memorial finishes 74 m below where it
-    starts and the Five and Dime 5 km and 10 km 22 and 21 m below theirs, so all three are
-    point to point and want bearings; Mundy Pond returns to within 4 m of its starting height
-    over 5 km and the marathon to within 3 m over 42 km, so neither does. None of the images
-    carries a position, so no bearing could be computed from them.
+    **What the profiles also settled, and one thing the heights got wrong.** Project 11 sent
+    start and finish points, rounded to four places, for the four courses whose heights
+    suggested a direction. **Mews Memorial** is point to point: 4,699 m from start to finish on
+    49 degrees, 59 percent of the course, more than Cape to Cabot's 37. **The Five and Dime is
+    not what its heights said**: it finishes 22 m and 20 m below its start, but both races start
+    and finish at the same two points, 1.15 km apart, so 23 percent of the 5 km and 12 percent
+    of the 10 km have a net direction. **Harbour Front** is an out-and-back by the segment's own
+    geometry, its ends 228 m apart. Mundy Pond returns to within 3.3 m of its starting height
+    and the marathon to within 2 m, so neither wants one. The points are stored in
+    `data/courses.toml` and **no `bearing_deg` was added**: Mews wants 49 degrees and gets it
+    with the first backtest after Cape to Cabot, and the Five and Dime waits on the
+    tailwind-share decision (docs/todo.md item 2).
+
+    **On the website since 2026-09-25**, at Peter's request: each race card with a series
+    draws it as "The course, start to finish" (`web/app.js`, `drawProfile`), from
+    `showcase.elevation`, which thins the 20 m series to at most 400 points and keeps the
+    finish. The caption states how much the vertical is stretched, 19 times on Cape to
+    Cabot and 44 on Run to Remember, because a road filled to the box looks like mountains;
+    the steepest climb and fastest drop are bars under the axis; pointing at the road reads
+    out the height and the grade of the 200 m behind the point. A segment's card names and
+    links the segment; a recording's says it is one GPS recording of that year's race and
+    nothing about whose. Where a race's published climb and the series disagree by more
+    than 5 percent (Cape to Cabot, 550 m against 514 m) the caption says both.
+
+    **Two things the delivery corrected.** Cape to Cabot's recording is the **2024** edition;
+    this repository had called Peter's 519 m "the 2025 edition" since 2026-09-16, and there is no
+    2025 recording (item 13's entry is corrected in place). And project 11 **did not** draw
+    the Flat Out and Cape to Cabot profile images of 2026-09-21, which this item's first draft
+    had guessed it had: its first profile is from 2026-09-25. Their origin stays unrecorded, and
+    Flat Out's by-eye reading agreeing with the series to 3 m is now two independent readings.

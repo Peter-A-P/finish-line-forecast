@@ -54,6 +54,9 @@ ENTRANTS = DATA / "entrants"
 WEATHER = DATA / "cache" / "eccc"
 BACKTESTS = DATA / "cache" / "backtest"
 COURSES = DATA / "courses.toml"
+# One height series per course, heights on a distance grid and nothing about any run
+# (PLAN.md 13 item 43; tests/test_grade.py refuses a file that carries more).
+ELEVATION = DATA / "profiles"
 
 
 def course_profiles() -> dict[str, dict[str, Any]]:
@@ -61,6 +64,15 @@ def course_profiles() -> dict[str, dict[str, Any]]:
     if not COURSES.exists():
         return {}
     loaded: dict[str, dict[str, Any]] = tomllib.loads(COURSES.read_text(encoding="utf-8"))
+    return loaded
+
+
+def course_elevation(course_id: str) -> dict[str, Any] | None:
+    """The course's height series, or None where there is none."""
+    path = ELEVATION / f"{course_id}.json"
+    if not path.exists():
+        return None
+    loaded: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))
     return loaded
 
 
@@ -1009,6 +1021,7 @@ def _write_showcase(
         """
         measured = fitted.courses.get(course_id)
         profile = profiles.get(course_id, {})
+        series = course_elevation(course_id)
         return {
             "course_id": course_id,
             "course": showcase.course_name(course_id),
@@ -1024,6 +1037,8 @@ def _write_showcase(
             "versus_high": None if measured is None else showcase.rounded(measured.peers_high),
             "climb_m": profile.get("climb_m"),
             "drop_m": profile.get("drop_m"),
+            # The road itself, drawn under the card where a series exists.
+            "elevation": None if series is None else showcase.elevation(series),
             "editions": showcase.editions(data, course_id, temperatures),
             "backtest": showcase.course_backtest(scored, intervals, data, course_id),
             "entrants": None,

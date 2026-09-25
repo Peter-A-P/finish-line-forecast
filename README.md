@@ -374,21 +374,23 @@ archive**, which is a fast road measured. No prediction is affected, because a c
 only ever applied to that course at its own distance; PLAN.md section 13 item 36 has the size of
 it.
 
-The last column is the check, and since 2026-09-25 it is a real one. Ten of these courses have a
-measured elevation profile, eight of them with the grade of their steepest and fastest stretch,
-and the column asks what average grade the hills would need to produce the fifth column's figure.
-**On every one of the eight the hills agree with the own-length figure and not with the fourth
-column**, which is independent confirmation that the fourth column carries the population's fade
-over distance and the fifth does not. The Huffin Puffin marathon is the clearest: 273 m of climb
-against 270 m of descent, inside a 59 m band, is worth a quarter of a point, and the course reads
-+9.6% against a flat reference and +1.3% against the other marathons. PLAN.md section 13 item 43
-has the table.
+The last column is the check, and since 2026-09-25 it is a real one. Eleven courses have a
+measured elevation profile with the grade of their steepest and fastest stretch, and the column
+asks what average grade the hills would need to produce the fifth column's figure. Of the nine
+with another course of their length, the hills land inside the own-length interval and outside
+the flat one on five, inside both on two, and outside both on two (Mundy Pond and Harbour
+Front, the two rolling courses with no net drop, by 0.15 and 0.83 points). **None of the nine
+sides with the fourth column**, which is independent confirmation that it carries the
+population's fade over distance and the fifth does not. The Huffin Puffin marathon is the
+clearest: 308 m of climb against 306 m of descent, inside a 59 m band, is worth a third of a
+point, and the course reads +9.6% against a flat reference and +1.3% against the other
+marathons. PLAN.md section 13 item 43 has the table.
 
 <!-- finishline:courses -->
 | Course | Race length | Finishes | Slower than flat | Against its own length | Grade that would explain its own length |
 |---|---|---:|---|---|---|
 | usr-42195 | marathon | 32 | +11.2% [+7.5, +14.8] | +3.1% [-0.5, +7.1], against 4 |  |
-| huffin-puffin-42195 | marathon | 296 | +9.6% [+8.3, +10.8] | +1.3% [-0.4, +3.1], against 4 | 7.8% average, over 273 m of climb |
+| huffin-puffin-42195 | marathon | 296 | +9.6% [+8.3, +10.8] | +1.3% [-0.4, +3.1], against 4 | 7.0% average, over 308 m of climb |
 | provincial-championship-42195 | marathon | 68 | +9.4% [+6.2, +12.1] | +1.0% [-2.2, +3.8], against 4 |  |
 | cape-to-cabot-20000 | 20 km | 5,311 | +9.2% [+9.0, +9.5] | _the only course of this length_ | 10.3% average, over 550 m of climb, against the flat reference |
 | run-from-away-42195 | marathon | 79 | +7.8% [+6.1, +9.6] | -0.7% [-2.6, +1.2], against 4 |  |
@@ -396,7 +398,7 @@ has the table.
 | bell-island-blast-16093 | 10 mile | 181 | +4.6% [+3.8, +5.5] | +4.3% [+3.5, +5.2], against 1 |  |
 | trapline-42195 | marathon | 55 | +4.5% [+0.5, +8.2] | -4.6% [-8.4, -1.1], against 4 |  |
 | _... 34 more_ | | | | | |
-| five-and-dime-5000 | 5 km | 1,052 | -3.0% [-3.6, -2.4] | -1.8% [-2.8, -0.8], against 12 | 3.7% average, over 20 m of climb |
+| five-and-dime-5000 | 5 km | 1,052 | -3.0% [-3.6, -2.4] | -1.8% [-2.8, -0.8], against 12 | 3.9% average, over 20 m of climb |
 | quidi-vidi-5000 | 5 km | 334 | -3.2% [-3.9, -2.4] | -2.0% [-2.9, -0.8], against 12 |  |
 | ane-mile-1609 | mile | 577 | -3.7% [-5.0, -2.3] | _the only course of this length_ |  |
 | provincial-championship-5000 | 5 km | 907 | -4.0% [-4.5, -3.5] | -2.9% [-3.8, -2.0], against 12 |  |
@@ -413,12 +415,12 @@ through Minetti's cost-of-running curve needs about a 10% average grade to produ
 that says "grades of more than 10 per cent in some parts". Neither number was tuned to the
 other. Read it as a ballpark rather than a decimal: at 20 km it is the only course on the
 archive, so a point or so of that +9.3% is the race-length effect above, and the grade that
-explains the rest is nearer 8.3%. Three more courses carry a climb, and the check cuts both
-ways on them: Turkey Tea's segment figures cannot make it faster than -4.3% at their gentlest
-grade against a measured -5.1%; Flat Out's hills, read off a profile image, agree with its
--0.9% at a 2.0% average grade, narrowly; and Run to Remember's 56 m each way, one steady grade
-of about 1% along a rail trail, are worth about +0.13% of its measured +1.6%, so most of that
-is not hills. All three are in `data/courses.toml` with the numbers.
+explains the rest is nearer 8.3%. Since 2026-09-25 that check is weaker than it looked: the
+measured profile has no 1.3 km steeper than +8.8%, and its own 514 m of climb need a 10.8%
+average. The other ten profiled courses are in the paragraph above; Run to Remember, the one
+besides Cape to Cabot with no course of its length, is worth +0.4 to +0.5% of hills against a
+measured +1.6%, so most of that is the gravel and the race length. Every course's numbers are
+in `data/courses.toml`, and the eight recorded series in `data/profiles/`.
 
 ⚠️ **A per-runner career trend is doing more work here than it looks.** Fitted with one constant
 per runner, Cape to Cabot's edition effect climbs almost monotonically from +3.8% in 2013 to

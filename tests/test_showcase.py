@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from itertools import pairwise
 from pathlib import Path
 from typing import Any
 
@@ -107,3 +108,50 @@ def test_a_rerun_that_changes_nothing_changes_no_bytes(tmp_path: Path) -> None:
     first = path.read_bytes()
     showcase.write(path, {"a": [1.5, None], "b": 1})
     assert path.read_bytes() == first == b'{"a":[1.5,null],"b":1}\n'
+
+
+def _profile(heights: list[float]) -> dict[str, Any]:
+    """A profile file of the shape `data/profiles/` holds, around a given series."""
+    return {
+        "elevation_m": heights,
+        "sample_m": 20,
+        "climb_m": 1.0,
+        "descent_m": 2.0,
+        "high": {"m": max(heights), "at_m": 0},
+        "low": {"m": min(heights), "at_m": 0},
+        "steepest": {"grade": 0.01, "from_m": 0, "to_m": 500},
+        "fastest": {"grade": -0.01, "from_m": 0, "to_m": 500},
+        "origin": "recording",
+        "segment_id": None,
+        "edition": "2025-05-11",
+    }
+
+
+def test_a_long_profile_is_thinned_and_still_ends_at_the_finish() -> None:
+    """A marathon is 2,110 heights on the 20 m grid; the card draws at most 400, and the
+    last point is the finish line whatever the stride leaves over."""
+    heights = [float(i % 37) for i in range(2110)]
+    drawn = showcase.elevation(_profile(heights))
+    points = drawn["points"]
+    assert len(points) <= showcase.PROFILE_POINTS
+    assert points[0] == [0, 0.0]
+    assert points[-1] == [2109 * 20, heights[-1]]
+    assert all(b[0] > a[0] for a, b in pairwise(points))
+
+
+def test_a_short_profile_is_drawn_whole_with_the_files_own_totals() -> None:
+    heights = [100.0 + i * 0.1 for i in range(251)]
+    drawn = showcase.elevation(_profile(heights))
+    assert len(drawn["points"]) == 251
+    # Measured on the full series by the file, never recomputed from what is drawn.
+    assert (drawn["climb_m"], drawn["descent_m"]) == (1.0, 2.0)
+
+
+def test_what_the_card_draws_says_nothing_about_a_run() -> None:
+    """The website gets heights and the facts about the road, and no field the profile file
+    itself would be refused for (tests/test_grade.py)."""
+    drawn = showcase.elevation(_profile([1.0, 2.0, 3.0]))
+    assert set(drawn) == {
+        "points", "climb_m", "descent_m", "high", "low", "steepest", "fastest",
+        "origin", "segment_id", "edition",
+    }  # fmt: skip

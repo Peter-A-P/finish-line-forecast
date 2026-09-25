@@ -540,6 +540,45 @@ def entrants(links: Sequence[Link], as_of: str) -> dict[str, Any]:
     return {"as_of": as_of, "listed": len(links), "depth": depth, "refused": refused}
 
 
+# The most points a course profile is drawn from on the website. Every profile is stored on a
+# 20 m grid, so a marathon is 2,100 points and Cape to Cabot 1,000; a chart 880 units wide
+# cannot show more than a few hundred, and every one of them ships in results.json.
+PROFILE_POINTS = 400
+
+
+def elevation(profile: Mapping[str, Any]) -> dict[str, Any]:
+    """A course's height profile as the race card draws it, from `data/profiles/<course>.json`.
+
+    Thinned to at most `PROFILE_POINTS` by keeping every k-th height, which is safe because
+    the series is already smoothed over wider than the new spacing; the last point is always
+    kept, so the chart ends at the finish line and not a step short of it. The totals and the
+    steepest and fastest stretches are the file's own, measured on the full series, and are
+    not recomputed from the thinned one.
+
+    ⚠️ **Heights only.** The file carries nothing about anyone's run (a test refuses one that
+    does), and nothing here adds to it: the race edition's date for a recording, the segment
+    id for a public Strava segment, and heights along the road.
+    """
+    heights = [float(value) for value in profile["elevation_m"]]
+    step = float(profile["sample_m"])
+    stride = max(1, math.ceil((len(heights) - 1) / (PROFILE_POINTS - 1)))
+    kept = list(range(0, len(heights), stride))
+    if kept[-1] != len(heights) - 1:
+        kept.append(len(heights) - 1)
+    return {
+        "points": [[round(index * step), round(heights[index], 1)] for index in kept],
+        "climb_m": profile["climb_m"],
+        "descent_m": profile["descent_m"],
+        "high": profile["high"],
+        "low": profile["low"],
+        "steepest": profile["steepest"],
+        "fastest": profile["fastest"],
+        "origin": profile["origin"],
+        "segment_id": profile["segment_id"],
+        "edition": profile["edition"],
+    }
+
+
 def temperatures(rows: Sequence[conditions.Observation]) -> dict[str, float]:
     return {row.race_id: row.temp_c for row in rows}
 

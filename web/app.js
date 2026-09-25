@@ -193,6 +193,7 @@
     drawRaceCard(race);
     drawWeek(race);
     drawPreview(race);
+    drawProfile(race);
     drawHistory(race);
     var find = byId("find");
     if (race.retrospect) {
@@ -334,7 +335,8 @@
     var course = courseFact(info);
     facts.appendChild(fact("Course", course[0], course[1]));
     if (isNumber(info.climb_m)) {
-      facts.appendChild(fact("Climb and drop", info.climb_m + " m up, " + info.drop_m + " m down"));
+      facts.appendChild(fact("Climb and drop",
+        Math.round(info.climb_m) + " m up, " + Math.round(info.drop_m) + " m down"));
     }
     var editions = info.editions || [];
     if (editions.length) {
@@ -924,6 +926,137 @@
     node.appendChild(root);
     legend("preview-legend", [["dot pt-hit-sw", "finish inside its 80% range"], ["dot pt-miss-sw", "outside it"], ["dashed sw-faint", "a perfect prediction"]]);
     byId("preview-caption").textContent = "Every finisher in the " + year + " edition who was in the backtest, shown without names. Most misses above the diagonal are runners who ran slower than their history said: a bad day, an injury, or a friend being paced.";
+  }
+
+  /* The course, start to finish ----------------------------------------------------------- */
+
+  /* Height above sea level along the road, from data/profiles/ by way of results.json. It is
+     drawn from heights alone: the series carries nothing about the run or the person that
+     measured it, and a test in tests/test_grade.py refuses one that does.
+
+     ⚠️ **The vertical scale is stretched, and the caption says by how much.** A course's
+     heights change by tens of metres over thousands, so drawn to scale every road here is a
+     flat line; drawn to fill the box, a marathon inside a 59 m band looks like a mountain
+     range. The honest middle is to fill the box and print the stretch beside it. */
+  function drawProfile(race) {
+    var info = story(race);
+    var e = info && info.elevation;
+    var wrap = byId("course-profile");
+    var node = clear(byId("profile-chart"));
+    byId("profile-readout").textContent = "";
+    if (!e || !e.points || e.points.length < 2) { wrap.hidden = true; return; }
+    wrap.hidden = false;
+
+    var pts = e.points;
+    var last = pts[pts.length - 1][0];
+    var lo = Infinity, hi = -Infinity;
+    pts.forEach(function (p) { lo = Math.min(lo, p[1]); hi = Math.max(hi, p[1]); });
+    var pad = Math.max((hi - lo) * 0.15, 4);
+    var H = 300, L = 58, R = WIDTH - 16, T = 24, B = H - 58;
+    var x = linear([0, last / 1000], [L, R]);
+    var y = linear([Math.floor(lo - pad), Math.ceil(hi + pad)], [B, T]);
+    var root = frame(H, "Height above sea level along the course of " + race.name);
+    yAxis(root, y, L, R, function (v) { return v + " m"; }, "height above sea level");
+
+    ticks(0, last / 1000, 8).forEach(function (km) {
+      root.appendChild(svg("text", { x: x(km), y: B + 16, "text-anchor": "middle", "class": "tick" },
+        km + (km === 0 ? "" : " km")));
+    });
+
+    var line = pts.map(function (p, i) {
+      return (i ? "L" : "M") + x(p[0] / 1000).toFixed(1) + " " + y(p[1]).toFixed(1);
+    }).join(" ");
+    root.appendChild(svg("path", {
+      d: line + " L" + x(last / 1000).toFixed(1) + " " + B + " L" + L + " " + B + " Z",
+      "class": "profile-area"
+    }));
+    root.appendChild(svg("path", { d: line, "class": "profile-line" }));
+
+    /* The start and the finish, labelled on the line, because the difference between them is
+       the first thing the shape says: which way the course goes overall. */
+    var ends = [[pts[0], "start", "start"], [pts[pts.length - 1], "finish", "end"]];
+    ends.forEach(function (end) {
+      var p = end[0];
+      root.appendChild(svg("circle", { cx: x(p[0] / 1000), cy: y(p[1]), r: 3.5, "class": "dot profile-end" }));
+      root.appendChild(svg("text", {
+        x: x(p[0] / 1000) + (end[2] === "start" ? 7 : -7), y: y(p[1]) - 8,
+        "text-anchor": end[2], "class": "profile-label"
+      }, end[1] + " " + Math.round(p[1]) + " m"));
+    });
+
+    /* The steepest climb and the fastest drop, as the two stretches the grade model reads, drawn
+       as bars under the distance axis so they never cover the line. */
+    [[e.steepest, "steep-bar", "steepest "], [e.fastest, "fast-bar", "fastest drop "]].forEach(function (w, i) {
+      var s = w[0];
+      if (!s || !isNumber(s.grade)) { return; }
+      var y0 = B + 28 + i * 14;
+      root.appendChild(svg("rect", {
+        x: x(s.from_m / 1000), y: y0, width: Math.max(2, x(s.to_m / 1000) - x(s.from_m / 1000)),
+        height: 4, rx: 2, "class": w[1]
+      }));
+      var mid = x((s.from_m + s.to_m) / 2000);
+      var right = mid > (L + R) / 2;
+      root.appendChild(svg("text", {
+        x: right ? x(s.from_m / 1000) - 6 : x(s.to_m / 1000) + 6, y: y0 + 5,
+        "text-anchor": right ? "end" : "start", "class": "profile-label"
+      }, w[2] + Math.round(s.to_m - s.from_m) + " m, " + (s.grade > 0 ? "+" : "") + (s.grade * 100).toFixed(1) + "%"));
+    });
+
+    /* The readout: height at the point, and the grade over the 200 m before it, which is the
+       stretch a runner has just done. */
+    var columns = Math.min(120, pts.length - 1);
+    var width = (R - L) / columns;
+    for (var c = 0; c < columns; c++) {
+      var atM = last * (c + 0.5) / columns;
+      var here = nearest(pts, atM);
+      var back = nearest(pts, Math.max(0, atM - 200));
+      var run = here[0] - back[0];
+      var grade = run > 0 ? (here[1] - back[1]) / run : 0;
+      var text = (atM / 1000).toFixed(1) + " km: " + Math.round(here[1]) + " m above sea level" +
+        (run > 0 ? ", " + (Math.abs(grade) < 0.003 ? "level" : (grade > 0 ? "climbing " : "dropping ") +
+          (Math.abs(grade) * 100).toFixed(1) + "%") + " over the " + Math.round(run) + " m before it" : "");
+      var hit = svg("rect", { x: L + c * width, y: T, width: width, height: B - T, "class": "catcher" });
+      hover(hit, "profile-readout", text);
+      root.appendChild(hit);
+    }
+    node.appendChild(root);
+
+    legend("profile-legend", [["sw-steep", "steepest climb"], ["sw-fast", "fastest drop"]]);
+
+    /* How much the vertical is stretched: metres per unit across over metres per unit up. */
+    var stretch = Math.round((last / (R - L)) / ((y.domain[1] - y.domain[0]) / (B - T)));
+    var caption = clear(byId("profile-caption"));
+    var source = e.origin === "strava-segment"
+      ? "Heights from Strava's public segment for this course"
+      : "Heights from one GPS recording of the " + (e.edition ? e.edition.slice(0, 4) + " " : "") +
+        "race, the heights and nothing else";
+    caption.appendChild(document.createTextNode(source));
+    if (e.origin === "strava-segment" && e.segment_id) {
+      caption.appendChild(document.createTextNode(" ("));
+      caption.appendChild(el("a", {
+        href: "https://www.strava.com/segments/" + e.segment_id, rel: "nofollow noopener"
+      }, "segment " + e.segment_id));
+      caption.appendChild(document.createTextNode(")"));
+    }
+    var text2 = ". " + Math.round(e.climb_m) + " m of climb and " + Math.round(e.descent_m) +
+      " m of drop, measured on the full series. Heights are drawn about " + stretch +
+      " times steeper than the road, so read the numbers rather than the slopes. Point along the " +
+      "course for the height and the grade just behind that point.";
+    if (isNumber(info.climb_m) && Math.abs(info.climb_m - e.climb_m) > 0.05 * info.climb_m) {
+      text2 += " The race itself publishes " + Math.round(info.climb_m) + " m of climb; a GPS or " +
+        "barometric total usually runs a few percent under a surveyed one.";
+    }
+    caption.appendChild(document.createTextNode(text2));
+  }
+
+  /* The point of a sorted [[metres, height], ...] series closest to a distance. */
+  function nearest(pts, atM) {
+    var lo = 0, hi = pts.length - 1;
+    while (hi - lo > 1) {
+      var mid = (lo + hi) >> 1;
+      if (pts[mid][0] < atM) { lo = mid; } else { hi = mid; }
+    }
+    return Math.abs(pts[lo][0] - atM) <= Math.abs(pts[hi][0] - atM) ? pts[lo] : pts[hi];
   }
 
   /* The race's history, edition by edition ---------------------------------------------- */
