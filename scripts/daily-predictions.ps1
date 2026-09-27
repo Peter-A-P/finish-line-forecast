@@ -27,6 +27,10 @@ function Write-Log([string]$line) {
 }
 
 function Invoke-Checked([string]$what, [scriptblock]$command) {
+    # Windows PowerShell turns every line a native command writes to stderr into an error
+    # record, and under 'Stop' the first one throws. git writes warnings there (line endings,
+    # hints), so success is judged by the exit code alone. The 2026-09-27 run stopped here.
+    $ErrorActionPreference = 'Continue'
     $output = & $command 2>&1
     foreach ($line in $output) { Add-Content -Path $log -Encoding utf8 -Value "    $line" }
     if ($LASTEXITCODE -ne 0) { throw "$what failed with exit $LASTEXITCODE" }

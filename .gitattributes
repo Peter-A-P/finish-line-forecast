@@ -11,3 +11,7 @@ tests/fixtures/*.html text eol=lf
 # gun, and a checkout that turned LF into CRLF would hand every Windows reader a file that no
 # longer matches its own published hash. After `* text=auto`, because the last match wins.
 predictions/*.json -text
+
+# The race pages are written by `finishline page` with LF endings and committed by the daily
+# task, whose git would otherwise warn about converting them on every run.
+docs/predictions/*.md text eol=lf
