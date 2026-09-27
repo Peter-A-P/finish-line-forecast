@@ -960,7 +960,6 @@ td.why { font-size: 0.82rem; font-style: italic; white-space: nowrap; }
 #everyone tbody tr { cursor: pointer; }
 #everyone tbody tr:hover { background: var(--accent-soft); }
 .muted-cell { color: var(--ink-faint); font-size: 0.8rem; }
-.hash { font-family: var(--mono); font-size: 0.74rem; color: var(--ink-faint); }
 tr.unseen td { color: var(--ink-faint); font-style: italic; }
 
 input[type="search"] {

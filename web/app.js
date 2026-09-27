@@ -527,24 +527,7 @@
     target.appendChild(wrap);
     target.appendChild(el("p", { id: "find-count", "class": "note" }));
 
-    target.appendChild(el("h3", null, "The files"));
-    target.appendChild(el("p", { "class": "note" }, "Every prediction above is in one of these files, committed and tagged in the public repository before the gun, and never edited. The SHA-256 is the file's fingerprint."));
-    var files = el("div", { "class": "table-wrap" });
-    var ft = el("table", { "class": "tight" });
-    var fh = el("tr");
-    ["File", "Frozen at", "Runners", "SHA-256"].forEach(function (label, i) { fh.appendChild(el("th", { "class": i === 2 ? "num" : "" }, label)); });
-    ft.appendChild(append(el("thead"), [fh]));
-    var fb = el("tbody");
-    race.files.forEach(function (file) {
-      var link = el("a", { href: file.url }, file.name);
-      var row = el("tr");
-      append(row, [append(el("td"), [link]), el("td", null, file.frozen_at.replace("T", " ").slice(0, 16)),
-        el("td", { "class": "num" }, file.runners), el("td", { "class": "hash" }, file.sha256)]);
-      fb.appendChild(row);
-    });
-    ft.appendChild(fb);
-    files.appendChild(ft);
-    target.appendChild(files);
+    target.appendChild(el("p", { "class": "note" }, "Every prediction above was committed and tagged in the public repository before the gun, and never edited. How to check one is under \"For the technical reader\" further down."));
     if (race.scorecard) {
       target.appendChild(append(el("p"), [el("a", { href: race.scorecard }, "The predictions against the official results")]));
     }

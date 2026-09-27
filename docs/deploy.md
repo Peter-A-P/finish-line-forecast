@@ -119,7 +119,8 @@ gh run watch --repo Peter-A-P/finish-line-forecast
 - `https://finishline.peterparker.ca` serves over HTTPS with no certificate warning.
 - The browser console on the live page is empty: a policy violation is reported there and
   nowhere else.
-- A race page's file hashes match `sha256sum predictions/...` on a fresh clone.
+- Each prediction tag's SHA-256 matches `sha256sum predictions/<race>/<file>.json` on a fresh clone
+  (the site no longer lists the files; the repository is where they are checked).
 
 ## Two decisions this makes, and why
 
