@@ -195,16 +195,14 @@
     drawPreview(race);
     drawProfile(race);
     drawHistory(race);
-    var find = byId("find");
+    hideFinder();
     if (race.retrospect) {
-      find.disabled = false;
       loadRetrospect(race);
     } else if (race.predictions) {
-      find.disabled = false;
       loadPredictions(race);
     } else {
-      find.disabled = true;
-      find.value = "";
+      finder.querySelector("#find").value = "";
+      state.query = "";
       clear(byId("predictions"));
       byId("predictions").appendChild(el("p", { "class": "note" },
         race.predicted
@@ -490,7 +488,7 @@
     var chart = el("div", { id: "field-chart", "class": "chart" });
     fig.appendChild(chart);
     fig.appendChild(el("p", { id: "field-readout", "class": "readout" }));
-    fig.appendChild(el("figcaption", null, "How many runners are predicted to finish in each minute. Search for a name above to see where that runner sits, with their 80% range."));
+    fig.appendChild(el("figcaption", null, "How many runners are predicted to finish in each minute. Search for a name below to see where that runner sits, with their 80% range."));
     target.appendChild(fig);
     drawField(runners, null);
 
@@ -500,6 +498,7 @@
     target.appendChild(el("p", { "class": "note" }, data.final ?
       "The final file predicts every runner again with the day-before forecast. The file each runner first appeared in is kept beside them." :
       "Each runner is predicted the first morning they are on the entrant list, with that morning's forecast. The day before the race everyone is predicted again, and given places."));
+    showFinder(target);
     var wrap = el("div", { "class": "table-wrap tall" });
     var table = el("table", { id: "everyone", "class": "tight" });
     var head = el("tr");
@@ -619,6 +618,7 @@
       "because a published place is drawn from thousands of simulated races and the backtest " +
       "kept its scored rows rather than the fits that would let that be redone here."));
 
+    showFinder(target);
     var wrap = el("div", { "class": "table-wrap tall" });
     var table = el("table", { id: "everyone", "class": "tight" });
     var head = el("tr");
@@ -837,6 +837,20 @@
         (chosen.place ? ", place " + Math.round(chosen.place.median) + " (" + Math.round(chosen.place.low) + " to " + Math.round(chosen.place.high) + ")" : "");
     }
     node.appendChild(root);
+  }
+
+  /* The runner search sits directly above whichever runner table is drawn. The node is kept
+     here because each redraw clears #predictions, which would otherwise take it along. */
+  var finder = null;
+
+  function showFinder(target) {
+    finder.hidden = false;
+    target.appendChild(finder);
+  }
+
+  function hideFinder() {
+    finder.hidden = true;
+    byId("predictions").parentNode.insertBefore(finder, byId("predictions").nextSibling);
   }
 
   function applySearch() {
@@ -1421,6 +1435,7 @@
   /* Start ------------------------------------------------------------------------ */
 
   function start() {
+    finder = byId("finder");
     Promise.all([getJSON("data/results.json"), getJSON("data/races.json")]).then(function (loaded) {
       state.results = loaded[0];
       state.races = loaded[1];
@@ -1442,7 +1457,7 @@
         drawHeroDistances(speed.value);
         speed.addEventListener("change", function (event) { drawHeroDistances(event.target.value); });
       }
-      byId("find").addEventListener("input", function (event) { state.query = event.target.value; applySearch(); });
+      finder.querySelector("#find").addEventListener("input", function (event) { state.query = event.target.value; applySearch(); });
     }).catch(fail);
   }
 

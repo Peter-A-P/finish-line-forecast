@@ -137,12 +137,6 @@
         </label>
         <select id="race">{{race_options}}</select>
       </div>
-      <div class="control">
-        <label for="find">Find a runner
-          <span class="hint">a name or a town, once there are runners to search</span>
-        </label>
-        <input id="find" type="search" autocomplete="off" placeholder="Name or town" disabled>
-      </div>
     </div>
 
     <div id="race-card" class="race-card" aria-live="polite"></div>
@@ -150,6 +144,16 @@
     <div id="week" class="week" aria-label="Where this race is in its prediction week"></div>
 
     <div id="predictions"></div>
+
+    <!-- Moved by app.js to sit directly above a race's runner table; hidden while there is none. -->
+    <div id="finder" class="controls" hidden>
+      <div class="control">
+        <label for="find">Find a runner
+          <span class="hint">a name or a town</span>
+        </label>
+        <input id="find" type="search" autocomplete="off" placeholder="Name or town">
+      </div>
+    </div>
 
     <div id="preview">
       <h3 id="preview-title">How this model would have done here last time</h3>
