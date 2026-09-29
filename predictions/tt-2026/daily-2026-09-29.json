@@ -1,0 +1,294 @@
+{
+  "conditions": {
+    "bearing_deg": 79.0,
+    "conditions_mean": {
+      "log_distance_5k": 0.6931,
+      "observed": 1.0,
+      "sun": 0.0519,
+      "tailwind": 22.7195,
+      "temp_c": 12.7171,
+      "wind": 12.1766
+    },
+    "forecast": {
+      "sun_share": 0.052,
+      "temp_c": 10.15,
+      "wind_east_kmh": 15.1,
+      "wind_kmh": 15.75,
+      "wind_north_kmh": 4.47
+    },
+    "forecast_error": {
+      "east_bias": -5.5218,
+      "east_sd": 14.1334,
+      "mornings": 36,
+      "north_bias": -5.4315,
+      "north_sd": 12.3834,
+      "temp_bias": -2.4643,
+      "temp_sd": 2.8947,
+      "wind_bias": -9.0739,
+      "wind_sd": 7.7923
+    },
+    "hours": 2,
+    "lead_days": 5,
+    "source": "Open-Meteo forecast, St. John's airport",
+    "used": true
+  },
+  "entrant_snapshot": {
+    "file": "tt-2026_trackie-list_20260928T2253Z.html",
+    "sha256": "771c5f22fa55ff2fdba7820c54e8275fb04997d6174e38e9aa8642f92f085433"
+  },
+  "entrants": {
+    "ambiguous": 13,
+    "linked": 340,
+    "listed": 387,
+    "new": 34,
+    "predicted": 14,
+    "published_before": 360
+  },
+  "frozen_at": "2026-09-29T08:47:28.870655+00:00",
+  "gun": "2026-10-04T08:00:00-02:30",
+  "kind": "daily",
+  "model": {
+    "blend": {
+      "centre": "(1 - w) * log(hierarchical) + w * log(lightgbm)",
+      "challenger_answered": 374,
+      "distribution": "the hierarchical model's draws, scaled onto the blended centre",
+      "weight": 0.65
+    },
+    "calibration": {
+      "80": {
+        "0": 0.020313015169755033,
+        "1": 0.017275500854527337,
+        "2 to 3": 0.014511076893699126,
+        "4 or more": 0.0005712245528872728
+      },
+      "90": {
+        "0": 0.03946597331409141,
+        "1": 0.028754605864001803,
+        "2 to 3": 0.026734023334080703,
+        "4 or more": 0.0034266120854855586
+      }
+    },
+    "commit": "a02662646cdf12ca925ea9d3b1074031eddb4ba0",
+    "diagnostics": {
+      "divergences": 0.0,
+      "draws": 1200.0,
+      "max_rhat": 1.42810181032412,
+      "min_ess_bulk": 9.105367209765173
+    },
+    "fit_on_results_before": "2026-10-04",
+    "name": "blend",
+    "settings": {
+      "chains": 4,
+      "draws": 300,
+      "months": 3,
+      "tune": 400,
+      "weather": 1
+    }
+  },
+  "race": {
+    "course_id": "turkey-tea-10000",
+    "date": "2026-10-04",
+    "distance_m": 10000.0,
+    "name": "Turkey Tea 10k",
+    "race_id": "tt-2026"
+  },
+  "runners": [
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        2107.0,
+        2341.8
+      ],
+      "interval_90": [
+        2061.5,
+        2382.7
+      ],
+      "name": "Ryan Quinlan",
+      "prior_results": 18,
+      "seconds": 2219.2
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        2241.4,
+        2477.1
+      ],
+      "interval_90": [
+        2165.9,
+        2567.8
+      ],
+      "name": "Zachary Vaters",
+      "prior_results": 13,
+      "seconds": 2352.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        2259.4,
+        2491.5
+      ],
+      "interval_90": [
+        2195.8,
+        2566.2
+      ],
+      "name": "Alastair Jenkins",
+      "prior_results": 22,
+      "seconds": 2363.9
+    },
+    {
+      "hometown": "St Johns",
+      "interval_80": [
+        2146.7,
+        2650.3
+      ],
+      "interval_90": [
+        2081.1,
+        2802.6
+      ],
+      "name": "Kieran Lynch",
+      "prior_results": 1,
+      "seconds": 2407.3
+    },
+    {
+      "hometown": "Bay Bulls",
+      "interval_80": [
+        2490.5,
+        2954.1
+      ],
+      "interval_90": [
+        2385.7,
+        3114.9
+      ],
+      "name": "Sean Marquez",
+      "prior_results": 1,
+      "seconds": 2690.5
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        2781.4,
+        3164.8
+      ],
+      "interval_90": [
+        2694.6,
+        3239.5
+      ],
+      "name": "Logan Bragg",
+      "prior_results": 5,
+      "seconds": 2953.2
+    },
+    {
+      "hometown": "Bay Bulls",
+      "interval_80": [
+        2739.7,
+        3301.4
+      ],
+      "interval_90": [
+        2629.3,
+        3503.8
+      ],
+      "name": "Giel Papelleras",
+      "prior_results": 1,
+      "seconds": 2974.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        2847.6,
+        3144.3
+      ],
+      "interval_90": [
+        2772.4,
+        3222.4
+      ],
+      "name": "Eilish Maccharles",
+      "prior_results": 5,
+      "seconds": 2981.1
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        2443.7,
+        4176.0
+      ],
+      "interval_90": [
+        2186.5,
+        4703.9
+      ],
+      "name": "Mr Pookie Pie",
+      "prior_results": 0,
+      "seconds": 3201.8
+    },
+    {
+      "hometown": "Whitboutne",
+      "interval_80": [
+        3329.1,
+        4525.8
+      ],
+      "interval_90": [
+        3210.9,
+        4864.9
+      ],
+      "name": "Megan Gosse",
+      "prior_results": 2,
+      "seconds": 3615.6
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        2867.6,
+        5194.7
+      ],
+      "interval_90": [
+        2538.0,
+        5562.6
+      ],
+      "name": "Petra Johnston",
+      "prior_results": 0,
+      "seconds": 3799.3
+    },
+    {
+      "hometown": "Chapel's Cove",
+      "interval_80": [
+        3730.7,
+        4467.7
+      ],
+      "interval_90": [
+        3615.9,
+        4578.8
+      ],
+      "name": "Kristina Hudson",
+      "prior_results": 4,
+      "seconds": 4171.8
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        4682.6,
+        5411.5
+      ],
+      "interval_90": [
+        4511.3,
+        5607.7
+      ],
+      "name": "Lori Bragg",
+      "prior_results": 2,
+      "seconds": 5044.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        4864.5,
+        5548.7
+      ],
+      "interval_90": [
+        4683.1,
+        5703.4
+      ],
+      "name": "Elizabeth Zedel",
+      "prior_results": 3,
+      "seconds": 5187.4
+    }
+  ],
+  "schema_version": 1
+}
