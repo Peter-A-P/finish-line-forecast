@@ -212,6 +212,7 @@ before is the freshest result they will have. The window is 2026-10-04 to 06:15 
 now that the Trapline is not predicted (PLAN.md 13 item 44). In order, as soon as NLAA posts
 the results:
 
+0. Item 3c first: the refetched pages swapped in and `archive-repair` merged.
 1. `finishline crawl --refresh-index` (the scheduled crawl is standing down around both races,
    so this is by hand).
 2. `finishline backtest --hierarchical --challenger`: 8 to 10 hours, checkpointed per block, so
@@ -225,26 +226,30 @@ the results:
 results are not posted in time to finish step 2 before 06:15 on 2026-10-11, Cape to Cabot runs
 on the pre-week backtest without them, and they are fetched after 2026-10-17.
 
-### 3c. Accented and curly characters split a few histories; fix before the post-Turkey Tea backtest
+### 3c. Accented and curly characters split a few histories: ready, merges after the Turkey Tea final file
 
 Found 2026-10-01 from Peter's eye on the Turkey Tea page (St. John's printed five ways). The page
-is fixed (`normalise.town_spellings`, 91ccea5); the archive is not yet, because any change to a
-parsed name moves the dataset fingerprint and would stop the Turkey Tea final file. Both go in
-**before step 2 of item 3b**, so Cape to Cabot is predicted on the repaired archive:
+is fixed (`normalise.town_spellings`, 91ccea5). The archive repair is built and waiting on branch
+`archive-repair` (1c25996), because any change to a parsed name moves the dataset fingerprint and
+would stop the Turkey Tea final file. What it repairs:
 
-1. **Race Roster's 2026 Tely results arrive as UTF-8 read as Latin-1** (`St. John` +
-   `â` + `s`, `GrÃ©goire`): 119 strings, 5 of them names. Apply
-   `normalise.repair` in `ingest/raceroster.py`. Measured: 24,211 runners become 24,209 and 10
-   histories change; on the Turkey Tea list one runner gains a result (1 to 2), and no link
-   changes status. No re-fetch: the bytes on disk are what the API sent.
-2. **38 older nlaa.ca pages lost their accented letters when they were saved**: the pages are
-   Windows-1252, `nlaa.Cache` decoded them as UTF-8 with replacement, and the replacement
-   character is what is cached (`ANDR` + `�` + ` TULK`). 51 results, 31 names, 14 of
-   which have a correctly spelled twin elsewhere and so a split history (Renee Devereaux 11
-   results, Josee Hotton 12); Stephane Autin, 3 results split from his others, is on Cape to
-   Cabot's list. The fix is to decode by the page's charset with a Windows-1252 fallback, and
-   **to fetch those 38 pages once more**, which the "fetch once" rule does not otherwise allow.
-   **Peter's call**: 38 requests a second apart, under the same user agent.
+- **Race Roster's 2026 Tely results arrive as UTF-8 read as Latin-1**: 119 strings, 5 of them
+  names. `ingest/raceroster.py` now applies `normalise.repair`.
+- **39 older nlaa.ca pages lost their accented letters when they were saved**, and two more
+  pages (the 2025 Turkey Tea, Athletics NorthEAST's USR 10 km) lose one when they are read.
+  `nlaa.decode` reads a stray Windows-1252 byte as one; with Peter's approval (2026-10-01) the
+  39 were fetched once more into `data/cache/nlaa-refetch/`, and each matches its cached copy
+  except at the lost letters, every one of which came back (81 of them on the 2017 Turkey Tea).
+
+Measured with all of it in place: 24,211 runners become 24,202, no result keeps a lost or
+garbled character, no Turkey Tea or Cape to Cabot entrant changes link status, and Stephane
+Autin (Cape to Cabot) is predicted from 21 results instead of 19.
+
+**In order, after the Turkey Tea final file is tagged (2026-10-03) and before step 2 of 3b:**
+
+1. `scripts/swap-refetched-pages.ps1` (copies the 39 pages in, appends their manifest rows).
+2. `git merge archive-repair`, checks, push.
+3. Then 3b as written: crawl, backtest, report.
 
 ## Open questions the assistant should not settle alone
 
