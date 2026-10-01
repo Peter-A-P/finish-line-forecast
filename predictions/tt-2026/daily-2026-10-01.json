@@ -1,0 +1,196 @@
+{
+  "conditions": {
+    "bearing_deg": 79.0,
+    "conditions_mean": {
+      "log_distance_5k": 0.6931,
+      "observed": 1.0,
+      "sun": 0.0487,
+      "tailwind": 15.3811,
+      "temp_c": 9.7484,
+      "wind": 2.366
+    },
+    "forecast": {
+      "sun_share": 0.049,
+      "temp_c": 8.05,
+      "wind_east_kmh": 9.98,
+      "wind_kmh": 10.25,
+      "wind_north_kmh": 2.32
+    },
+    "forecast_error": {
+      "east_bias": -4.5789,
+      "east_sd": 9.4,
+      "mornings": 36,
+      "north_bias": -1.3628,
+      "north_sd": 8.3235,
+      "temp_bias": -1.6102,
+      "temp_sd": 2.4812,
+      "wind_bias": -8.2426,
+      "wind_sd": 5.4478
+    },
+    "hours": 2,
+    "lead_days": 3,
+    "source": "Open-Meteo forecast, St. John's airport",
+    "used": true
+  },
+  "entrant_snapshot": {
+    "file": "tt-2026_trackie-list_20261001T0845Z.html",
+    "sha256": "7121662eabe21fd6c3218d47c320f0846976c95c4b276822c345665ce30ec5e6"
+  },
+  "entrants": {
+    "ambiguous": 14,
+    "linked": 355,
+    "listed": 406,
+    "new": 37,
+    "predicted": 7,
+    "published_before": 385
+  },
+  "frozen_at": "2026-10-01T08:46:55.918032+00:00",
+  "gun": "2026-10-04T08:00:00-02:30",
+  "kind": "daily",
+  "model": {
+    "blend": {
+      "centre": "(1 - w) * log(hierarchical) + w * log(lightgbm)",
+      "challenger_answered": 392,
+      "distribution": "the hierarchical model's draws, scaled onto the blended centre",
+      "weight": 0.65
+    },
+    "calibration": {
+      "80": {
+        "0": 0.020313015169755033,
+        "1": 0.017275500854527337,
+        "2 to 3": 0.014511076893699126,
+        "4 or more": 0.0005712245528872728
+      },
+      "90": {
+        "0": 0.03946597331409141,
+        "1": 0.028754605864001803,
+        "2 to 3": 0.026734023334080703,
+        "4 or more": 0.0034266120854855586
+      }
+    },
+    "commit": "1f460a346201c1653728fc213df1d43eadf0e5f0",
+    "diagnostics": {
+      "divergences": 0.0,
+      "draws": 1200.0,
+      "max_rhat": 1.42810181032412,
+      "min_ess_bulk": 9.105367209765173
+    },
+    "fit_on_results_before": "2026-10-04",
+    "name": "blend",
+    "settings": {
+      "chains": 4,
+      "draws": 300,
+      "months": 3,
+      "tune": 400,
+      "weather": 1
+    }
+  },
+  "race": {
+    "course_id": "turkey-tea-10000",
+    "date": "2026-10-04",
+    "distance_m": 10000.0,
+    "name": "Turkey Tea 10k",
+    "race_id": "tt-2026"
+  },
+  "runners": [
+    {
+      "hometown": null,
+      "interval_80": [
+        2404.9,
+        4213.3
+      ],
+      "interval_90": [
+        2179.9,
+        4589.5
+      ],
+      "name": "Michael Russell",
+      "prior_results": 0,
+      "seconds": 3210.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        3139.0,
+        3475.6
+      ],
+      "interval_90": [
+        3064.0,
+        3561.0
+      ],
+      "name": "Sean Gantang",
+      "prior_results": 7,
+      "seconds": 3304.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        3347.9,
+        3872.0
+      ],
+      "interval_90": [
+        3233.2,
+        4040.4
+      ],
+      "name": "Jack Mackey",
+      "prior_results": 2,
+      "seconds": 3588.9
+    },
+    {
+      "hometown": "Outer Cove",
+      "interval_80": [
+        3512.7,
+        3879.2
+      ],
+      "interval_90": [
+        3427.7,
+        3954.4
+      ],
+      "name": "Annie Patterson",
+      "prior_results": 28,
+      "seconds": 3679.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        3581.3,
+        4035.4
+      ],
+      "interval_90": [
+        3465.7,
+        4232.9
+      ],
+      "name": "Joanne Hickman",
+      "prior_results": 15,
+      "seconds": 3804.0
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        2831.0,
+        5054.7
+      ],
+      "interval_90": [
+        2576.5,
+        5559.2
+      ],
+      "name": "Abbigail Housd",
+      "prior_results": 0,
+      "seconds": 3808.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        3528.5,
+        4701.9
+      ],
+      "interval_90": [
+        3319.6,
+        5001.4
+      ],
+      "name": "Genny Fifield",
+      "prior_results": 6,
+      "seconds": 4072.3
+    }
+  ],
+  "schema_version": 1
+}
