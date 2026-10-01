@@ -68,6 +68,15 @@ Athletics NorthEAST. The crawl ran the same day. If either organisation asks for
 stop, it stops: the cache is local, nothing is committed, and no prediction has been
 published yet.
 
+**One second fetch, 2026-10-01, with Peter's approval.** Results pages are fetched once and
+kept, with one exception. 39 pages saved in September had lost their accented letters on the
+way to disk: the tables were pasted from Windows into pages that declare UTF-8, and the cache
+decoded the stray Windows-1252 bytes as a replacement character, so `ANDR` + e-acute + `TULK`
+was saved without its letter and split from his other results (docs/todo.md 3c).
+`nlaa.decode` now reads such a byte as Windows-1252, and those 39 pages were fetched again,
+once, a second apart, under the same user agent, into a staging copy that replaces the
+originals after the Turkey Tea final file.
+
 ### What the archive holds, and what it does not
 
 Measured by `finishline catalogue`, 2026-09-12, over the year indexes for 2008 to 2026.

@@ -22,6 +22,7 @@ note is here because the reason is not obvious from the filename.
 
 from __future__ import annotations
 
+import codecs
 import hashlib
 import html
 import json
@@ -332,6 +333,33 @@ def _date_from(href: str, when: str | None, year: int) -> date | None:
     return None
 
 
+def decode(content: bytes) -> str:
+    """A page's text: UTF-8 where the bytes are UTF-8, Windows-1252 for any byte that is not.
+
+    The pages declare UTF-8 and mostly are, but older results tables were pasted in from
+    Windows, so an accented letter can be one Windows-1252 byte inside a UTF-8 page. Decoding
+    with replacement saved `ANDR` + U+FFFD + ` TULK` to the cache and split that runner's
+    history from his correctly spelled results (docs/todo.md 3c); read this way he is
+    `ANDR` + e-acute + ` TULK` again.
+    """
+    try:
+        return content.decode("utf-8")
+    except UnicodeDecodeError:
+        return content.decode("utf-8", errors=_WINDOWS_1252)
+
+
+def _windows_1252(error: UnicodeError) -> tuple[str, int]:
+    """Read the one byte UTF-8 rejected as Windows-1252, and carry on from the next."""
+    if not isinstance(error, UnicodeDecodeError):
+        raise error
+    byte = error.object[error.start : error.start + 1]
+    return byte.decode("cp1252", errors="replace"), error.start + 1
+
+
+_WINDOWS_1252 = "finishline-windows-1252"
+codecs.register_error(_WINDOWS_1252, _windows_1252)
+
+
 class Cache:
     """Pages on disk, fetched at most once, with a manifest of what came from where."""
 
@@ -390,7 +418,7 @@ class Cache:
             response.raise_for_status()
         finally:
             self._last_request = time.monotonic()
-        return response.text
+        return decode(response.content)
 
     def _record(self, url: str, path: Path, body: str) -> None:
         row = {

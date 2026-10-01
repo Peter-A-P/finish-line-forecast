@@ -333,3 +333,16 @@ def test_refreshing_the_index_is_still_behind_the_courtesy_notices(
     monkeypatch.setattr(nlaa.Cache, "get", no_network)
     outcome = CliRunner().invoke(cli.app, ["crawl", "--refresh-index"])
     assert outcome.exit_code == 2
+
+
+
+def test_decode_reads_a_windows_byte_inside_a_utf8_page() -> None:
+    # An older table pasted from Windows: e-acute as the single byte 0xE9, next to real UTF-8
+    # (a curly apostrophe, three bytes). Escapes, so the file stays ASCII.
+    page = b"ANDR\xe9 TULK, St. John\xe2\x80\x99s"
+    assert nlaa.decode(page) == "ANDR\u00e9 TULK, St. John\u2019s"
+
+
+def test_decode_leaves_utf8_alone() -> None:
+    text = "Ren\u00e9e Devereaux, St. John\u2019s"
+    assert nlaa.decode(text.encode()) == text
