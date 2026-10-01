@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
+from collections.abc import Iterable
 
 # Typographic characters that mean the same thing as their plain equivalents. Two
 # spellings of one apostrophe are not two apostrophes.
@@ -113,6 +114,50 @@ def town_key(town: str | None) -> str:
     if not town:
         return ""
     return "".join(_words(_TOWN_PREFIX.sub("st ", _fold(town))))
+
+
+# UTF-8 read as Latin-1: a lead byte of a two- or three-byte character (`Â`, `Ã`,
+# `â`) followed by a continuation byte (`` to `¿`). Race Roster's 2026 Tely
+# results arrive like this, `St. John` + `â` + `s` for a curly apostrophe.
+_MISREAD = re.compile("[ÂÃâ][-¿]")
+
+
+def repair(text: str) -> str:
+    """Undo text that was UTF-8 read as Latin-1, and leave anything else exactly as it was.
+
+    Only a string with the pattern is touched, and only when reading it back as UTF-8 works,
+    so a name that really holds one of those letters comes back as it went in.
+    """
+    if not _MISREAD.search(text):
+        return text
+    try:
+        return text.encode("latin-1").decode("utf-8")
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        return text
+
+
+def town_spellings(towns: Iterable[str | None]) -> dict[str, str]:
+    """Each printed hometown mapped to the way these towns most often spell that town.
+
+    `St Johns`, `St. Johns` and `St.john's` are printed by the same results as
+    `St. John's`, and `town_key` already calls them one place; this is the same judgement
+    applied to what is shown, so a table does not print one city five ways. The most common
+    spelling wins, ties go to the first in sorted order, and every spelling is repaired first.
+    """
+    printed_towns = [town for town in towns if town]
+    counts: dict[str, dict[str, int]] = {}
+    for printed in printed_towns:
+        shown = clean(repair(printed))
+        variants = counts.setdefault(town_key(shown), {})
+        variants[shown] = variants.get(shown, 0) + 1
+    best = {
+        key: min(variants, key=lambda spelling: (-variants[spelling], spelling))
+        for key, variants in counts.items()
+    }
+    return {
+        printed: best[town_key(clean(repair(printed)))]
+        for printed in set(printed_towns)
+    }
 
 
 def initial_key(name: str) -> str:

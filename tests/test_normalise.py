@@ -96,3 +96,28 @@ def test_the_initial_key_nominates_a_pair_without_merging_it() -> None:
     assert normalise.initial_key("Jane Doe-Smith") != normalise.initial_key(
         "Jane Whitten"
     )
+
+
+
+# Written as escapes so the file stays ASCII: the point is which code points these are.
+CURLY = "\u2019"
+GARBLED = "St. John\u00e2\u0080\u0099s"
+
+
+def test_repair_undoes_utf8_read_as_latin1() -> None:
+    # Race Roster's 2026 Tely results print a curly apostrophe this way.
+    assert normalise.repair(GARBLED) == "St. John" + CURLY + "s"
+    assert normalise.repair("Gr\u00c3\u00a9goire") == "Gr\u00e9goire"
+
+
+def test_repair_leaves_good_text_alone() -> None:
+    for text in ["St. John's", "Gr\u00e9goire", "Ren\u00e9e", "\u00e2ge", ""]:
+        assert normalise.repair(text) == text
+
+
+def test_town_spellings_show_one_city_one_way() -> None:
+    printed = ["St. John's"] * 5 + ["St Johns", "St. Johns", "St.john's", GARBLED, "Paradise", None]
+    spelled = normalise.town_spellings(printed)
+    assert {spelled[town] for town in printed if town and town != "Paradise"} == {"St. John's"}
+    assert spelled["Paradise"] == "Paradise"
+    assert None not in spelled

@@ -12,11 +12,12 @@ produces the same bytes, on any machine, and so the same hash.
 WHAT IS IN IT, AND WHAT IS NOT
 ------------------------------
 Per runner: the name as the start list printed it, the hometown as the results last printed
-it (none for a newcomer, because the list prints none), how many prior results the prediction
-had, the predicted time, the 80 and 90 percent intervals, and the place range. Nothing else
-about anyone: no age band, no archive identifier, and never the shirt size the list also
-shows (PLAN.md 2.8). Entrants the linker refused are not in the runner list at all; they are
-counted in `entrants`.
+it (repaired where a source garbled its characters, and spelled the way the archive most often
+spells that town, so `St Johns` is shown as `St. John's`; none for a newcomer), how many prior
+results the prediction had, the predicted time, the 80 and 90 percent intervals, and the place
+range. Nothing else about anyone: no age band, no archive identifier, and never the shirt size
+the list also shows (PLAN.md 2.8). Entrants the linker refused are not in the runner list at
+all; they are counted in `entrants`.
 
 ⚠️ **`freeze` refuses inside 24 hours of the gun, and there is no flag to override it.** A
 rule with an override is a rule for whoever is not in a hurry.

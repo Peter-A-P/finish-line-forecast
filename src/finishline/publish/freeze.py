@@ -48,6 +48,7 @@ from finishline.backtest.score import stratum_of
 from finishline.conformal.split import bounds_for, widen
 from finishline.history import History
 from finishline.identity.link import Link, Status, counts
+from finishline.identity.normalise import town_spellings
 from finishline.models import blend
 from finishline.models.hierarchical import QUANTILES, Posterior, summarise
 from finishline.placing import simulate, unseen
@@ -238,6 +239,8 @@ def assemble(
     the participation model named, and `pool` places the runners it cannot see.
     """
     check_gun(live.gun, now)
+    # One spelling per town in the file, the archive's most common (`normalise.town_spellings`).
+    spelled = town_spellings(runner.hometown for runner in history.runners.values())
     if forecast is not None and only_new:
         raise ValueError("a forecast field has no daily files: nobody enters it day by day")
     race = live.race
@@ -366,7 +369,7 @@ def assemble(
         lines.append(
             RunnerPrediction(
                 name=item.entrant.name,
-                hometown=item.runner.hometown if item.runner is not None else None,
+                hometown=None if item.runner is None else spelled.get(item.runner.hometown or ""),
                 prior_results=depth,
                 seconds=median,
                 interval_80=intervals[0.80],

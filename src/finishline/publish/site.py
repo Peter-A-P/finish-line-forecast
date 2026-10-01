@@ -38,6 +38,7 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
+from finishline.identity.normalise import town_spellings
 from finishline.metrics import daniels
 from finishline.models import blend
 from finishline.publish import daily, predictions, showcase
@@ -339,11 +340,13 @@ def race_predictions(files: Sequence[Published]) -> dict[str, Any]:
     else:
         lines = [(item.name, runner) for item in files for runner in item.doc["runners"]]
     lines.sort(key=lambda item: (item[1]["seconds"], item[1]["name"]))
+    # The files keep the hometown as the results printed it; the page shows each town one way.
+    spelled = town_spellings(runner.get("hometown") for _, runner in lines)
     runners = []
     for source, runner in lines:
         row: dict[str, Any] = {
             "name": runner["name"],
-            "hometown": runner.get("hometown"),
+            "hometown": spelled.get(runner.get("hometown") or ""),
             "prior": runner["prior_results"],
             "seconds": runner["seconds"],
             "i80": runner["interval_80"],
