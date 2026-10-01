@@ -235,6 +235,20 @@ strong { font-weight: 600; }
   font-variant-numeric: tabular-nums;
 }
 
+/* The one way straight to the races, for a reader who came for a time and not the method. */
+.hero-cta { margin: 0 0 1.1rem; }
+.button {
+  display: inline-block;
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: var(--paper);
+  font-weight: 600;
+  text-decoration: none;
+}
+.button:hover, .button:focus-visible { background: var(--accent-ink); color: var(--paper); }
+#races { scroll-margin-top: 1rem; }
+
 .hero-models {
   position: relative;
   font-size: 0.86rem;
