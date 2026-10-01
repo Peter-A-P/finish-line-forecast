@@ -42,7 +42,7 @@ import truststore
 
 from finishline.identity.normalise import clean
 from finishline.ingest import parse
-from finishline.ingest.nlaa import TIMEOUT, USER_AGENT
+from finishline.ingest.nlaa import TIMEOUT, USER_AGENT, decode
 from finishline.schema import HALF_MARATHON_M, MARATHON_M, Race, Result
 
 BASE = "https://www.athleticsnortheast.com/"
@@ -136,7 +136,7 @@ def fetch(posted: Posted, cache_dir: Path) -> str:
     """The page from disk, or fetched once and kept there."""
     path = cache_dir / posted.cache_name
     if path.exists():
-        return path.read_text(encoding="utf-8", errors="replace")
+        return decode(path.read_bytes())
     context = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
     with httpx.Client(
         headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT, follow_redirects=True, verify=context
@@ -154,7 +154,7 @@ def fetch(posted: Posted, cache_dir: Path) -> str:
     }
     with (cache_dir / "manifest.jsonl").open("a", encoding="utf-8", newline="\n") as handle:
         handle.write(json.dumps(row) + "\n")
-    return path.read_text(encoding="utf-8", errors="replace")
+    return decode(path.read_bytes())
 
 
 def load(posted: Posted, cache_dir: Path) -> list[Result]:

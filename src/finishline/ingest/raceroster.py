@@ -47,7 +47,7 @@ from typing import Any
 import httpx
 import truststore
 
-from finishline.identity.normalise import clean
+from finishline.identity.normalise import clean, repair
 from finishline.ingest import parse
 from finishline.schema import Race, Result
 
@@ -183,7 +183,7 @@ def to_results(payload: dict[str, Any], race_id: str) -> list[Result]:
     """
     results: list[Result] = []
     for row in payload.get("data", []):
-        name, club = parse.name_and_club(clean(str(row.get("name") or "")))
+        name, club = parse.name_and_club(clean(repair(str(row.get("name") or ""))))
         if not name:
             continue
         code_sex, band = parse.class_code(str(row.get("division") or ""))
@@ -198,7 +198,7 @@ def to_results(payload: dict[str, Any], race_id: str) -> list[Result]:
                 sex_place=parse.place_of(str(row.get("genderPlace") or "")),
                 age_band=band,
                 category_place=parse.place_of(str(row.get("divisionPlace") or "")),
-                hometown=clean(str(row.get("fromCity") or "")) or None,
+                hometown=clean(repair(str(row.get("fromCity") or ""))) or None,
                 gun_seconds=parse.seconds(str(row.get("gunTime") or "")),
                 chip_seconds=parse.seconds(str(row.get("chipTime") or "")),
             )

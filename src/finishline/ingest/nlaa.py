@@ -393,7 +393,8 @@ class Cache:
         """This page's text, from disk when it is there and from the network when not."""
         path = self.path_for(url)
         if path.exists() and not refetch:
-            return path.read_text(encoding="utf-8", errors="replace")
+            # A page saved as the server sent it can hold a Windows-1252 byte (`decode`).
+            return decode(path.read_bytes())
 
         body = self._fetch(url)
         path.parent.mkdir(parents=True, exist_ok=True)
