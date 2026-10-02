@@ -874,8 +874,11 @@
     var link = el("a", {
       href: "mailto:" + contact() + "?subject=" + encodeURIComponent(subject) +
         "&body=" + encodeURIComponent(body)
-    }, "Click here to have your name removed from the predictions");
-    return append(el("p", { "class": "note opt-out" }), [link]);
+    }, "ask for it to be removed");
+    return append(el("p", { "class": "note opt-out" }), [
+      document.createTextNode("If you would rather your name did not appear here, you can "),
+      link, document.createTextNode(".")
+    ]);
   }
 
   function applySearch() {
