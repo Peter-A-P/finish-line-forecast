@@ -69,6 +69,7 @@ def daily_path(directory: Path, race_id: str, day: date) -> Path:
 
 
 Published = dict[str, list[tuple[str, dict[str, Any]]]]
+REDACTED = "redacted:"
 
 
 def published(directory: Path, race_id: str) -> Published:
@@ -77,7 +78,11 @@ def published(directory: Path, race_id: str) -> Published:
     for path in sorted((directory / race_id).glob(f"{DAILY_PREFIX}*.json")):
         doc = json.loads(path.read_text(encoding="utf-8"))
         for line in doc.get("runners", []):
-            found.setdefault(name_key(str(line["name"])), []).append((path.name, line))
+            # A redacted line carries no name to key on; its hash is the key (`freeze.assemble`
+            # turns today's entrants' hashes back into their name keys).
+            hashed = line.get("redacted")
+            key = f"{REDACTED}{hashed}" if hashed else name_key(str(line["name"]))
+            found.setdefault(key, []).append((path.name, line))
     return found
 
 

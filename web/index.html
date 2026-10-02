@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="contact" content="{{contact}}">
 <title>The Whole Field, Called Before the Gun: your race-day time, predicted and published in advance</title>
 <meta name="description" content="Predicted finish times and places for every registered runner at Newfoundland road races, from eighteen years of public results. Each prediction is published and hashed before the gun and scored against the official results after it.">
 <link rel="stylesheet" href="style.css">
@@ -31,6 +32,11 @@
       gets a goal time with an honest range instead of a hunch.
     </p>
     <p class="hero-cta"><a class="button" href="#races">See this year's predictions</a></p>
+    <p class="hero-independent">
+      An independent project. Every time on this site is an unofficial estimate, not a result,
+      and the project is not affiliated with or endorsed by the Newfoundland and Labrador
+      Athletics Association or any race organiser.
+    </p>
     <p class="hero-models">
       The two models are a
       <span class="term" tabindex="0" data-note="One statistical model of every runner at once. Each runner has their own fitness and their own fade over distance, estimated together with the group of runners like them, so a runner with one race borrows from people of their age and sex and a runner with eight is judged almost entirely on their own results. It is fitted in PyMC, and a prediction from it is thousands of simulated race days rather than a single number.">hierarchical
@@ -874,7 +880,7 @@ sha256sum predictions/tt-2026/daily-2026-09-27.json       # the same hash, or it
       <li><strong>Only what the results already publish.</strong> A name as printed, a hometown as printed, and the prediction. The entrant lists also show shirt sizes; they are never read.</li>
       <li><strong>No training data, for anyone.</strong> The original idea used runners' public Strava activity. Strava's terms forbid displaying other users' data even when it is public, and forbid training models on it, so the public model uses race results only. It is weaker, and the repository says so first.</li>
       <li><strong>Not in search engines.</strong> The prediction data asks search engines not to index it, so a person's prediction does not turn up when someone searches their name.</li>
-      <li><strong>Anyone can opt out.</strong> A runner who asks is removed from every future file; the removal is logged without the name. <a href="{{repository}}/blob/main/docs/data-terms.md">How to ask</a>.</li>
+      <li><strong>Anyone can opt out, in one email.</strong> The link under every runner table opens an email to ask. From then on that runner's row reads "Redacted name" with no hometown, on this site and in every later prediction file, and the list of who asked holds no names, only a keyed fingerprint of each. A file already tagged before the request is not edited, because a prediction that can be changed afterwards is not one; the site stops showing the name from it all the same.</li>
       <li><strong>No tracking.</strong> This page loads nothing from anywhere else: no analytics, no fonts from a third party, no advertising.</li>
       <li><strong>Ambiguous runners are left out.</strong> If the archive cannot tell two people apart, neither gets a published prediction.</li>
     </ul>
@@ -967,7 +973,9 @@ sha256sum predictions/tt-2026/daily-2026-09-27.json       # the same hash, or it
       Source, methods, the full results and every prediction file:
       <a href="{{repository}}">github.com/Peter-A-P/finish-line-forecast</a>.
       Runners named on this site are named only as the official results name them;
-      <a href="{{repository}}/blob/main/docs/data-terms.md">to be removed, see the data terms</a>.
+      <a href="mailto:{{contact}}?subject=Remove%20my%20name%20from%20The%20Whole%20Field%20predictions">ask to have your name removed</a>.
+      An independent project, not affiliated with or endorsed by the Newfoundland and Labrador
+      Athletics Association; every time here is an unofficial estimate.
     </p>
     <ul>
       <li>Data: road-race results published by the Newfoundland and Labrador Athletics Association; entrant lists from Athletics NorthEAST and Trackie; weather from Environment and Climate Change Canada and Open-Meteo</li>

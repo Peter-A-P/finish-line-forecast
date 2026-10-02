@@ -97,6 +97,9 @@ class RunnerPrediction:
     place_high: float | None = None
     # The daily file this runner's time was first published in, when it was carried here.
     first_published: str | None = None
+    # For a runner who asked not to be named (`publish/redact.py`): the keyed hash of their
+    # name, which only the key can test, so later files and the score can find the line.
+    redacted: str | None = None
 
     def as_record(self) -> dict[str, Any]:
         record: dict[str, Any] = {
@@ -115,6 +118,8 @@ class RunnerPrediction:
             }
         if self.first_published is not None:
             record["first_published"] = self.first_published
+        if self.redacted is not None:
+            record["redacted"] = self.redacted
         return record
 
 
@@ -246,7 +251,7 @@ def validate(doc: dict[str, Any]) -> list[str]:
             problems.append("field_forecast.simulated_field.largest missing")
     allowed = {
         "name", "hometown", "prior_results", "seconds", "interval_80", "interval_90", "place",
-        "first_published",
+        "first_published", "redacted",
     }
     for position, runner in enumerate(runners):
         where = f"runners[{position}]"

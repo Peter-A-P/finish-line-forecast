@@ -525,6 +525,7 @@
     wrap.appendChild(table);
     target.appendChild(wrap);
     target.appendChild(el("p", { id: "find-count", "class": "note" }));
+    target.appendChild(optOut(race));
 
     target.appendChild(el("p", { "class": "note" }, "Every prediction above was committed and tagged in the public repository before the gun, and never edited. How to check one is under \"For the technical reader\" further down."));
     if (race.scorecard) {
@@ -713,6 +714,7 @@
     ]);
     target.appendChild(borrowed);
     target.appendChild(el("p", { id: "find-count", "class": "note" }));
+    target.appendChild(optOut(race));
     applySearch();
   }
 
@@ -851,6 +853,28 @@
   function hideFinder() {
     finder.hidden = true;
     byId("predictions").parentNode.insertBefore(finder, byId("predictions").nextSibling);
+  }
+
+  /* One email to stop being named. It goes to the address the crawler gives every site it
+     reads, with the race filled in, and from then on the row reads "Redacted name"
+     (publish/redact.py). */
+  function contact() {
+    var meta = document.querySelector('meta[name="contact"]');
+    return meta ? meta.getAttribute("content") : "";
+  }
+
+  function optOut(race) {
+    var subject = "Remove my name from The Whole Field predictions";
+    var body = "Please remove my name from the predictions.\n\n" +
+      "My name as it appears on the page: \n" +
+      "Race: " + race.name + "\n";
+    var link = el("a", {
+      href: "mailto:" + contact() + "?subject=" + encodeURIComponent(subject) +
+        "&body=" + encodeURIComponent(body)
+    }, "I want my name removed from the predictions");
+    return append(el("p", { "class": "note opt-out" }), [link, document.createTextNode(
+      ". Your row stays, as \"Redacted name\", because you are still in the field everyone " +
+      "else is placed against.")]);
   }
 
   function applySearch() {

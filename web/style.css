@@ -236,7 +236,9 @@ strong { font-weight: 600; }
 }
 
 /* The one way straight to the races, for a reader who came for a time and not the method. */
-.hero-cta { margin: 0 0 1.1rem; }
+.hero-cta { margin: 0 0 0.7rem; }
+.hero-independent { font-size: 0.86rem; color: var(--ink-soft); margin: 0 0 1.1rem; max-width: 46rem; }
+.opt-out { font-size: 0.86rem; margin-top: 0.4rem; }
 .button {
   display: inline-block;
   padding: 0.6rem 1.1rem;

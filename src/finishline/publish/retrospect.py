@@ -84,7 +84,7 @@ from finishline.identity.normalise import name_key
 from finishline.identity.resolve import Runner, age_range, birth_window
 from finishline.ingest import nlaa
 from finishline.ingest.entrants import Entrant
-from finishline.publish import showcase
+from finishline.publish import redact, showcase
 from finishline.schema import Race, Result
 from finishline.store import Dataset
 
@@ -477,7 +477,7 @@ def race(
         ),
         "bands": _bands(errors, field),
         "attendance": _attendance_record(people, finishers, target),
-        "runners": runners,
+        "runners": redact.default().rows(runners),
     }
 
 

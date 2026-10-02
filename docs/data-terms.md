@@ -371,11 +371,24 @@ argument rather than a constant so the assumption can be moved and the effect me
 
 ## Removal
 
-A runner who does not want to be named writes to the address in the crawler's user agent
-and is removed from every future prediction file within a day. The removal is logged
-without the name. Past prediction files are never edited, because a pre-registered
-prediction that can be edited afterwards is not one; the runner is removed going forward
-and the file's hash stays what it was.
+A runner who does not want to be named emails the address in the crawler's user agent; the
+link under every runner table on the website opens that email with the subject filled in. The
+same day, `finishline redact "<name>"` adds them to `data/redactions.toml`, and from the push
+that follows:
+
+- every page this project renders, the website, the race pages and the scorecards, shows their
+  row as `Redacted name N`, with no hometown and no gender or age group;
+- every later prediction file is written that way too, carrying a keyed hash in place of the
+  name so the next file and the score can still find the line (`publish/redact.py`).
+
+The row stays, because the runner is still in the field and still moves everyone else's place.
+**The list holds no names**: each entry is an HMAC of the name, testable only with a key that
+lives on Peter's machine and in a repository secret, so the list of who asked cannot be read
+as one. Two runners of one name are both redacted; a stranger hidden by mistake costs nothing.
+
+⚠️ **A prediction file tagged before the request is not edited**, because a pre-registered
+prediction that can be changed afterwards is not one. Its copy in the repository keeps the name
+and its hash stays what it was; the site stops showing the name from it all the same.
 
 ## What reading all of it actually produced
 

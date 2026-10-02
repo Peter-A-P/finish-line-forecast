@@ -41,10 +41,13 @@ from typing import Any
 from finishline.identity.normalise import town_spellings
 from finishline.metrics import daniels
 from finishline.models import blend
-from finishline.publish import daily, predictions, showcase
+from finishline.publish import daily, predictions, redact, showcase
 from finishline.schema import HALF_MARATHON_M
 
 REPOSITORY = "https://github.com/Peter-A-P/finish-line-forecast"
+# Where a runner asks not to be named: the address the crawler already gives every site it
+# reads (`ingest.nlaa.USER_AGENT`), so the page publishes nothing that was not public.
+CONTACT = "peter.alexander.parker@outlook.com"
 PREDICTION_DATA = "data/predictions"
 # The runner-by-runner rows of a race that already ran. Served under the same noindex rule as
 # the predictions, and kept under a different name because it is a different kind of thing:
@@ -356,6 +359,7 @@ def race_predictions(files: Sequence[Published]) -> dict[str, Any]:
         if "place" in runner:
             row["place"] = runner["place"]
         runners.append(row)
+    runners = redact.default().rows(runners)
     return {
         "final": final is not None,
         "newcomers": None if final is None else final.doc.get("newcomers"),
@@ -541,6 +545,7 @@ def tokens(
     gbm_verdict, gbm_ranges = challenger_text(results)
     return {
         "repository": REPOSITORY,
+        "contact": CONTACT,
         "calendar_note": calendar_note(calendar, races),
         "gbm_verdict": gbm_verdict,
         "gbm_ranges": gbm_ranges,
@@ -901,7 +906,9 @@ def build(
         path = out / RETROSPECT_DATA / f"{block['race_id']}.json"
         source = retrospect / f"{block['race_id']}.json"
         if source.exists():
-            _json(path, json.loads(source.read_text(encoding="utf-8")))
+            story = json.loads(source.read_text(encoding="utf-8"))
+            story["runners"] = redact.default().rows(story.get("runners", []))
+            _json(path, story)
             written.append(path)
 
     order = {key: position for position, (key, _label) in enumerate(GROUPS)}

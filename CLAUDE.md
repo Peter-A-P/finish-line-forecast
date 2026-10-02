@@ -103,6 +103,10 @@ interpreter is `.venv/Scripts/python.exe`.
   runner's other results on nlaa.ca, where they are public under the same name, and the page
   says which race and date they were printed at (`retrospect.printed_category`). Only results
   from before the race count and a band the runner has certainly grown out of is left blank.
+- **A runner who asks is not named**, anywhere, from the next push: `finishline redact "<name>"`
+  adds a keyed hash to `data/redactions.toml` and every rendered table shows `Redacted name N`
+  (`publish/redact.py`, docs/data-terms.md "Removal"). Never write a name into that list, and
+  never print or log one that is on it.
 - **Be polite to nlaa.ca**: one request a second, fetch once, cache forever, identify the
   crawler in the user agent.
 - **Constants from Overload are priors, not estimates.** Say so where they are used; the

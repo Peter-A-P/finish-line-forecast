@@ -17,6 +17,8 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Any
 
+from finishline.publish import redact
+
 TOP = 20
 
 
@@ -74,6 +76,8 @@ def before_the_gun(files: Sequence[tuple[str, dict[str, Any], str]]) -> str:
         ]
         heading = "Every runner predicted so far"
     everyone.sort(key=lambda item: (item[1]["seconds"], item[1]["name"]))
+    shown = redact.default().rows(runner for _, runner in everyone)
+    everyone = [(name, row) for (name, _), row in zip(everyone, shown, strict=True)]
     lines += [
         "",
         f"## {heading}, {len(everyone)}",
@@ -104,7 +108,7 @@ def top_table(final: dict[str, Any]) -> list[str]:
     """
     block = final.get("newcomers") or {}
     likely = set(block.get("likely_places_top_20", []))
-    runners = final["runners"]
+    runners = redact.default().rows(final["runners"])
     named = runners if not block else [r for r in runners if r["prior_results"] > 0]
     named = sorted(named, key=lambda runner: runner["place"]["median"])
     lines = [

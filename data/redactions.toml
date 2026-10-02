@@ -1,0 +1,3 @@
+# Runners who asked not to be named (publish/redact.py). Each entry is a keyed hash of
+# the name, never the name: the list would otherwise name the people who asked not to be named.
+# Add one with `finishline redact "<name as printed>"`; the date is the day of the request.

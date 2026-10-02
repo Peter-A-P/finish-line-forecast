@@ -60,6 +60,7 @@ from finishline.backtest.score import (
     stratum_of,
 )
 from finishline.identity.normalise import name_key, town_key
+from finishline.publish import redact
 from finishline.publish.predictions import MINIMUM_NOTICE, sha256
 from finishline.schema import Result
 
@@ -112,6 +113,8 @@ class Published:
     place: float
     place_low: float
     place_high: float
+    # The keyed hash a redacted line carries in place of a name (`publish/redact.py`).
+    redacted: str | None = None
 
     @classmethod
     def read(cls, position: int, record: Mapping[str, Any]) -> Published:
@@ -129,6 +132,7 @@ class Published:
             place=float(place["median"]),
             place_low=float(place["low"]),
             place_high=float(place["high"]),
+            redacted=record.get("redacted"),
         )
 
     def interval(self, level: str) -> tuple[float, float]:
@@ -175,16 +179,34 @@ class Matching:
         return [item for item in self.matches if item.outcome is outcome]
 
 
-def match(lines: Sequence[Published], results: Sequence[Result]) -> Matching:
-    """Each published line against the results page, by name key, refusing to guess."""
+def match(
+    lines: Sequence[Published],
+    results: Sequence[Result],
+    hidden: redact.Redactions | None = None,
+) -> Matching:
+    """Each published line against the results page, by name key, refusing to guess.
+
+    A redacted line is matched by its keyed hash: the result whose name hashes to it is the
+    runner, found with the key and named nowhere (`publish/redact.py`).
+    """
+    hidden = redact.default() if hidden is None else hidden
     by_key: dict[str, list[Result]] = defaultdict(list)
+    by_hash: dict[str, str] = {}
     for result in results:
         by_key[name_key(result.name)].append(result)
-    published_keys = Counter(name_key(line.name) for line in lines)
+        if hidden.key is not None:
+            by_hash[redact.digest(hidden.key, result.name)] = name_key(result.name)
+
+    def key_of(line: Published) -> str:
+        if line.redacted:
+            return by_hash.get(line.redacted, f"{redact.LABEL}:{line.redacted}")
+        return name_key(line.name)
+
+    published_keys = Counter(key_of(line) for line in lines)
 
     matches: list[Match] = []
     for line in lines:
-        key = name_key(line.name)
+        key = key_of(line)
         candidates = by_key.get(key, [])
         if published_keys[key] > 1:
             matches.append(Match(line, Outcome.AMBIGUOUS, None))
@@ -582,16 +604,20 @@ def race_page(card: Mapping[str, Any], matching: Matching) -> str:
         "| Place range | Printed place |",
         "|---|---|---:|---:|---|---:|---:|---|---:|",
     ]
-    for item in sorted(
+    finished = sorted(
         matching.with_outcome(Outcome.FINISHED), key=lambda m: (m.line.seconds, m.line.name)
-    ):
+    )
+    shown = redact.default().rows(
+        {"name": m.line.name, "hometown": m.line.hometown} for m in finished
+    )
+    for item, who in zip(finished, shown, strict=True):
         line = item.line
         low, high = line.interval_80
         error = line.seconds - item.actual
         sign = "+" if error >= 0 else "-"
         place = item.result.place if item.result is not None else None
         lines.append(
-            f"| {line.name} | {line.hometown or ''} | {line.prior_results} "
+            f"| {who['name']} | {who['hometown'] or ''} | {line.prior_results} "
             f"| {_clock(line.seconds)} | {_clock(low)} to {_clock(high)} "
             f"| {_clock(item.actual)} | {sign}{_clock(abs(error))} "
             f"| {line.place_low:.0f} to {line.place_high:.0f} "

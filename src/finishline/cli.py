@@ -1950,6 +1950,30 @@ def serve(
             typer.echo("stopped")
 
 
+@app.command(name="redact")
+def redact_runner(
+    name: Annotated[str, typer.Argument(help="The runner's name as the list or results print it.")],
+) -> None:
+    """Stop naming a runner who asked: their rows show as "Redacted name N" from now on.
+
+    Writes a keyed hash of the name to data/redactions.toml, never the name, and makes the key
+    in .env.redaction on first use (`publish/redact.py`). Commit the list and push: the
+    website rebuilds without the name, and every later prediction file is written without it.
+    """
+    from finishline.publish import redact
+
+    first_key = redact.read_key() is None
+    added = redact.add(name, date.today().isoformat())
+    count = len(redact.load().digests)
+    typer.echo(("added" if added else "already on the list") + f"; {count} on the list")
+    if first_key:
+        typer.echo(
+            f"a new key is in {redact.KEY_FILE.name}: set the same value as the repository "
+            f"secret {redact.KEY_ENV} (gh secret set {redact.KEY_ENV} < {redact.KEY_FILE.name}), "
+            "or the website build refuses"
+        )
+
+
 @app.command(name="page")
 def race_page(
     race_id: Annotated[str, typer.Argument(help="A race in data/live.toml, e.g. tt-2026.")],

@@ -37,7 +37,7 @@ from __future__ import annotations
 import math
 import tomllib
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -52,7 +52,7 @@ from finishline.identity.normalise import town_spellings
 from finishline.models import blend
 from finishline.models.hierarchical import QUANTILES, Posterior, summarise
 from finishline.placing import simulate, unseen
-from finishline.publish import daily
+from finishline.publish import daily, redact
 from finishline.publish.predictions import RunnerPrediction, check_gun, document
 from finishline.schema import Race
 
@@ -244,9 +244,20 @@ def assemble(
     if forecast is not None and only_new:
         raise ValueError("a forecast field has no daily files: nobody enters it day by day")
     race = live.race
-    earlier = already or {}
+    hidden = redact.default()
 
     predicted = [item for item in links if item.status is not Status.AMBIGUOUS]
+    # Lines published redacted are keyed by their hash; today's entrants say whose they are.
+    earlier = dict(already or {})
+    if hidden.key is not None:
+        mine = {
+            redact.digest(hidden.key, item.entrant.name): daily.entrant_key(item.entrant)
+            for item in predicted
+        }
+        for key in [key for key in earlier if key.startswith(daily.REDACTED)]:
+            whose = mine.get(key.removeprefix(daily.REDACTED))
+            if whose is not None:
+                earlier.setdefault(whose, []).extend(earlier.pop(key))
     _new, carried, streams = daily.split(
         [daily.entrant_key(item.entrant) for item in predicted], earlier
     )
@@ -380,6 +391,19 @@ def assemble(
                 first_published=source,
             )
         )
+
+    # Runners who asked not to be named keep their line and lose their name and town,
+    # numbered down the predicted order (`publish/redact.py`).
+    numbered = 0
+    for index in sorted(range(len(lines)), key=lambda i: (lines[i].seconds, lines[i].name)):
+        if hidden.hides(lines[index].name) and hidden.key is not None:
+            numbered += 1
+            lines[index] = replace(
+                lines[index],
+                name=f"{redact.LABEL} {numbered}",
+                hometown=None,
+                redacted=redact.digest(hidden.key, lines[index].name),
+            )
 
     tally = counts(links)
     entrants = {
