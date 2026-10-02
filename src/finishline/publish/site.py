@@ -38,6 +38,7 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
+from finishline.backtest.score import STRATA, stratum_of
 from finishline.identity.normalise import town_spellings
 from finishline.metrics import daniels
 from finishline.models import blend
@@ -329,6 +330,36 @@ def closed_record(block: Mapping[str, Any]) -> dict[str, Any]:
         "group": "run",
         "predicted": False,
         "retrospect": f"{RETROSPECT_DATA}/{race_id}.json",
+    }
+
+
+def entrants_from_files(files: Sequence[Published]) -> dict[str, Any] | None:
+    """The race card's entrant count, from the newest prediction file rather than the report.
+
+    `finishline report` counts the list the day it runs, and in a prediction week that is days
+    stale beside the files published each morning (the Turkey Tea card said 342 on 24
+    September while the table held 410). Once there is a file, the card is the files' own
+    count: the list as the newest one saw it, every runner predicted so far by how many past
+    races they brought, and the entrants the linker could not tell apart.
+    """
+    if not files:
+        return None
+    newest = files[-1].doc
+    final = next((item for item in files if item.doc.get("kind") != "daily"), None)
+    runners = (
+        final.doc["runners"]
+        if final is not None
+        else [runner for item in files for runner in item.doc["runners"]]
+    )
+    depth = {label: 0 for label, _low, _high in STRATA}
+    for runner in runners:
+        depth[stratum_of(int(runner["prior_results"]))] += 1
+    counted = newest.get("entrants") or {}
+    return {
+        "as_of": str(newest["frozen_at"])[:10],
+        "listed": int(counted.get("listed", len(runners))),
+        "depth": depth,
+        "refused": int(counted.get("ambiguous", 0)),
     }
 
 
@@ -864,7 +895,10 @@ def build(
         scored = (scores / f"{race_id}.json").exists()
         record = race_record(race_id, records[race_id], files, scored, today)
         story = measured.get("races", {}).get(race_id) or {}
-        listed = (story.get("entrants") or {}).get("listed")
+        counted = entrants_from_files(files)
+        if counted is not None:
+            record["entrants"] = counted
+        listed = (counted or story.get("entrants") or {}).get("listed")
         record["group"] = group_of(record, listed, today)
         record["listed"] = listed
         races.append(record)

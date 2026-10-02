@@ -351,7 +351,10 @@
     card.appendChild(facts);
 
     if (info.attendance) { card.appendChild(attendanceBlock(info.attendance)); }
-    if (info.entrants) { card.appendChild(fieldBar(info.entrants)); }
+    /* The prediction files' own count once there is one (site.entrants_from_files), so the
+       card and the table below it agree; the report's count before that. */
+    var entered = race.entrants || info.entrants;
+    if (entered) { card.appendChild(fieldBar(entered)); }
     else if (!race.entrant_list && race.predicted) {
       card.appendChild(el("p", { "class": "note" },
         "This race publishes no entrant list, so who will run is predicted too, from who ran " +
@@ -871,10 +874,8 @@
     var link = el("a", {
       href: "mailto:" + contact() + "?subject=" + encodeURIComponent(subject) +
         "&body=" + encodeURIComponent(body)
-    }, "I want my name removed from the predictions");
-    return append(el("p", { "class": "note opt-out" }), [link, document.createTextNode(
-      ". Your row stays, as \"Redacted name\", because you are still in the field everyone " +
-      "else is placed against.")]);
+    }, "Click here to have your name removed from the predictions");
+    return append(el("p", { "class": "note opt-out" }), [link]);
   }
 
   function applySearch() {
