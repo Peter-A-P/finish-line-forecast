@@ -429,6 +429,18 @@ def evaluate(
         "error": {"all": _errors(finishes, carry_forward), "by_stratum": by_stratum_errors},
         "intervals": {"all": _intervals(finishes), "by_stratum": by_stratum_intervals},
         "placing": _placing(finishes, carry_forward),
+        # Each finisher's time and place as the results printed them, by the name the
+        # prediction published, so the website can show them beside the prediction. A runner
+        # who asked not to be named is left out (`publish/redact.py`).
+        "finishers": [
+            {
+                "name": item.line.name,
+                "actual": round(item.actual, 1),
+                "place": item.result.place if item.result is not None else None,
+            }
+            for item in finishes
+            if not redact.default().hides(item.line.name)
+        ],
     }
     forecast = doc.get("field_forecast")
     if forecast is not None:

@@ -247,6 +247,7 @@ strong { font-weight: 600; }
   border-left: 3px solid var(--line);
 }
 .opt-out { font-size: 0.86rem; margin-top: 0.4rem; }
+.score-block { margin: 0 0 2rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--line); }
 .button {
   display: inline-block;
   padding: 0.6rem 1.1rem;

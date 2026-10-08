@@ -26,3 +26,15 @@ def test_the_card_counts_entrants_from_the_newest_file() -> None:
     assert counted["refused"] == 1
     assert sum(counted["depth"].values()) + counted["refused"] == counted["listed"]
     assert site.entrants_from_files([]) is None
+
+
+def test_a_scored_race_shows_each_finish_beside_its_prediction() -> None:
+    line = {"name": "Ann Poe", "hometown": "Torbay", "prior_results": 3, "seconds": 3000.0,
+            "interval_80": [2800.0, 3200.0], "interval_90": [2700.0, 3300.0]}
+    other = {**line, "name": "Bea Roe", "seconds": 3100.0}
+    files = [site.Published("daily-2026-10-01.json", {"kind": "daily", "runners": [line, other]},
+                            "")]
+    card = {"finishers": [{"name": "Ann Poe", "actual": 3050.0, "place": 7}]}
+    rows = {row["name"]: row for row in site.race_predictions(files, card)["runners"]}
+    assert rows["Ann Poe"]["actual"] == 3050.0 and rows["Ann Poe"]["actual_place"] == 7
+    assert "actual" not in rows["Bea Roe"]  # no show, or not found: no result to show

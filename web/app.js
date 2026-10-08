@@ -473,9 +473,71 @@
     }).catch(fail);
   }
 
+  /* After the race: how the predictions published before the gun did, from scores/<race>.json
+     by way of site.score_summary. Each figure carries its 95% interval. */
+  function scoreBlock(race) {
+    var s = race.score;
+    var box = el("div", { "class": "score-block" });
+    box.appendChild(el("h3", null, "How the predictions did"));
+    box.appendChild(el("p", { "class": "section-lead" },
+      count(s.finished) + " of the " + count(s.finishers) + " finishers had a prediction published before the gun" +
+      (s.daily_only ? ", in the daily files (the final file, with places, was not published in time, so places are not scored)" : "") +
+      ". Every number below compares those predictions with the official results."));
+    var range = function (v, fmt) { return fmt(v[1]) + " to " + fmt(v[2]); };
+    var mins = function (v) { return v.toFixed(1); };
+    var pct = function (v) { return percent(v, 0); };
+    var stats = el("div", { "class": "headline" });
+    append(stats, [
+      stat(errorText(s.mae_minutes[0]), "average miss (95% CI " + range(s.mae_minutes, mins) + " min)"),
+      s.versus_carry_forward ? stat(errorText(Math.abs(s.versus_carry_forward[0])) +
+        (s.versus_carry_forward[0] < 0 ? " closer" : " further"),
+        "than \"you will run what you ran last time\", on the " + count(s.carry_forward_runners) +
+        " runners it could answer for (95% CI " + range(s.versus_carry_forward.map(Math.abs), mins) + " min)") : null,
+      stat(pct(s.held80[0]), "of finishes inside their 80% range (95% CI " + range(s.held80, pct) + ")"),
+      s.spearman ? stat(s.spearman[0].toFixed(2), "rank agreement between predicted and actual finishing order, where 1 is perfect") : null
+    ].filter(Boolean));
+    box.appendChild(stats);
+    var scorecardLink = race.scorecard ? [el("a", { href: race.scorecard }, "Every number, by runner history, on the scored race page")] : [];
+    box.appendChild(append(el("p", { "class": "note" }), scorecardLink));
+    return box;
+  }
+
+  /* The record so far, under "Written down before the gun": one line per scored race. */
+  function drawRecord(races) {
+    var box = byId("record-scores");
+    if (!box) { return; }
+    var scored = races.filter(function (r) { return r.score; });
+    if (!scored.length) { return; }
+    box.appendChild(el("h3", null, "The record so far"));
+    var list = el("ul", { "class": "checks" });
+    scored.forEach(function (r) {
+      var s = r.score;
+      var item = el("li");
+      append(item, [
+        el("strong", null, r.name + ", " + longDate(r.date) + "."),
+        document.createTextNode(" " + count(s.finished) + " finishers predicted before the gun; average miss " +
+          errorText(s.mae_minutes[0]) + ", " + percent(s.held80[0], 0) + " inside their 80% range" +
+          (s.versus_carry_forward ? ", " + errorText(Math.abs(s.versus_carry_forward[0])) +
+            (s.versus_carry_forward[0] < 0 ? " closer" : " further") + " than \"same as last time\"" : "") + ". "),
+        el("a", { href: "#races", "data-race": r.id }, "See every runner")
+      ]);
+      list.appendChild(item);
+    });
+    box.appendChild(list);
+    box.querySelectorAll("a[data-race]").forEach(function (a) {
+      a.addEventListener("click", function () {
+        var picker = byId("race");
+        picker.value = a.getAttribute("data-race");
+        selectRace(picker.value, true);
+      });
+    });
+  }
+
   function drawPredictions(race, data) {
     var target = clear(byId("predictions"));
     var runners = data.runners;
+    if (race.score) { target.appendChild(scoreBlock(race)); }
+    var scored = runners.some(function (r) { return isNumber(r.actual); });
     var stats = el("div", { "class": "headline" });
     var known = runners.filter(function (r) { return r.prior > 0; }).length;
     var times = runners.map(function (r) { return r.seconds; }).sort(function (a, b) { return a - b; });
@@ -501,12 +563,18 @@
     target.appendChild(el("p", { "class": "note" }, data.final ?
       "The final file predicts every runner again with the day-before forecast. The file each runner first appeared in is kept beside them." :
       "Each runner is predicted the first morning they are on the entrant list, with that morning's forecast. The day before the race everyone is predicted again, and given places."));
+    if (scored) {
+      target.appendChild(el("p", { "class": "note" }, "\"Actual\" and \"Place\" are as the official results printed them. \"Off by\" is the finish minus the prediction, so a plus sign means the runner took longer than predicted; it is green where the finish landed inside that runner's own 80% range."));
+    }
     showFinder(target);
     var wrap = el("div", { "class": "table-wrap tall" });
     var table = el("table", { id: "everyone", "class": "tight" });
     var head = el("tr");
-    ["Name", "Hometown", "Past races", "Predicted", "80% range"].concat(data.final ? ["Place"] : []).concat(["First published"])
-      .forEach(function (label, i) { head.appendChild(el("th", { "class": i >= 2 && i <= 3 ? "num" : "" }, label)); });
+    var labels = ["Name", "Hometown", "Past races", "Predicted", "80% range"].concat(data.final ? ["Place"] : []);
+    if (scored) { labels = labels.concat(["Actual", "Off by", "Place"]); }
+    labels.concat(["First published"]).forEach(function (label) {
+      head.appendChild(el("th", { "class": ["Past races", "Predicted", "Actual", "Off by"].indexOf(label) >= 0 ? "num" : "" }, label));
+    });
     table.appendChild(append(el("thead"), [head]));
     var body = el("tbody");
     runners.forEach(function (r) {
@@ -519,6 +587,17 @@
       ]);
       if (data.final) {
         row.appendChild(el("td", null, r.place ? Math.round(r.place.median) + " (" + Math.round(r.place.low) + " to " + Math.round(r.place.high) + ")" : ""));
+      }
+      if (scored) {
+        /* Green where the finish landed inside the runner's own 80% range, the one promise
+           made about a single runner; "Off by" is the finish minus the prediction. */
+        var ran = isNumber(r.actual);
+        var held = ran && r.i80[0] <= r.actual && r.actual <= r.i80[1];
+        append(row, [
+          el("td", { "class": "num" }, ran ? clock(r.actual) : ""),
+          el("td", { "class": "num " + (held ? "close" : "") }, ran ? signedClock(r.actual - r.seconds) : ""),
+          el("td", null, ran && r.actual_place ? String(r.actual_place) : "")
+        ]);
       }
       row.appendChild(el("td", { "class": "muted-cell" }, r.file));
       row.addEventListener("click", function () { drawField(runners, r); });
@@ -1478,6 +1557,7 @@
       drawResults(state.results.backtest.strata);
       drawPlacing(state.results.backtest.placing);
       var wanted = (window.location.hash || "").replace("#", "");
+      drawRecord(state.races);
       selectRace(state.races.some(function (r) { return r.id === wanted; }) ? wanted : state.races[0].id, false);
       byId("race").addEventListener("change", function (event) { selectRace(event.target.value, true); });
       var speed = byId("speed");

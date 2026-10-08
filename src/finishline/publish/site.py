@@ -363,7 +363,31 @@ def entrants_from_files(files: Sequence[Published]) -> dict[str, Any] | None:
     }
 
 
-def race_predictions(files: Sequence[Published]) -> dict[str, Any]:
+def score_summary(card: Mapping[str, Any]) -> dict[str, Any]:
+    """The few numbers the race card shows once a race is scored, from scores/<race>.json."""
+    errors = card["error"]["all"]
+    paired = errors.get("carry_forward") or {}
+    held = card["intervals"]["all"]
+    return {
+        "finished": card["field"]["finished"],
+        "finishers": card["field"]["finishers"],
+        "predicted": card["field"]["predicted"],
+        "mae_minutes": errors["mae_minutes"],
+        "versus_carry_forward": paired.get("difference_minutes"),
+        "carry_forward_runners": paired.get("runners"),
+        "held80": held["80"]["coverage"],
+        "held90": held["90"]["coverage"],
+        "spearman": card["placing"]["spearman"],
+        "daily_only": bool(card["prediction"].get("files")),
+        "by_stratum": {
+            label: block["mae_minutes"] for label, block in card["error"]["by_stratum"].items()
+        },
+    }
+
+
+def race_predictions(
+    files: Sequence[Published], card: Mapping[str, Any] | None = None
+) -> dict[str, Any]:
     """Every published runner line for one race: the final file's once it exists."""
     final = next((item for item in files if item.doc.get("kind") != "daily"), None)
     if final is not None:
@@ -390,6 +414,13 @@ def race_predictions(files: Sequence[Published]) -> dict[str, Any]:
         if "place" in runner:
             row["place"] = runner["place"]
         runners.append(row)
+    # After the race: each finisher's printed time and place beside their prediction.
+    finished = {item["name"]: item for item in (card or {}).get("finishers", [])}
+    for row in runners:
+        result = finished.get(row["name"])
+        if result is not None:
+            row["actual"] = result["actual"]
+            row["actual_place"] = result["place"]
     runners = redact.default().rows(runners)
     return {
         "final": final is not None,
@@ -902,9 +933,13 @@ def build(
         record["group"] = group_of(record, listed, today)
         record["listed"] = listed
         races.append(record)
+        card = None
+        if scored:
+            card = json.loads((scores / f"{race_id}.json").read_text(encoding="utf-8"))
+            record["score"] = score_summary(card)
         if files:
             path = out / PREDICTION_DATA / f"{race_id}.json"
-            _json(path, race_predictions(files))
+            _json(path, race_predictions(files, card))
             written.append(path)
 
     # The races this project does not predict, and the ones it has already seen run. Both
