@@ -20,7 +20,7 @@
 
   <header class="hero">
     <p class="eyebrow">Predictions published before the gun, scored after it</p>
-    <h1>How fast will you run on race day? Written down before the gun, and checked after.</h1>
+    <h1>How fast will you run on race day? <span class="hl">Written down before the gun</span>, and checked after.</h1>
     <p class="lead">
       Every registered runner at a Newfoundland road race gets a predicted finish time, a range
       it should land in, and a likely place, worked out from eighteen years of public race
@@ -49,22 +49,22 @@
     </p>
     <div class="hero-points">
       <div class="point">
-        <span class="point-figure up">{{mae_model}} min</span>
+        <span class="point-figure">{{mae_model}} min</span>
         <span class="point-unit">average miss for a runner with four or more past races</span>
         <span class="point-label">an average, not a margin every prediction carries: about half are closer than this and a few are further out. It is {{mae_model_pct}} of a finish time, and the benchmark, "you will run what you ran last time", misses by {{mae_cf}} min</span>
       </div>
-      <div class="point">
-        <span class="point-figure up">{{skill}}</span>
+      <div class="point good">
+        <span class="point-figure">{{skill}}</span>
         <span class="point-unit">closer than that benchmark</span>
         <span class="point-label">measured on {{bt_predictions}} predictions across {{bt_races}} real races, each predicted only from races run before it</span>
       </div>
-      <div class="point">
+      <div class="point violet">
         <span class="point-figure">{{cov80_deep}}</span>
         <span class="point-unit">of finishes landed inside the 80% range</span>
         <span class="point-label">for runners with four or more past races; a range that promises four in five should hold about four in five</span>
       </div>
-      <div class="point">
-        <span class="point-figure up">{{model_answered}}</span>
+      <div class="point good">
+        <span class="point-figure">{{model_answered}}</span>
         <span class="point-unit">of the field answered, first-timers included</span>
         <span class="point-label">"you will run what you ran last time" can answer for {{cf_answered}} and a race calculator for {{vdot_answered}}: {{newcomer_share}} of entrants have no past result to carry forward</span>
       </div>

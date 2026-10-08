@@ -39,6 +39,7 @@
   --accent-soft: #e4eff1;
   --warn: #c0392b;
   --good: #1e7a4c;
+  --sim: #6d3f9e;
   --alt: #6d3f9e;
   --shift: rgba(192, 57, 43, 0.09);
   /* The three levels of the hierarchy are an ordered set, so they are one hue in three
@@ -69,6 +70,7 @@
     --accent-soft: #14262b;
     --warn: #f0736a;
     --good: #58c286;
+    --sim: #b191e0;
     --alt: #b191e0;
     --shift: rgba(240, 115, 106, 0.13);
     --lv0: #cbeaf2;
@@ -90,6 +92,7 @@ body {
   font-size: 1rem;
   line-height: 1.72;
   border-top: 3px solid var(--accent);
+  overflow-x: clip;
   font-feature-settings: "cv11", "ss01";
 }
 
@@ -166,7 +169,24 @@ strong { font-weight: 600; }
 
 /* ---------------------------------------------------------------- hero */
 
-.hero { padding: 3.25rem 0 2.25rem; border-bottom: 1px solid var(--line); }
+.hero { position: relative; padding: 3.25rem 0 2.25rem; border-bottom: 1px solid var(--line); }
+/* The first screen as project 03 (gate.peterparker.ca) has it: a wash of the accent behind it,
+   full width and fading into the page, with a violet glow in the top right corner. */
+.hero::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  background:
+    radial-gradient(60rem 22rem at 85% 0%, color-mix(in srgb, var(--sim) 14%, transparent), transparent 70%),
+    linear-gradient(180deg, var(--accent-soft), var(--paper) 85%);
+}
+.hero h1 .hl { color: var(--accent); }
+.hero .eyebrow { color: var(--accent-ink); }
 
 .eyebrow {
   text-transform: uppercase;
@@ -189,9 +209,16 @@ strong { font-weight: 600; }
 .point {
   background: var(--paper-soft);
   border: 1px solid var(--line);
+  border-top: 3px solid var(--accent);
   border-radius: var(--radius);
   padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
 }
+.point.good { border-top-color: var(--good); }
+.point.violet { border-top-color: var(--sim); }
+.point .point-figure { color: var(--accent-ink); }
+.point.good .point-figure { color: var(--good); }
+.point.violet .point-figure { color: var(--sim); }
 
 .point-figure {
   display: block;
@@ -349,7 +376,9 @@ strong { font-weight: 600; }
   padding: 0.55rem 0.7rem;
   background: var(--paper-soft);
   border: 1px solid var(--line);
+  border-top: 2px solid var(--accent);
   border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
 .hd-race {
