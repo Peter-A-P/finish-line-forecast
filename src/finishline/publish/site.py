@@ -34,7 +34,7 @@ import shutil
 import tomllib
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -655,6 +655,8 @@ def tokens(
         "tests": f"{tests:,}",
         "code_lines": f"{code_lines:,}",
         "built": today.isoformat(),
+        # Stamped on the asset and data URLs so a browser cannot mix two builds (`app.getJSON`).
+        "version": datetime.now(UTC).strftime("%Y%m%d%H%M%S"),
     }
 
 
