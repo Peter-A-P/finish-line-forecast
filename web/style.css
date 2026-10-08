@@ -169,7 +169,7 @@ strong { font-weight: 600; }
 
 /* ---------------------------------------------------------------- hero */
 
-.hero { position: relative; padding: 3.25rem 0 2.25rem; border-bottom: 1px solid var(--line); }
+.hero { position: relative; padding: 2rem 0 2.25rem; border-bottom: 1px solid var(--line); }
 /* The first screen as project 03 (gate.peterparker.ca) has it: a wash of the accent behind it,
    full width and fading into the page, with a violet glow in the top right corner. */
 .hero::before {
