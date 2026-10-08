@@ -279,7 +279,11 @@ hours before the gun, and writes a row here plus a race page under `docs/predict
 every finisher's prediction beside their result.
 
 <!-- finishline:live -->
-_No prediction has been scored yet. `finishline score <race>` fills a row here once a tagged prediction's official results are posted._
+| Race | Finishers scored | Finishers with a prediction | Predictions that finished | MAE, minutes: model | Model minus carry-forward, minutes | 80% held | 90% held | Place error | Spearman | Prediction |
+|---|---:|---:|---:|---|---|---|---|---|---|---|
+| [Turkey Tea 10k, 2026-10-04](docs/predictions/tt-2026.md) | 339 | 93% | 83% | 3.0 (2.6 to 3.4) | -2.3 (-2.7 to -1.8) | 82% (78 to 86) | 92% (89 to 95) | 25.6 (21.9 to 30.2) | 0.917 (0.887 to 0.939) | 6 daily files, `predictions/tt-2026/daily-*` (no final file was tagged) |
+
+95% CIs resample runners within each race, so each describes that race's morning and not the next one: runners in one race share its weather, and when the morning surprises the model they miss together. Model minus carry-forward is on the runners carry-forward could answer for; negative means the model was closer.
 <!-- finishline:end:live -->
 
 ### One race already run, which is not in that record

@@ -624,6 +624,15 @@ def race_page(card: Mapping[str, Any], matching: Matching) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _tagged_cell(prediction: Mapping[str, Any]) -> str:
+    """What was scored: the final file's tag and hash, or how many daily files and their tags."""
+    files = prediction.get("files")
+    if files:
+        folder = str(files[0]["tag"]).rsplit("/", 1)[0]
+        return f"{len(files)} daily files, `{folder}/daily-*` (no final file was tagged)"
+    return f"`{prediction['tag']}`, sha256 `{prediction['sha256'][:12]}`"
+
+
 def _place_range(line: Published) -> str:
     if line.place_low is None or line.place_high is None:
         return ""
@@ -685,7 +694,7 @@ def live_table(cards: Sequence[Mapping[str, Any]]) -> str:
             f"| {ci(errors['carry_forward']['difference_minutes'])} "
             f"| {percent(intervals['80']['coverage'])} | {percent(intervals['90']['coverage'])} "
             f"| {ci(placing['place_error'])} | {ci(placing['spearman'], 3)} "
-            f"| `{prediction['tag']}`, sha256 `{prediction['sha256'][:12]}` |"
+            f"| {_tagged_cell(prediction)} |"
         )
     lines += [
         "",

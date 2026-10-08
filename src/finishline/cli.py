@@ -2019,11 +2019,12 @@ def score_race(
 ) -> None:
     """Score a tagged prediction against the official results, and write the race page.
 
-    Reads the prediction file from the tag `predictions/<race>/final`, never from the working copy,
-    and refuses unless the tag message publishes the file's hash and the tag is at least 24
-    hours before the gun. With no final tag it scores the daily files instead, each from its
-    own tag under the same checks, and no places (PLAN.md 13 item 45). Finds the results page on the association's index, refreshing that
-    year's index once if the race is not on the cached copy, and fetches the page once.
+    Reads the prediction file from the tag `predictions/<race>/final`, never from the working
+    copy, and refuses unless the tag message publishes the file's hash and the tag is at least
+    24 hours before the gun. With no final tag it scores the daily files instead, each from its
+    own tag under the same checks, and no places (PLAN.md 13 item 45). Finds the results page
+    on the association's index, refreshing that year's index once if the race is not on the
+    cached copy, and fetches the page once.
     Writes scores/<race>.json, docs/predictions/<race>.md and the README's live rows.
     """
     import json
