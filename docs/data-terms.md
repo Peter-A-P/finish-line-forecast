@@ -77,6 +77,16 @@ was saved without its letter and split from his other results (docs/todo.md 3c).
 once, a second apart, under the same user agent, into a staging copy that replaces the
 originals after the Turkey Tea final file.
 
+**One fetch with an expired certificate, 2026-10-08, with Peter's approval.** nlaa.ca's TLS
+certificate expired at 03:28 UTC that morning (valid 2026-07-10 to 2026-10-08) and was not
+renewed in time for the Turkey Tea results to reach Cape to Cabot's backtest. The crawler
+refuses an expired certificate, as it should; for this one run, and six requests only (the
+2026 index and the five pages it newly listed: the Turkey Tea and nlaa.ca's own four USR
+races), verification was off, under the same user agent and the same pace. The certificate was
+expired, not issued for another site. The Turkey Tea page was checked before use: 364 finishers,
+361 of them on the race's own entrant list, a 32:00 winner, no garbled letters. Nothing in
+`nlaa.py` changed; every later fetch verifies as before.
+
 ### What the archive holds, and what it does not
 
 Measured by `finishline catalogue`, 2026-09-12, over the year indexes for 2008 to 2026.
