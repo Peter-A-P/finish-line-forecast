@@ -110,9 +110,10 @@ class Published:
     seconds: float
     interval_80: tuple[float, float]
     interval_90: tuple[float, float]
-    place: float
-    place_low: float
-    place_high: float
+    # None on a daily file's line: places are only simulated for the final file.
+    place: float | None
+    place_low: float | None
+    place_high: float | None
     # The keyed hash a redacted line carries in place of a name (`publish/redact.py`).
     redacted: str | None = None
 
@@ -120,7 +121,7 @@ class Published:
     def read(cls, position: int, record: Mapping[str, Any]) -> Published:
         low80, high80 = record["interval_80"]
         low90, high90 = record["interval_90"]
-        place = record["place"]
+        place = record.get("place")
         return cls(
             position=position,
             name=str(record["name"]),
@@ -129,9 +130,9 @@ class Published:
             seconds=float(record["seconds"]),
             interval_80=(float(low80), float(high80)),
             interval_90=(float(low90), float(high90)),
-            place=float(place["median"]),
-            place_low=float(place["low"]),
-            place_high=float(place["high"]),
+            place=None if place is None else float(place["median"]),
+            place_low=None if place is None else float(place["low"]),
+            place_high=None if place is None else float(place["high"]),
             redacted=record.get("redacted"),
         )
 
@@ -336,17 +337,19 @@ def _placing(
     predicted = np.asarray([item.line.seconds for item in finishes], dtype=float)
     actual = np.asarray([item.actual for item in finishes], dtype=float)
     enough = len(finishes) >= 3
+    # Only lines that published a place range can be held to one: a daily file's carry none.
     printed = [
-        (item, item.result.place)
+        (item.line.place_low, item.line.place_high, item.result.place)
         for item in finishes
         if item.result is not None and item.result.place is not None
+        and item.line.place_low is not None and item.line.place_high is not None
     ]
     record: dict[str, Any] = {
         "runners": len(finishes),
         "place_error": _statistic_interval(_place_gap, predicted, actual) if enough else None,
         "spearman": _statistic_interval(_spearman, predicted, actual) if enough else None,
         "range_held": _interval(
-            [float(item.line.place_low <= place <= item.line.place_high) for item, place in printed]
+            [float(low <= place <= high) for low, high, place in printed]
         ),
         "range_checked": len(printed),
     }
@@ -495,18 +498,13 @@ NOT_FOUND_NOTE = (
 def race_page(card: Mapping[str, Any], matching: Matching) -> str:
     """The race's page: the counts, the error tables, and every finisher side by side."""
     race = card["race"]
-    prediction = card["prediction"]
     field = card["field"]
     lines = [
         f"# {race['name']}, {race['date']}: predicted, then scored",
         "",
         f"Written by `finishline score {race['race_id']}`; not edited by hand.",
         "",
-        f"**The prediction.** [`{prediction['file']}`](../../{prediction['file']}), SHA-256 "
-        f"`{prediction['sha256']}`, tagged `{prediction['tag']}` at {prediction['tagged_at']} "
-        f"for a gun at {card['gun']}. Model `{prediction['model']}` at commit "
-        f"`{prediction['commit'][:12]}`. Scored against {card['results']['url']} "
-        f"(SHA-256 `{card['results']['sha256'][:16]}`) on {card['scored_at'][:10]}.",
+        _prediction_line(card),
         "",
         "## Who was predicted, and who ran",
         "",
@@ -620,10 +618,43 @@ def race_page(card: Mapping[str, Any], matching: Matching) -> str:
             f"| {who['name']} | {who['hometown'] or ''} | {line.prior_results} "
             f"| {_clock(line.seconds)} | {_clock(low)} to {_clock(high)} "
             f"| {_clock(item.actual)} | {sign}{_clock(abs(error))} "
-            f"| {line.place_low:.0f} to {line.place_high:.0f} "
+            f"| {_place_range(line)} "
             f"| {'' if place is None else place} |"
         )
     return "\n".join(lines) + "\n"
+
+
+def _place_range(line: Published) -> str:
+    if line.place_low is None or line.place_high is None:
+        return ""
+    return f"{line.place_low:.0f} to {line.place_high:.0f}"
+
+
+def _prediction_line(card: Mapping[str, Any]) -> str:
+    """Which tagged file, or files, were scored, with their hashes and tag times."""
+    prediction = card["prediction"]
+    tail = (
+        f"for a gun at {card['gun']}. Model `{prediction['model']}` at commit "
+        f"`{prediction['commit'][:12]}`. Scored against {card['results']['url']} "
+        f"(SHA-256 `{card['results']['sha256'][:16]}`) on {card['scored_at'][:10]}."
+    )
+    files = prediction.get("files")
+    if not files:
+        return (
+            f"**The prediction.** [`{prediction['file']}`](../../{prediction['file']}), SHA-256 "
+            f"`{prediction['sha256']}`, tagged `{prediction['tag']}` at {prediction['tagged_at']} "
+            + tail
+        )
+    listed = "; ".join(
+        f"[`{item['file']}`](../../{item['file']}) `{item['sha256'][:16]}`, tagged "
+        f"`{item['tag']}` at {item['tagged_at']}"
+        for item in files
+    )
+    return (
+        f"**The prediction: the {len(files)} daily files**, each runner predicted the first "
+        f"morning they were on the list; no final file was tagged, so no place ranges were "
+        f"published and none is scored (PLAN.md 13 item 45). {listed}. " + tail
+    )
 
 
 def live_table(cards: Sequence[Mapping[str, Any]]) -> str:

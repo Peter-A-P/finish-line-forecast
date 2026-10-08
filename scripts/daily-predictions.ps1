@@ -71,5 +71,7 @@ try {
     }
 } catch {
     Write-Log "failed: $($_.Exception.Message)"
+    . (Join-Path $PSScriptRoot 'notify.ps1')
+    Send-FailureNotice 'daily predictions' "$($_.Exception.Message). Log: data/cache/freeze/predictions.log"
     exit 1
 }

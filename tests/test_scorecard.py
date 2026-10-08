@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import subprocess
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -11,6 +12,7 @@ import pytest
 from typer.testing import CliRunner
 
 from finishline import cli
+from finishline.ingest import nlaa
 from finishline.publish import predictions as pf
 from finishline.publish import scorecard as sc
 from finishline.schema import Result
@@ -240,3 +242,34 @@ def test_the_command_refuses_an_untagged_or_late_prediction(
     refused = runner.invoke(cli.app, ["score", "c2c-2026"])
     assert refused.exit_code == 2
     assert "at least" in refused.output
+
+
+def test_without_a_final_tag_the_daily_tags_are_scored(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # The Turkey Tea case (PLAN.md 13 item 45): daily files tagged in time, no final tag.
+    monkeypatch.chdir(tmp_path)
+    git(tmp_path, "init", "-q")
+    early = GUN - timedelta(days=3)
+    for day, names in (("2026-10-11", ("Ann", "Bea")), ("2026-10-12", ("Cy",))):
+        lines = [replace(line(name, 6000.0), place=None, place_low=None, place_high=None)
+                 for name in names]
+        daily_doc = {**doc(lines), "kind": "daily"}
+        path = tmp_path / "predictions" / "c2c-2026" / f"daily-{day}.json"
+        digest = pf.write(path, daily_doc)
+        git(tmp_path, "add", ".")
+        git(tmp_path, "commit", "-q", "-m", f"daily {day}")
+        git(tmp_path, "tag", "-a", f"predictions/c2c-2026/daily-{day}", "-m", f"sha256 {digest}",
+            when=early)
+
+    class ReachedTheResults(Exception):
+        pass
+
+    def no_network(self: object, url: str) -> str:
+        raise ReachedTheResults(url)
+
+    monkeypatch.setattr(nlaa.Cache, "_fetch", no_network)
+    outcome = CliRunner().invoke(cli.app, ["score", "c2c-2026"])
+    # Past every check on the tags: it stops only when it goes to read the results.
+    assert "refused" not in outcome.output
+    assert isinstance(outcome.exception, ReachedTheResults)

@@ -2021,7 +2021,8 @@ def score_race(
 
     Reads the prediction file from the tag `predictions/<race>/final`, never from the working copy,
     and refuses unless the tag message publishes the file's hash and the tag is at least 24
-    hours before the gun. Finds the results page on the association's index, refreshing that
+    hours before the gun. With no final tag it scores the daily files instead, each from its
+    own tag under the same checks, and no places (PLAN.md 13 item 45). Finds the results page on the association's index, refreshing that
     year's index once if the race is not on the cached copy, and fetches the page once.
     Writes scores/<race>.json, docs/predictions/<race>.md and the README's live rows.
     """
@@ -2029,43 +2030,83 @@ def score_race(
     from datetime import UTC, datetime
 
     from finishline.ingest import records
-    from finishline.publish import predictions
+    from finishline.publish import daily, predictions
     from finishline.publish import scorecard as cards
 
-    tag = predictions.final_tag(race_id)
-    file = f"{PREDICTIONS.as_posix()}/{race_id}.json"
-    ref = f"refs/tags/{tag}"
-    fields = _git_bytes(
-        "for-each-ref", ref, "--format=%(objecttype)%00%(taggerdate:iso-strict)%00%(contents)"
-    )
-    data = _git_bytes("cat-file", "blob", f"{tag}:{file}")
-    if not fields or data is None:
-        typer.echo(f"refused: no tag {tag} holding {file}; an untagged file is not a prediction",
-                   err=True)
-        raise typer.Exit(code=2)
-    kind, tagged_text, message = fields.decode("utf-8").split("\0", 2)
-    if kind != "tag":
-        typer.echo(f"refused: {tag} is a lightweight tag and records no time", err=True)
-        raise typer.Exit(code=2)
-
-    doc = json.loads(data.decode("utf-8"))
-    try:
-        problems = predictions.validate(doc)
-        if problems:
-            raise cards.NotPreRegistered("the tagged file is invalid: " + "; ".join(problems))
-        digest = cards.check_digest(data, message)
-        tagged_at = datetime.fromisoformat(tagged_text)
-        cards.check_tag(tagged_at, datetime.fromisoformat(doc["gun"]))
-    except (cards.NotPreRegistered, ValueError) as refusal:
-        typer.echo(f"refused: {refusal}", err=True)
-        raise typer.Exit(code=2) from refusal
-    working = Path(file)
-    if working.exists() and working.read_bytes() != data:
+    # The final file when it was tagged; otherwise every daily file, each from its own tag.
+    final_tag = predictions.final_tag(race_id)
+    if _git_bytes("for-each-ref", f"refs/tags/{final_tag}"):
+        tags = [(final_tag, f"{PREDICTIONS.as_posix()}/{race_id}.json")]
+    else:
+        listed = _git_bytes(
+            "for-each-ref", f"refs/tags/predictions/{race_id}/", "--format=%(refname:strip=2)"
+        ) or b""
+        tags = [
+            (name, f"{PREDICTIONS.as_posix()}/{race_id}/{name.rsplit('/', 1)[1]}.json")
+            for name in sorted(listed.decode("utf-8").split())
+            if name.rsplit("/", 1)[1].startswith(daily.DAILY_PREFIX)
+        ]
+    if not tags:
         typer.echo(
-            f"warning: {file} in the working copy differs from the tagged file, which is the "
-            "one scored. A prediction file is never edited; find out why.",
+            f"refused: no tag {final_tag} and no daily tag for {race_id}; an untagged file "
+            "is not a prediction",
             err=True,
         )
+        raise typer.Exit(code=2)
+
+    read: list[tuple[str, str, dict[str, Any], str, datetime]] = []
+    for tag, file in tags:
+        fields = _git_bytes(
+            "for-each-ref", f"refs/tags/{tag}",
+            "--format=%(objecttype)%00%(taggerdate:iso-strict)%00%(contents)",
+        )
+        data = _git_bytes("cat-file", "blob", f"{tag}:{file}")
+        if not fields or data is None:
+            typer.echo(f"refused: no tag {tag} holding {file}; an untagged file is not a "
+                       "prediction", err=True)
+            raise typer.Exit(code=2)
+        kind, tagged_text, message = fields.decode("utf-8").split("\0", 2)
+        if kind != "tag":
+            typer.echo(f"refused: {tag} is a lightweight tag and records no time", err=True)
+            raise typer.Exit(code=2)
+        one = json.loads(data.decode("utf-8"))
+        try:
+            problems = predictions.validate(one)
+            if problems:
+                raise cards.NotPreRegistered(f"{file} is invalid: " + "; ".join(problems))
+            digest = cards.check_digest(data, message)
+            tagged_at = datetime.fromisoformat(tagged_text)
+            cards.check_tag(tagged_at, datetime.fromisoformat(one["gun"]))
+        except (cards.NotPreRegistered, ValueError) as refusal:
+            typer.echo(f"refused: {refusal}", err=True)
+            raise typer.Exit(code=2) from refusal
+        working = Path(file)
+        if working.exists() and working.read_bytes() != data:
+            typer.echo(
+                f"warning: {file} in the working copy differs from the tagged file, which is the "
+                "one scored. A prediction file is never edited; find out why.",
+                err=True,
+            )
+        read.append((tag, file, one, digest, tagged_at))
+
+    doc = read[-1][2]
+    if len(read) > 1:
+        # Daily files: each holds only the entrants new that morning, so together they are
+        # every runner predicted, once each; the newest says how the list stood.
+        doc = {**doc, "runners": [line for _, _, one, _, _ in read for line in one["runners"]]}
+    record: dict[str, Any] = {
+        "file": read[-1][1],
+        "sha256": read[-1][3],
+        "tag": read[-1][0],
+        "tagged_at": read[-1][4].isoformat(),
+        "model": doc["model"]["name"],
+        "commit": doc["model"]["commit"],
+    }
+    if len(read) > 1:
+        record["files"] = [
+            {"file": file, "sha256": digest, "tag": tag, "tagged_at": tagged_at.isoformat()}
+            for tag, file, _, digest, tagged_at in read
+        ]
 
     target = doc["race"]
     when = date.fromisoformat(target["date"])
@@ -2135,14 +2176,7 @@ def score_race(
         doc=doc,
         matching=matching,
         carry_forward=carry_forward,
-        prediction={
-            "file": file,
-            "sha256": digest,
-            "tag": tag,
-            "tagged_at": tagged_at.isoformat(),
-            "model": doc["model"]["name"],
-            "commit": doc["model"]["commit"],
-        },
+        prediction=record,
         results={
             "race_id": race.race_id,
             "url": race.url,

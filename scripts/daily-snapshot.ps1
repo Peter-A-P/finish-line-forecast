@@ -26,4 +26,8 @@ try {
 
 Add-Content -Path $log -Encoding utf8 -Value "$stamp  $status"
 foreach ($line in $output) { Add-Content -Path $log -Encoding utf8 -Value "    $line" }
-if ($status -ne 'ok') { exit 1 }
+if ($status -ne 'ok') {
+    . (Join-Path $PSScriptRoot 'notify.ps1')
+    Send-FailureNotice 'entrant snapshot' "$status. Log: data/entrants/snapshot.log"
+    exit 1
+}
