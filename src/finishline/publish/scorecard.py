@@ -42,6 +42,7 @@ about the next race. The page and the README say that beside the table.
 
 from __future__ import annotations
 
+import statistics
 from collections import Counter, defaultdict
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
@@ -634,6 +635,124 @@ def race_page(card: Mapping[str, Any], matching: Matching) -> str:
             f"| {'' if place is None else place} |"
         )
     return "\n".join(lines) + "\n"
+
+
+NO_PREDICTION = (
+    "Not on the entrant list under this name when the prediction files were published: a late "
+    "entry, a name spelled differently, or a runner the archive could not tell apart"
+)
+
+
+def story(
+    matching: Matching, results: Sequence[Result], carry_forward: Mapping[int, float | None]
+) -> dict[str, Any]:
+    """The race card the website draws once a race is scored: the USR 10 km card's layout.
+
+    Every finisher on the results page in the order they crossed the line, with the gender,
+    age group and hometown the results printed, and, for the runners a prediction was
+    published for, that prediction beside the finish. A finisher with no prediction is a row
+    too, saying so, because leaving them out and renumbering the rest would print the wrong
+    winner. The headline figures are over the predicted finishers only, as everywhere else.
+    """
+    from finishline.publish import showcase
+
+    finished = matching.with_outcome(Outcome.FINISHED)
+    by_result = {id(item.result): item for item in finished}
+    order = sorted(finished, key=lambda item: (item.line.seconds, item.line.name))
+    predicted_rank = {id(item.result): rank for rank, item in enumerate(order, start=1)}
+    actual_order = sorted(finished, key=lambda item: item.actual)
+    actual_rank = {id(item.result): rank for rank, item in enumerate(actual_order, start=1)}
+
+    runners: list[dict[str, Any]] = []
+    errors: list[tuple[float, float, int]] = []
+    held: list[bool] = []
+    for result in sorted(
+        (row for row in results if row.finished and row.seconds is not None),
+        key=lambda row: (row.place if row.place is not None else 10**6, float(row.seconds or 0)),
+    ):
+        actual = float(result.seconds or 0.0)
+        printed = {
+            "place": result.place,
+            "actual": round(actual, 1),
+            "sex": result.sex,
+            "age": result.age_band,
+            "age_from": "Printed on this race's own results page" if result.age_band else None,
+            "borrowed": False,
+            "hometown": result.hometown,
+        }
+        item = by_result.get(id(result))
+        if item is None:
+            runners.append({
+                "name": result.name, **printed, "prior": None, "seconds": None, "i80": None,
+                "out_by": None, "places_out": None, "excluded": NO_PREDICTION,
+            })
+            continue
+        line = item.line
+        places = predicted_rank[id(result)] - actual_rank[id(result)]
+        low, high = line.interval_80
+        errors.append((abs(line.seconds - actual), actual, abs(places)))
+        held.append(low <= actual <= high)
+        runners.append({
+            "name": line.name, **printed,
+            "prior": line.prior_results,
+            "seconds": round(line.seconds, 1),
+            "i80": [round(low), round(high)],
+            "out_by": round(actual - line.seconds, 1),
+            "places_out": places,
+            "excluded": None,
+        })
+
+    paired = [
+        (abs(item.line.seconds - item.actual), abs(baseline - item.actual))
+        for item in finished
+        if (baseline := carry_forward.get(item.line.position)) is not None
+    ]
+    field = sorted(float(row.seconds) for row in results if row.finished and row.seconds)
+    mean = statistics.mean if errors else (lambda values: 0.0)
+    median = statistics.median if errors else (lambda values: 0.0)
+    return {
+        "finishers": len(runners),
+        "scored": len(errors),
+        "ambiguous": len(runners) - len(errors),
+        "mae_min": round(mean([error for error, _, _ in errors]) / 60, 2),
+        "median_error_min": round(median([error for error, _, _ in errors]) / 60, 2),
+        "places_out": round(mean([places for _, _, places in errors]), 1),
+        "median_places_out": round(median([places for _, _, places in errors]), 1),
+        "coverage80": round(sum(held) / len(held), 4) if held else None,
+        "with_sex": sum(1 for item in runners if item["sex"]),
+        "with_age": sum(1 for item in runners if item["age"]),
+        "borrowed": 0,
+        "paired": len(paired),
+        "paired_model_min": (
+            round(statistics.mean(m for m, _ in paired) / 60, 2) if paired else None
+        ),
+        "paired_baseline_min": (
+            round(statistics.mean(b for _, b in paired) / 60, 2) if paired else None
+        ),
+        "bands": _bands(errors, field, showcase),
+        "runners": redact.default().rows(runners),
+    }
+
+
+def _bands(
+    rows: Sequence[tuple[float, float, int]], field: Sequence[float], showcase: Any
+) -> list[dict[str, Any]]:
+    """The error by where a runner finished in the field, the bands the rest of the site uses."""
+    out = []
+    for key, label, note, low, high in showcase.SPEED_GROUPS:
+        picked = [row for row in rows if low <= showcase._share_of_field(row[1], field) < high]
+        if not picked:
+            continue
+        out.append({
+            "key": key,
+            "label": label,
+            "note": note,
+            "runners": len(picked),
+            "mae_min": round(statistics.mean(error for error, _, _ in picked) / 60, 2),
+            "mape": round(statistics.mean(error / actual for error, actual, _ in picked), 4),
+            "places_out": round(statistics.mean(places for _, _, places in picked), 1),
+        })
+    return out
 
 
 def _tagged_cell(prediction: Mapping[str, Any]) -> str:

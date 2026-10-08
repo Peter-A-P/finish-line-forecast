@@ -2067,10 +2067,6898 @@
     "url": "https://www.nlaa.ca/results/rr/2026/20261004-Turkey-Tea-10k.php"
   },
   "schema_version": 1,
-  "scored_at": "2026-10-08T16:37:19.396443+00:00",
+  "scored_at": "2026-10-08T16:48:35.279772+00:00",
   "shares": {
     "entrants_with_history": 0.8702830188679245,
     "finishers_with_a_prediction": 0.9313186813186813,
     "predictions_that_finished": 0.8268292682926829
+  },
+  "story": {
+    "ambiguous": 25,
+    "bands": [
+      {
+        "key": "front",
+        "label": "Front of the field",
+        "mae_min": 2.37,
+        "mape": 0.0573,
+        "note": "fastest quarter",
+        "places_out": 18.4,
+        "runners": 85
+      },
+      {
+        "key": "mid",
+        "label": "Mid-pack",
+        "mae_min": 2.61,
+        "mape": 0.047,
+        "note": "middle half",
+        "places_out": 28.4,
+        "runners": 167
+      },
+      {
+        "key": "back",
+        "label": "Later finishers",
+        "mae_min": 4.49,
+        "mape": 0.0625,
+        "note": "last quarter",
+        "places_out": 27.2,
+        "runners": 87
+      }
+    ],
+    "borrowed": 0,
+    "coverage80": 0.8171,
+    "finishers": 364,
+    "mae_min": 3.03,
+    "median_error_min": 1.68,
+    "median_places_out": 15,
+    "paired": 308,
+    "paired_baseline_min": 4.78,
+    "paired_model_min": 2.52,
+    "places_out": 25.6,
+    "runners": [
+      {
+        "actual": 1920.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Clarkes Beach",
+        "i80": [
+          1798,
+          2350
+        ],
+        "name": "Nicholas Hawe",
+        "out_by": -102.6,
+        "place": 1,
+        "places_out": 1,
+        "prior": 3,
+        "seconds": 2022.6,
+        "sex": "M"
+      },
+      {
+        "actual": 1947.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          1927,
+          2129
+        ],
+        "name": "James Power",
+        "out_by": -73.8,
+        "place": 2,
+        "places_out": -1,
+        "prior": 16,
+        "seconds": 2020.8,
+        "sex": "M"
+      },
+      {
+        "actual": 1979.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          1959,
+          2151
+        ],
+        "name": "Luca Rotondi",
+        "out_by": -83.3,
+        "place": 3,
+        "places_out": 1,
+        "prior": 10,
+        "seconds": 2062.3,
+        "sex": "M"
+      },
+      {
+        "actual": 1987.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          1985,
+          2185
+        ],
+        "name": "Kate Bazeley",
+        "out_by": -93.6,
+        "place": 4,
+        "places_out": 1,
+        "prior": 41,
+        "seconds": 2080.6,
+        "sex": "F"
+      },
+      {
+        "actual": 2002.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          1868,
+          2316
+        ],
+        "name": "Mike Roberts",
+        "out_by": -80.7,
+        "place": 5,
+        "places_out": 1,
+        "prior": 6,
+        "seconds": 2082.7,
+        "sex": "M"
+      },
+      {
+        "actual": 2009.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          1957,
+          2135
+        ],
+        "name": "Jack O'Dea",
+        "out_by": -36.8,
+        "place": 6,
+        "places_out": -3,
+        "prior": 14,
+        "seconds": 2045.8,
+        "sex": "M"
+      },
+      {
+        "actual": 2074.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Portugal Cove-St. Philip's",
+        "i80": [
+          1826,
+          2608
+        ],
+        "name": "Adam Chambers",
+        "out_by": -87.4,
+        "place": 7,
+        "places_out": 2,
+        "prior": 8,
+        "seconds": 2161.4,
+        "sex": "M"
+      },
+      {
+        "actual": 2110.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Birchy Bay",
+        "i80": [
+          2107,
+          2342
+        ],
+        "name": "Ryan Quinlan",
+        "out_by": -109.2,
+        "place": 8,
+        "places_out": 7,
+        "prior": 18,
+        "seconds": 2219.2,
+        "sex": "M"
+      },
+      {
+        "actual": 2119.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          2014,
+          2252
+        ],
+        "name": "Jennifer Murrin",
+        "out_by": -6.3,
+        "place": 9,
+        "places_out": -2,
+        "prior": 38,
+        "seconds": 2125.3,
+        "sex": "F"
+      },
+      {
+        "actual": 2120.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "St. John's",
+        "i80": null,
+        "name": "Peter Gill",
+        "out_by": null,
+        "place": 10,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "M"
+      },
+      {
+        "actual": 2126.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Portugal Cove-St. Philip's",
+        "i80": [
+          2029,
+          2245
+        ],
+        "name": "Maria Chafe",
+        "out_by": -3.0,
+        "place": 11,
+        "places_out": -2,
+        "prior": 41,
+        "seconds": 2129.0,
+        "sex": "F"
+      },
+      {
+        "actual": 2136.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "Lamaline",
+        "i80": null,
+        "name": "Tim Murphy",
+        "out_by": null,
+        "place": 12,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "M"
+      },
+      {
+        "actual": 2154.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2044,
+          2401
+        ],
+        "name": "Stephen Adams",
+        "out_by": -64.6,
+        "place": 13,
+        "places_out": 2,
+        "prior": 9,
+        "seconds": 2218.6,
+        "sex": "M"
+      },
+      {
+        "actual": 2155.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2120,
+          2339
+        ],
+        "name": "Matthew Wells",
+        "out_by": -71.9,
+        "place": 14,
+        "places_out": 4,
+        "prior": 14,
+        "seconds": 2226.9,
+        "sex": "M"
+      },
+      {
+        "actual": 2172.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2198,
+          2425
+        ],
+        "name": "Ethan Walsh",
+        "out_by": -129.1,
+        "place": 15,
+        "places_out": 7,
+        "prior": 10,
+        "seconds": 2301.1,
+        "sex": "M"
+      },
+      {
+        "actual": 2175.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "St. John's",
+        "i80": null,
+        "name": "Mark Croft",
+        "out_by": null,
+        "place": 16,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "M"
+      },
+      {
+        "actual": 2192.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Portugal Cove-St. Philip's",
+        "i80": [
+          2151,
+          2393
+        ],
+        "name": "Ethan Wilkins",
+        "out_by": -69.7,
+        "place": 17,
+        "places_out": 3,
+        "prior": 12,
+        "seconds": 2261.7,
+        "sex": "M"
+      },
+      {
+        "actual": 2194.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2064,
+          2287
+        ],
+        "name": "Jamie West",
+        "out_by": 20.9,
+        "place": 18,
+        "places_out": -4,
+        "prior": 65,
+        "seconds": 2173.1,
+        "sex": "M"
+      },
+      {
+        "actual": 2212.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          2445,
+          3168
+        ],
+        "name": "Joshua Critch",
+        "out_by": -560.9,
+        "place": 19,
+        "places_out": 62,
+        "prior": 2,
+        "seconds": 2772.9,
+        "sex": "M"
+      },
+      {
+        "actual": 2222.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          2219,
+          2461
+        ],
+        "name": "Brandon St.croix",
+        "out_by": -109.1,
+        "place": 20,
+        "places_out": 5,
+        "prior": 17,
+        "seconds": 2331.1,
+        "sex": "M"
+      },
+      {
+        "actual": 2240.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          2042,
+          2588
+        ],
+        "name": "Josh Jay",
+        "out_by": -42.6,
+        "place": 21,
+        "places_out": 0,
+        "prior": 1,
+        "seconds": 2282.6,
+        "sex": "M"
+      },
+      {
+        "actual": 2247.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          2065,
+          2310
+        ],
+        "name": "Jennifer Barron",
+        "out_by": 55.0,
+        "place": 22,
+        "places_out": -7,
+        "prior": 53,
+        "seconds": 2192.0,
+        "sex": "F"
+      },
+      {
+        "actual": 2259.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2430,
+          4480
+        ],
+        "name": "Zach Gosse",
+        "out_by": -921.8,
+        "place": 23,
+        "places_out": 130,
+        "prior": 0,
+        "seconds": 3180.8,
+        "sex": "M"
+      },
+      {
+        "actual": 2259.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Bath",
+        "i80": [
+          2123,
+          2326
+        ],
+        "name": "Oliver Bodinar",
+        "out_by": 40.0,
+        "place": 24,
+        "places_out": -6,
+        "prior": 23,
+        "seconds": 2219.0,
+        "sex": "M"
+      },
+      {
+        "actual": 2267.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "St. John's",
+        "i80": null,
+        "name": "Paul Bassler",
+        "out_by": null,
+        "place": 25,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "M"
+      },
+      {
+        "actual": 2271.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2199,
+          2414
+        ],
+        "name": "David Yue",
+        "out_by": -26.5,
+        "place": 26,
+        "places_out": -3,
+        "prior": 12,
+        "seconds": 2297.5,
+        "sex": "M"
+      },
+      {
+        "actual": 2279.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "La Romana",
+        "i80": [
+          2192,
+          2416
+        ],
+        "name": "Harlem Medina",
+        "out_by": -23.7,
+        "place": 27,
+        "places_out": -2,
+        "prior": 26,
+        "seconds": 2302.7,
+        "sex": "M"
+      },
+      {
+        "actual": 2303.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2198,
+          2697
+        ],
+        "name": "Eashan Hegde",
+        "out_by": -72.2,
+        "place": 28,
+        "places_out": 5,
+        "prior": 1,
+        "seconds": 2375.2,
+        "sex": "M"
+      },
+      {
+        "actual": 2303.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          2228,
+          2503
+        ],
+        "name": "Morgan White",
+        "out_by": -54.8,
+        "place": 29,
+        "places_out": 2,
+        "prior": 8,
+        "seconds": 2357.8,
+        "sex": "M"
+      },
+      {
+        "actual": 2315.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2279,
+          2483
+        ],
+        "name": "Laura Lawes",
+        "out_by": -67.0,
+        "place": 30,
+        "places_out": 6,
+        "prior": 92,
+        "seconds": 2382.0,
+        "sex": "F"
+      },
+      {
+        "actual": 2326.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2262,
+          2691
+        ],
+        "name": "Keeran Bonia",
+        "out_by": -125.9,
+        "place": 31,
+        "places_out": 17,
+        "prior": 3,
+        "seconds": 2451.9,
+        "sex": "M"
+      },
+      {
+        "actual": 2327.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          2231,
+          2476
+        ],
+        "name": "Cole Parsons",
+        "out_by": -7.2,
+        "place": 32,
+        "places_out": -5,
+        "prior": 7,
+        "seconds": 2334.2,
+        "sex": "M"
+      },
+      {
+        "actual": 2343.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          2397,
+          2802
+        ],
+        "name": "Blake Holden",
+        "out_by": -255.8,
+        "place": 33,
+        "places_out": 27,
+        "prior": 2,
+        "seconds": 2598.8,
+        "sex": "M"
+      },
+      {
+        "actual": 2352.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2241,
+          2477
+        ],
+        "name": "Zachary Vaters",
+        "out_by": -0.6,
+        "place": 34,
+        "places_out": -5,
+        "prior": 13,
+        "seconds": 2352.6,
+        "sex": "M"
+      },
+      {
+        "actual": 2356.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2277,
+          2541
+        ],
+        "name": "Mhorgan Gillis",
+        "out_by": -39.3,
+        "place": 35,
+        "places_out": 4,
+        "prior": 6,
+        "seconds": 2395.3,
+        "sex": "M"
+      },
+      {
+        "actual": 2357.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2251,
+          2494
+        ],
+        "name": "Ryan Murphy",
+        "out_by": -6.4,
+        "place": 36,
+        "places_out": -5,
+        "prior": 12,
+        "seconds": 2363.4,
+        "sex": "M"
+      },
+      {
+        "actual": 2366.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Witless Bay",
+        "i80": [
+          2343,
+          2555
+        ],
+        "name": "Jared Bartlett",
+        "out_by": -77.8,
+        "place": 37,
+        "places_out": 7,
+        "prior": 16,
+        "seconds": 2443.8,
+        "sex": "M"
+      },
+      {
+        "actual": 2367.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2286,
+          2498
+        ],
+        "name": "Courtney King",
+        "out_by": -14.6,
+        "place": 38,
+        "places_out": -3,
+        "prior": 33,
+        "seconds": 2381.6,
+        "sex": "F"
+      },
+      {
+        "actual": 2373.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          2275,
+          2764
+        ],
+        "name": "Scott Delaney",
+        "out_by": -132.0,
+        "place": 39,
+        "places_out": 12,
+        "prior": 2,
+        "seconds": 2505.0,
+        "sex": "M"
+      },
+      {
+        "actual": 2376.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2200,
+          2620
+        ],
+        "name": "Allyson Stuckless",
+        "out_by": -6.5,
+        "place": 40,
+        "places_out": -3,
+        "prior": 31,
+        "seconds": 2382.5,
+        "sex": "F"
+      },
+      {
+        "actual": 2382.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2279,
+          2527
+        ],
+        "name": "Kyle Henderson",
+        "out_by": -4.9,
+        "place": 41,
+        "places_out": -3,
+        "prior": 6,
+        "seconds": 2386.9,
+        "sex": "M"
+      },
+      {
+        "actual": 2386.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Torbay",
+        "i80": [
+          2264,
+          2486
+        ],
+        "name": "Billy Dawe",
+        "out_by": 13.3,
+        "place": 42,
+        "places_out": -9,
+        "prior": 11,
+        "seconds": 2372.7,
+        "sex": "M"
+      },
+      {
+        "actual": 2400.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Bay Roberts",
+        "i80": [
+          2379,
+          2712
+        ],
+        "name": "Kaegan Delaney",
+        "out_by": -146.3,
+        "place": 43,
+        "places_out": 9,
+        "prior": 5,
+        "seconds": 2546.3,
+        "sex": "M"
+      },
+      {
+        "actual": 2401.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2308,
+          2528
+        ],
+        "name": "Katrina-Lynn Picco",
+        "out_by": -23.7,
+        "place": 44,
+        "places_out": -3,
+        "prior": 38,
+        "seconds": 2424.7,
+        "sex": "F"
+      },
+      {
+        "actual": 2405.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2326,
+          2540
+        ],
+        "name": "Megan Adams",
+        "out_by": -23.9,
+        "place": 45,
+        "places_out": -3,
+        "prior": 28,
+        "seconds": 2428.9,
+        "sex": "F"
+      },
+      {
+        "actual": 2410.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2147,
+          2650
+        ],
+        "name": "Kieran Lynch",
+        "out_by": 2.7,
+        "place": 46,
+        "places_out": -6,
+        "prior": 1,
+        "seconds": 2407.3,
+        "sex": "M"
+      },
+      {
+        "actual": 2417.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Cartwright",
+        "i80": [
+          2113,
+          2574
+        ],
+        "name": "Coby Morris",
+        "out_by": 79.2,
+        "place": 47,
+        "places_out": -19,
+        "prior": 3,
+        "seconds": 2337.8,
+        "sex": "M"
+      },
+      {
+        "actual": 2439.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2303,
+          2588
+        ],
+        "name": "Lori Chaytor",
+        "out_by": -8.5,
+        "place": 48,
+        "places_out": -3,
+        "prior": 19,
+        "seconds": 2447.5,
+        "sex": "F"
+      },
+      {
+        "actual": 2444.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2349,
+          2572
+        ],
+        "name": "Kathleen Ring",
+        "out_by": -7.3,
+        "place": 49,
+        "places_out": -2,
+        "prior": 18,
+        "seconds": 2451.3,
+        "sex": "F"
+      },
+      {
+        "actual": 2447.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2352,
+          2589
+        ],
+        "name": "Emily Church",
+        "out_by": -15.8,
+        "place": 50,
+        "places_out": -1,
+        "prior": 11,
+        "seconds": 2462.8,
+        "sex": "F"
+      },
+      {
+        "actual": 2449.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Portugal Cove-St. Philip's",
+        "i80": [
+          2330,
+          2574
+        ],
+        "name": "Sheri-Lynn Reid",
+        "out_by": -0.6,
+        "place": 51,
+        "places_out": -5,
+        "prior": 48,
+        "seconds": 2449.6,
+        "sex": "F"
+      },
+      {
+        "actual": 2492.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          2369,
+          2626
+        ],
+        "name": "Mark Conway",
+        "out_by": -2.7,
+        "place": 52,
+        "places_out": -2,
+        "prior": 7,
+        "seconds": 2494.7,
+        "sex": "M"
+      },
+      {
+        "actual": 2494.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          2547,
+          2919
+        ],
+        "name": "Stephen Whelan",
+        "out_by": -223.0,
+        "place": 53,
+        "places_out": 20,
+        "prior": 2,
+        "seconds": 2717.0,
+        "sex": "M"
+      },
+      {
+        "actual": 2495.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2434,
+          2675
+        ],
+        "name": "Scott Downey",
+        "out_by": -53.3,
+        "place": 54,
+        "places_out": -1,
+        "prior": 95,
+        "seconds": 2548.3,
+        "sex": "M"
+      },
+      {
+        "actual": 2519.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "Paradise",
+        "i80": null,
+        "name": "Matthew White",
+        "out_by": null,
+        "place": 55,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "M"
+      },
+      {
+        "actual": 2520.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2442,
+          2816
+        ],
+        "name": "William Corbett",
+        "out_by": -87.1,
+        "place": 56,
+        "places_out": 6,
+        "prior": 3,
+        "seconds": 2607.1,
+        "sex": "M"
+      },
+      {
+        "actual": 2533.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2470,
+          2712
+        ],
+        "name": "Demarey Baker",
+        "out_by": -57.6,
+        "place": 57,
+        "places_out": 3,
+        "prior": 6,
+        "seconds": 2590.6,
+        "sex": "M"
+      },
+      {
+        "actual": 2536.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Placentia",
+        "i80": [
+          2377,
+          4271
+        ],
+        "name": "Phonse Pomroy",
+        "out_by": -660.7,
+        "place": 58,
+        "places_out": 106,
+        "prior": 0,
+        "seconds": 3196.7,
+        "sex": "M"
+      },
+      {
+        "actual": 2554.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Bay Bulls",
+        "i80": [
+          2490,
+          2954
+        ],
+        "name": "Sean Marquez",
+        "out_by": -136.5,
+        "place": 59,
+        "places_out": 10,
+        "prior": 1,
+        "seconds": 2690.5,
+        "sex": "M"
+      },
+      {
+        "actual": 2558.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2508,
+          2750
+        ],
+        "name": "Catherine Deveau",
+        "out_by": -62.1,
+        "place": 60,
+        "places_out": 3,
+        "prior": 8,
+        "seconds": 2620.1,
+        "sex": "F"
+      },
+      {
+        "actual": 2571.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Witless Bay",
+        "i80": [
+          2413,
+          2708
+        ],
+        "name": "Jeff Kelly",
+        "out_by": 13.4,
+        "place": 61,
+        "places_out": -5,
+        "prior": 16,
+        "seconds": 2557.6,
+        "sex": "M"
+      },
+      {
+        "actual": 2585.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "Stephenville",
+        "i80": null,
+        "name": "Abbigail House",
+        "out_by": null,
+        "place": 62,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "F"
+      },
+      {
+        "actual": 2586.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Vancouver",
+        "i80": [
+          2936,
+          4824
+        ],
+        "name": "Susan Reynolds",
+        "out_by": -1189.1,
+        "place": 63,
+        "places_out": 192,
+        "prior": 0,
+        "seconds": 3775.1,
+        "sex": "F"
+      },
+      {
+        "actual": 2587.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2259,
+          2492
+        ],
+        "name": "Alastair Jenkins",
+        "out_by": 223.1,
+        "place": 64,
+        "places_out": -30,
+        "prior": 22,
+        "seconds": 2363.9,
+        "sex": "M"
+      },
+      {
+        "actual": 2600.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2503,
+          2770
+        ],
+        "name": "Bukunola Ladele",
+        "out_by": -33.6,
+        "place": 65,
+        "places_out": 1,
+        "prior": 30,
+        "seconds": 2633.6,
+        "sex": "M"
+      },
+      {
+        "actual": 2604.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2538,
+          2800
+        ],
+        "name": "Brandon Thorne",
+        "out_by": -54.4,
+        "place": 66,
+        "places_out": 2,
+        "prior": 7,
+        "seconds": 2658.4,
+        "sex": "M"
+      },
+      {
+        "actual": 2607.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Edmonton",
+        "i80": [
+          2371,
+          4388
+        ],
+        "name": "Steve Fitzsimons",
+        "out_by": -606.5,
+        "place": 67,
+        "places_out": 106,
+        "prior": 0,
+        "seconds": 3213.5,
+        "sex": "M"
+      },
+      {
+        "actual": 2609.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          2554,
+          2850
+        ],
+        "name": "Robert Webb",
+        "out_by": -90.3,
+        "place": 68,
+        "places_out": 4,
+        "prior": 11,
+        "seconds": 2699.3,
+        "sex": "M"
+      },
+      {
+        "actual": 2614.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          2820,
+          3127
+        ],
+        "name": "Steven MacDonald",
+        "out_by": -347.8,
+        "place": 69,
+        "places_out": 39,
+        "prior": 20,
+        "seconds": 2961.8,
+        "sex": "M"
+      },
+      {
+        "actual": 2616.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2452,
+          2687
+        ],
+        "name": "Steven Lannon",
+        "out_by": 45.4,
+        "place": 70,
+        "places_out": -12,
+        "prior": 43,
+        "seconds": 2570.6,
+        "sex": "M"
+      },
+      {
+        "actual": 2618.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2337,
+          3018
+        ],
+        "name": "Mark Duff",
+        "out_by": 33.1,
+        "place": 71,
+        "places_out": -11,
+        "prior": 1,
+        "seconds": 2584.9,
+        "sex": "M"
+      },
+      {
+        "actual": 2621.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Torbay",
+        "i80": [
+          2434,
+          2770
+        ],
+        "name": "Lucas Roche",
+        "out_by": 43.9,
+        "place": 72,
+        "places_out": -13,
+        "prior": 6,
+        "seconds": 2577.1,
+        "sex": "M"
+      },
+      {
+        "actual": 2626.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2570,
+          3060
+        ],
+        "name": "Thierry Landu",
+        "out_by": -178.2,
+        "place": 73,
+        "places_out": 12,
+        "prior": 1,
+        "seconds": 2804.2,
+        "sex": "M"
+      },
+      {
+        "actual": 2633.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Bay Bulls",
+        "i80": [
+          2740,
+          3301
+        ],
+        "name": "Giel Papelleras",
+        "out_by": -341.4,
+        "place": 74,
+        "places_out": 38,
+        "prior": 1,
+        "seconds": 2974.4,
+        "sex": "M"
+      },
+      {
+        "actual": 2635.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Portugal Cove-St. Philip's",
+        "i80": [
+          2286,
+          2675
+        ],
+        "name": "Noah Collins",
+        "out_by": 195.0,
+        "place": 75,
+        "places_out": -30,
+        "prior": 3,
+        "seconds": 2440.0,
+        "sex": "M"
+      },
+      {
+        "actual": 2644.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2573,
+          3048
+        ],
+        "name": "Bill Pomeroy",
+        "out_by": -126.9,
+        "place": 76,
+        "places_out": 7,
+        "prior": 64,
+        "seconds": 2770.9,
+        "sex": "M"
+      },
+      {
+        "actual": 2655.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Portugal Cove-St. Philip's",
+        "i80": [
+          2462,
+          2980
+        ],
+        "name": "Chris Mills",
+        "out_by": -26.7,
+        "place": 77,
+        "places_out": -8,
+        "prior": 1,
+        "seconds": 2681.7,
+        "sex": "M"
+      },
+      {
+        "actual": 2656.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Portugal Cove-St. Philip's",
+        "i80": [
+          3024,
+          3576
+        ],
+        "name": "Brady Snow",
+        "out_by": -622.6,
+        "place": 78,
+        "places_out": 107,
+        "prior": 1,
+        "seconds": 3278.6,
+        "sex": "M"
+      },
+      {
+        "actual": 2657.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2681,
+          3205
+        ],
+        "name": "Alexandria Brake",
+        "out_by": -273.1,
+        "place": 79,
+        "places_out": 26,
+        "prior": 1,
+        "seconds": 2930.1,
+        "sex": "F"
+      },
+      {
+        "actual": 2678.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Placentia",
+        "i80": [
+          2360,
+          2745
+        ],
+        "name": "Brent Payne",
+        "out_by": 126.9,
+        "place": 80,
+        "places_out": -24,
+        "prior": 6,
+        "seconds": 2551.1,
+        "sex": "M"
+      },
+      {
+        "actual": 2685.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          2635,
+          3166
+        ],
+        "name": "Jaxon Brake",
+        "out_by": -168.5,
+        "place": 81,
+        "places_out": 8,
+        "prior": 3,
+        "seconds": 2853.5,
+        "sex": "M"
+      },
+      {
+        "actual": 2687.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2673,
+          3808
+        ],
+        "name": "Katie Doyle",
+        "out_by": -184.4,
+        "place": 82,
+        "places_out": 10,
+        "prior": 17,
+        "seconds": 2871.4,
+        "sex": "F"
+      },
+      {
+        "actual": 2692.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2680,
+          3142
+        ],
+        "name": "Max Breen",
+        "out_by": -205.0,
+        "place": 83,
+        "places_out": 13,
+        "prior": 1,
+        "seconds": 2897.0,
+        "sex": "M"
+      },
+      {
+        "actual": 2694.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          2611,
+          2944
+        ],
+        "name": "Matthew Muise",
+        "out_by": -67.9,
+        "place": 84,
+        "places_out": -3,
+        "prior": 2,
+        "seconds": 2761.9,
+        "sex": "M"
+      },
+      {
+        "actual": 2696.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          2372,
+          4132
+        ],
+        "name": "Lucas Higdon",
+        "out_by": -523.8,
+        "place": 85,
+        "places_out": 91,
+        "prior": 0,
+        "seconds": 3219.8,
+        "sex": "M"
+      },
+      {
+        "actual": 2699.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2528,
+          2764
+        ],
+        "name": "John Walsh",
+        "out_by": 63.4,
+        "place": 86,
+        "places_out": -19,
+        "prior": 60,
+        "seconds": 2635.6,
+        "sex": "M"
+      },
+      {
+        "actual": 2702.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          2587,
+          2841
+        ],
+        "name": "Allison Noseworthy",
+        "out_by": 1.1,
+        "place": 87,
+        "places_out": -14,
+        "prior": 14,
+        "seconds": 2700.9,
+        "sex": "F"
+      },
+      {
+        "actual": 2714.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2495,
+          4214
+        ],
+        "name": "Ari Hegde",
+        "out_by": -500.6,
+        "place": 88,
+        "places_out": 86,
+        "prior": 0,
+        "seconds": 3214.6,
+        "sex": "M"
+      },
+      {
+        "actual": 2719.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          2404,
+          4331
+        ],
+        "name": "Giulio Russo",
+        "out_by": -452.1,
+        "place": 89,
+        "places_out": 62,
+        "prior": 0,
+        "seconds": 3171.1,
+        "sex": "M"
+      },
+      {
+        "actual": 2725.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Torbay",
+        "i80": [
+          2634,
+          2868
+        ],
+        "name": "Gus Lynch Jr.",
+        "out_by": -23.5,
+        "place": 90,
+        "places_out": -12,
+        "prior": 43,
+        "seconds": 2748.5,
+        "sex": "M"
+      },
+      {
+        "actual": 2735.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Portugal Cove-St. Philip's",
+        "i80": [
+          2648,
+          2906
+        ],
+        "name": "Arch Rose",
+        "out_by": -28.6,
+        "place": 91,
+        "places_out": -9,
+        "prior": 84,
+        "seconds": 2763.6,
+        "sex": "M"
+      },
+      {
+        "actual": 2765.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2444,
+          3098
+        ],
+        "name": "Jerry O'Neill",
+        "out_by": 13.5,
+        "place": 92,
+        "places_out": -13,
+        "prior": 2,
+        "seconds": 2751.5,
+        "sex": "M"
+      },
+      {
+        "actual": 2769.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2425,
+          2922
+        ],
+        "name": "Philip O'Keefe",
+        "out_by": 146.1,
+        "place": 93,
+        "places_out": -28,
+        "prior": 1,
+        "seconds": 2622.9,
+        "sex": "M"
+      },
+      {
+        "actual": 2770.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Torbay",
+        "i80": [
+          2701,
+          3054
+        ],
+        "name": "Joanne Taylor",
+        "out_by": -94.7,
+        "place": 94,
+        "places_out": -4,
+        "prior": 48,
+        "seconds": 2864.7,
+        "sex": "F"
+      },
+      {
+        "actual": 2771.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          2547,
+          2849
+        ],
+        "name": "Ron Murphy",
+        "out_by": 78.4,
+        "place": 95,
+        "places_out": -24,
+        "prior": 12,
+        "seconds": 2692.6,
+        "sex": "M"
+      },
+      {
+        "actual": 2774.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2844,
+          3213
+        ],
+        "name": "Stephanie Alyward",
+        "out_by": -255.0,
+        "place": 96,
+        "places_out": 26,
+        "prior": 6,
+        "seconds": 3029.0,
+        "sex": "F"
+      },
+      {
+        "actual": 2780.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Sault Ste. Marie",
+        "i80": [
+          2529,
+          3153
+        ],
+        "name": "Olivia Hiscock",
+        "out_by": 41.6,
+        "place": 97,
+        "places_out": -20,
+        "prior": 1,
+        "seconds": 2738.4,
+        "sex": "F"
+      },
+      {
+        "actual": 2787.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "St. John's",
+        "i80": null,
+        "name": "David Martin",
+        "out_by": null,
+        "place": 98,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "M"
+      },
+      {
+        "actual": 2791.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "St. John's",
+        "i80": null,
+        "name": "Guy Beazley",
+        "out_by": null,
+        "place": 99,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "M"
+      },
+      {
+        "actual": 2793.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2738,
+          3047
+        ],
+        "name": "Juliette Ryan",
+        "out_by": -92.5,
+        "place": 100,
+        "places_out": -4,
+        "prior": 31,
+        "seconds": 2885.5,
+        "sex": "F"
+      },
+      {
+        "actual": 2812.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Gander",
+        "i80": [
+          2603,
+          2878
+        ],
+        "name": "Shannon Greene",
+        "out_by": 85.9,
+        "place": 101,
+        "places_out": -23,
+        "prior": 4,
+        "seconds": 2726.1,
+        "sex": "F"
+      },
+      {
+        "actual": 2821.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2623,
+          2883
+        ],
+        "name": "Margo Soucy",
+        "out_by": 66.2,
+        "place": 102,
+        "places_out": -20,
+        "prior": 21,
+        "seconds": 2754.8,
+        "sex": "F"
+      },
+      {
+        "actual": 2828.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Darwin",
+        "i80": [
+          2734,
+          3610
+        ],
+        "name": "Alexander Muir",
+        "out_by": -326.7,
+        "place": 103,
+        "places_out": 45,
+        "prior": 2,
+        "seconds": 3154.7,
+        "sex": "M"
+      },
+      {
+        "actual": 2830.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2748,
+          3034
+        ],
+        "name": "Amanda Tzenov",
+        "out_by": -55.2,
+        "place": 104,
+        "places_out": -9,
+        "prior": 23,
+        "seconds": 2885.2,
+        "sex": "F"
+      },
+      {
+        "actual": 2848.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Torbay",
+        "i80": [
+          2766,
+          3276
+        ],
+        "name": "Lesley Manning",
+        "out_by": -202.3,
+        "place": 105,
+        "places_out": 23,
+        "prior": 3,
+        "seconds": 3050.3,
+        "sex": "F"
+      },
+      {
+        "actual": 2855.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Hammond",
+        "i80": [
+          2996,
+          3262
+        ],
+        "name": "Omar Shogan",
+        "out_by": -266.4,
+        "place": 106,
+        "places_out": 33,
+        "prior": 23,
+        "seconds": 3121.4,
+        "sex": "M"
+      },
+      {
+        "actual": 2870.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2653,
+          3026
+        ],
+        "name": "Gord Delaney",
+        "out_by": 29.4,
+        "place": 107,
+        "places_out": -17,
+        "prior": 15,
+        "seconds": 2840.6,
+        "sex": "M"
+      },
+      {
+        "actual": 2871.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "St. John's",
+        "i80": null,
+        "name": "Alex Gosse",
+        "out_by": null,
+        "place": 108,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "M"
+      },
+      {
+        "actual": 2874.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2761,
+          3052
+        ],
+        "name": "Jephthah Anga",
+        "out_by": -33.7,
+        "place": 109,
+        "places_out": -8,
+        "prior": 8,
+        "seconds": 2907.7,
+        "sex": "M"
+      },
+      {
+        "actual": 2882.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2737,
+          3023
+        ],
+        "name": "David Foley",
+        "out_by": 11.5,
+        "place": 110,
+        "places_out": -16,
+        "prior": 42,
+        "seconds": 2870.5,
+        "sex": "M"
+      },
+      {
+        "actual": 2886.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          2838,
+          3135
+        ],
+        "name": "Matthew Howell",
+        "out_by": -98.0,
+        "place": 111,
+        "places_out": 6,
+        "prior": 9,
+        "seconds": 2984.0,
+        "sex": "M"
+      },
+      {
+        "actual": 2887.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          2828,
+          3218
+        ],
+        "name": "Charity-Jean Drover",
+        "out_by": -119.8,
+        "place": 112,
+        "places_out": 9,
+        "prior": 4,
+        "seconds": 3006.8,
+        "sex": "F"
+      },
+      {
+        "actual": 2891.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2760,
+          3095
+        ],
+        "name": "Jeffrey Lush",
+        "out_by": -18.6,
+        "place": 113,
+        "places_out": -11,
+        "prior": 4,
+        "seconds": 2909.6,
+        "sex": "M"
+      },
+      {
+        "actual": 2895.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2737,
+          3073
+        ],
+        "name": "Maggie Carew",
+        "out_by": -15.2,
+        "place": 114,
+        "places_out": -11,
+        "prior": 10,
+        "seconds": 2910.2,
+        "sex": "F"
+      },
+      {
+        "actual": 2897.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2699,
+          3368
+        ],
+        "name": "Joe Norman",
+        "out_by": -181.9,
+        "place": 115,
+        "places_out": 16,
+        "prior": 2,
+        "seconds": 3078.9,
+        "sex": "M"
+      },
+      {
+        "actual": 2903.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "St. John's",
+        "i80": null,
+        "name": "Julia Burt",
+        "out_by": null,
+        "place": 116,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "F"
+      },
+      {
+        "actual": 2907.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          2484,
+          2997
+        ],
+        "name": "Max Diamond",
+        "out_by": 197.7,
+        "place": 117,
+        "places_out": -39,
+        "prior": 1,
+        "seconds": 2709.3,
+        "sex": "M"
+      },
+      {
+        "actual": 2908.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2848,
+          3144
+        ],
+        "name": "Eilish Maccharles",
+        "out_by": -73.1,
+        "place": 118,
+        "places_out": -1,
+        "prior": 5,
+        "seconds": 2981.1,
+        "sex": "F"
+      },
+      {
+        "actual": 2909.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "St. John's",
+        "i80": null,
+        "name": "Thomas Osmond",
+        "out_by": null,
+        "place": 119,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "M"
+      },
+      {
+        "actual": 2911.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2910,
+          3322
+        ],
+        "name": "Evan Penney",
+        "out_by": -211.3,
+        "place": 120,
+        "places_out": 23,
+        "prior": 5,
+        "seconds": 3122.3,
+        "sex": "M"
+      },
+      {
+        "actual": 2919.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2690,
+          2982
+        ],
+        "name": "David Hopkins",
+        "out_by": 90.9,
+        "place": 121,
+        "places_out": -30,
+        "prior": 45,
+        "seconds": 2828.1,
+        "sex": "M"
+      },
+      {
+        "actual": 2923.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3030,
+          3371
+        ],
+        "name": "Jay Callanan",
+        "out_by": -263.6,
+        "place": 122,
+        "places_out": 43,
+        "prior": 18,
+        "seconds": 3186.6,
+        "sex": "M"
+      },
+      {
+        "actual": 2925.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2829,
+          3427
+        ],
+        "name": "Krista Wells",
+        "out_by": -120.2,
+        "place": 123,
+        "places_out": 6,
+        "prior": 11,
+        "seconds": 3045.2,
+        "sex": "F"
+      },
+      {
+        "actual": 2927.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2714,
+          3234
+        ],
+        "name": "Trevor Smith",
+        "out_by": -40.8,
+        "place": 124,
+        "places_out": -10,
+        "prior": 4,
+        "seconds": 2967.8,
+        "sex": "M"
+      },
+      {
+        "actual": 2938.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Portugal Cove-St. Philip's",
+        "i80": [
+          2619,
+          3037
+        ],
+        "name": "Kelly Wilkins",
+        "out_by": 101.0,
+        "place": 125,
+        "places_out": -33,
+        "prior": 45,
+        "seconds": 2837.0,
+        "sex": "F"
+      },
+      {
+        "actual": 2941.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2868,
+          3140
+        ],
+        "name": "Anne Mack",
+        "out_by": -61.0,
+        "place": 126,
+        "places_out": -5,
+        "prior": 30,
+        "seconds": 3002.0,
+        "sex": "F"
+      },
+      {
+        "actual": 2960.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2829,
+          3106
+        ],
+        "name": "Melissa Saunders",
+        "out_by": -13.4,
+        "place": 127,
+        "places_out": -11,
+        "prior": 19,
+        "seconds": 2973.4,
+        "sex": "F"
+      },
+      {
+        "actual": 2966.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          2774,
+          3067
+        ],
+        "name": "Ashlee Power",
+        "out_by": 36.8,
+        "place": 128,
+        "places_out": -19,
+        "prior": 5,
+        "seconds": 2929.2,
+        "sex": "F"
+      },
+      {
+        "actual": 2968.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          2834,
+          3132
+        ],
+        "name": "Angie Fry",
+        "out_by": -0.8,
+        "place": 129,
+        "places_out": -14,
+        "prior": 6,
+        "seconds": 2968.8,
+        "sex": "F"
+      },
+      {
+        "actual": 2972.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "Flatrock",
+        "i80": null,
+        "name": "John Callahan",
+        "out_by": null,
+        "place": 130,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "M"
+      },
+      {
+        "actual": 2977.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          2751,
+          3101
+        ],
+        "name": "Jonathan Quinlan",
+        "out_by": 69.7,
+        "place": 131,
+        "places_out": -28,
+        "prior": 21,
+        "seconds": 2907.3,
+        "sex": "M"
+      },
+      {
+        "actual": 2988.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2767,
+          3035
+        ],
+        "name": "Lauren Murphy",
+        "out_by": 76.7,
+        "place": 132,
+        "places_out": -25,
+        "prior": 15,
+        "seconds": 2911.3,
+        "sex": "F"
+      },
+      {
+        "actual": 2990.0,
+        "age": "70-79",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Small Point",
+        "i80": [
+          2747,
+          3129
+        ],
+        "name": "Donald Howell",
+        "out_by": 56.5,
+        "place": 133,
+        "places_out": -21,
+        "prior": 5,
+        "seconds": 2933.5,
+        "sex": "M"
+      },
+      {
+        "actual": 2991.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Placentia",
+        "i80": [
+          2450,
+          4266
+        ],
+        "name": "Eric King",
+        "out_by": -192.6,
+        "place": 134,
+        "places_out": 31,
+        "prior": 0,
+        "seconds": 3183.6,
+        "sex": "M"
+      },
+      {
+        "actual": 2992.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          2781,
+          3165
+        ],
+        "name": "Logan Bragg",
+        "out_by": 38.8,
+        "place": 135,
+        "places_out": -22,
+        "prior": 5,
+        "seconds": 2953.2,
+        "sex": "M"
+      },
+      {
+        "actual": 3006.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2573,
+          3940
+        ],
+        "name": "Laura Howells",
+        "out_by": -135.3,
+        "place": 136,
+        "places_out": 12,
+        "prior": 2,
+        "seconds": 3141.3,
+        "sex": "F"
+      },
+      {
+        "actual": 3008.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2853,
+          3215
+        ],
+        "name": "Grace Halley",
+        "out_by": -3.7,
+        "place": 137,
+        "places_out": -11,
+        "prior": 6,
+        "seconds": 3011.7,
+        "sex": "F"
+      },
+      {
+        "actual": 3017.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3034,
+          3507
+        ],
+        "name": "Brad Klucowicz",
+        "out_by": -275.3,
+        "place": 138,
+        "places_out": 56,
+        "prior": 5,
+        "seconds": 3292.3,
+        "sex": "M"
+      },
+      {
+        "actual": 3019.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "St. Mary's",
+        "i80": null,
+        "name": "Yvonne Martin",
+        "out_by": null,
+        "place": 139,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "F"
+      },
+      {
+        "actual": 3028.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2859,
+          3242
+        ],
+        "name": "Ryan Critch",
+        "out_by": -5.6,
+        "place": 140,
+        "places_out": -10,
+        "prior": 4,
+        "seconds": 3033.6,
+        "sex": "M"
+      },
+      {
+        "actual": 3030.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Maddox Cove",
+        "i80": [
+          2905,
+          3339
+        ],
+        "name": "Jacob Chafe",
+        "out_by": -85.7,
+        "place": 141,
+        "places_out": 2,
+        "prior": 2,
+        "seconds": 3115.7,
+        "sex": "M"
+      },
+      {
+        "actual": 3032.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Portugal Cove-St. Philip's",
+        "i80": [
+          2702,
+          3312
+        ],
+        "name": "Kaitlan Knott",
+        "out_by": 27.8,
+        "place": 142,
+        "places_out": -18,
+        "prior": 1,
+        "seconds": 3004.2,
+        "sex": "F"
+      },
+      {
+        "actual": 3034.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          2880,
+          3143
+        ],
+        "name": "James Smith",
+        "out_by": 25.7,
+        "place": 143,
+        "places_out": -17,
+        "prior": 11,
+        "seconds": 3008.3,
+        "sex": "M"
+      },
+      {
+        "actual": 3039.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2865,
+          3251
+        ],
+        "name": "Samantha Howell",
+        "out_by": -8.9,
+        "place": 144,
+        "places_out": -12,
+        "prior": 3,
+        "seconds": 3047.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3041.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          2946,
+          3252
+        ],
+        "name": "James Legge",
+        "out_by": -43.2,
+        "place": 145,
+        "places_out": -7,
+        "prior": 23,
+        "seconds": 3084.2,
+        "sex": "M"
+      },
+      {
+        "actual": 3049.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Logy Bay",
+        "i80": [
+          2980,
+          3262
+        ],
+        "name": "Janet Furey",
+        "out_by": -65.8,
+        "place": 146,
+        "places_out": -4,
+        "prior": 62,
+        "seconds": 3114.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3058.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          2692,
+          3092
+        ],
+        "name": "Nicole Price",
+        "out_by": 165.2,
+        "place": 147,
+        "places_out": -45,
+        "prior": 2,
+        "seconds": 2892.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3059.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2823,
+          3218
+        ],
+        "name": "Elizabeth Faour",
+        "out_by": 40.6,
+        "place": 148,
+        "places_out": -20,
+        "prior": 3,
+        "seconds": 3018.4,
+        "sex": "F"
+      },
+      {
+        "actual": 3067.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "St. John's",
+        "i80": null,
+        "name": "Morgan Croft",
+        "out_by": null,
+        "place": 149,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "F"
+      },
+      {
+        "actual": 3074.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2689,
+          3594
+        ],
+        "name": "Matthew Hiscock",
+        "out_by": -60.6,
+        "place": 150,
+        "places_out": -1,
+        "prior": 5,
+        "seconds": 3134.6,
+        "sex": "M"
+      },
+      {
+        "actual": 3077.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3136,
+          3491
+        ],
+        "name": "Kyle Brewer",
+        "out_by": -231.4,
+        "place": 151,
+        "places_out": 49,
+        "prior": 5,
+        "seconds": 3308.4,
+        "sex": "M"
+      },
+      {
+        "actual": 3085.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          3078,
+          3506
+        ],
+        "name": "Vince Brake",
+        "out_by": -196.9,
+        "place": 152,
+        "places_out": 43,
+        "prior": 8,
+        "seconds": 3281.9,
+        "sex": "M"
+      },
+      {
+        "actual": 3086.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Witless Bay",
+        "i80": [
+          3082,
+          3436
+        ],
+        "name": "Chrystal Kelly",
+        "out_by": -147.5,
+        "place": 153,
+        "places_out": 35,
+        "prior": 18,
+        "seconds": 3233.5,
+        "sex": "F"
+      },
+      {
+        "actual": 3095.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2720,
+          3083
+        ],
+        "name": "Darren Jensen",
+        "out_by": 179.6,
+        "place": 154,
+        "places_out": -44,
+        "prior": 86,
+        "seconds": 2915.4,
+        "sex": "M"
+      },
+      {
+        "actual": 3095.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          2923,
+          3310
+        ],
+        "name": "Tara Thomas",
+        "out_by": 1.2,
+        "place": 155,
+        "places_out": -15,
+        "prior": 28,
+        "seconds": 3093.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3097.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          3022,
+          3548
+        ],
+        "name": "Matthew Crewe",
+        "out_by": -130.4,
+        "place": 156,
+        "places_out": 31,
+        "prior": 2,
+        "seconds": 3227.4,
+        "sex": "M"
+      },
+      {
+        "actual": 3103.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3130,
+          3780
+        ],
+        "name": "Danny Hollett",
+        "out_by": -348.0,
+        "place": 157,
+        "places_out": 64,
+        "prior": 1,
+        "seconds": 3451.0,
+        "sex": "M"
+      },
+      {
+        "actual": 3107.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          2893,
+          3216
+        ],
+        "name": "Juleah Lunden",
+        "out_by": 42.2,
+        "place": 158,
+        "places_out": -23,
+        "prior": 9,
+        "seconds": 3064.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3107.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2913,
+          3285
+        ],
+        "name": "Jillian Greene",
+        "out_by": 4.1,
+        "place": 159,
+        "places_out": -18,
+        "prior": 13,
+        "seconds": 3102.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3113.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "St. John's",
+        "i80": null,
+        "name": "Jennifer Collingwood",
+        "out_by": null,
+        "place": 160,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "F"
+      },
+      {
+        "actual": 3115.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Holyrod",
+        "i80": [
+          2916,
+          3501
+        ],
+        "name": "Andy Lewis",
+        "out_by": -38.8,
+        "place": 161,
+        "places_out": -7,
+        "prior": 1,
+        "seconds": 3153.8,
+        "sex": "M"
+      },
+      {
+        "actual": 3123.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3068,
+          3351
+        ],
+        "name": "Rachel Swyer",
+        "out_by": -88.7,
+        "place": 162,
+        "places_out": 19,
+        "prior": 13,
+        "seconds": 3211.7,
+        "sex": "F"
+      },
+      {
+        "actual": 3125.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2377,
+          4369
+        ],
+        "name": "Adam Oakley",
+        "out_by": -53.7,
+        "place": 163,
+        "places_out": 1,
+        "prior": 0,
+        "seconds": 3178.7,
+        "sex": "M"
+      },
+      {
+        "actual": 3129.0,
+        "age": "70-79",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3027,
+          3321
+        ],
+        "name": "Peter Gammon",
+        "out_by": -58.3,
+        "place": 164,
+        "places_out": 6,
+        "prior": 96,
+        "seconds": 3187.3,
+        "sex": "M"
+      },
+      {
+        "actual": 3135.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "St. John's",
+        "i80": null,
+        "name": "Cynthia Parsons",
+        "out_by": null,
+        "place": 165,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "F"
+      },
+      {
+        "actual": 3136.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3371,
+          3970
+        ],
+        "name": "Adam Hicks",
+        "out_by": -520.1,
+        "place": 166,
+        "places_out": 84,
+        "prior": 1,
+        "seconds": 3656.1,
+        "sex": "M"
+      },
+      {
+        "actual": 3150.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2074,
+          2285
+        ],
+        "name": "Ryne King",
+        "out_by": 978.0,
+        "place": 167,
+        "places_out": -141,
+        "prior": 33,
+        "seconds": 2172.0,
+        "sex": "M"
+      },
+      {
+        "actual": 3150.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3214,
+          3565
+        ],
+        "name": "Heather Brandon",
+        "out_by": -225.1,
+        "place": 168,
+        "places_out": 42,
+        "prior": 4,
+        "seconds": 3375.1,
+        "sex": "F"
+      },
+      {
+        "actual": 3159.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          2839,
+          5059
+        ],
+        "name": "Rithika Melvin",
+        "out_by": -593.5,
+        "place": 169,
+        "places_out": 92,
+        "prior": 0,
+        "seconds": 3752.5,
+        "sex": "F"
+      },
+      {
+        "actual": 3164.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          2981,
+          3340
+        ],
+        "name": "Kelsey Campbell",
+        "out_by": 11.3,
+        "place": 170,
+        "places_out": -17,
+        "prior": 11,
+        "seconds": 3152.7,
+        "sex": "F"
+      },
+      {
+        "actual": 3197.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          2955,
+          3484
+        ],
+        "name": "Rebecca Barney",
+        "out_by": -27.3,
+        "place": 171,
+        "places_out": 17,
+        "prior": 6,
+        "seconds": 3224.3,
+        "sex": "F"
+      },
+      {
+        "actual": 3197.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          3147,
+          3682
+        ],
+        "name": "Benjamin Fudge",
+        "out_by": -187.6,
+        "place": 172,
+        "places_out": 42,
+        "prior": 1,
+        "seconds": 3384.6,
+        "sex": "M"
+      },
+      {
+        "actual": 3200.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3051,
+          3516
+        ],
+        "name": "Kenneth Baquing",
+        "out_by": -67.6,
+        "place": 173,
+        "places_out": 21,
+        "prior": 1,
+        "seconds": 3267.6,
+        "sex": "M"
+      },
+      {
+        "actual": 3206.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Gambo",
+        "i80": [
+          2907,
+          3389
+        ],
+        "name": "Michael Parkes",
+        "out_by": 80.3,
+        "place": 174,
+        "places_out": -25,
+        "prior": 3,
+        "seconds": 3125.7,
+        "sex": "M"
+      },
+      {
+        "actual": 3211.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3278,
+          3841
+        ],
+        "name": "Jen Murphy",
+        "out_by": -330.8,
+        "place": 175,
+        "places_out": 59,
+        "prior": 1,
+        "seconds": 3541.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3215.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          2934,
+          3222
+        ],
+        "name": "Jeremy Lester",
+        "out_by": 135.3,
+        "place": 176,
+        "places_out": -37,
+        "prior": 6,
+        "seconds": 3079.7,
+        "sex": "M"
+      },
+      {
+        "actual": 3224.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          2402,
+          4190
+        ],
+        "name": "Bobby Stringer",
+        "out_by": 24.3,
+        "place": 177,
+        "places_out": -1,
+        "prior": 0,
+        "seconds": 3199.7,
+        "sex": "M"
+      },
+      {
+        "actual": 3226.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3104,
+          3422
+        ],
+        "name": "Melanie Noseworthy",
+        "out_by": -32.3,
+        "place": 178,
+        "places_out": 15,
+        "prior": 16,
+        "seconds": 3258.3,
+        "sex": "F"
+      },
+      {
+        "actual": 3229.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2888,
+          3320
+        ],
+        "name": "Kelly Strong",
+        "out_by": 122.2,
+        "place": 179,
+        "places_out": -35,
+        "prior": 2,
+        "seconds": 3106.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3235.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3323,
+          3704
+        ],
+        "name": "Rona Moore",
+        "out_by": -258.2,
+        "place": 180,
+        "places_out": 50,
+        "prior": 28,
+        "seconds": 3493.2,
+        "sex": "F"
+      },
+      {
+        "actual": 3260.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "Petty Harbour",
+        "i80": null,
+        "name": "Linda Dillon",
+        "out_by": null,
+        "place": 181,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "F"
+      },
+      {
+        "actual": 3264.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          2395,
+          4200
+        ],
+        "name": "Noah Quilty",
+        "out_by": 98.5,
+        "place": 182,
+        "places_out": -23,
+        "prior": 0,
+        "seconds": 3165.5,
+        "sex": "M"
+      },
+      {
+        "actual": 3267.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          2698,
+          3195
+        ],
+        "name": "Peter Noel",
+        "out_by": 349.1,
+        "place": 183,
+        "places_out": -69,
+        "prior": 1,
+        "seconds": 2917.9,
+        "sex": "M"
+      },
+      {
+        "actual": 3267.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3156,
+          3620
+        ],
+        "name": "Steven Bailey",
+        "out_by": -128.0,
+        "place": 184,
+        "places_out": 33,
+        "prior": 3,
+        "seconds": 3395.0,
+        "sex": "M"
+      },
+      {
+        "actual": 3270.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2810,
+          3476
+        ],
+        "name": "Jocelyn Meruvia Peña",
+        "out_by": 142.7,
+        "place": 185,
+        "places_out": -34,
+        "prior": 1,
+        "seconds": 3127.3,
+        "sex": "F"
+      },
+      {
+        "actual": 3273.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Cambridge",
+        "i80": [
+          2370,
+          4351
+        ],
+        "name": "Josh Wernaart",
+        "out_by": 64.4,
+        "place": 186,
+        "places_out": -5,
+        "prior": 0,
+        "seconds": 3208.6,
+        "sex": "M"
+      },
+      {
+        "actual": 3284.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3051,
+          3936
+        ],
+        "name": "Jonathan Moore",
+        "out_by": -171.6,
+        "place": 187,
+        "places_out": 38,
+        "prior": 1,
+        "seconds": 3455.6,
+        "sex": "M"
+      },
+      {
+        "actual": 3287.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3245,
+          3625
+        ],
+        "name": "Kayla Walsh",
+        "out_by": -143.0,
+        "place": 188,
+        "places_out": 32,
+        "prior": 7,
+        "seconds": 3430.0,
+        "sex": "F"
+      },
+      {
+        "actual": 3311.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3142,
+          3678
+        ],
+        "name": "Claire Whelan",
+        "out_by": -57.8,
+        "place": 189,
+        "places_out": 20,
+        "prior": 1,
+        "seconds": 3368.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3312.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3069,
+          3409
+        ],
+        "name": "Gerard Griffin",
+        "out_by": 92.0,
+        "place": 190,
+        "places_out": -2,
+        "prior": 90,
+        "seconds": 3220.0,
+        "sex": "M"
+      },
+      {
+        "actual": 3313.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2996,
+          3589
+        ],
+        "name": "Luke Rudofsky",
+        "out_by": -24.5,
+        "place": 191,
+        "places_out": 15,
+        "prior": 3,
+        "seconds": 3337.5,
+        "sex": "M"
+      },
+      {
+        "actual": 3316.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3250,
+          3575
+        ],
+        "name": "Wendy Read",
+        "out_by": -65.2,
+        "place": 192,
+        "places_out": 21,
+        "prior": 22,
+        "seconds": 3381.2,
+        "sex": "F"
+      },
+      {
+        "actual": 3316.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3188,
+          3515
+        ],
+        "name": "Tracy Durnford",
+        "out_by": -33.6,
+        "place": 193,
+        "places_out": 14,
+        "prior": 6,
+        "seconds": 3349.6,
+        "sex": "F"
+      },
+      {
+        "actual": 3317.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          2821,
+          3976
+        ],
+        "name": "Neil Parsons",
+        "out_by": 99.5,
+        "place": 194,
+        "places_out": -8,
+        "prior": 3,
+        "seconds": 3217.5,
+        "sex": "M"
+      },
+      {
+        "actual": 3317.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Torbay",
+        "i80": [
+          3199,
+          3553
+        ],
+        "name": "Janna Andronowski",
+        "out_by": -37.2,
+        "place": 195,
+        "places_out": 13,
+        "prior": 7,
+        "seconds": 3354.2,
+        "sex": "F"
+      },
+      {
+        "actual": 3319.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          3291,
+          3844
+        ],
+        "name": "Sam Winsor",
+        "out_by": -227.9,
+        "place": 196,
+        "places_out": 41,
+        "prior": 2,
+        "seconds": 3546.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3324.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          3151,
+          3651
+        ],
+        "name": "Tina Reynolds",
+        "out_by": -58.9,
+        "place": 197,
+        "places_out": 17,
+        "prior": 3,
+        "seconds": 3382.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3329.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2397,
+          4368
+        ],
+        "name": "Chad Budden",
+        "out_by": 125.5,
+        "place": 198,
+        "places_out": -21,
+        "prior": 0,
+        "seconds": 3203.5,
+        "sex": "M"
+      },
+      {
+        "actual": 3329.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          3041,
+          3363
+        ],
+        "name": "Tracy Lawrence",
+        "out_by": 146.0,
+        "place": 199,
+        "places_out": -29,
+        "prior": 46,
+        "seconds": 3183.0,
+        "sex": "F"
+      },
+      {
+        "actual": 3346.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          2997,
+          3664
+        ],
+        "name": "Emily Whelan",
+        "out_by": 66.0,
+        "place": 200,
+        "places_out": -3,
+        "prior": 1,
+        "seconds": 3280.0,
+        "sex": "F"
+      },
+      {
+        "actual": 3358.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3056,
+          3459
+        ],
+        "name": "Anna Carew",
+        "out_by": 102.8,
+        "place": 201,
+        "places_out": -8,
+        "prior": 2,
+        "seconds": 3255.2,
+        "sex": "F"
+      },
+      {
+        "actual": 3369.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          2868,
+          5195
+        ],
+        "name": "Petra Johnston",
+        "out_by": -430.3,
+        "place": 202,
+        "places_out": 73,
+        "prior": 0,
+        "seconds": 3799.3,
+        "sex": "F"
+      },
+      {
+        "actual": 3387.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Holyrood",
+        "i80": [
+          3279,
+          3580
+        ],
+        "name": "Linda Ennis",
+        "out_by": -45.9,
+        "place": 203,
+        "places_out": 19,
+        "prior": 24,
+        "seconds": 3432.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3424.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3160,
+          3681
+        ],
+        "name": "Anna Saunders",
+        "out_by": 33.4,
+        "place": 204,
+        "places_out": 12,
+        "prior": 1,
+        "seconds": 3390.6,
+        "sex": "F"
+      },
+      {
+        "actual": 3425.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3563,
+          3925
+        ],
+        "name": "Chris Bonnell",
+        "out_by": -311.6,
+        "place": 205,
+        "places_out": 56,
+        "prior": 5,
+        "seconds": 3736.6,
+        "sex": "M"
+      },
+      {
+        "actual": 3428.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Logy Bay",
+        "i80": [
+          3085,
+          3663
+        ],
+        "name": "Maggie Collins",
+        "out_by": 56.5,
+        "place": 206,
+        "places_out": 4,
+        "prior": 1,
+        "seconds": 3371.5,
+        "sex": "F"
+      },
+      {
+        "actual": 3428.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          3267,
+          3605
+        ],
+        "name": "Lucas Wells",
+        "out_by": 0.0,
+        "place": 207,
+        "places_out": 12,
+        "prior": 12,
+        "seconds": 3428.0,
+        "sex": "M"
+      },
+      {
+        "actual": 3430.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2994,
+          3483
+        ],
+        "name": "Julianna Clarke",
+        "out_by": 188.4,
+        "place": 208,
+        "places_out": -16,
+        "prior": 3,
+        "seconds": 3241.6,
+        "sex": "F"
+      },
+      {
+        "actual": 3437.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3227,
+          3662
+        ],
+        "name": "Julia Barnes",
+        "out_by": -23.9,
+        "place": 209,
+        "places_out": 17,
+        "prior": 4,
+        "seconds": 3460.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3451.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          3414,
+          3770
+        ],
+        "name": "Jennifer Dominie",
+        "out_by": -152.9,
+        "place": 210,
+        "places_out": 36,
+        "prior": 10,
+        "seconds": 3603.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3453.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Clarenville",
+        "i80": [
+          3253,
+          3822
+        ],
+        "name": "Scott Howell",
+        "out_by": -70.1,
+        "place": 211,
+        "places_out": 21,
+        "prior": 1,
+        "seconds": 3523.1,
+        "sex": "M"
+      },
+      {
+        "actual": 3458.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Wabush",
+        "i80": [
+          3062,
+          3607
+        ],
+        "name": "Alanah Whiteway",
+        "out_by": 154.2,
+        "place": 212,
+        "places_out": -12,
+        "prior": 1,
+        "seconds": 3303.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3475.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2666,
+          3356
+        ],
+        "name": "Nick Button",
+        "out_by": 477.4,
+        "place": 213,
+        "places_out": -87,
+        "prior": 2,
+        "seconds": 2997.6,
+        "sex": "M"
+      },
+      {
+        "actual": 3483.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3515,
+          4213
+        ],
+        "name": "Jordan Walsh",
+        "out_by": -328.8,
+        "place": 214,
+        "places_out": 69,
+        "prior": 4,
+        "seconds": 3811.8,
+        "sex": "M"
+      },
+      {
+        "actual": 3492.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3339,
+          3811
+        ],
+        "name": "Jessica Guy",
+        "out_by": -42.9,
+        "place": 215,
+        "places_out": 19,
+        "prior": 6,
+        "seconds": 3534.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3494.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          3301,
+          3787
+        ],
+        "name": "Stephanie Hayman",
+        "out_by": -58.0,
+        "place": 216,
+        "places_out": 22,
+        "prior": 2,
+        "seconds": 3552.0,
+        "sex": "F"
+      },
+      {
+        "actual": 3496.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "Paradise",
+        "i80": null,
+        "name": "Tanya Jones",
+        "out_by": null,
+        "place": 217,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "F"
+      },
+      {
+        "actual": 3499.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          2802,
+          3542
+        ],
+        "name": "Debbie Blagdon",
+        "out_by": 324.1,
+        "place": 218,
+        "places_out": -53,
+        "prior": 4,
+        "seconds": 3174.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3505.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3157,
+          3783
+        ],
+        "name": "Maggie Saunders",
+        "out_by": 73.2,
+        "place": 219,
+        "places_out": 3,
+        "prior": 1,
+        "seconds": 3431.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3507.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3959,
+          5039
+        ],
+        "name": "Amanda Buis",
+        "out_by": -964.5,
+        "place": 220,
+        "places_out": 124,
+        "prior": 18,
+        "seconds": 4471.5,
+        "sex": "F"
+      },
+      {
+        "actual": 3507.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2462,
+          4281
+        ],
+        "name": "Keith Buis",
+        "out_by": 340.0,
+        "place": 221,
+        "places_out": -59,
+        "prior": 0,
+        "seconds": 3167.0,
+        "sex": "M"
+      },
+      {
+        "actual": 3508.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          3117,
+          3586
+        ],
+        "name": "Byron Chubbs",
+        "out_by": 132.6,
+        "place": 222,
+        "places_out": -9,
+        "prior": 5,
+        "seconds": 3375.4,
+        "sex": "M"
+      },
+      {
+        "actual": 3509.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Bonavista",
+        "i80": [
+          3020,
+          3359
+        ],
+        "name": "Jonathan Strickland",
+        "out_by": 332.4,
+        "place": 223,
+        "places_out": -57,
+        "prior": 4,
+        "seconds": 3176.6,
+        "sex": "M"
+      },
+      {
+        "actual": 3516.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          3502,
+          4004
+        ],
+        "name": "Justin Peddle",
+        "out_by": -237.9,
+        "place": 224,
+        "places_out": 40,
+        "prior": 2,
+        "seconds": 3753.9,
+        "sex": "M"
+      },
+      {
+        "actual": 3518.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          3376,
+          3696
+        ],
+        "name": "Renee Morgan",
+        "out_by": -9.3,
+        "place": 225,
+        "places_out": 9,
+        "prior": 40,
+        "seconds": 3527.3,
+        "sex": "F"
+      },
+      {
+        "actual": 3521.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          3142,
+          3502
+        ],
+        "name": "Alice Paterson",
+        "out_by": 205.2,
+        "place": 226,
+        "places_out": -20,
+        "prior": 9,
+        "seconds": 3315.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3523.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Portugal Cove-St. Philip's",
+        "i80": [
+          3310,
+          3956
+        ],
+        "name": "Alison Keough",
+        "out_by": -94.6,
+        "place": 227,
+        "places_out": 23,
+        "prior": 1,
+        "seconds": 3617.6,
+        "sex": "F"
+      },
+      {
+        "actual": 3530.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          3121,
+          3525
+        ],
+        "name": "Sam Paterson",
+        "out_by": 222.3,
+        "place": 228,
+        "places_out": -25,
+        "prior": 20,
+        "seconds": 3307.7,
+        "sex": "M"
+      },
+      {
+        "actual": 3536.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Colliers Riverhead",
+        "i80": [
+          3428,
+          3717
+        ],
+        "name": "Dennis Flynn",
+        "out_by": -25.7,
+        "place": 229,
+        "places_out": 13,
+        "prior": 121,
+        "seconds": 3561.7,
+        "sex": "M"
+      },
+      {
+        "actual": 3538.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          3158,
+          3496
+        ],
+        "name": "Sarah Peter's",
+        "out_by": 222.3,
+        "place": 230,
+        "places_out": -25,
+        "prior": 12,
+        "seconds": 3315.7,
+        "sex": "F"
+      },
+      {
+        "actual": 3541.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3346,
+          3814
+        ],
+        "name": "Karoliina Oksanen",
+        "out_by": -15.6,
+        "place": 231,
+        "places_out": 9,
+        "prior": 3,
+        "seconds": 3556.6,
+        "sex": "F"
+      },
+      {
+        "actual": 3543.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3327,
+          3635
+        ],
+        "name": "Emily Dormody",
+        "out_by": 64.6,
+        "place": 232,
+        "places_out": -2,
+        "prior": 6,
+        "seconds": 3478.4,
+        "sex": "F"
+      },
+      {
+        "actual": 3546.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          3423,
+          3787
+        ],
+        "name": "Cass Jenkins",
+        "out_by": -62.4,
+        "place": 233,
+        "places_out": 14,
+        "prior": 4,
+        "seconds": 3608.4,
+        "sex": null
+      },
+      {
+        "actual": 3546.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3302,
+          3959
+        ],
+        "name": "Keriann Noel",
+        "out_by": -13.9,
+        "place": 234,
+        "places_out": 8,
+        "prior": 3,
+        "seconds": 3559.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3550.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3261,
+          3756
+        ],
+        "name": "Alistair Hunter",
+        "out_by": 65.4,
+        "place": 235,
+        "places_out": -4,
+        "prior": 3,
+        "seconds": 3484.6,
+        "sex": "M"
+      },
+      {
+        "actual": 3560.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Logy Bay",
+        "i80": [
+          3131,
+          4263
+        ],
+        "name": "Javier Santander",
+        "out_by": -105.3,
+        "place": 236,
+        "places_out": 17,
+        "prior": 1,
+        "seconds": 3665.3,
+        "sex": "M"
+      },
+      {
+        "actual": 3571.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3621,
+          4056
+        ],
+        "name": "Brad Norman",
+        "out_by": -232.2,
+        "place": 237,
+        "places_out": 42,
+        "prior": 18,
+        "seconds": 3803.2,
+        "sex": "M"
+      },
+      {
+        "actual": 3590.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2422,
+          4210
+        ],
+        "name": "Mark Oakley",
+        "out_by": 410.8,
+        "place": 238,
+        "places_out": -70,
+        "prior": 0,
+        "seconds": 3179.2,
+        "sex": "M"
+      },
+      {
+        "actual": 3591.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Bonavista",
+        "i80": [
+          3650,
+          4145
+        ],
+        "name": "Dylan Moss",
+        "out_by": -294.1,
+        "place": 239,
+        "places_out": 51,
+        "prior": 2,
+        "seconds": 3885.1,
+        "sex": "M"
+      },
+      {
+        "actual": 3592.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          3251,
+          3580
+        ],
+        "name": "Melissa Loveless",
+        "out_by": 189.2,
+        "place": 240,
+        "places_out": -21,
+        "prior": 8,
+        "seconds": 3402.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3596.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2962,
+          3355
+        ],
+        "name": "Amy Oakley",
+        "out_by": 443.0,
+        "place": 241,
+        "places_out": -85,
+        "prior": 3,
+        "seconds": 3153.0,
+        "sex": "F"
+      },
+      {
+        "actual": 3599.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Placentia",
+        "i80": [
+          3203,
+          3678
+        ],
+        "name": "Stacy Hancock",
+        "out_by": 131.9,
+        "place": 242,
+        "places_out": -14,
+        "prior": 16,
+        "seconds": 3467.1,
+        "sex": "F"
+      },
+      {
+        "actual": 3605.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3639,
+          3987
+        ],
+        "name": "Andrew Winter",
+        "out_by": -191.5,
+        "place": 243,
+        "places_out": 31,
+        "prior": 9,
+        "seconds": 3796.5,
+        "sex": "M"
+      },
+      {
+        "actual": 3616.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Holyrood",
+        "i80": [
+          2899,
+          4993
+        ],
+        "name": "Princess Dalida",
+        "out_by": -162.1,
+        "place": 244,
+        "places_out": 24,
+        "prior": 0,
+        "seconds": 3778.1,
+        "sex": "F"
+      },
+      {
+        "actual": 3617.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3602,
+          4249
+        ],
+        "name": "Angela Greene",
+        "out_by": -258.4,
+        "place": 245,
+        "places_out": 44,
+        "prior": 2,
+        "seconds": 3875.4,
+        "sex": "F"
+      },
+      {
+        "actual": 3635.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "Mount Pearl",
+        "i80": null,
+        "name": "Deanna Diamond",
+        "out_by": null,
+        "place": 246,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "F"
+      },
+      {
+        "actual": 3636.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Edmonton",
+        "i80": [
+          2872,
+          5101
+        ],
+        "name": "Alice Will",
+        "out_by": -146.4,
+        "place": 247,
+        "places_out": 22,
+        "prior": 0,
+        "seconds": 3782.4,
+        "sex": "F"
+      },
+      {
+        "actual": 3636.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          3228,
+          3762
+        ],
+        "name": "Richard Hibbs",
+        "out_by": 159.9,
+        "place": 248,
+        "places_out": -17,
+        "prior": 1,
+        "seconds": 3476.1,
+        "sex": "M"
+      },
+      {
+        "actual": 3637.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Clarenville",
+        "i80": [
+          3436,
+          4137
+        ],
+        "name": "Evan Reid",
+        "out_by": -146.5,
+        "place": 249,
+        "places_out": 23,
+        "prior": 3,
+        "seconds": 3783.5,
+        "sex": "M"
+      },
+      {
+        "actual": 3655.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Middle Cove",
+        "i80": [
+          3388,
+          4012
+        ],
+        "name": "Alexandra Ryan",
+        "out_by": -34.3,
+        "place": 250,
+        "places_out": 10,
+        "prior": 7,
+        "seconds": 3689.3,
+        "sex": "F"
+      },
+      {
+        "actual": 3655.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Portugal Cove-St. Philip's",
+        "i80": [
+          3409,
+          3756
+        ],
+        "name": "Amanda Will",
+        "out_by": 69.6,
+        "place": 251,
+        "places_out": -6,
+        "prior": 6,
+        "seconds": 3585.4,
+        "sex": "F"
+      },
+      {
+        "actual": 3661.0,
+        "age": "80+",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          3480,
+          3857
+        ],
+        "name": "William Boyde",
+        "out_by": -24.6,
+        "place": 252,
+        "places_out": 5,
+        "prior": 35,
+        "seconds": 3685.6,
+        "sex": "M"
+      },
+      {
+        "actual": 3668.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Burin",
+        "i80": [
+          3281,
+          3803
+        ],
+        "name": "Mya Hillier",
+        "out_by": 125.7,
+        "place": 253,
+        "places_out": -15,
+        "prior": 2,
+        "seconds": 3542.3,
+        "sex": "F"
+      },
+      {
+        "actual": 3670.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2793,
+          3353
+        ],
+        "name": "Maria Browne",
+        "out_by": 587.5,
+        "place": 254,
+        "places_out": -111,
+        "prior": 6,
+        "seconds": 3082.5,
+        "sex": "F"
+      },
+      {
+        "actual": 3690.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Holyrood",
+        "i80": [
+          2809,
+          4890
+        ],
+        "name": "Karyn Lewis",
+        "out_by": -112.1,
+        "place": 255,
+        "places_out": 24,
+        "prior": 0,
+        "seconds": 3802.1,
+        "sex": "F"
+      },
+      {
+        "actual": 3690.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          3596,
+          4084
+        ],
+        "name": "Renee Tucker",
+        "out_by": -150.2,
+        "place": 256,
+        "places_out": 31,
+        "prior": 12,
+        "seconds": 3840.2,
+        "sex": "F"
+      },
+      {
+        "actual": 3692.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "Bay de Verde",
+        "i80": null,
+        "name": "Vanessa Coish",
+        "out_by": null,
+        "place": 257,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "F"
+      },
+      {
+        "actual": 3693.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          3452,
+          4038
+        ],
+        "name": "Rowan Percy",
+        "out_by": 6.2,
+        "place": 258,
+        "places_out": 2,
+        "prior": 3,
+        "seconds": 3686.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3698.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          3410,
+          3810
+        ],
+        "name": "Austin Smith",
+        "out_by": 94.6,
+        "place": 259,
+        "places_out": -11,
+        "prior": 5,
+        "seconds": 3603.4,
+        "sex": "M"
+      },
+      {
+        "actual": 3703.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Calgary",
+        "i80": [
+          3668,
+          4062
+        ],
+        "name": "Mark Pinsent",
+        "out_by": -157.2,
+        "place": 260,
+        "places_out": 30,
+        "prior": 23,
+        "seconds": 3860.2,
+        "sex": "M"
+      },
+      {
+        "actual": 3708.0,
+        "age": "70-79",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3554,
+          3896
+        ],
+        "name": "Bernadette Jerrett",
+        "out_by": -8.9,
+        "place": 261,
+        "places_out": 2,
+        "prior": 107,
+        "seconds": 3716.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3709.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          3817,
+          4660
+        ],
+        "name": "Jennifer Warren",
+        "out_by": -502.3,
+        "place": 262,
+        "places_out": 62,
+        "prior": 1,
+        "seconds": 4211.3,
+        "sex": "F"
+      },
+      {
+        "actual": 3711.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          3539,
+          4004
+        ],
+        "name": "Madeline Strickland",
+        "out_by": -79.5,
+        "place": 263,
+        "places_out": 11,
+        "prior": 5,
+        "seconds": 3790.5,
+        "sex": "F"
+      },
+      {
+        "actual": 3721.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          3514,
+          3839
+        ],
+        "name": "Jacqueline Keats",
+        "out_by": 39.8,
+        "place": 264,
+        "places_out": -7,
+        "prior": 11,
+        "seconds": 3681.2,
+        "sex": "F"
+      },
+      {
+        "actual": 3732.0,
+        "age": "80+",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "Mount Pearl",
+        "i80": null,
+        "name": "Bill Saunders",
+        "out_by": null,
+        "place": 265,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "M"
+      },
+      {
+        "actual": 3732.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3456,
+          3970
+        ],
+        "name": "Gillian King",
+        "out_by": 25.1,
+        "place": 266,
+        "places_out": -3,
+        "prior": 3,
+        "seconds": 3706.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3738.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2856,
+          3586
+        ],
+        "name": "Leonora Coady",
+        "out_by": 580.6,
+        "place": 267,
+        "places_out": -105,
+        "prior": 1,
+        "seconds": 3157.4,
+        "sex": "F"
+      },
+      {
+        "actual": 3739.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Calgary",
+        "i80": [
+          2484,
+          4323
+        ],
+        "name": "Baline Penny",
+        "out_by": 565.7,
+        "place": 268,
+        "places_out": -101,
+        "prior": 0,
+        "seconds": 3173.3,
+        "sex": "M"
+      },
+      {
+        "actual": 3740.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Markland",
+        "i80": [
+          3329,
+          4526
+        ],
+        "name": "Megan Gosse",
+        "out_by": 124.4,
+        "place": 269,
+        "places_out": -17,
+        "prior": 2,
+        "seconds": 3615.6,
+        "sex": "F"
+      },
+      {
+        "actual": 3746.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2969,
+          3494
+        ],
+        "name": "Diana Penny",
+        "out_by": 541.4,
+        "place": 270,
+        "places_out": -87,
+        "prior": 16,
+        "seconds": 3204.6,
+        "sex": "F"
+      },
+      {
+        "actual": 3752.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          3802,
+          4454
+        ],
+        "name": "Mandy Halbot",
+        "out_by": -332.6,
+        "place": 271,
+        "places_out": 45,
+        "prior": 3,
+        "seconds": 4084.6,
+        "sex": "F"
+      },
+      {
+        "actual": 3756.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          2415,
+          4313
+        ],
+        "name": "Keith Miller",
+        "out_by": 587.5,
+        "place": 272,
+        "places_out": -107,
+        "prior": 0,
+        "seconds": 3168.5,
+        "sex": "M"
+      },
+      {
+        "actual": 3767.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          2433,
+          4350
+        ],
+        "name": "Terry Ryan",
+        "out_by": 558.7,
+        "place": 273,
+        "places_out": -89,
+        "prior": 0,
+        "seconds": 3208.3,
+        "sex": "M"
+      },
+      {
+        "actual": 3781.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          3629,
+          4154
+        ],
+        "name": "Renee Collier",
+        "out_by": -117.8,
+        "place": 274,
+        "places_out": 24,
+        "prior": 2,
+        "seconds": 3898.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3781.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          3603,
+          4007
+        ],
+        "name": "Tara Philpott",
+        "out_by": -28.6,
+        "place": 275,
+        "places_out": 12,
+        "prior": 10,
+        "seconds": 3809.6,
+        "sex": "F"
+      },
+      {
+        "actual": 3793.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Witless Bay",
+        "i80": [
+          3575,
+          4116
+        ],
+        "name": "Emily Stanley",
+        "out_by": -36.9,
+        "place": 276,
+        "places_out": 12,
+        "prior": 2,
+        "seconds": 3829.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3800.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3484,
+          4061
+        ],
+        "name": "Peter Wiseman",
+        "out_by": 41.9,
+        "place": 277,
+        "places_out": -9,
+        "prior": 2,
+        "seconds": 3758.1,
+        "sex": "M"
+      },
+      {
+        "actual": 3810.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Outer Cove",
+        "i80": [
+          3513,
+          3879
+        ],
+        "name": "Annie Patterson",
+        "out_by": 130.1,
+        "place": 278,
+        "places_out": -21,
+        "prior": 28,
+        "seconds": 3679.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3841.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Witless Bay",
+        "i80": [
+          3598,
+          4006
+        ],
+        "name": "Ashley Carey",
+        "out_by": 57.8,
+        "place": 279,
+        "places_out": -6,
+        "prior": 4,
+        "seconds": 3783.2,
+        "sex": "F"
+      },
+      {
+        "actual": 3841.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3730,
+          4133
+        ],
+        "name": "Jackie Hutchings",
+        "out_by": -84.8,
+        "place": 280,
+        "places_out": 25,
+        "prior": 20,
+        "seconds": 3925.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3843.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          3413,
+          4201
+        ],
+        "name": "Julia White",
+        "out_by": 35.8,
+        "place": 281,
+        "places_out": 3,
+        "prior": 1,
+        "seconds": 3807.2,
+        "sex": "F"
+      },
+      {
+        "actual": 3875.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3498,
+          3892
+        ],
+        "name": "Brianna Harty",
+        "out_by": 188.2,
+        "place": 282,
+        "places_out": -22,
+        "prior": 8,
+        "seconds": 3686.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3883.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          3304,
+          3874
+        ],
+        "name": "Katie Linehan",
+        "out_by": 320.1,
+        "place": 283,
+        "places_out": -37,
+        "prior": 1,
+        "seconds": 3562.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3887.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          4024,
+          4763
+        ],
+        "name": "Barb Hollett",
+        "out_by": -524.6,
+        "place": 284,
+        "places_out": 58,
+        "prior": 3,
+        "seconds": 4411.6,
+        "sex": "F"
+      },
+      {
+        "actual": 3902.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          3708,
+          4120
+        ],
+        "name": "Helen Harris",
+        "out_by": 10.3,
+        "place": 285,
+        "places_out": 11,
+        "prior": 15,
+        "seconds": 3891.7,
+        "sex": "F"
+      },
+      {
+        "actual": 3904.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2768,
+          5016
+        ],
+        "name": "Ovo Jatto",
+        "out_by": 95.3,
+        "place": 286,
+        "places_out": -1,
+        "prior": 0,
+        "seconds": 3808.7,
+        "sex": "F"
+      },
+      {
+        "actual": 3913.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          3506,
+          4110
+        ],
+        "name": "Gillian Halliday",
+        "out_by": 16.9,
+        "place": 287,
+        "places_out": 10,
+        "prior": 23,
+        "seconds": 3896.1,
+        "sex": "F"
+      },
+      {
+        "actual": 3931.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2916,
+          4961
+        ],
+        "name": "Alison Lauren Judd",
+        "out_by": 132.6,
+        "place": 288,
+        "places_out": -10,
+        "prior": 0,
+        "seconds": 3798.4,
+        "sex": "F"
+      },
+      {
+        "actual": 3938.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3581,
+          4241
+        ],
+        "name": "Jeremy Loeb",
+        "out_by": 41.5,
+        "place": 289,
+        "places_out": 9,
+        "prior": 1,
+        "seconds": 3896.5,
+        "sex": "M"
+      },
+      {
+        "actual": 3939.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3688,
+          4187
+        ],
+        "name": "Susan Locke",
+        "out_by": 32.1,
+        "place": 290,
+        "places_out": 11,
+        "prior": 10,
+        "seconds": 3906.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3939.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3632,
+          4120
+        ],
+        "name": "Catherine Bailey",
+        "out_by": 48.7,
+        "place": 291,
+        "places_out": 5,
+        "prior": 18,
+        "seconds": 3890.3,
+        "sex": "F"
+      },
+      {
+        "actual": 3965.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3905,
+          4325
+        ],
+        "name": "Hillary Winter",
+        "out_by": -134.7,
+        "place": 292,
+        "places_out": 25,
+        "prior": 6,
+        "seconds": 4099.7,
+        "sex": "F"
+      },
+      {
+        "actual": 3976.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Witless Bay",
+        "i80": [
+          3802,
+          4542
+        ],
+        "name": "Carla St Croix",
+        "out_by": -200.1,
+        "place": 293,
+        "places_out": 30,
+        "prior": 1,
+        "seconds": 4176.1,
+        "sex": "F"
+      },
+      {
+        "actual": 3983.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Torbay",
+        "i80": [
+          3832,
+          4195
+        ],
+        "name": "Sherry Frampton",
+        "out_by": -42.9,
+        "place": 294,
+        "places_out": 14,
+        "prior": 13,
+        "seconds": 4025.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3983.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3936,
+          4363
+        ],
+        "name": "Jessica Rice",
+        "out_by": -152.5,
+        "place": 295,
+        "places_out": 24,
+        "prior": 11,
+        "seconds": 4135.5,
+        "sex": "F"
+      },
+      {
+        "actual": 4006.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2863,
+          5032
+        ],
+        "name": "Breena Mackey",
+        "out_by": 212.7,
+        "place": 296,
+        "places_out": -20,
+        "prior": 0,
+        "seconds": 3793.3,
+        "sex": "F"
+      },
+      {
+        "actual": 4013.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          4075,
+          4770
+        ],
+        "name": "Jennifer Percy",
+        "out_by": -370.3,
+        "place": 297,
+        "places_out": 42,
+        "prior": 3,
+        "seconds": 4383.3,
+        "sex": "F"
+      },
+      {
+        "actual": 4018.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3680,
+          4364
+        ],
+        "name": "Harry Lapierre",
+        "out_by": 38.6,
+        "place": 298,
+        "places_out": 9,
+        "prior": 1,
+        "seconds": 3979.4,
+        "sex": "M"
+      },
+      {
+        "actual": 4022.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          3822,
+          4244
+        ],
+        "name": "Natelle Tulk",
+        "out_by": -21.5,
+        "place": 299,
+        "places_out": 10,
+        "prior": 22,
+        "seconds": 4043.5,
+        "sex": "F"
+      },
+      {
+        "actual": 4023.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "St. John's",
+        "i80": null,
+        "name": "Donna James",
+        "out_by": null,
+        "place": 300,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "F"
+      },
+      {
+        "actual": 4029.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3887,
+          4248
+        ],
+        "name": "Kenneth Scott",
+        "out_by": -43.2,
+        "place": 301,
+        "places_out": 14,
+        "prior": 35,
+        "seconds": 4072.2,
+        "sex": "M"
+      },
+      {
+        "actual": 4040.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          3298,
+          3630
+        ],
+        "name": "Emily Hearn",
+        "out_by": 598.3,
+        "place": 302,
+        "places_out": -74,
+        "prior": 12,
+        "seconds": 3441.7,
+        "sex": "F"
+      },
+      {
+        "actual": 4041.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Honey Harbour",
+        "i80": [
+          3471,
+          4201
+        ],
+        "name": "Sawyer Birch",
+        "out_by": 184.3,
+        "place": 303,
+        "places_out": -12,
+        "prior": 1,
+        "seconds": 3856.7,
+        "sex": "M"
+      },
+      {
+        "actual": 4052.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "Tors Cove",
+        "i80": null,
+        "name": "Michelle Power",
+        "out_by": null,
+        "place": 304,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "F"
+      },
+      {
+        "actual": 4074.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3889,
+          4476
+        ],
+        "name": "Melinda Harty",
+        "out_by": -77.2,
+        "place": 305,
+        "places_out": 17,
+        "prior": 3,
+        "seconds": 4151.2,
+        "sex": "F"
+      },
+      {
+        "actual": 4083.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3772,
+          4148
+        ],
+        "name": "Samantha Tetford",
+        "out_by": 117.1,
+        "place": 306,
+        "places_out": 2,
+        "prior": 5,
+        "seconds": 3965.9,
+        "sex": "F"
+      },
+      {
+        "actual": 4094.0,
+        "age": "80+",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3824,
+          4231
+        ],
+        "name": "Florence Barron",
+        "out_by": 44.1,
+        "place": 307,
+        "places_out": 6,
+        "prior": 112,
+        "seconds": 4049.9,
+        "sex": "F"
+      },
+      {
+        "actual": 4096.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          2405,
+          4213
+        ],
+        "name": "Michael Russell",
+        "out_by": 885.6,
+        "place": 308,
+        "places_out": -121,
+        "prior": 0,
+        "seconds": 3210.4,
+        "sex": "M"
+      },
+      {
+        "actual": 4096.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Corner Brook",
+        "i80": [
+          3994,
+          4410
+        ],
+        "name": "Aurora Randell",
+        "out_by": -128.1,
+        "place": 309,
+        "places_out": 21,
+        "prior": 4,
+        "seconds": 4224.1,
+        "sex": "F"
+      },
+      {
+        "actual": 4101.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          4403,
+          4930
+        ],
+        "name": "Denise Fleet",
+        "out_by": -548.7,
+        "place": 310,
+        "places_out": 46,
+        "prior": 12,
+        "seconds": 4649.7,
+        "sex": "F"
+      },
+      {
+        "actual": 4109.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2484,
+          4348
+        ],
+        "name": "Zain Afridi",
+        "out_by": 917.6,
+        "place": 311,
+        "places_out": -133,
+        "prior": 0,
+        "seconds": 3191.4,
+        "sex": "M"
+      },
+      {
+        "actual": 4109.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Holyrood",
+        "i80": [
+          4093,
+          4930
+        ],
+        "name": "Karin Koops",
+        "out_by": -370.1,
+        "place": 312,
+        "places_out": 40,
+        "prior": 1,
+        "seconds": 4479.1,
+        "sex": "F"
+      },
+      {
+        "actual": 4110.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3348,
+          3872
+        ],
+        "name": "Jack Mackey",
+        "out_by": 521.1,
+        "place": 313,
+        "places_out": -63,
+        "prior": 2,
+        "seconds": 3588.9,
+        "sex": "M"
+      },
+      {
+        "actual": 4111.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mobile",
+        "i80": [
+          4213,
+          4676
+        ],
+        "name": "Jane Hutchings",
+        "out_by": -321.8,
+        "place": 314,
+        "places_out": 31,
+        "prior": 7,
+        "seconds": 4432.8,
+        "sex": "F"
+      },
+      {
+        "actual": 4112.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          4013,
+          4725
+        ],
+        "name": "Anne Corbett",
+        "out_by": -265.4,
+        "place": 315,
+        "places_out": 25,
+        "prior": 2,
+        "seconds": 4377.4,
+        "sex": "F"
+      },
+      {
+        "actual": 4117.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          3787,
+          5212
+        ],
+        "name": "Stephanie Adey",
+        "out_by": -321.2,
+        "place": 316,
+        "places_out": 31,
+        "prior": 1,
+        "seconds": 4438.2,
+        "sex": "F"
+      },
+      {
+        "actual": 4125.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          3779,
+          4512
+        ],
+        "name": "Vanessa Walsh",
+        "out_by": -26.7,
+        "place": 317,
+        "places_out": 6,
+        "prior": 1,
+        "seconds": 4151.7,
+        "sex": "F"
+      },
+      {
+        "actual": 4128.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "Flatrock",
+        "i80": null,
+        "name": "Trixie Callahan",
+        "out_by": null,
+        "place": 318,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "F"
+      },
+      {
+        "actual": 4156.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          3792,
+          4365
+        ],
+        "name": "Wendy Croke",
+        "out_by": 48.2,
+        "place": 319,
+        "places_out": 2,
+        "prior": 4,
+        "seconds": 4107.8,
+        "sex": "F"
+      },
+      {
+        "actual": 4174.0,
+        "age": "70-79",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3619,
+          4473
+        ],
+        "name": "Doreen Wakeham",
+        "out_by": 111.7,
+        "place": 320,
+        "places_out": -5,
+        "prior": 7,
+        "seconds": 4062.3,
+        "sex": "F"
+      },
+      {
+        "actual": 4175.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3528,
+          4702
+        ],
+        "name": "Genny Fifield",
+        "out_by": 102.7,
+        "place": 321,
+        "places_out": -4,
+        "prior": 6,
+        "seconds": 4072.3,
+        "sex": "F"
+      },
+      {
+        "actual": 4175.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3581,
+          4035
+        ],
+        "name": "Joanne Hickman",
+        "out_by": 371.0,
+        "place": 322,
+        "places_out": -35,
+        "prior": 15,
+        "seconds": 3804.0,
+        "sex": "F"
+      },
+      {
+        "actual": 4183.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3775,
+          4317
+        ],
+        "name": "Paula Delahunty",
+        "out_by": 134.1,
+        "place": 323,
+        "places_out": -10,
+        "prior": 5,
+        "seconds": 4048.9,
+        "sex": "F"
+      },
+      {
+        "actual": 4183.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          4493,
+          4961
+        ],
+        "name": "Margaret Coward",
+        "out_by": -511.6,
+        "place": 324,
+        "places_out": 34,
+        "prior": 15,
+        "seconds": 4694.6,
+        "sex": "F"
+      },
+      {
+        "actual": 4183.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          4186,
+          4690
+        ],
+        "name": "Erin Walsh",
+        "out_by": -215.5,
+        "place": 325,
+        "places_out": 19,
+        "prior": 7,
+        "seconds": 4398.5,
+        "sex": "F"
+      },
+      {
+        "actual": 4183.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          4055,
+          4814
+        ],
+        "name": "Stefanie Traverse",
+        "out_by": -221.5,
+        "place": 326,
+        "places_out": 19,
+        "prior": 1,
+        "seconds": 4404.5,
+        "sex": "F"
+      },
+      {
+        "actual": 4200.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Happy Valley-Goose Bay",
+        "i80": [
+          4006,
+          4630
+        ],
+        "name": "Julia Parsons",
+        "out_by": -112.8,
+        "place": 327,
+        "places_out": 11,
+        "prior": 3,
+        "seconds": 4312.8,
+        "sex": "F"
+      },
+      {
+        "actual": 4216.0,
+        "age": "U20",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          2388,
+          4311
+        ],
+        "name": "Acelynd Murrin",
+        "out_by": 1021.3,
+        "place": 328,
+        "places_out": -146,
+        "prior": 0,
+        "seconds": 3194.7,
+        "sex": "M"
+      },
+      {
+        "actual": 4221.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Portugal Cove-St. Philip's",
+        "i80": [
+          3907,
+          4526
+        ],
+        "name": "Danielle Anthony",
+        "out_by": 4.5,
+        "place": 329,
+        "places_out": 0,
+        "prior": 3,
+        "seconds": 4216.5,
+        "sex": "F"
+      },
+      {
+        "actual": 4226.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Witless Bay",
+        "i80": [
+          3948,
+          4651
+        ],
+        "name": "Courtney Penney",
+        "out_by": -59.3,
+        "place": 330,
+        "places_out": 2,
+        "prior": 1,
+        "seconds": 4285.3,
+        "sex": "F"
+      },
+      {
+        "actual": 4246.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3776,
+          4450
+        ],
+        "name": "Lorraine Coleman",
+        "out_by": 178.7,
+        "place": 331,
+        "places_out": -16,
+        "prior": 5,
+        "seconds": 4067.3,
+        "sex": "F"
+      },
+      {
+        "actual": 4246.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          3524,
+          4088
+        ],
+        "name": "Jessica Meaney",
+        "out_by": 444.9,
+        "place": 332,
+        "places_out": -48,
+        "prior": 3,
+        "seconds": 3801.1,
+        "sex": "F"
+      },
+      {
+        "actual": 4260.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3484,
+          4283
+        ],
+        "name": "Julie Oakley",
+        "out_by": 350.2,
+        "place": 333,
+        "places_out": -27,
+        "prior": 3,
+        "seconds": 3909.8,
+        "sex": "F"
+      },
+      {
+        "actual": 4260.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          3533,
+          4275
+        ],
+        "name": "Ahlyah Randell",
+        "out_by": 347.5,
+        "place": 334,
+        "places_out": -27,
+        "prior": 3,
+        "seconds": 3912.5,
+        "sex": "F"
+      },
+      {
+        "actual": 4269.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Portugal Cove-St. Philip's",
+        "i80": [
+          4031,
+          4563
+        ],
+        "name": "Celina Butler",
+        "out_by": -38.2,
+        "place": 335,
+        "places_out": -2,
+        "prior": 14,
+        "seconds": 4307.2,
+        "sex": "F"
+      },
+      {
+        "actual": 4272.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          4113,
+          4797
+        ],
+        "name": "Kristina LeDrew",
+        "out_by": -171.1,
+        "place": 336,
+        "places_out": 13,
+        "prior": 1,
+        "seconds": 4443.1,
+        "sex": "F"
+      },
+      {
+        "actual": 4273.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          4086,
+          4842
+        ],
+        "name": "Krista Greeley",
+        "out_by": -161.5,
+        "place": 337,
+        "places_out": 10,
+        "prior": 1,
+        "seconds": 4434.5,
+        "sex": "F"
+      },
+      {
+        "actual": 4275.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          3939,
+          4476
+        ],
+        "name": "Tracy Carroll",
+        "out_by": 80.5,
+        "place": 338,
+        "places_out": -11,
+        "prior": 18,
+        "seconds": 4194.5,
+        "sex": "F"
+      },
+      {
+        "actual": 4301.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3999,
+          4436
+        ],
+        "name": "Karen Lacey",
+        "out_by": 65.5,
+        "place": 339,
+        "places_out": -8,
+        "prior": 37,
+        "seconds": 4235.5,
+        "sex": "F"
+      },
+      {
+        "actual": 4310.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Bay Bulls",
+        "i80": [
+          4076,
+          4676
+        ],
+        "name": "Katie Dunne",
+        "out_by": -49.6,
+        "place": 340,
+        "places_out": -1,
+        "prior": 2,
+        "seconds": 4359.6,
+        "sex": "F"
+      },
+      {
+        "actual": 4332.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          4299,
+          4842
+        ],
+        "name": "Taylor Broderick",
+        "out_by": -236.6,
+        "place": 341,
+        "places_out": 15,
+        "prior": 2,
+        "seconds": 4568.6,
+        "sex": "F"
+      },
+      {
+        "actual": 4339.0,
+        "age": "70-79",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          4248,
+          4737
+        ],
+        "name": "Harold Hardiman",
+        "out_by": -129.8,
+        "place": 342,
+        "places_out": 8,
+        "prior": 93,
+        "seconds": 4468.8,
+        "sex": "M"
+      },
+      {
+        "actual": 4416.0,
+        "age": "70-79",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          4049,
+          4536
+        ],
+        "name": "Monica Griffin",
+        "out_by": 107.8,
+        "place": 343,
+        "places_out": -8,
+        "prior": 15,
+        "seconds": 4308.2,
+        "sex": "F"
+      },
+      {
+        "actual": 4423.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          4018,
+          4614
+        ],
+        "name": "Mohammad Zawad Ali",
+        "out_by": 112.8,
+        "place": 344,
+        "places_out": -7,
+        "prior": 15,
+        "seconds": 4310.2,
+        "sex": "M"
+      },
+      {
+        "actual": 4426.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Tors Cove",
+        "i80": [
+          4051,
+          4559
+        ],
+        "name": "Rebekah Kenny",
+        "out_by": 116.9,
+        "place": 345,
+        "places_out": -9,
+        "prior": 15,
+        "seconds": 4309.1,
+        "sex": "F"
+      },
+      {
+        "actual": 4427.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          4473,
+          5148
+        ],
+        "name": "Heather Tracey",
+        "out_by": -370.7,
+        "place": 346,
+        "places_out": 16,
+        "prior": 3,
+        "seconds": 4797.7,
+        "sex": "F"
+      },
+      {
+        "actual": 4448.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          2391,
+          4339
+        ],
+        "name": "Sam Chalker",
+        "out_by": 1253.9,
+        "place": 347,
+        "places_out": -166,
+        "prior": 0,
+        "seconds": 3194.1,
+        "sex": "M"
+      },
+      {
+        "actual": 4476.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Pouch Cove",
+        "i80": [
+          4319,
+          4720
+        ],
+        "name": "Debbie Bragg",
+        "out_by": -34.6,
+        "place": 348,
+        "places_out": 6,
+        "prior": 47,
+        "seconds": 4510.6,
+        "sex": "F"
+      },
+      {
+        "actual": 4485.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          2936,
+          4427
+        ],
+        "name": "Kristen Hynes",
+        "out_by": 863.5,
+        "place": 349,
+        "places_out": -92,
+        "prior": 1,
+        "seconds": 3621.5,
+        "sex": "F"
+      },
+      {
+        "actual": 4485.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          3950,
+          4941
+        ],
+        "name": "Samantha Hollahan",
+        "out_by": 120.2,
+        "place": 350,
+        "places_out": -10,
+        "prior": 2,
+        "seconds": 4364.8,
+        "sex": "F"
+      },
+      {
+        "actual": 4511.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3820,
+          4538
+        ],
+        "name": "Tamkin Khan",
+        "out_by": 346.4,
+        "place": 351,
+        "places_out": -26,
+        "prior": 2,
+        "seconds": 4164.6,
+        "sex": "M"
+      },
+      {
+        "actual": 4545.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          4372,
+          4966
+        ],
+        "name": "Susan Chang",
+        "out_by": -105.0,
+        "place": 352,
+        "places_out": 6,
+        "prior": 6,
+        "seconds": 4650.0,
+        "sex": "F"
+      },
+      {
+        "actual": 4565.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Whitbourne",
+        "i80": [
+          3534,
+          4266
+        ],
+        "name": "Jillian Kennedy",
+        "out_by": 663.7,
+        "place": 353,
+        "places_out": -50,
+        "prior": 2,
+        "seconds": 3901.3,
+        "sex": "F"
+      },
+      {
+        "actual": 4570.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Paradise",
+        "i80": [
+          3411,
+          4389
+        ],
+        "name": "Lindsay Ryan",
+        "out_by": 683.1,
+        "place": 354,
+        "places_out": -57,
+        "prior": 1,
+        "seconds": 3886.9,
+        "sex": "F"
+      },
+      {
+        "actual": 4571.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Torbay",
+        "i80": [
+          3441,
+          5193
+        ],
+        "name": "Jillian Ball",
+        "out_by": 263.6,
+        "place": 355,
+        "places_out": -21,
+        "prior": 1,
+        "seconds": 4307.4,
+        "sex": "F"
+      },
+      {
+        "actual": 4580.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Broad Cove",
+        "i80": [
+          4238,
+          4788
+        ],
+        "name": "Haley Drover",
+        "out_by": 68.3,
+        "place": 356,
+        "places_out": -1,
+        "prior": 3,
+        "seconds": 4511.7,
+        "sex": "F"
+      },
+      {
+        "actual": 4587.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Conception Bay South",
+        "i80": [
+          4683,
+          5412
+        ],
+        "name": "Lori Bragg",
+        "out_by": -457.0,
+        "place": 357,
+        "places_out": 6,
+        "prior": 2,
+        "seconds": 5044.0,
+        "sex": "F"
+      },
+      {
+        "actual": 4588.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3139,
+          3476
+        ],
+        "name": "Sean Gantang",
+        "out_by": 1283.3,
+        "place": 358,
+        "places_out": -150,
+        "prior": 7,
+        "seconds": 3304.7,
+        "sex": "M"
+      },
+      {
+        "actual": 4680.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          3504,
+          4405
+        ],
+        "name": "Katie Brenton",
+        "out_by": 778.6,
+        "place": 359,
+        "places_out": -55,
+        "prior": 1,
+        "seconds": 3901.4,
+        "sex": "F"
+      },
+      {
+        "actual": 4801.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          4305,
+          5173
+        ],
+        "name": "Ericka Brown",
+        "out_by": 35.4,
+        "place": 360,
+        "places_out": 1,
+        "prior": 1,
+        "seconds": 4765.6,
+        "sex": "F"
+      },
+      {
+        "actual": 4866.0,
+        "age": "70-79",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "St. John's",
+        "i80": [
+          4339,
+          5029
+        ],
+        "name": "Joe Ryan",
+        "out_by": 204.1,
+        "place": 361,
+        "places_out": -2,
+        "prior": 91,
+        "seconds": 4661.9,
+        "sex": "M"
+      },
+      {
+        "actual": 4890.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Mount Pearl",
+        "i80": [
+          2833,
+          5118
+        ],
+        "name": "Hannah Kerfont",
+        "out_by": 1125.8,
+        "place": 362,
+        "places_out": -90,
+        "prior": 0,
+        "seconds": 3764.2,
+        "sex": "F"
+      },
+      {
+        "actual": 5259.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": "Cupids",
+        "i80": null,
+        "name": "Tammy Butler",
+        "out_by": null,
+        "place": 363,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "F"
+      },
+      {
+        "actual": 5262.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": "Cupids",
+        "i80": [
+          4194,
+          4968
+        ],
+        "name": "Carl Butler",
+        "out_by": 761.4,
+        "place": 364,
+        "places_out": -10,
+        "prior": 3,
+        "seconds": 4500.6,
+        "sex": "M"
+      }
+    ],
+    "scored": 339,
+    "with_age": 364,
+    "with_sex": 363
   }
 }

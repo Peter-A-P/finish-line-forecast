@@ -538,6 +538,7 @@
   }
 
   function drawPredictions(race, data) {
+    if (data.result) { drawRetrospect(race, data.result, data.result); return; }
     var target = clear(byId("predictions"));
     var runners = data.runners;
     if (race.score) { target.appendChild(scoreBlock(race)); }
@@ -669,10 +670,22 @@
     return el("td", r.age_from ? { title: r.age_from } : null, r.age);
   }
 
-  function drawRetrospect(race, data) {
+  /* A race already run, drawn one way whether it is the retrospective (the backtest's own
+     held-out rows, no prediction published) or a scored race (the prediction tagged before
+     the gun). `scored` is the scored race's summary, which carries its own figures; the
+     wording says which of the two the card is. */
+  function drawRetrospect(race, data, scored) {
     var target = clear(byId("predictions"));
-    var info = story(race) || {};
+    var info = scored || story(race) || {};
     var runners = data.runners;
+    var said = scored ? "the prediction published before the gun" : "what the model would have said";
+    if (scored) {
+      target.appendChild(el("p", { "class": "note" },
+        "The official results beside the predictions tagged in the public repository before the " +
+        "gun. " + (race.score && race.score.daily_only ? "These are the daily files: the final file, " +
+        "with places, was not published in time, so it is not scored. " : "") +
+        "Every finisher is in the table, in the order they crossed the line."));
+    }
 
     var stats = el("div", { "class": "headline" });
     append(stats, [
@@ -692,23 +705,27 @@
       target.appendChild(el("p", { "class": "note" },
         count(info.finishers) + " people finished and all of them are in the table below. The " +
         "figures above are over the " + count(info.scored) + " with a prediction: the other " +
-        count(info.ambiguous) + " are finishers the archive cannot tell apart from another " +
-        "runner of the same name, which is the same rule that keeps them out of every other " +
-        "number on this page."));
+        count(info.ambiguous) + (scored ?
+          " had no prediction: they were not on the entrant list under that name when the files " +
+          "were published (late entries, names spelled differently), or the archive could not " +
+          "tell them apart from another runner of the same name." :
+          " are finishers the archive cannot tell apart from another " +
+          "runner of the same name, which is the same rule that keeps them out of every other " +
+          "number on this page.")));
     }
 
     if (info.bands && info.bands.length) { target.appendChild(bandTable(info.bands)); }
 
-    target.appendChild(el("h3", null, "Every runner, against what the model would have said"));
+    target.appendChild(el("h3", null, "Every runner, against " + said));
     target.appendChild(el("p", { "class": "note" },
       "Every finisher, in the order they crossed the line, with the place the results page " +
       "printed. \"Out by\" is the finish minus the prediction, so a plus sign means the " +
-      "runner took that much longer than the model called. It is green where the finish landed " +
+      "runner took that much longer than predicted. It is green where the finish landed " +
       "inside that runner's own 80% range, which is the one promise made about a single " +
       "runner; " + percent(info.coverage80, 0) + " of them did, against the 80% promised. A " +
       "bigger miss inside a wide range is green and a smaller one outside a tight range is " +
       "not, because it is the range that made the promise."));
-    target.appendChild(el("p", { "class": "note" },
+    if (!scored) target.appendChild(el("p", { "class": "note" },
       "There is no predicted place column and no places-out column: an absolute place would " +
       "be a second claim about who finished where, and the race is the first column. The " +
       "place error under \"Where the misses were\" is the model's ordering over the " +

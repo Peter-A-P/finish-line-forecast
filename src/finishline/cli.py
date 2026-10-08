@@ -2185,6 +2185,8 @@ def score_race(
         },
         scored_at=datetime.now(UTC),
     )
+    # The website's race card, drawn like the USR 10 km's: every finisher, printed category.
+    card["story"] = cards.story(matching, rows, carry_forward)
     SCORES.mkdir(exist_ok=True)
     (SCORES / f"{race_id}.json").write_bytes(predictions.to_bytes(card))
     RACE_PAGES.mkdir(parents=True, exist_ok=True)

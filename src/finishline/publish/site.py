@@ -422,11 +422,16 @@ def race_predictions(
             row["actual"] = result["actual"]
             row["actual_place"] = result["place"]
     runners = redact.default().rows(runners)
-    return {
+    out: dict[str, Any] = {
         "final": final is not None,
         "newcomers": None if final is None else final.doc.get("newcomers"),
         "runners": runners,
     }
+    # Once scored, the card the website draws is the result, laid out like the USR 10 km's.
+    told = (card or {}).get("story")
+    if told:
+        out["result"] = {**told, "runners": redact.default().rows(told["runners"])}
+    return out
 
 
 def plan_entries(plan: Path) -> int:
