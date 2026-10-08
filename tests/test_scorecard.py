@@ -140,7 +140,7 @@ def scored() -> tuple[dict[str, Any], sc.Matching]:
         prediction={
             "file": "predictions/c2c-2026.json",
             "sha256": "f" * 64,
-            "tag": "predictions/c2c-2026",
+            "tag": "predictions/c2c-2026/final",
             "tagged_at": (GUN - timedelta(days=1, hours=1)).isoformat(),
             "model": "hierarchical",
             "commit": "0" * 40,
@@ -198,7 +198,7 @@ def test_the_readme_row_links_the_race_page_and_says_what_its_intervals_mean() -
     card, _matching = scored()
     table = sc.live_table([card])
     assert "docs/predictions/c2c-2026.md" in table
-    assert "predictions/c2c-2026" in table
+    assert "predictions/c2c-2026/final" in table
     assert "resample runners within each race" in table
 
 
@@ -233,7 +233,10 @@ def test_the_command_refuses_an_untagged_or_late_prediction(
     assert "not a prediction" in untagged.output
 
     late = GUN - timedelta(hours=2)
-    git(tmp_path, "tag", "-a", "predictions/c2c-2026", "-m", f"sha256 {digest}", when=late)
+    # A daily tag first, as every real race has: the final tag must still be creatable.
+    git(tmp_path, "tag", "-a", "predictions/c2c-2026/daily-2026-10-11", "-m", "daily", when=late)
+    git(tmp_path, "tag", "-a", pf.final_tag("c2c-2026"), "-m", f"sha256 {digest}",
+        when=late)
     refused = runner.invoke(cli.app, ["score", "c2c-2026"])
     assert refused.exit_code == 2
     assert "at least" in refused.output

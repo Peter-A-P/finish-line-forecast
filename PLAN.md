@@ -107,7 +107,7 @@ publishable at all.
 
 A prediction file per race: one row per runner, predicted time, 80% and 90% intervals,
 predicted place range, the forecast conditions used, the model version. Committed to the
-public repository and tagged (`predictions/c2c-2026`) no later than 24 hours before the
+public repository and tagged (`predictions/c2c-2026/final`; item 45) no later than 24 hours before the
 start; the SHA-256 of the file goes into the README and the tag message. The repository
 must therefore be public before the first live race. A prediction made or altered after
 the tag is not a prediction and is never reported as one.
@@ -2026,3 +2026,22 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     returning runner), and a profile of its courses (asked of project 11 on 2026-09-25) to check
     course factors measured from 55 to 186 finishes. Its weather is an average morning either
     way: St. John's airport cannot speak for Goose Bay.
+
+45. **The Turkey Tea's final file was never published, because its tag could not exist
+    (2026-10-03).** The morning task wrote the final file, committed it and asked git for the
+    tag `predictions/tt-2026`. Git keeps tags as paths, and `predictions/tt-2026/daily-...`
+    already existed for the six daily files, so a tag of the folder's own name was refused, the
+    script stopped before pushing, and its log said so to nobody for five days. Nothing in the
+    rehearsal had tagged a final file after daily ones: every dry run stops before the tag.
+
+    **What counts.** The six daily files were tagged and pushed before the gun, and every
+    runner on the list is in one of them with a time and an 80% range, so those predictions are
+    pre-registered and are what the Turkey Tea is scored on. The final file, with places and the
+    day-before forecast, is not: its commit is dated 2026-10-03 on this machine, but nothing
+    outside this machine saw it before the gun. It is kept on the local branch
+    `tt-2026-final-untagged` and never pushed as a prediction; places at the Turkey Tea are
+    not scored.
+
+    **Fixed**: a final file is tagged `predictions/<race>/final` (`predictions.final_tag`), and
+    the scorecard test now creates a daily tag first, so the collision cannot come back
+    unnoticed. Cape to Cabot's final file, due by 08:00 on 2026-10-17, is the first to use it.

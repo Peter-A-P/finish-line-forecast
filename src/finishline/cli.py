@@ -1689,7 +1689,7 @@ def freeze(
             return
     else:
         path = PREDICTIONS / f"{race_id}.json"
-        tag = f"predictions/{race_id}"
+        tag = predictions.final_tag(race_id)
     if dry_run:
         problems = predictions.validate(doc)
         counted = doc["entrants"]
@@ -2019,7 +2019,7 @@ def score_race(
 ) -> None:
     """Score a tagged prediction against the official results, and write the race page.
 
-    Reads the prediction file from the tag `predictions/<race>`, never from the working copy,
+    Reads the prediction file from the tag `predictions/<race>/final`, never from the working copy,
     and refuses unless the tag message publishes the file's hash and the tag is at least 24
     hours before the gun. Finds the results page on the association's index, refreshing that
     year's index once if the race is not on the cached copy, and fetches the page once.
@@ -2032,7 +2032,7 @@ def score_race(
     from finishline.publish import predictions
     from finishline.publish import scorecard as cards
 
-    tag = f"predictions/{race_id}"
+    tag = predictions.final_tag(race_id)
     file = f"{PREDICTIONS.as_posix()}/{race_id}.json"
     ref = f"refs/tags/{tag}"
     fields = _git_bytes(

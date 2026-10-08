@@ -54,6 +54,17 @@ SCHEMA_VERSION = 1
 # How long before the gun a prediction file must exist. CLAUDE.md, PLAN.md 2.2.
 MINIMUM_NOTICE = timedelta(hours=24)
 
+
+def final_tag(race_id: str) -> str:
+    """The tag a race's final file is published under, beside its daily tags.
+
+    ⚠️ **Not `predictions/<race>`.** Git keeps tags as paths, so a tag of that name cannot exist
+    once `predictions/<race>/daily-...` does, and the reverse. The Turkey Tea's final file was
+    committed on 2026-10-03 and refused its tag for exactly that reason, so it was never
+    published (PLAN.md 13 item 45). Every tag of a race lives in its own folder.
+    """
+    return f"predictions/{race_id}/final"
+
 LEVELS: tuple[str, ...] = ("80", "90")
 
 
