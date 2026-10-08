@@ -1109,6 +1109,15 @@ def _closed_races(
     watching = date.fromisoformat(str(page.get("watching_since", "2026-09-12")))
     today = date.today()
 
+    # A race with a prediction published before its gun is scored (`finishline score`), never
+    # a retrospective: the two words, and the two directories, stay apart (CLAUDE.md).
+    live = tomllib.loads(LIVE.read_text(encoding="utf-8")) if LIVE.exists() else {}
+    predicted = {
+        (str(record["date"]), str(record["course_id"]).rsplit("-", 1)[0])
+        for race_id, record in live.items()
+        if (PREDICTIONS / race_id).exists() or (PREDICTIONS / f"{race_id}.json").exists()
+    }
+
     closed: dict[str, Any] = {}
     written: list[Path] = []
     for event in page.get("events", []):
@@ -1116,6 +1125,8 @@ def _closed_races(
             continue
         when = date.fromisoformat(str(event["date"]))
         if not watching <= when < today:
+            continue
+        if (str(event["date"]), str(event["family"])) in predicted:
             continue
         race_ids = retrospect.events_on(data, when, str(event["family"]))
         if not race_ids:
