@@ -194,62 +194,30 @@ are fetched by hand (`finishline crawl --refresh-index`) before the backtest eac
 never between that backtest and the freeze. When nlaa.ca posts the USR, its pages replace the
 club's copy automatically (`store.build`).
 
-### 3b. The Turkey Tea rehearsal, 2026-10-04 at 08:00
+### 3b. Cape to Cabot's prediction week, 2026-10-11 to 2026-10-17
 
-A prediction week (PLAN.md 5.7): daily files of new entrants from 2026-09-27, the final file
-with places by 08:00 on 2026-10-03, each committed, tagged and pushed by
-`scripts/daily-predictions.ps1` at 06:15 (register it with
-`scripts/register-predictions-task.ps1`), and scored when NLAA posts the results. `freeze`
-needs a saved backtest that matches the code and the data on the day, so nothing in
-`models/`, `history.py` or `backtest/run.py` changes after the backtest it will use, `src/`
-stays committed through the week. The repository is public (2026-09-19) and the website
-redeploys on every push (docs/deploy.md). Cape to Cabot's week starts 2026-10-11.
+The Turkey Tea rehearsal is finished: six daily files tagged before the gun, scored on
+2026-10-08 (3.0 minutes of average miss, [the race page](predictions/tt-2026.md)), its results
+and the archive repair (accented letters) in the backtest every Cape to Cabot file
+is checked against. Its final file was never published because its tag could not exist
+(PLAN.md 13 item 45).
 
-**Decided by Peter, 2026-09-25: the Turkey Tea results go into Cape to Cabot's predictions.**
-64 of Cape to Cabot's 499 entrants are on the Turkey Tea list, and their race two weeks
-before is the freshest result they will have. The window is 2026-10-04 to 06:15 on
-2026-10-11, between the Turkey Tea's gun and Cape to Cabot's first daily file, and it is free
-now that the Trapline is not predicted (PLAN.md 13 item 44). In order, as soon as NLAA posts
-the results:
+Cape to Cabot's first daily file was tagged on 2026-10-11 with 477 runners.
+`scripts/daily-predictions.ps1` runs at 06:15 each morning, and the final file, with places and
+the day-before forecast, is due by 08:00 on 2026-10-17.
 
-0. Item 3c first: the refetched pages swapped in and `archive-repair` merged.
-1. `finishline crawl --refresh-index` (the scheduled crawl is standing down around both races,
-   so this is by hand).
-2. `finishline backtest --hierarchical --challenger`: 8 to 10 hours, checkpointed per block, so
-   start it by the morning of 2026-10-10 at the latest to have it finished before 06:15 on
-   2026-10-11.
-3. `finishline report`, then commit and push, so the site and README follow.
-4. `finishline score tt-2026` any time after step 1; scoring has no deadline.
+⚠️ **The final file is the first to use the tag `predictions/c2c-2026/final`**, the fix for the
+collision that lost the Turkey Tea's. A test covers it, but no real final file has been tagged
+after daily ones yet, so read `data/cache/freeze/predictions.log` that morning rather than
+trusting the silence, while there is still time before 08:00 to tag by hand.
 
-⚠️ **Nothing enters the archive after step 2 starts** until Cape to Cabot's final file on
-2026-10-17: every file in its week needs a backtest that matches the archive. If the Turkey Tea
-results are not posted in time to finish step 2 before 06:15 on 2026-10-11, Cape to Cabot runs
-on the pre-week backtest without them, and they are fetched after 2026-10-17.
+⚠️ **Nothing enters the archive until the final file is tagged**: every file in the week needs
+a saved backtest that matches the code and the data, so nothing in `models/`, `history.py` or
+`backtest/run.py` changes and `src/` stays committed. The scheduled crawl stands down from
+2026-10-08 to 2026-10-19 on its own.
 
-### 3c. Accented and curly characters split a few histories: ready, merges after the Turkey Tea final file
-
-Found 2026-10-01 from Peter's eye on the Turkey Tea page (St. John's printed five ways). The page
-is fixed (`normalise.town_spellings`, 91ccea5). The archive repair is built and waiting on branch
-`archive-repair` (1c25996), because any change to a parsed name moves the dataset fingerprint and
-would stop the Turkey Tea final file. What it repairs:
-
-- **Race Roster's 2026 Tely results arrive as UTF-8 read as Latin-1**: 119 strings, 5 of them
-  names. `ingest/raceroster.py` now applies `normalise.repair`.
-- **39 older nlaa.ca pages lost their accented letters when they were saved**, and two more
-  pages (the 2025 Turkey Tea, Athletics NorthEAST's USR 10 km) lose one when they are read.
-  `nlaa.decode` reads a stray Windows-1252 byte as one; with Peter's approval (2026-10-01) the
-  39 were fetched once more into `data/cache/nlaa-refetch/`, and each matches its cached copy
-  except at the lost letters, every one of which came back (81 of them on the 2017 Turkey Tea).
-
-Measured with all of it in place: 24,211 runners become 24,202, no result keeps a lost or
-garbled character, no Turkey Tea or Cape to Cabot entrant changes link status, and Stephane
-Autin (Cape to Cabot) is predicted from 21 results instead of 19.
-
-**In order, after the Turkey Tea final file is tagged (2026-10-03) and before step 2 of 3b:**
-
-1. `scripts/swap-refetched-pages.ps1` (copies the 39 pages in, appends their manifest rows).
-2. `git merge archive-repair`, checks, push.
-3. Then 3b as written: crawl, backtest, report.
+After the race, once NLAA posts the results: `finishline crawl --refresh-index`, then
+`finishline score c2c-2026`, then `finishline report`, commit and push. Scoring has no deadline.
 
 ## Open questions the assistant should not settle alone
 

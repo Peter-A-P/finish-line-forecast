@@ -13,31 +13,35 @@ be edited once the results are in.
 **The site: [finishline.peterparker.ca](https://finishline.peterparker.ca)**, every live race
 and the whole method in pictures, with a search box for your own name.
 
-**Status: built and measured, waiting for a start line.** Eighteen years of results pages are
-parsed, 23,830 runners are resolved out of them with no runner ID to join on, every course's
-difficulty is measured from the finishes, and a whole field is predicted, first-timers
-included. What has not happened yet is a prediction: nothing here is tagged. The first goes out
-on 2026-09-27 for the Turkey Tea 10 km on 2026-10-04, then Cape to Cabot 20 km on 2026-10-18.
+**Status: live.** Eighteen years of results pages are parsed, 23,861 runners are resolved out of
+them with no runner ID to join on, every course's difficulty is measured from the finishes, and
+a whole field is predicted, first-timers included. The first race on the record is scored: the
+Turkey Tea 10 km on 2026-10-04, predicted in six daily files tagged before the gun, came in at
+3.0 minutes of average miss (95% interval 2.6 to 3.4), 2.3 minutes closer than carry-forward on
+the same runners, with the 80% ranges holding 82% of the time. Cape to Cabot 20 km on 2026-10-18
+is in its prediction week: the first daily file was tagged on 2026-10-11 with 477 runners, and
+the final file, with places, is due by 08:00 on 2026-10-17. [The live record](#the-live-record)
+has both.
 
 ## How good is it
 
-- **5.0 minutes** of average error for a runner with four or more past races (95% interval 4.8
-  to 5.2), against **7.4 minutes** for the best simple rule this same pipeline can compute.
+- **4.9 minutes** of average error for a runner with four or more past races (95% interval 4.8
+  to 5.1), against **7.3 minutes** for the best simple rule this same pipeline can compute.
   **32% closer.**
-- It answers for **every runner on the start list**. Nearly a third of a field here, 5,711 of
-  18,824, has no past result at all, which no rule of thumb can answer for; those predictions
+- It answers for **every runner on the start list**. Nearly a third of a field here, 5,748 of
+  19,205, has no past result at all, which no rule of thumb can answer for; those predictions
   carry the largest error in the tables and the error is published, not hidden.
-- **4.1 places closer** than that rule on the same runners (95% interval 2.0 to 6.7), which is
+- **4.1 places closer** than that rule on the same runners (95% interval 2.1 to 6.6), which is
   the number a race director plans from.
-- Every prediction carries a range, and the ranges are checked: the 80% range held 74 to 78% of
-  the time and the 90% range 88 to 89%, on races the calibration had never seen.
+- Every prediction carries a range, and the ranges are checked: the 80% range held 75 to 78% of
+  the time and the 90% range 87 to 89%, on races the calibration had never seen.
 
 **An average miss is not a margin every prediction carries.** For the front of a 5 km field,
-with four or more past races, the average miss is 45 seconds, half of those runners were inside
-28 seconds, and nine in ten inside 1.6 minutes. The tables below give that shape by race length
+with four or more past races, the average miss is 46 seconds, half of those runners were inside
+29 seconds, and nine in ten inside 1.6 minutes. The tables below give that shape by race length
 and by where a runner finishes in their own field, because a single average hides both.
 
-Measured on 18,824 predictions over 53 races from 2024 on, each made only from results dated
+Measured on 19,175 predictions over 54 races from 2024 on, each made only from results dated
 strictly before it. Every table on this page is written by `finishline report` from that one
 run, and none of them is edited by hand.
 
@@ -76,7 +80,7 @@ The first table is the headline. The three after it pair the models on the same 
 race, which is how a difference of a few tenths of a percent is told apart from noise, with the
 intervals resampling races rather than runners because runners in one race share a morning. What
 they say: the trees beat the Bayesian model wherever a runner has any history, the average of
-the two beats both, and where the average loses it loses by 0.08 points at one depth.
+the two beats both, and where the average loses it loses by 0.06 points at one depth.
 
 <!-- finishline:baselines -->
 | Prior results | Runners | Model | Answered | MAE, minutes (95% CI) | Mean % error | Skill vs carry-forward |
@@ -144,9 +148,9 @@ comparison is not this model against something a runner can look up. It is this 
 the best simple answer the same machinery can give, on the same runners, which is the harder
 test and the only honest one.
 
-**And a rule of thumb cannot answer for a third of the field.** Over the 53 scored races
-carry-forward answers for 13,113 of 18,824 entrants (70%) and the race calculator for 10,403
-(55%). The remaining 5,711 have nothing to carry forward. A race director planning a
+**And a rule of thumb cannot answer for a third of the field.** Over the 54 scored races
+carry-forward answers for 13,457 of 19,205 entrants (70%) and the race calculator for 56%. The
+remaining 5,748 have nothing to carry forward. A race director planning a
 finish-line clock needs the whole field, not the two thirds of it with a history.
 
 ### By race length
@@ -214,11 +218,11 @@ The same runners: each model against `carry-forward`, both ranked among the runn
 <!-- finishline:end:placing -->
 
 **Read the second table, not the first.** The first ranks each method among the runners it
-answered for, so carry-forward is ranked over the 13,113 runners who have a past result while
+answered for, so carry-forward is ranked over the 13,457 runners who have a past result while
 the model is ranked over the whole field, first-timers included, whose order is close to a
-guess. That is where its 48.7 comes from. The second ranks both over the same runners, race by
-race: there the published model is 4.1 places better than carry-forward (95% interval 2.0 to
-6.7), 21.3 against 25.5, with rank correlation 0.876 against 0.849. Both tables stay, because
+guess. That is where its 48.2 comes from. The second ranks both over the same runners, race by
+race: there the published model is 4.1 places better than carry-forward (95% interval 2.1 to
+6.6), 21.3 against 25.4, with rank correlation 0.878 against 0.851. Both tables stay, because
 scoring each method only on the subset that suits it is how a table stops being checkable.
 
 ### The ranges
@@ -294,26 +298,26 @@ tagged before its gun, so it is not in the record above and never will be.** Wha
 [website](https://finishline.peterparker.ca) shows for it is the backtest's own rows, held
 out by construction: the fit that made them saw no result from the quarter the race falls in
 or later, which for 2026-09-13 means nothing after 2026-06-30, and the leakage check asserts
-that at every origin. It is the only place where the whole thing can be seen end to end
-before the Turkey Tea: a start list saved before the gun, an official finish list after it,
-and what the model would have said in between.
+that at every origin. It was the only place where the whole thing could be seen end to end
+before the Turkey Tea was scored: a start list saved before the gun, an official finish list
+after it, and what the model would have said in between.
 
 Only the 10 km is scored. Its road has nine earlier editions; the marathon and half moved to
 new routes in 2026 and the 5 km had never been run, so for those three the model had no
 course difficulty at all and the error there would be mostly the cost of that. The rule is
 mechanical rather than chosen race by race, and the three unscored events are listed with the
-reason. On the 161 of 171 finishers the archive can identify: **4.74 min average miss**, and
-**3.81 against carry-forward's 4.43 paired** on the 136 carry-forward can answer for at all.
+reason. On the 168 of 171 finishers the archive can identify: **4.32 min average miss**, and
+**3.61 against carry-forward's 4.22 paired** on the 140 carry-forward can answer for at all.
 Every one of the 171 finishers is in the table on the site at the place the results page
-printed, the ten with no prediction included, tagged as a potential duplicate and carrying the
-reason the resolver refused them; the place error is 14 at the middle, measured over the
+printed, the three with no prediction included, tagged as a potential duplicate and carrying the
+reason the resolver refused them; the place error is 11 at the middle, measured over the
 runners with a prediction so that a runner nobody could identify neither helps it nor hurts
 it. The club's finish lists print no hometown, no sex and no age band, so the gender and age
 group beside a name are what the association's own results last printed for that runner
 before this race, dated on the page, and blank where a band could no longer be true.
-The minutes grow down the field and the share of a finish time does not: 3.6, 4.5 and 6.4
-minutes from the front quarter to the last, which is 7.5%, 7.5% and 7.9% of a finish time.
-Of 198 listed in the 10 km, 171 finished and 168 were found, so 15.2% were not found, an
+From the front quarter to the last the miss is 3.2, 3.3 and 7.4 minutes, which is 6.7%, 5.4%
+and 9.2% of a finish time. Of 198 listed in the 10 km, 171 finished and 169 were found, so
+14.6% were not found, an
 upper bound on the no-show rate. [PLAN.md](PLAN.md) section 5.9 has the rest.
 
 ## What the archive gave up
@@ -323,7 +327,7 @@ request a second and cached forever, plus Athletics NorthEAST's own finish lists
 lists. `finishline catalogue` reads the year indexes, which carry event names and dates and no
 runners; the skip list distinguishes a duplicate from a hole, because the coverage claim is only
 as good as that distinction. Most skips are team standings, awards pages, relays, cross-country
-and school races: other views of races already read, or other disciplines. What came out is 286
+and school races: other views of races already read, or other disciplines. What came out is 287
 races over 52 courses from 2008 to 2026, with no racing at all in 2020, and the deepest course
 history 17 editions.
 
@@ -492,7 +496,9 @@ distance. Both sit in the range the marathon literature reports for mid-pack run
   sees, is the only compliant use and is deferred.
 - **It does not know who will start.** Where the race publishes an entrant list it predicts for
   that list and publishes the no-show rate afterwards. Where there is no list, as at Run to
-  Remember, who runs would have to be predicted too, and that part is not built.
+  Remember, the field itself is forecast from who has run the race before, and that forecast is
+  weak: in the backtest about 30% of the runners it names finish. The file says so beside the
+  names, and [PLAN.md](PLAN.md) section 13 item 42 has the measurement.
 - **It will sometimes merge two runners who share a name.** There is no runner ID in the
   archive, and hometown is not allowed to split a name because runners move, so two people of
   one name with compatible ages become one runner with one muddled history. The number that
@@ -501,10 +507,11 @@ distance. Both sit in the range the marathon literature reports for mid-pack run
   one person spelling their own town differently across entry forms (`Paradise` and `Pradise`,
   `Conception Bay South` and `Cbs`), so the true number is lower, and the checkable one is what
   gets published.
-- **It does not predict a runner it cannot tell apart from another.** 381 are held back on the
+- **It does not predict a runner it cannot tell apart from another.** 361 are held back on the
   current archive, counted rather than guessed at.
 - **It publishes nothing about a runner that the results do not already publish**: the name and
-  hometown as printed, and the prediction. Never the shirt size an entrant list happens to show.
+  hometown as printed, the gender and age group the association's own results printed, and the
+  prediction. Never the shirt size an entrant list happens to show.
 - **Its ranges are calibrated on past races.** Coverage is guaranteed on average within a
   history-depth group under exchangeability, not for any one runner or any one race, and it
   fails when a race meets conditions the earlier races did not. A gale on Signal Hill is exactly
@@ -512,7 +519,7 @@ distance. Both sit in the range the marathon literature reports for mid-pack run
 
 ## What went wrong on the way
 
-[PLAN.md](PLAN.md) section 13 is a log of thirty-eight designs this data refuted, each written up
+[PLAN.md](PLAN.md) section 13 is a log of forty-five designs this data refuted, each written up
 with its evidence rather than quietly fixed. The ones a reader should know about before trusting
 a number above:
 
@@ -541,7 +548,7 @@ a number above:
   runs east-north-east, so the usual wind pushes that field along; Cape to Cabot runs
   north-west, so the same westerly is a headwind. Fitted as one speed for the province those
   cancel. Wind now enters as a speed, which a loop pays whichever way it blows, and as a signed
-  tailwind along a course bearing, which only a point-to-point course has. Two courses carry a
+  tailwind along a course bearing, which only a point-to-point course has. Three courses carry a
   bearing so far, so the tailwind term has the right sign and an interval that still includes
   zero, and it is reported that way rather than kept quiet because the sign is pleasing.
 - **One hot race the heat does not explain: the 2026 Tely 10 is still 3.0% too fast.** 18 C,
@@ -613,7 +620,7 @@ Checks: `uv run ruff check .`, `uv run mypy`, `uv run pytest`.
 
 ## How it is built
 
-- **Python 3.13, typed throughout**, `mypy --strict` and `ruff` clean in CI, 356 tests.
+- **Python 3.13, typed throughout**, `mypy --strict` and `ruff` clean in CI, 511 tests.
 - **Tests that fail meaningfully**: golden pages for the parser, labelled pairs for identity
   resolution, closed-form checks for Daniels' tables and the grade model, coverage on a
   synthetic fixture, schema and hash on the prediction file, and a leakage test that plants a
