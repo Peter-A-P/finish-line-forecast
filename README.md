@@ -519,7 +519,7 @@ distance. Both sit in the range the marathon literature reports for mid-pack run
 
 ## What went wrong on the way
 
-[PLAN.md](PLAN.md) section 13 is a log of forty-five designs this data refuted, each written up
+[PLAN.md](PLAN.md) section 13 is a log of forty-six designs this data refuted, each written up
 with its evidence rather than quietly fixed. The ones a reader should know about before trusting
 a number above:
 

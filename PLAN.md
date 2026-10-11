@@ -11,7 +11,7 @@ the model's race effect (section 13 item 27), the LightGBM challenger, and the p
 model.
 
 **Section 13 is the log of what the data refuted**, and it is the first thing to read after
-this line: forty-five numbered entries, each one a design in this plan that measurement
+this line: forty-six numbered entries, each one a design in this plan that measurement
 overturned. What is open and who owns it is in [docs/todo.md](docs/todo.md).
 
 **Build:** planned in relative weeks. Earliest start: now. The first live target fixes the
@@ -386,7 +386,8 @@ a quarter, never more.
 **Entrant-list mode** (Cape to Cabot, USR): the list snapshot taken at freeze time is the
 field. Each name is resolved against the history exactly as results are resolved against
 each other (section 5.2); an entrant with no match is predicted from the group prior with
-their listed sex, and counted. The no-show rate and the late-entry rate are measured on the
+their listed sex, and counted. A listed sex that almost nobody of that first name has in the
+archive is read as not stated (section 13 item 46, amended 2026-10-11). The no-show rate and the late-entry rate are measured on the
 USR of 2026-09-13, whose list was saved on 2026-09-12, and reported with the Cape to Cabot
 prediction as the expected gap between the list and the finishers.
 
@@ -2045,3 +2046,45 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     **Fixed**: a final file is tagged `predictions/<race>/final` (`predictions.final_tag`), and
     the scorecard test now creates a daily tag first, so the collision cannot come back
     unnoticed. Cape to Cabot's final file, due by 08:00 on 2026-10-17, is the first to use it.
+
+46. **A start list's sex column is a box the entrant ticked, and four men ticked the wrong one
+    (2026-10-11).** Cape to Cabot's first daily file was tagged that morning. The same day
+    Peter recognised a runner in it, a man with twenty finishes in the archive, published as
+    somebody with no past races. The list prints him as female. The linker's rule (5.6, and
+    `identity/link.py` since it was written) is that a listed sex which contradicts the
+    history means a different person of the same name, so he was a newcomer, drawn from the
+    women's first-timer pool. Three more entrants on the same list are the same case: listed
+    female, a first name the archive has only ever seen on men, and a male history under the
+    full name.
+
+    **The rule was right about namesakes and wrong about where the error is.** It was written
+    for Chris Walsh the woman and Chris Walsh the man, who exist. It assumed the list was the
+    careful side. The results are printed by a timing company from a finish; the list is a web
+    form.
+
+    **Changed**: where at least 20 archive runners share the entrant's first name and no more
+    than 2% of them are of the listed sex, the listed sex is read as not stated
+    (`link.FIRST_NAME_RUNNERS`, `link.FIRST_NAME_SHARE`). The archive has 23 runners with the
+    first of these four first names, 119 with the second and 133 with the third, every one
+    male, and 99 to 2 for the fourth. Nothing else about linking moves: one runner of the name
+    is linked, two are still a refusal. A linked entrant is then predicted with the sex the
+    results printed, because both models read sex from the entrant. An entrant with nobody of
+    their name in the archive keeps the sex they listed: a first name is evidence about a
+    ticked box only when there is a history to say whose box it was.
+
+    **Measured on the lists held.** Cape to Cabot, 500 entrants on the 2026-10-08 snapshot:
+    linked 443 to 446, new 34 to 30, ambiguous 23 to 24 (the fourth entrant has two candidates
+    and is now excluded and counted, where before they were predicted as a woman). A fifth
+    entrant meets the threshold the other way round, listed male under a first name that is
+    72 to 1 female, and was already linked to a male history, so nothing changes for him: the
+    rule only removes a check. On the Turkey Tea's 435 and the USR's list it fires on nobody.
+
+    **What stands.** `daily-2026-10-11.json` is tagged and is not edited. Those four lines are
+    scored as they were published, and three of them are known to be wrong by a wide margin
+    before the gun. A daily file never revisits an entrant, so the corrected predictions first
+    appear in the final file, due by 08:00 on 2026-10-17, which recomputes everyone. No saved
+    backtest moves: the linker is in no cache key and no backtest reads a start list.
+
+    **Not done**: a hand-kept list of corrections. It would put a sentence about one named
+    person's entry form into a public repository, and it fixes only the runners Peter happens
+    to know.

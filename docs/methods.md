@@ -148,7 +148,11 @@ For a race with a public entrant list (Athletics NorthEAST's, or Trackie's), the
 freeze time is the field. Each entrant is linked to at most one runner by name key and sex
 (`identity/link.py`): one candidate is linked, none is a newcomer, and more than one is
 excluded and counted, because the list prints no age to choose between them, unless the list
-prints a hometown that exactly one of them was ever printed under.
+prints a hometown that exactly one of them was ever printed under. A listed sex that
+contradicts the history means a different person, with one exception: where at least 20
+runners in the archive share the entrant's first name and no more than 2% of them are of the
+listed sex, the list is taken to be the mistake and the sex is read as not stated (PLAN.md
+section 13 item 46: four men on Cape to Cabot's 2026 list were entered as female).
 
 A race without a list (Run to Remember) has its field forecast (`models/participation.py`,
 PLAN.md 5.6 and section 13 item 42). Every runner with a finish in the eighteen months before

@@ -30,18 +30,33 @@ people of one name is two people, and at most one of them is the runner in the a
 ⚠️ **Sex is a check here, as it is in the resolver.** An entrant listed female does not link
 to a runner whose results say male; that is a different person with the same name, and the
 entrant is a newcomer. A missing sex on either side is no information, not a mismatch.
+
+⚠️ **Unless the archive says the listed sex is the mistake** (PLAN.md section 13 item 46). The
+sex on a list is a box the entrant ticked, and some tick the wrong one: Cape to Cabot's 2026
+list printed four men as female, each with a history under his name, and each was predicted
+as a woman with no results. So where at least `FIRST_NAME_RUNNERS` archive runners share the
+entrant's first name and no more than `FIRST_NAME_SHARE` of them are of the listed sex, the
+listed sex is read as not stated. Everything above still applies: one runner of the name is
+linked, two are a refusal. A linked entrant then carries the sex the results printed, because
+the models read a runner's sex from the entrant. An entrant with nobody of their name in the
+archive keeps the sex they listed; a first name alone is not enough to change it.
 """
 
 from __future__ import annotations
 
 from collections import Counter, defaultdict
 from collections.abc import Iterable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import StrEnum
 
 from finishline.identity.normalise import name_key, town_key
 from finishline.identity.resolve import Runner
 from finishline.ingest.entrants import Entrant
+
+# How one-sided a first name has to be in the archive before it overrules a listed sex: this
+# many runners carry it, and at most this share of them are of the sex the list printed.
+FIRST_NAME_RUNNERS = 20
+FIRST_NAME_SHARE = 0.02
 
 
 class Status(StrEnum):
@@ -52,7 +67,11 @@ class Status(StrEnum):
 
 @dataclass(frozen=True, slots=True)
 class Link:
-    """One entrant, and what the archive can say about who they are."""
+    """One entrant, and what the archive can say about who they are.
+
+    `entrant` is the list's own line, except the sex of a linked entrant whose listed sex the
+    archive overruled, which is the runner's.
+    """
 
     entrant: Entrant
     status: Status
@@ -63,15 +82,19 @@ class Link:
 def link(entrants: Sequence[Entrant], runners: Iterable[Runner]) -> list[Link]:
     """Every entrant, in list order, linked to at most one runner."""
     by_key: dict[str, list[Runner]] = defaultdict(list)
+    first_names: dict[str, Counter[str]] = defaultdict(Counter)
     for runner in runners:
         by_key[name_key(runner.name)].append(runner)
+        if runner.sex is not None and not runner.ambiguous:
+            first_names[_first_name(runner.name)][runner.sex] += 1
 
     first_pass: list[Link] = []
     for entrant in entrants:
+        listed = None if _overruled(entrant, first_names) else entrant.sex
         candidates = [
             runner
             for runner in by_key.get(name_key(entrant.name), [])
-            if entrant.sex is None or runner.sex is None or runner.sex == entrant.sex
+            if listed is None or runner.sex is None or runner.sex == listed
         ]
         if not candidates:
             first_pass.append(Link(entrant, Status.NEW, None, "no runner of this name"))
@@ -97,6 +120,15 @@ def link(entrants: Sequence[Entrant], runners: Iterable[Runner]) -> list[Link]:
                     f"{len(candidates)} runners of this name and the list prints no age",
                 )
             )
+        elif candidates[0].sex not in (None, entrant.sex) and entrant.sex is not None:
+            first_pass.append(
+                Link(
+                    replace(entrant, sex=candidates[0].sex),
+                    Status.LINKED,
+                    candidates[0],
+                    "one runner; the listed sex is one almost nobody of this first name has",
+                )
+            )
         else:
             first_pass.append(Link(entrant, Status.LINKED, candidates[0], "one runner"))
 
@@ -114,6 +146,22 @@ def link(entrants: Sequence[Entrant], runners: Iterable[Runner]) -> list[Link]:
         else item
         for item in first_pass
     ]
+
+
+def _first_name(name: str) -> str:
+    words = name.split()
+    return name_key(words[0]) if words else ""
+
+
+def _overruled(entrant: Entrant, first_names: dict[str, Counter[str]]) -> bool:
+    """Whether the archive's runners of this first name say the listed sex is a mistake."""
+    if entrant.sex is None:
+        return False
+    seen = first_names.get(_first_name(entrant.name))
+    if not seen:
+        return False
+    total = sum(seen.values())
+    return total >= FIRST_NAME_RUNNERS and seen[entrant.sex] <= FIRST_NAME_SHARE * total
 
 
 def _by_town(entrant: Entrant, candidates: Sequence[Runner]) -> Runner | None:

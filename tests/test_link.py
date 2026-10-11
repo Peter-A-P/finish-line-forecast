@@ -50,6 +50,48 @@ def test_a_listed_sex_that_contradicts_the_history_is_a_different_person() -> No
     assert only.status is link.Status.NEW
 
 
+def darrens(count: int = link.FIRST_NAME_RUNNERS) -> list[Runner]:
+    """Enough men of one first name for the archive to have a view on it."""
+    return [runner(f"d{index}", f"Darren Other{index}", "M") for index in range(count)]
+
+
+def test_a_listed_sex_almost_nobody_of_that_first_name_has_is_read_as_not_stated() -> None:
+    """The box was ticked wrong: he links, and is predicted as the results printed him."""
+    archive = [*darrens(), runner("r1", "Darren Hynes", "M")]
+    (only,) = link.link([Entrant("Darren Hynes", "F")], archive)
+    assert only.status is link.Status.LINKED
+    assert only.runner is not None and only.runner.runner_id == "r1"
+    assert only.entrant.sex == "M"
+    assert "listed sex" in only.reason
+
+
+def test_a_first_name_the_archive_barely_knows_overrules_nothing() -> None:
+    archive = [*darrens(link.FIRST_NAME_RUNNERS - 2), runner("r1", "Darren Hynes", "M")]
+    (only,) = link.link([Entrant("Darren Hynes", "F")], archive)
+    assert only.status is link.Status.NEW and only.entrant.sex == "F"
+
+
+def test_a_first_name_both_sexes_carry_overrules_nothing() -> None:
+    archive = [
+        *darrens(),
+        *[runner(f"f{index}", f"Darren Else{index}", "F") for index in range(5)],
+        runner("r1", "Darren Hynes", "M"),
+    ]
+    (only,) = link.link([Entrant("Darren Hynes", "F")], archive)
+    assert only.status is link.Status.NEW
+
+
+def test_an_overruled_sex_still_refuses_two_runners_of_the_name() -> None:
+    archive = [*darrens(), runner("r1", "Darren Hynes", "M"), runner("r2", "Darren Hynes", "M")]
+    (only,) = link.link([Entrant("Darren Hynes", "F")], archive)
+    assert only.status is link.Status.AMBIGUOUS
+
+
+def test_an_overruled_sex_with_nobody_of_the_name_stays_as_listed() -> None:
+    (only,) = link.link([Entrant("Darren Hynes", "F")], darrens())
+    assert only.status is link.Status.NEW and only.entrant.sex == "F"
+
+
 def test_a_missing_sex_is_no_information_rather_than_a_mismatch() -> None:
     (only,) = link.link([Entrant("Sam Hynes", None)], [runner("r1", "Sam Hynes", "M")])
     assert only.status is link.Status.LINKED
