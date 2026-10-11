@@ -1,0 +1,6779 @@
+{
+  "conditions": {
+    "bearing_deg": 321.0,
+    "conditions_mean": {
+      "log_distance_5k": 1.3863,
+      "observed": 1.0,
+      "sun": 0.0775,
+      "tailwind": 3.7757,
+      "temp_c": 7.5813,
+      "wind": 32.3239
+    },
+    "forecast": {
+      "sun_share": 0.077,
+      "temp_c": 6.4,
+      "wind_east_kmh": 24.84,
+      "wind_kmh": 33.97,
+      "wind_north_kmh": 23.17
+    },
+    "forecast_error": {
+      "east_bias": -4.6572,
+      "east_sd": 15.4054,
+      "mornings": 36,
+      "north_bias": -4.3222,
+      "north_sd": 16.5976,
+      "temp_bias": -1.2522,
+      "temp_sd": 3.0506,
+      "wind_bias": -10.0669,
+      "wind_sd": 9.4498
+    },
+    "hours": 3,
+    "lead_days": 7,
+    "source": "Open-Meteo forecast, St. John's airport",
+    "used": true
+  },
+  "entrant_snapshot": {
+    "file": "c2c-2026_ane-list_20261008T2253Z.html",
+    "sha256": "7548c7706a39193645b8fec5e2423a3c3c709c386f630c3bc0937c49fcf23f65"
+  },
+  "entrants": {
+    "ambiguous": 23,
+    "linked": 443,
+    "listed": 500,
+    "new": 34,
+    "predicted": 477
+  },
+  "frozen_at": "2026-10-11T09:14:28.903156+00:00",
+  "gun": "2026-10-18T08:00:00-02:30",
+  "kind": "daily",
+  "model": {
+    "blend": {
+      "centre": "(1 - w) * log(hierarchical) + w * log(lightgbm)",
+      "challenger_answered": 477,
+      "distribution": "the hierarchical model's draws, scaled onto the blended centre",
+      "weight": 0.65
+    },
+    "calibration": {
+      "80": {
+        "0": 0.0188678501724322,
+        "1": 0.01744992190553951,
+        "2 to 3": 0.014572735732509834,
+        "4 or more": 0.0002721728411323454
+      },
+      "90": {
+        "0": 0.038112103969682565,
+        "1": 0.02852210945618694,
+        "2 to 3": 0.029386054297408037,
+        "4 or more": 0.004181407023878592
+      }
+    },
+    "commit": "c766da64368ccb3e3425b7c567813c6574a89948",
+    "diagnostics": {
+      "divergences": 0.0,
+      "draws": 1200.0,
+      "max_rhat": 2.090390126902807,
+      "min_ess_bulk": 5.463429791477384
+    },
+    "fit_on_results_before": "2026-10-18",
+    "name": "blend",
+    "settings": {
+      "chains": 4,
+      "draws": 300,
+      "months": 3,
+      "tune": 400,
+      "weather": 1
+    }
+  },
+  "newcomers": {
+    "course_id": "cape-to-cabot-20000",
+    "method": "course pool"
+  },
+  "race": {
+    "course_id": "cape-to-cabot-20000",
+    "date": "2026-10-18",
+    "distance_m": 20000.0,
+    "name": "Cape to Cabot",
+    "race_id": "c2c-2026"
+  },
+  "runners": [
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        4381.3,
+        4793.9
+      ],
+      "interval_90": [
+        4313.3,
+        4946.7
+      ],
+      "name": "Ben Collingwood",
+      "prior_results": 36,
+      "seconds": 4552.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        4633.7,
+        5119.7
+      ],
+      "interval_90": [
+        4567.8,
+        5297.9
+      ],
+      "name": "Peter Bazeley",
+      "prior_results": 71,
+      "seconds": 4870.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        3988.2,
+        6003.9
+      ],
+      "interval_90": [
+        3759.8,
+        6413.7
+      ],
+      "name": "Daniel MacDonald",
+      "prior_results": 7,
+      "seconds": 4889.6
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        4790.7,
+        5249.8
+      ],
+      "interval_90": [
+        4668.1,
+        5518.1
+      ],
+      "name": "Brian Caines",
+      "prior_results": 35,
+      "seconds": 4996.4
+    },
+    {
+      "hometown": "Corner Brook",
+      "interval_80": [
+        4933.4,
+        5583.6
+      ],
+      "interval_90": [
+        4798.4,
+        5728.7
+      ],
+      "name": "Katheryn Cochrane",
+      "prior_results": 5,
+      "seconds": 5200.2
+    },
+    {
+      "hometown": "La Romana",
+      "interval_80": [
+        5065.1,
+        5608.9
+      ],
+      "interval_90": [
+        4995.8,
+        5828.0
+      ],
+      "name": "Harlem Medina",
+      "prior_results": 27,
+      "seconds": 5317.8
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        5100.3,
+        5603.0
+      ],
+      "interval_90": [
+        4966.3,
+        5748.7
+      ],
+      "name": "Brandon St.Croix",
+      "prior_results": 18,
+      "seconds": 5322.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        4726.8,
+        6117.3
+      ],
+      "interval_90": [
+        4545.8,
+        6334.9
+      ],
+      "name": "Jade Roberts",
+      "prior_results": 18,
+      "seconds": 5348.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5137.3,
+        5639.6
+      ],
+      "interval_90": [
+        5014.9,
+        5817.9
+      ],
+      "name": "Ethan Walsh",
+      "prior_results": 11,
+      "seconds": 5373.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5060.8,
+        5728.8
+      ],
+      "interval_90": [
+        4935.1,
+        5868.2
+      ],
+      "name": "Matthew Manning",
+      "prior_results": 11,
+      "seconds": 5383.5
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        4899.5,
+        5964.8
+      ],
+      "interval_90": [
+        4691.5,
+        6209.9
+      ],
+      "name": "Peter Burton",
+      "prior_results": 2,
+      "seconds": 5395.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5221.2,
+        5694.4
+      ],
+      "interval_90": [
+        5117.0,
+        5853.4
+      ],
+      "name": "Mark Hayward",
+      "prior_results": 50,
+      "seconds": 5442.2
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5200.0,
+        5736.0
+      ],
+      "interval_90": [
+        5062.1,
+        5886.9
+      ],
+      "name": "Betsy Nicholson",
+      "prior_results": 18,
+      "seconds": 5476.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5222.1,
+        5758.4
+      ],
+      "interval_90": [
+        5111.8,
+        5892.9
+      ],
+      "name": "Bradley Hickey",
+      "prior_results": 53,
+      "seconds": 5489.8
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        5263.4,
+        5785.4
+      ],
+      "interval_90": [
+        5128.1,
+        5912.3
+      ],
+      "name": "Morgan White",
+      "prior_results": 9,
+      "seconds": 5517.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5269.9,
+        5860.9
+      ],
+      "interval_90": [
+        5136.7,
+        6048.0
+      ],
+      "name": "Christopher Nash",
+      "prior_results": 8,
+      "seconds": 5533.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5131.8,
+        5987.3
+      ],
+      "interval_90": [
+        4959.2,
+        6177.4
+      ],
+      "name": "Ben Lundrigan",
+      "prior_results": 6,
+      "seconds": 5549.2
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        5268.2,
+        5835.1
+      ],
+      "interval_90": [
+        5080.3,
+        5996.9
+      ],
+      "name": "Andrew Parsons",
+      "prior_results": 10,
+      "seconds": 5567.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5340.5,
+        5843.4
+      ],
+      "interval_90": [
+        5227.8,
+        6046.4
+      ],
+      "name": "Christian Daly",
+      "prior_results": 16,
+      "seconds": 5574.5
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        5333.5,
+        5877.4
+      ],
+      "interval_90": [
+        5141.0,
+        6029.6
+      ],
+      "name": "Cole Parsons",
+      "prior_results": 8,
+      "seconds": 5581.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5372.2,
+        5888.7
+      ],
+      "interval_90": [
+        5244.9,
+        6030.8
+      ],
+      "name": "Ryne King",
+      "prior_results": 34,
+      "seconds": 5615.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5193.3,
+        6378.2
+      ],
+      "interval_90": [
+        4974.7,
+        7186.3
+      ],
+      "name": "Christopher Dyer",
+      "prior_results": 1,
+      "seconds": 5635.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5429.6,
+        5886.0
+      ],
+      "interval_90": [
+        5340.7,
+        6000.1
+      ],
+      "name": "Steve Emberley",
+      "prior_results": 34,
+      "seconds": 5646.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5362.3,
+        5992.2
+      ],
+      "interval_90": [
+        5187.3,
+        6141.9
+      ],
+      "name": "Kyle Henderson",
+      "prior_results": 7,
+      "seconds": 5658.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5263.2,
+        6139.6
+      ],
+      "interval_90": [
+        5046.8,
+        6373.6
+      ],
+      "name": "Kieran Lynch",
+      "prior_results": 2,
+      "seconds": 5672.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5427.3,
+        6007.4
+      ],
+      "interval_90": [
+        5308.0,
+        6170.4
+      ],
+      "name": "Zachary Vaters",
+      "prior_results": 14,
+      "seconds": 5718.5
+    },
+    {
+      "hometown": "Grand Bank",
+      "interval_80": [
+        5321.2,
+        6255.8
+      ],
+      "interval_90": [
+        5167.0,
+        6448.9
+      ],
+      "name": "Michael Welsh",
+      "prior_results": 4,
+      "seconds": 5720.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5499.0,
+        5964.8
+      ],
+      "interval_90": [
+        5381.2,
+        6149.1
+      ],
+      "name": "Courtney King",
+      "prior_results": 34,
+      "seconds": 5724.2
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        5372.4,
+        6136.3
+      ],
+      "interval_90": [
+        5138.3,
+        6398.8
+      ],
+      "name": "Scott Delaney",
+      "prior_results": 3,
+      "seconds": 5732.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5452.0,
+        6025.3
+      ],
+      "interval_90": [
+        5305.5,
+        6141.7
+      ],
+      "name": "Lori Chaytor",
+      "prior_results": 20,
+      "seconds": 5733.5
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        5489.0,
+        6112.9
+      ],
+      "interval_90": [
+        5376.6,
+        6251.0
+      ],
+      "name": "Brittney Fitzgerald",
+      "prior_results": 19,
+      "seconds": 5797.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5568.4,
+        6081.8
+      ],
+      "interval_90": [
+        5481.2,
+        6225.5
+      ],
+      "name": "Adam Baker",
+      "prior_results": 25,
+      "seconds": 5808.3
+    },
+    {
+      "hometown": "Petty Harbour",
+      "interval_80": [
+        5295.0,
+        6591.2
+      ],
+      "interval_90": [
+        5100.0,
+        6857.2
+      ],
+      "name": "Zachary Towns",
+      "prior_results": 2,
+      "seconds": 5824.6
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        5428.7,
+        6342.5
+      ],
+      "interval_90": [
+        5224.4,
+        6571.9
+      ],
+      "name": "Blake Holden",
+      "prior_results": 3,
+      "seconds": 5833.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5536.7,
+        6148.7
+      ],
+      "interval_90": [
+        5363.8,
+        6286.7
+      ],
+      "name": "James Furneaux",
+      "prior_results": 15,
+      "seconds": 5847.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5317.5,
+        6520.8
+      ],
+      "interval_90": [
+        5131.1,
+        6792.9
+      ],
+      "name": "Brendan Wallace",
+      "prior_results": 2,
+      "seconds": 5863.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5501.8,
+        6176.8
+      ],
+      "interval_90": [
+        5124.9,
+        6386.1
+      ],
+      "name": "Liam Hennessey",
+      "prior_results": 4,
+      "seconds": 5869.9
+    },
+    {
+      "hometown": "Holyrood",
+      "interval_80": [
+        5623.5,
+        6187.7
+      ],
+      "interval_90": [
+        5507.8,
+        6427.6
+      ],
+      "name": "Philip Crowley",
+      "prior_results": 43,
+      "seconds": 5883.9
+    },
+    {
+      "hometown": "Springdale",
+      "interval_80": [
+        5491.0,
+        6376.4
+      ],
+      "interval_90": [
+        5264.6,
+        6652.7
+      ],
+      "name": "Kaelen Davis",
+      "prior_results": 3,
+      "seconds": 5884.8
+    },
+    {
+      "hometown": "Clarenville",
+      "interval_80": [
+        5608.8,
+        6225.0
+      ],
+      "interval_90": [
+        5478.5,
+        6422.7
+      ],
+      "name": "Daniel Fougere",
+      "prior_results": 11,
+      "seconds": 5911.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5289.8,
+        6673.1
+      ],
+      "interval_90": [
+        5064.2,
+        7021.8
+      ],
+      "name": "Ian Deveau",
+      "prior_results": 3,
+      "seconds": 5912.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5538.8,
+        6519.4
+      ],
+      "interval_90": [
+        5386.6,
+        6692.3
+      ],
+      "name": "James Magnin",
+      "prior_results": 9,
+      "seconds": 5948.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5607.9,
+        6364.6
+      ],
+      "interval_90": [
+        5431.1,
+        6536.8
+      ],
+      "name": "Matthew Pike",
+      "prior_results": 15,
+      "seconds": 5967.6
+    },
+    {
+      "hometown": "Placentia",
+      "interval_80": [
+        5698.1,
+        6277.4
+      ],
+      "interval_90": [
+        5477.3,
+        6486.5
+      ],
+      "name": "Derek McGrath",
+      "prior_results": 14,
+      "seconds": 5998.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5766.9,
+        6330.3
+      ],
+      "interval_90": [
+        5623.9,
+        6437.4
+      ],
+      "name": "Keagan Crane",
+      "prior_results": 9,
+      "seconds": 6042.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5713.0,
+        6443.1
+      ],
+      "interval_90": [
+        5587.2,
+        6611.8
+      ],
+      "name": "Aidan Whittle",
+      "prior_results": 5,
+      "seconds": 6060.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5690.0,
+        6688.8
+      ],
+      "interval_90": [
+        5576.0,
+        7058.7
+      ],
+      "name": "Christian Velasco",
+      "prior_results": 4,
+      "seconds": 6060.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5768.8,
+        6432.1
+      ],
+      "interval_90": [
+        5638.2,
+        6549.6
+      ],
+      "name": "Demarey Baker",
+      "prior_results": 7,
+      "seconds": 6099.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5589.4,
+        6820.0
+      ],
+      "interval_90": [
+        5407.0,
+        7036.4
+      ],
+      "name": "Taedy O'Rourke",
+      "prior_results": 4,
+      "seconds": 6105.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5810.3,
+        6428.5
+      ],
+      "interval_90": [
+        5672.7,
+        6558.9
+      ],
+      "name": "Parag Jani",
+      "prior_results": 19,
+      "seconds": 6117.0
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        5821.1,
+        6489.9
+      ],
+      "interval_90": [
+        5671.2,
+        6682.6
+      ],
+      "name": "Greg Tricco",
+      "prior_results": 43,
+      "seconds": 6135.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5815.6,
+        6517.0
+      ],
+      "interval_90": [
+        5625.3,
+        6723.9
+      ],
+      "name": "Mary Kate Dawson",
+      "prior_results": 10,
+      "seconds": 6141.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5865.0,
+        6461.0
+      ],
+      "interval_90": [
+        5735.6,
+        6628.5
+      ],
+      "name": "Brandon Thorne",
+      "prior_results": 8,
+      "seconds": 6150.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5901.1,
+        6505.2
+      ],
+      "interval_90": [
+        5716.2,
+        6673.3
+      ],
+      "name": "Catherine Deveau",
+      "prior_results": 9,
+      "seconds": 6197.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5710.8,
+        6641.4
+      ],
+      "interval_90": [
+        5483.2,
+        6874.4
+      ],
+      "name": "Matt Reynolds",
+      "prior_results": 2,
+      "seconds": 6201.8
+    },
+    {
+      "hometown": "Grand Falls-Win",
+      "interval_80": [
+        5558.3,
+        6880.3
+      ],
+      "interval_90": [
+        5389.9,
+        7131.9
+      ],
+      "name": "Cynthia Fudge",
+      "prior_results": 6,
+      "seconds": 6208.7
+    },
+    {
+      "hometown": "Torbay",
+      "interval_80": [
+        5668.1,
+        6788.7
+      ],
+      "interval_90": [
+        5474.8,
+        7052.0
+      ],
+      "name": "Jack Hopkins",
+      "prior_results": 2,
+      "seconds": 6210.0
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        5248.3,
+        7411.4
+      ],
+      "interval_90": [
+        4950.9,
+        7883.2
+      ],
+      "name": "Claudio Autin",
+      "prior_results": 5,
+      "seconds": 6220.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5894.1,
+        6683.3
+      ],
+      "interval_90": [
+        5715.2,
+        6835.0
+      ],
+      "name": "Christine Aubrey-Bassler",
+      "prior_results": 18,
+      "seconds": 6282.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5887.4,
+        6710.7
+      ],
+      "interval_90": [
+        5645.1,
+        6966.3
+      ],
+      "name": "Nicholas Pine",
+      "prior_results": 2,
+      "seconds": 6282.5
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        5665.3,
+        7181.7
+      ],
+      "interval_90": [
+        5445.7,
+        7646.2
+      ],
+      "name": "Jordan Osmond",
+      "prior_results": 1,
+      "seconds": 6285.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5567.6,
+        6996.4
+      ],
+      "interval_90": [
+        5286.8,
+        7285.0
+      ],
+      "name": "Gary Thorpe",
+      "prior_results": 3,
+      "seconds": 6288.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5815.5,
+        7224.8
+      ],
+      "interval_90": [
+        5601.6,
+        7880.9
+      ],
+      "name": "Antoine Gingras",
+      "prior_results": 1,
+      "seconds": 6292.1
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        6011.4,
+        6597.8
+      ],
+      "interval_90": [
+        5919.6,
+        6733.3
+      ],
+      "name": "Matthew Walsh",
+      "prior_results": 11,
+      "seconds": 6292.7
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        5965.7,
+        6665.4
+      ],
+      "interval_90": [
+        5816.5,
+        6888.3
+      ],
+      "name": "Michael Lannon",
+      "prior_results": 4,
+      "seconds": 6302.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6011.7,
+        6621.9
+      ],
+      "interval_90": [
+        5885.8,
+        6862.3
+      ],
+      "name": "Zachary Pomeroy",
+      "prior_results": 7,
+      "seconds": 6306.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5744.9,
+        7455.4
+      ],
+      "interval_90": [
+        5522.6,
+        7765.3
+      ],
+      "name": "Jan Cantin",
+      "prior_results": 3,
+      "seconds": 6313.3
+    },
+    {
+      "hometown": "Goulds",
+      "interval_80": [
+        5844.2,
+        7029.8
+      ],
+      "interval_90": [
+        5560.6,
+        7571.4
+      ],
+      "name": "Owen Hurley",
+      "prior_results": 1,
+      "seconds": 6315.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5871.1,
+        6881.9
+      ],
+      "interval_90": [
+        5647.0,
+        7214.6
+      ],
+      "name": "Martin Karad",
+      "prior_results": 1,
+      "seconds": 6335.2
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        4883.0,
+        7900.0
+      ],
+      "interval_90": [
+        4630.5,
+        8427.9
+      ],
+      "name": "Daan Goossens",
+      "prior_results": 2,
+      "seconds": 6345.6
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        6053.4,
+        6681.6
+      ],
+      "interval_90": [
+        5870.2,
+        6788.1
+      ],
+      "name": "Patty Symes",
+      "prior_results": 4,
+      "seconds": 6348.0
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        6040.0,
+        6678.4
+      ],
+      "interval_90": [
+        5910.0,
+        6834.6
+      ],
+      "name": "Corey Roberts",
+      "prior_results": 16,
+      "seconds": 6361.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6023.7,
+        6701.5
+      ],
+      "interval_90": [
+        5879.2,
+        6897.6
+      ],
+      "name": "Jeff Vaters",
+      "prior_results": 13,
+      "seconds": 6363.7
+    },
+    {
+      "hometown": "Clarkes Beach",
+      "interval_80": [
+        6058.9,
+        6695.1
+      ],
+      "interval_90": [
+        5927.5,
+        6818.9
+      ],
+      "name": "Jeremy Baldwin",
+      "prior_results": 12,
+      "seconds": 6374.0
+    },
+    {
+      "hometown": "Springdale",
+      "interval_80": [
+        5916.4,
+        6974.7
+      ],
+      "interval_90": [
+        5770.2,
+        7206.7
+      ],
+      "name": "Emily Edison",
+      "prior_results": 4,
+      "seconds": 6384.3
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        6101.9,
+        6721.4
+      ],
+      "interval_90": [
+        5871.8,
+        6918.9
+      ],
+      "name": "Christian Snook",
+      "prior_results": 5,
+      "seconds": 6386.9
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        5890.1,
+        6930.3
+      ],
+      "interval_90": [
+        5634.2,
+        7272.3
+      ],
+      "name": "Jacob Upshall",
+      "prior_results": 2,
+      "seconds": 6393.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5985.8,
+        6804.0
+      ],
+      "interval_90": [
+        5726.9,
+        7051.8
+      ],
+      "name": "Thierry Landu",
+      "prior_results": 2,
+      "seconds": 6403.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5920.2,
+        7001.9
+      ],
+      "interval_90": [
+        5746.0,
+        7253.0
+      ],
+      "name": "Mark Stoddart",
+      "prior_results": 5,
+      "seconds": 6422.3
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        5799.0,
+        7182.8
+      ],
+      "interval_90": [
+        5668.7,
+        7348.1
+      ],
+      "name": "Chris Boyde",
+      "prior_results": 16,
+      "seconds": 6423.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6010.1,
+        6942.3
+      ],
+      "interval_90": [
+        5791.1,
+        7256.9
+      ],
+      "name": "Mario Pepe",
+      "prior_results": 2,
+      "seconds": 6426.6
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        6120.8,
+        6777.2
+      ],
+      "interval_90": [
+        6010.1,
+        6986.3
+      ],
+      "name": "Allison Noseworthy",
+      "prior_results": 15,
+      "seconds": 6443.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6103.3,
+        6876.8
+      ],
+      "interval_90": [
+        5953.8,
+        7012.8
+      ],
+      "name": "Andrew Mallam",
+      "prior_results": 9,
+      "seconds": 6483.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6166.2,
+        7064.1
+      ],
+      "interval_90": [
+        6007.9,
+        7412.1
+      ],
+      "name": "Michael Philpott",
+      "prior_results": 4,
+      "seconds": 6491.4
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        6029.1,
+        7198.8
+      ],
+      "interval_90": [
+        5846.1,
+        7698.5
+      ],
+      "name": "Ben Burton",
+      "prior_results": 1,
+      "seconds": 6499.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6037.5,
+        7127.4
+      ],
+      "interval_90": [
+        5829.4,
+        7560.2
+      ],
+      "name": "Chris Fraser",
+      "prior_results": 1,
+      "seconds": 6506.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6043.1,
+        7025.7
+      ],
+      "interval_90": [
+        5829.2,
+        7297.3
+      ],
+      "name": "Andrew Goodridge",
+      "prior_results": 3,
+      "seconds": 6517.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6027.2,
+        7178.4
+      ],
+      "interval_90": [
+        5796.5,
+        7515.7
+      ],
+      "name": "John Mark Bonneau",
+      "prior_results": 3,
+      "seconds": 6519.2
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6035.3,
+        7134.1
+      ],
+      "interval_90": [
+        5783.6,
+        7476.2
+      ],
+      "name": "Stephen Chaytor",
+      "prior_results": 2,
+      "seconds": 6524.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6186.5,
+        6809.6
+      ],
+      "interval_90": [
+        6071.2,
+        6917.5
+      ],
+      "name": "Steven Lannon",
+      "prior_results": 44,
+      "seconds": 6524.7
+    },
+    {
+      "hometown": "Portugal Cove-St. Philip'",
+      "interval_80": [
+        6267.7,
+        6877.5
+      ],
+      "interval_90": [
+        6143.3,
+        7133.9
+      ],
+      "name": "Michael Stone",
+      "prior_results": 22,
+      "seconds": 6530.7
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        6158.3,
+        7034.8
+      ],
+      "interval_90": [
+        6010.1,
+        7320.2
+      ],
+      "name": "Jason Penney",
+      "prior_results": 7,
+      "seconds": 6534.2
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6199.9,
+        6921.6
+      ],
+      "interval_90": [
+        6012.8,
+        7141.0
+      ],
+      "name": "Darren Ryan",
+      "prior_results": 7,
+      "seconds": 6543.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5941.9,
+        7269.7
+      ],
+      "interval_90": [
+        5661.7,
+        7583.7
+      ],
+      "name": "Liam Robbins",
+      "prior_results": 3,
+      "seconds": 6556.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6129.2,
+        7015.0
+      ],
+      "interval_90": [
+        5900.9,
+        7238.3
+      ],
+      "name": "Christopher Manning",
+      "prior_results": 3,
+      "seconds": 6575.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6134.7,
+        7241.2
+      ],
+      "interval_90": [
+        5931.9,
+        7605.6
+      ],
+      "name": "Ryan Tapper",
+      "prior_results": 1,
+      "seconds": 6600.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6099.2,
+        7221.2
+      ],
+      "interval_90": [
+        5870.5,
+        7509.4
+      ],
+      "name": "Mike Collins",
+      "prior_results": 4,
+      "seconds": 6611.0
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        6310.9,
+        7003.0
+      ],
+      "interval_90": [
+        6174.2,
+        7258.6
+      ],
+      "name": "Andrew Kelloway",
+      "prior_results": 9,
+      "seconds": 6616.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6341.5,
+        6985.0
+      ],
+      "interval_90": [
+        6183.6,
+        7208.7
+      ],
+      "name": "Stephanie Pomeroy",
+      "prior_results": 24,
+      "seconds": 6622.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6275.9,
+        7026.4
+      ],
+      "interval_90": [
+        6146.4,
+        7233.4
+      ],
+      "name": "Jeff Cluney",
+      "prior_results": 12,
+      "seconds": 6644.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6226.3,
+        7229.3
+      ],
+      "interval_90": [
+        5964.1,
+        7542.0
+      ],
+      "name": "Logan McCue",
+      "prior_results": 3,
+      "seconds": 6649.9
+    },
+    {
+      "hometown": "Portland",
+      "interval_80": [
+        6041.9,
+        7345.3
+      ],
+      "interval_90": [
+        5779.8,
+        7733.5
+      ],
+      "name": "jim garven",
+      "prior_results": 2,
+      "seconds": 6651.3
+    },
+    {
+      "hometown": "Torbay",
+      "interval_80": [
+        6351.4,
+        6955.7
+      ],
+      "interval_90": [
+        6178.4,
+        7169.0
+      ],
+      "name": "Gus Lynch Jr.",
+      "prior_results": 44,
+      "seconds": 6653.7
+    },
+    {
+      "hometown": "Saint-Pierre",
+      "interval_80": [
+        6113.2,
+        7223.5
+      ],
+      "interval_90": [
+        5918.8,
+        7496.1
+      ],
+      "name": "Stéphane Autin",
+      "prior_results": 21,
+      "seconds": 6656.2
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        6336.7,
+        7016.2
+      ],
+      "interval_90": [
+        6201.2,
+        7223.2
+      ],
+      "name": "Jaxon Brake",
+      "prior_results": 4,
+      "seconds": 6666.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6322.2,
+        7087.9
+      ],
+      "interval_90": [
+        6164.5,
+        7211.6
+      ],
+      "name": "Amanda Butt",
+      "prior_results": 18,
+      "seconds": 6699.9
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        6352.6,
+        7091.2
+      ],
+      "interval_90": [
+        6232.0,
+        7286.6
+      ],
+      "name": "Kyle Rees",
+      "prior_results": 23,
+      "seconds": 6701.4
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        6424.9,
+        7117.6
+      ],
+      "interval_90": [
+        6210.8,
+        7301.6
+      ],
+      "name": "Lindsey Reddy",
+      "prior_results": 11,
+      "seconds": 6746.7
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        6242.7,
+        7285.8
+      ],
+      "interval_90": [
+        6024.1,
+        7547.6
+      ],
+      "name": "Jimmy Gushue",
+      "prior_results": 1,
+      "seconds": 6747.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6202.8,
+        7376.8
+      ],
+      "interval_90": [
+        5995.6,
+        7664.8
+      ],
+      "name": "Gilbert Reid",
+      "prior_results": 9,
+      "seconds": 6759.2
+    },
+    {
+      "hometown": "Clarenville",
+      "interval_80": [
+        6421.9,
+        7107.2
+      ],
+      "interval_90": [
+        6241.3,
+        7328.2
+      ],
+      "name": "Keith Barrington",
+      "prior_results": 42,
+      "seconds": 6762.6
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        6295.4,
+        7316.1
+      ],
+      "interval_90": [
+        6094.4,
+        7543.4
+      ],
+      "name": "Curtis Williams",
+      "prior_results": 16,
+      "seconds": 6767.0
+    },
+    {
+      "hometown": "Harmony",
+      "interval_80": [
+        6429.1,
+        7166.9
+      ],
+      "interval_90": [
+        6287.1,
+        7340.0
+      ],
+      "name": "jol hunter",
+      "prior_results": 9,
+      "seconds": 6770.4
+    },
+    {
+      "hometown": "Coleys Point South",
+      "interval_80": [
+        6434.4,
+        7092.3
+      ],
+      "interval_90": [
+        6291.3,
+        7325.7
+      ],
+      "name": "Deanne Delahunty",
+      "prior_results": 18,
+      "seconds": 6771.7
+    },
+    {
+      "hometown": "Clarenville",
+      "interval_80": [
+        6456.6,
+        7161.8
+      ],
+      "interval_90": [
+        6243.1,
+        7365.4
+      ],
+      "name": "Chad Collett",
+      "prior_results": 8,
+      "seconds": 6772.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6443.8,
+        7327.8
+      ],
+      "interval_90": [
+        6300.9,
+        7461.6
+      ],
+      "name": "Melanie Seal",
+      "prior_results": 8,
+      "seconds": 6775.5
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        5583.3,
+        8527.2
+      ],
+      "interval_90": [
+        5238.9,
+        9207.5
+      ],
+      "name": "Austin St John",
+      "prior_results": 2,
+      "seconds": 6806.9
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        6386.1,
+        7367.8
+      ],
+      "interval_90": [
+        6108.5,
+        7581.4
+      ],
+      "name": "Eden Bridgett",
+      "prior_results": 2,
+      "seconds": 6816.2
+    },
+    {
+      "hometown": "Corner Brook",
+      "interval_80": [
+        6401.3,
+        7287.8
+      ],
+      "interval_90": [
+        6155.4,
+        7551.8
+      ],
+      "name": "Steven Chow",
+      "prior_results": 3,
+      "seconds": 6827.4
+    },
+    {
+      "hometown": "Torbay",
+      "interval_80": [
+        6480.1,
+        7200.1
+      ],
+      "interval_90": [
+        6303.6,
+        7361.1
+      ],
+      "name": "Cynthia Littlejohn",
+      "prior_results": 31,
+      "seconds": 6833.0
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        6333.4,
+        7409.4
+      ],
+      "interval_90": [
+        6059.5,
+        7837.9
+      ],
+      "name": "Riley Burt",
+      "prior_results": 1,
+      "seconds": 6833.3
+    },
+    {
+      "hometown": "Arnold'cove",
+      "interval_80": [
+        6432.7,
+        7363.5
+      ],
+      "interval_90": [
+        6240.4,
+        7592.8
+      ],
+      "name": "Cliff Butler",
+      "prior_results": 6,
+      "seconds": 6838.9
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        6117.0,
+        7579.7
+      ],
+      "interval_90": [
+        5914.5,
+        7955.6
+      ],
+      "name": "Zack Taylor",
+      "prior_results": 2,
+      "seconds": 6840.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6318.9,
+        7471.2
+      ],
+      "interval_90": [
+        6042.8,
+        7822.9
+      ],
+      "name": "Leon Hunt",
+      "prior_results": 10,
+      "seconds": 6841.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6571.3,
+        7177.3
+      ],
+      "interval_90": [
+        6436.3,
+        7309.8
+      ],
+      "name": "Chris Snow",
+      "prior_results": 26,
+      "seconds": 6861.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6503.6,
+        7271.0
+      ],
+      "interval_90": [
+        6328.5,
+        7443.8
+      ],
+      "name": "MICHAELA ROEBOTHAN",
+      "prior_results": 15,
+      "seconds": 6862.6
+    },
+    {
+      "hometown": "Torbay",
+      "interval_80": [
+        6460.9,
+        7208.5
+      ],
+      "interval_90": [
+        6253.4,
+        7392.9
+      ],
+      "name": "Janet Ryan",
+      "prior_results": 27,
+      "seconds": 6863.9
+    },
+    {
+      "hometown": "Creston South",
+      "interval_80": [
+        6364.0,
+        7522.8
+      ],
+      "interval_90": [
+        6076.0,
+        8106.7
+      ],
+      "name": "Dylan Norman",
+      "prior_results": 1,
+      "seconds": 6867.3
+    },
+    {
+      "hometown": "Harbour Grace",
+      "interval_80": [
+        6400.6,
+        7323.5
+      ],
+      "interval_90": [
+        6207.2,
+        7604.5
+      ],
+      "name": "Andrew Spurrell",
+      "prior_results": 3,
+      "seconds": 6868.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6457.8,
+        7336.8
+      ],
+      "interval_90": [
+        6254.7,
+        7595.5
+      ],
+      "name": "Mitchell Carter",
+      "prior_results": 15,
+      "seconds": 6879.3
+    },
+    {
+      "hometown": "Glovertown",
+      "interval_80": [
+        6493.4,
+        7252.6
+      ],
+      "interval_90": [
+        6370.8,
+        7418.0
+      ],
+      "name": "Ashley Charlebois",
+      "prior_results": 28,
+      "seconds": 6879.7
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        6574.4,
+        7251.2
+      ],
+      "interval_90": [
+        6453.0,
+        7448.0
+      ],
+      "name": "Ricky Penarubia",
+      "prior_results": 9,
+      "seconds": 6886.6
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        6408.9,
+        7589.2
+      ],
+      "interval_90": [
+        6244.5,
+        8042.8
+      ],
+      "name": "John Power",
+      "prior_results": 1,
+      "seconds": 6889.2
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6553.4,
+        7212.6
+      ],
+      "interval_90": [
+        6404.3,
+        7372.6
+      ],
+      "name": "Tammy Banfield",
+      "prior_results": 4,
+      "seconds": 6890.6
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        5902.8,
+        8891.1
+      ],
+      "interval_90": [
+        5622.5,
+        9431.8
+      ],
+      "name": "Benjamin Edwards",
+      "prior_results": 0,
+      "seconds": 6900.3
+    },
+    {
+      "hometown": "Holyrood",
+      "interval_80": [
+        6359.8,
+        7631.3
+      ],
+      "interval_90": [
+        6122.1,
+        8105.0
+      ],
+      "name": "Nick Collett",
+      "prior_results": 1,
+      "seconds": 6904.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6266.4,
+        7682.2
+      ],
+      "interval_90": [
+        6014.6,
+        7937.3
+      ],
+      "name": "Jeff Power",
+      "prior_results": 2,
+      "seconds": 6909.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6604.7,
+        7261.9
+      ],
+      "interval_90": [
+        6367.1,
+        7544.8
+      ],
+      "name": "Sandra Pope",
+      "prior_results": 43,
+      "seconds": 6921.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6313.0,
+        7438.1
+      ],
+      "interval_90": [
+        6109.4,
+        7591.2
+      ],
+      "name": "Mike Lester",
+      "prior_results": 10,
+      "seconds": 6923.7
+    },
+    {
+      "hometown": "Carbonear",
+      "interval_80": [
+        6569.0,
+        7270.3
+      ],
+      "interval_90": [
+        6409.8,
+        7424.4
+      ],
+      "name": "Tristan Jenkins",
+      "prior_results": 18,
+      "seconds": 6924.0
+    },
+    {
+      "hometown": "Holyrood",
+      "interval_80": [
+        6610.8,
+        7276.3
+      ],
+      "interval_90": [
+        6437.0,
+        7469.9
+      ],
+      "name": "Denise Corbett",
+      "prior_results": 17,
+      "seconds": 6931.8
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6615.7,
+        7367.6
+      ],
+      "interval_90": [
+        6393.9,
+        7635.2
+      ],
+      "name": "Mark Rideout",
+      "prior_results": 8,
+      "seconds": 6960.2
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6279.8,
+        7803.0
+      ],
+      "interval_90": [
+        5966.7,
+        8171.4
+      ],
+      "name": "Christopher Hughes",
+      "prior_results": 2,
+      "seconds": 6964.7
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        6613.9,
+        7356.5
+      ],
+      "interval_90": [
+        6467.5,
+        7557.8
+      ],
+      "name": "Wade King",
+      "prior_results": 23,
+      "seconds": 6981.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6615.1,
+        7388.6
+      ],
+      "interval_90": [
+        6400.5,
+        7536.7
+      ],
+      "name": "Emily Fagan",
+      "prior_results": 7,
+      "seconds": 6985.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6673.3,
+        7346.5
+      ],
+      "interval_90": [
+        6442.9,
+        7541.0
+      ],
+      "name": "David Foley",
+      "prior_results": 43,
+      "seconds": 6990.7
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        5964.3,
+        8928.4
+      ],
+      "interval_90": [
+        5519.1,
+        9618.0
+      ],
+      "name": "Satya McKim",
+      "prior_results": 0,
+      "seconds": 6993.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6636.9,
+        7392.8
+      ],
+      "interval_90": [
+        6370.7,
+        7663.6
+      ],
+      "name": "Amanda Tzenov",
+      "prior_results": 24,
+      "seconds": 6994.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6535.4,
+        7494.1
+      ],
+      "interval_90": [
+        6279.0,
+        7811.8
+      ],
+      "name": "Garrett Murphy",
+      "prior_results": 3,
+      "seconds": 7001.2
+    },
+    {
+      "hometown": "Portugal Cove-St. Philip'",
+      "interval_80": [
+        6508.7,
+        7636.8
+      ],
+      "interval_90": [
+        6208.0,
+        8081.7
+      ],
+      "name": "Danny Fellingham",
+      "prior_results": 1,
+      "seconds": 7005.0
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        5999.9,
+        8807.4
+      ],
+      "interval_90": [
+        5663.8,
+        9664.3
+      ],
+      "name": "Joel Koops",
+      "prior_results": 0,
+      "seconds": 7005.3
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        5876.4,
+        8848.5
+      ],
+      "interval_90": [
+        5554.8,
+        9556.8
+      ],
+      "name": "Martin Lavallee",
+      "prior_results": 0,
+      "seconds": 7008.6
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        5900.3,
+        8819.4
+      ],
+      "interval_90": [
+        5576.1,
+        9715.8
+      ],
+      "name": "Benjamin LeGrow",
+      "prior_results": 0,
+      "seconds": 7016.7
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        6035.9,
+        9031.2
+      ],
+      "interval_90": [
+        5654.7,
+        9661.7
+      ],
+      "name": "Patrick Stieber",
+      "prior_results": 0,
+      "seconds": 7018.5
+    },
+    {
+      "hometown": "Clarkes Beach",
+      "interval_80": [
+        6726.4,
+        7485.4
+      ],
+      "interval_90": [
+        6544.7,
+        7730.4
+      ],
+      "name": "Taylor Anderson",
+      "prior_results": 8,
+      "seconds": 7018.8
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6563.0,
+        7697.0
+      ],
+      "interval_90": [
+        6314.2,
+        8119.7
+      ],
+      "name": "Victoria Vatcher",
+      "prior_results": 3,
+      "seconds": 7021.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6618.4,
+        7593.8
+      ],
+      "interval_90": [
+        6414.0,
+        7921.4
+      ],
+      "name": "Kerrilyn Evans",
+      "prior_results": 2,
+      "seconds": 7024.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6553.2,
+        7633.7
+      ],
+      "interval_90": [
+        6368.8,
+        8017.4
+      ],
+      "name": "Matthew Beazley",
+      "prior_results": 10,
+      "seconds": 7027.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6695.0,
+        7414.3
+      ],
+      "interval_90": [
+        6518.4,
+        7633.0
+      ],
+      "name": "Jeff Barnes",
+      "prior_results": 38,
+      "seconds": 7033.6
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        6699.7,
+        7421.2
+      ],
+      "interval_90": [
+        6541.0,
+        7631.6
+      ],
+      "name": "Charity-Jean Drover",
+      "prior_results": 5,
+      "seconds": 7035.6
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        6577.1,
+        7613.3
+      ],
+      "interval_90": [
+        6379.7,
+        7940.2
+      ],
+      "name": "Mike Martin",
+      "prior_results": 2,
+      "seconds": 7041.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6650.3,
+        7436.6
+      ],
+      "interval_90": [
+        6479.1,
+        7647.9
+      ],
+      "name": "Roy Osmond",
+      "prior_results": 9,
+      "seconds": 7044.9
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        5871.2,
+        8032.3
+      ],
+      "interval_90": [
+        5628.5,
+        8399.6
+      ],
+      "name": "Noah Langdon",
+      "prior_results": 2,
+      "seconds": 7045.6
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        5865.5,
+        9063.3
+      ],
+      "interval_90": [
+        5662.5,
+        9628.1
+      ],
+      "name": "Devin Schnider",
+      "prior_results": 0,
+      "seconds": 7048.6
+    },
+    {
+      "hometown": "Torbay",
+      "interval_80": [
+        6709.6,
+        7433.6
+      ],
+      "interval_90": [
+        6521.1,
+        7844.2
+      ],
+      "name": "Melissa Butler",
+      "prior_results": 50,
+      "seconds": 7051.5
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        5761.6,
+        8976.0
+      ],
+      "interval_90": [
+        5456.1,
+        9773.0
+      ],
+      "name": "Trond Sanne Haga",
+      "prior_results": 0,
+      "seconds": 7055.8
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        6073.5,
+        8889.5
+      ],
+      "interval_90": [
+        5804.6,
+        9672.3
+      ],
+      "name": "Chris Swail",
+      "prior_results": 0,
+      "seconds": 7065.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6762.0,
+        7428.4
+      ],
+      "interval_90": [
+        6644.2,
+        7627.9
+      ],
+      "name": "Lauren Murphy",
+      "prior_results": 16,
+      "seconds": 7068.2
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        5400.3,
+        7793.1
+      ],
+      "interval_90": [
+        5182.0,
+        8119.7
+      ],
+      "name": "Brian Furlong",
+      "prior_results": 2,
+      "seconds": 7074.3
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        5974.8,
+        8872.3
+      ],
+      "interval_90": [
+        5678.2,
+        9583.6
+      ],
+      "name": "Nathan Kelly",
+      "prior_results": 0,
+      "seconds": 7074.4
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        5881.0,
+        8896.1
+      ],
+      "interval_90": [
+        5605.0,
+        9482.2
+      ],
+      "name": "Ben Foley",
+      "prior_results": 0,
+      "seconds": 7081.2
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        5964.1,
+        8805.0
+      ],
+      "interval_90": [
+        5671.3,
+        9660.6
+      ],
+      "name": "Alexander Kenny",
+      "prior_results": 0,
+      "seconds": 7082.2
+    },
+    {
+      "hometown": "Goulds",
+      "interval_80": [
+        6359.5,
+        8012.3
+      ],
+      "interval_90": [
+        6163.8,
+        8237.8
+      ],
+      "name": "Danny Reid",
+      "prior_results": 10,
+      "seconds": 7083.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6725.1,
+        7494.7
+      ],
+      "interval_90": [
+        6472.6,
+        7724.4
+      ],
+      "name": "David Hopkins",
+      "prior_results": 46,
+      "seconds": 7088.0
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        5862.5,
+        9382.4
+      ],
+      "interval_90": [
+        5575.9,
+        9961.0
+      ],
+      "name": "Owen Trepanier",
+      "prior_results": 0,
+      "seconds": 7091.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6778.0,
+        7426.3
+      ],
+      "interval_90": [
+        6587.1,
+        7637.1
+      ],
+      "name": "Maggie Carew",
+      "prior_results": 11,
+      "seconds": 7100.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6671.8,
+        7643.9
+      ],
+      "interval_90": [
+        6441.0,
+        7940.8
+      ],
+      "name": "Todd Perry",
+      "prior_results": 2,
+      "seconds": 7104.6
+    },
+    {
+      "hometown": "Bauline",
+      "interval_80": [
+        6147.2,
+        8071.7
+      ],
+      "interval_90": [
+        5886.2,
+        8539.7
+      ],
+      "name": "Drew Ackerman",
+      "prior_results": 2,
+      "seconds": 7105.1
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        5922.5,
+        9026.6
+      ],
+      "interval_90": [
+        5613.8,
+        9726.9
+      ],
+      "name": "Arthur Travis Pickett",
+      "prior_results": 0,
+      "seconds": 7105.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6457.8,
+        7776.2
+      ],
+      "interval_90": [
+        6188.4,
+        8064.9
+      ],
+      "name": "Mary H O'Brien",
+      "prior_results": 2,
+      "seconds": 7106.4
+    },
+    {
+      "hometown": "Blaketown",
+      "interval_80": [
+        6687.1,
+        7610.5
+      ],
+      "interval_90": [
+        6450.7,
+        7969.1
+      ],
+      "name": "Collin Knight",
+      "prior_results": 3,
+      "seconds": 7106.9
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        6790.3,
+        7457.4
+      ],
+      "interval_90": [
+        6553.4,
+        7656.3
+      ],
+      "name": "Matthew Howell",
+      "prior_results": 10,
+      "seconds": 7108.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6755.5,
+        7451.4
+      ],
+      "interval_90": [
+        6558.1,
+        7654.6
+      ],
+      "name": "Oliver Whelan",
+      "prior_results": 5,
+      "seconds": 7110.3
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        5943.2,
+        8932.4
+      ],
+      "interval_90": [
+        5697.1,
+        9685.0
+      ],
+      "name": "Matthew Gerard McCarthy",
+      "prior_results": 0,
+      "seconds": 7110.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6762.2,
+        7514.9
+      ],
+      "interval_90": [
+        6582.9,
+        7690.8
+      ],
+      "name": "Jonathan Mercer",
+      "prior_results": 5,
+      "seconds": 7124.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6499.5,
+        7882.3
+      ],
+      "interval_90": [
+        6273.7,
+        8244.6
+      ],
+      "name": "Zachary Fagan",
+      "prior_results": 3,
+      "seconds": 7132.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6832.0,
+        7457.9
+      ],
+      "interval_90": [
+        6658.9,
+        7637.4
+      ],
+      "name": "James LeBlanc",
+      "prior_results": 22,
+      "seconds": 7135.3
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        6785.6,
+        7488.5
+      ],
+      "interval_90": [
+        6512.0,
+        7684.8
+      ],
+      "name": "Sonya Ivany",
+      "prior_results": 10,
+      "seconds": 7135.7
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        6032.4,
+        8964.2
+      ],
+      "interval_90": [
+        5705.1,
+        9690.0
+      ],
+      "name": "Andrew Peverill",
+      "prior_results": 0,
+      "seconds": 7140.2
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6072.9,
+        8410.7
+      ],
+      "interval_90": [
+        5749.3,
+        8884.3
+      ],
+      "name": "Evan Wheeler",
+      "prior_results": 1,
+      "seconds": 7142.2
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6806.3,
+        7506.3
+      ],
+      "interval_90": [
+        6617.5,
+        7678.8
+      ],
+      "name": "Jephthah Anga",
+      "prior_results": 9,
+      "seconds": 7152.3
+    },
+    {
+      "hometown": "Edmonton",
+      "interval_80": [
+        5336.0,
+        9550.5
+      ],
+      "interval_90": [
+        4968.2,
+        10755.8
+      ],
+      "name": "Joe Parrell",
+      "prior_results": 1,
+      "seconds": 7152.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6736.8,
+        7687.0
+      ],
+      "interval_90": [
+        6487.8,
+        8112.7
+      ],
+      "name": "Joe Norman",
+      "prior_results": 3,
+      "seconds": 7162.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6775.3,
+        7486.2
+      ],
+      "interval_90": [
+        6665.7,
+        7646.5
+      ],
+      "name": "Steven Crummey",
+      "prior_results": 5,
+      "seconds": 7165.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6814.1,
+        7562.2
+      ],
+      "interval_90": [
+        6654.0,
+        7755.1
+      ],
+      "name": "Holly Power",
+      "prior_results": 6,
+      "seconds": 7167.7
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        5986.8,
+        8774.9
+      ],
+      "interval_90": [
+        5650.4,
+        9579.7
+      ],
+      "name": "Johnny Kennedy",
+      "prior_results": 0,
+      "seconds": 7168.2
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6825.5,
+        7531.2
+      ],
+      "interval_90": [
+        6606.3,
+        7682.1
+      ],
+      "name": "Melissa Saunders",
+      "prior_results": 20,
+      "seconds": 7171.0
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        5944.2,
+        9109.6
+      ],
+      "interval_90": [
+        5591.7,
+        9683.1
+      ],
+      "name": "Guy Salomon",
+      "prior_results": 0,
+      "seconds": 7184.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6776.2,
+        7604.5
+      ],
+      "interval_90": [
+        6539.7,
+        7785.7
+      ],
+      "name": "Jane Garreffa",
+      "prior_results": 13,
+      "seconds": 7192.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6848.4,
+        7761.9
+      ],
+      "interval_90": [
+        6688.0,
+        8013.6
+      ],
+      "name": "Lori Martin",
+      "prior_results": 8,
+      "seconds": 7199.8
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        6764.7,
+        7634.4
+      ],
+      "interval_90": [
+        6595.1,
+        7919.4
+      ],
+      "name": "Tony Chislett",
+      "prior_results": 6,
+      "seconds": 7200.4
+    },
+    {
+      "hometown": "Bauline",
+      "interval_80": [
+        6862.2,
+        7531.7
+      ],
+      "interval_90": [
+        6622.1,
+        7672.1
+      ],
+      "name": "Catherine Street",
+      "prior_results": 6,
+      "seconds": 7202.5
+    },
+    {
+      "hometown": "Bauline",
+      "interval_80": [
+        6814.2,
+        7601.4
+      ],
+      "interval_90": [
+        6575.2,
+        7761.5
+      ],
+      "name": "Duggan LeGrow",
+      "prior_results": 4,
+      "seconds": 7203.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6897.9,
+        7554.2
+      ],
+      "interval_90": [
+        6744.4,
+        7751.9
+      ],
+      "name": "Jason Edwards",
+      "prior_results": 8,
+      "seconds": 7218.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6840.5,
+        7714.8
+      ],
+      "interval_90": [
+        6615.2,
+        7957.5
+      ],
+      "name": "Ryan Critch",
+      "prior_results": 5,
+      "seconds": 7219.3
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        6752.2,
+        7908.2
+      ],
+      "interval_90": [
+        6540.1,
+        8249.7
+      ],
+      "name": "Richard Bragg",
+      "prior_results": 3,
+      "seconds": 7222.1
+    },
+    {
+      "hometown": "Gander",
+      "interval_80": [
+        6910.1,
+        7607.0
+      ],
+      "interval_90": [
+        6770.3,
+        7842.6
+      ],
+      "name": "Heather Jones",
+      "prior_results": 24,
+      "seconds": 7225.5
+    },
+    {
+      "hometown": "Deer Lake",
+      "interval_80": [
+        6814.9,
+        7606.1
+      ],
+      "interval_90": [
+        6633.5,
+        7797.3
+      ],
+      "name": "Elliot Dicks",
+      "prior_results": 4,
+      "seconds": 7227.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6900.2,
+        7665.6
+      ],
+      "interval_90": [
+        6683.0,
+        7858.0
+      ],
+      "name": "Peter Chafe",
+      "prior_results": 11,
+      "seconds": 7248.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6754.4,
+        8004.1
+      ],
+      "interval_90": [
+        6586.0,
+        8233.0
+      ],
+      "name": "Shaun Dillon",
+      "prior_results": 4,
+      "seconds": 7280.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6790.3,
+        7856.0
+      ],
+      "interval_90": [
+        6553.0,
+        8290.7
+      ],
+      "name": "Crispin Pike",
+      "prior_results": 3,
+      "seconds": 7282.4
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        6932.6,
+        7724.1
+      ],
+      "interval_90": [
+        6699.0,
+        7887.0
+      ],
+      "name": "Hazel Russell",
+      "prior_results": 28,
+      "seconds": 7282.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6798.2,
+        7913.5
+      ],
+      "interval_90": [
+        6515.9,
+        8358.4
+      ],
+      "name": "Adam Way",
+      "prior_results": 1,
+      "seconds": 7288.3
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        6976.0,
+        7743.9
+      ],
+      "interval_90": [
+        6747.4,
+        7992.9
+      ],
+      "name": "Logan Bragg",
+      "prior_results": 6,
+      "seconds": 7289.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6889.4,
+        7811.7
+      ],
+      "interval_90": [
+        6768.5,
+        7995.0
+      ],
+      "name": "Evan Penney",
+      "prior_results": 6,
+      "seconds": 7291.8
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6696.2,
+        8182.7
+      ],
+      "interval_90": [
+        6535.5,
+        8587.1
+      ],
+      "name": "Dennis Dillon",
+      "prior_results": 16,
+      "seconds": 7294.4
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        6520.1,
+        8406.6
+      ],
+      "interval_90": [
+        6326.3,
+        9942.3
+      ],
+      "name": "Danial Parsons",
+      "prior_results": 1,
+      "seconds": 7298.1
+    },
+    {
+      "hometown": "Goulds",
+      "interval_80": [
+        6970.2,
+        7805.9
+      ],
+      "interval_90": [
+        6785.2,
+        8031.5
+      ],
+      "name": "John Rolls",
+      "prior_results": 11,
+      "seconds": 7300.8
+    },
+    {
+      "hometown": "Mount Carmel",
+      "interval_80": [
+        6445.4,
+        8146.6
+      ],
+      "interval_90": [
+        6141.5,
+        8395.3
+      ],
+      "name": "Jason Mortimer",
+      "prior_results": 10,
+      "seconds": 7311.2
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6206.2,
+        8735.9
+      ],
+      "interval_90": [
+        5827.9,
+        9232.8
+      ],
+      "name": "Neill Banks",
+      "prior_results": 2,
+      "seconds": 7324.8
+    },
+    {
+      "hometown": "Clarence-Rockland",
+      "interval_80": [
+        6955.7,
+        7755.2
+      ],
+      "interval_90": [
+        6836.2,
+        7935.5
+      ],
+      "name": "ROBERT EBSARY",
+      "prior_results": 6,
+      "seconds": 7327.2
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6921.2,
+        7836.4
+      ],
+      "interval_90": [
+        6730.1,
+        8037.6
+      ],
+      "name": "Ivan Carlson",
+      "prior_results": 4,
+      "seconds": 7343.6
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        7047.5,
+        7731.6
+      ],
+      "interval_90": [
+        6885.3,
+        7947.6
+      ],
+      "name": "James LEGGE",
+      "prior_results": 24,
+      "seconds": 7344.5
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        6864.9,
+        7813.1
+      ],
+      "interval_90": [
+        6663.4,
+        8111.0
+      ],
+      "name": "Michael Gosse",
+      "prior_results": 5,
+      "seconds": 7345.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6232.7,
+        8683.7
+      ],
+      "interval_90": [
+        5888.6,
+        9261.2
+      ],
+      "name": "Colin Hunter",
+      "prior_results": 1,
+      "seconds": 7352.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6901.5,
+        8051.1
+      ],
+      "interval_90": [
+        6722.6,
+        8314.2
+      ],
+      "name": "Brad Klucowicz",
+      "prior_results": 6,
+      "seconds": 7353.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6794.7,
+        7882.1
+      ],
+      "interval_90": [
+        6560.4,
+        8065.2
+      ],
+      "name": "Benjamin Osmond",
+      "prior_results": 9,
+      "seconds": 7363.3
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        6976.7,
+        7737.8
+      ],
+      "interval_90": [
+        6766.5,
+        7869.1
+      ],
+      "name": "James Smith",
+      "prior_results": 12,
+      "seconds": 7365.5
+    },
+    {
+      "hometown": "Witless Bay",
+      "interval_80": [
+        6654.1,
+        8271.8
+      ],
+      "interval_90": [
+        6349.0,
+        8713.6
+      ],
+      "name": "Samantha Kavanagh",
+      "prior_results": 2,
+      "seconds": 7371.5
+    },
+    {
+      "hometown": "Gander",
+      "interval_80": [
+        7027.4,
+        7785.7
+      ],
+      "interval_90": [
+        6868.5,
+        7981.9
+      ],
+      "name": "Nadine Dove",
+      "prior_results": 4,
+      "seconds": 7384.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6803.8,
+        7991.4
+      ],
+      "interval_90": [
+        6533.3,
+        8193.3
+      ],
+      "name": "Emma Goddard",
+      "prior_results": 4,
+      "seconds": 7397.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6785.9,
+        7866.8
+      ],
+      "interval_90": [
+        6612.9,
+        8026.1
+      ],
+      "name": "Brian Drover",
+      "prior_results": 6,
+      "seconds": 7399.9
+    },
+    {
+      "hometown": "Grand Falls-Windsor",
+      "interval_80": [
+        6864.8,
+        8055.2
+      ],
+      "interval_90": [
+        6571.5,
+        8382.6
+      ],
+      "name": "Amanda Brett",
+      "prior_results": 3,
+      "seconds": 7403.7
+    },
+    {
+      "hometown": "Eastport",
+      "interval_80": [
+        6678.4,
+        8179.5
+      ],
+      "interval_90": [
+        6414.3,
+        8638.4
+      ],
+      "name": "Sean Powell",
+      "prior_results": 1,
+      "seconds": 7404.9
+    },
+    {
+      "hometown": "Carbonear",
+      "interval_80": [
+        6996.7,
+        7835.6
+      ],
+      "interval_90": [
+        6779.4,
+        7996.8
+      ],
+      "name": "Colin Clarke",
+      "prior_results": 10,
+      "seconds": 7405.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6809.7,
+        8056.9
+      ],
+      "interval_90": [
+        6570.8,
+        8346.5
+      ],
+      "name": "Lucas Stefanelli",
+      "prior_results": 1,
+      "seconds": 7409.5
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        7105.4,
+        7765.0
+      ],
+      "interval_90": [
+        6911.9,
+        8004.3
+      ],
+      "name": "Jeremy Lester",
+      "prior_results": 7,
+      "seconds": 7414.5
+    },
+    {
+      "hometown": "Wareham",
+      "interval_80": [
+        6947.5,
+        7790.8
+      ],
+      "interval_90": [
+        6714.3,
+        7995.2
+      ],
+      "name": "Martin Cutler",
+      "prior_results": 9,
+      "seconds": 7415.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7038.0,
+        7860.2
+      ],
+      "interval_90": [
+        6856.8,
+        8128.4
+      ],
+      "name": "Darren Ivany",
+      "prior_results": 8,
+      "seconds": 7434.3
+    },
+    {
+      "hometown": "Chapel's Cove",
+      "interval_80": [
+        6715.9,
+        8286.4
+      ],
+      "interval_90": [
+        6492.8,
+        8696.3
+      ],
+      "name": "Andrew Howlett",
+      "prior_results": 2,
+      "seconds": 7441.0
+    },
+    {
+      "hometown": "Holyrod",
+      "interval_80": [
+        6903.7,
+        7975.4
+      ],
+      "interval_90": [
+        6653.3,
+        8349.7
+      ],
+      "name": "Andy Lewis",
+      "prior_results": 2,
+      "seconds": 7443.8
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6692.7,
+        8278.3
+      ],
+      "interval_90": [
+        6418.2,
+        8690.4
+      ],
+      "name": "Jake McGuire",
+      "prior_results": 1,
+      "seconds": 7444.6
+    },
+    {
+      "hometown": "Gander",
+      "interval_80": [
+        7109.9,
+        7794.4
+      ],
+      "interval_90": [
+        6965.4,
+        8065.1
+      ],
+      "name": "Noleen Penney",
+      "prior_results": 6,
+      "seconds": 7452.1
+    },
+    {
+      "hometown": "Portugal Cove-St. Philip'",
+      "interval_80": [
+        7016.6,
+        7936.6
+      ],
+      "interval_90": [
+        6834.1,
+        8167.2
+      ],
+      "name": "Darryl Broomfield",
+      "prior_results": 5,
+      "seconds": 7452.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6546.8,
+        8437.8
+      ],
+      "interval_90": [
+        6296.5,
+        8834.3
+      ],
+      "name": "Ben Cleary",
+      "prior_results": 2,
+      "seconds": 7455.3
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        6884.9,
+        8497.4
+      ],
+      "interval_90": [
+        6666.7,
+        9124.6
+      ],
+      "name": "Ben Healey",
+      "prior_results": 2,
+      "seconds": 7457.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6758.3,
+        8059.3
+      ],
+      "interval_90": [
+        6513.8,
+        8372.2
+      ],
+      "name": "Sujay Raja",
+      "prior_results": 2,
+      "seconds": 7462.5
+    },
+    {
+      "hometown": "Clarenville",
+      "interval_80": [
+        6895.5,
+        8047.3
+      ],
+      "interval_90": [
+        6683.6,
+        8323.8
+      ],
+      "name": "Robert Balsom",
+      "prior_results": 12,
+      "seconds": 7464.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7063.4,
+        7932.4
+      ],
+      "interval_90": [
+        6908.4,
+        8158.5
+      ],
+      "name": "Tony Williams",
+      "prior_results": 7,
+      "seconds": 7465.0
+    },
+    {
+      "hometown": "Hammond",
+      "interval_80": [
+        7105.0,
+        7848.5
+      ],
+      "interval_90": [
+        6964.8,
+        8045.8
+      ],
+      "name": "Omar Shogan",
+      "prior_results": 24,
+      "seconds": 7466.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6949.4,
+        8066.1
+      ],
+      "interval_90": [
+        6659.5,
+        8351.9
+      ],
+      "name": "Julie Stentaford",
+      "prior_results": 3,
+      "seconds": 7472.0
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        7146.8,
+        7873.2
+      ],
+      "interval_90": [
+        6923.2,
+        8020.1
+      ],
+      "name": "Amanda White",
+      "prior_results": 6,
+      "seconds": 7476.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6862.1,
+        8068.9
+      ],
+      "interval_90": [
+        6528.0,
+        8533.3
+      ],
+      "name": "Nic White",
+      "prior_results": 2,
+      "seconds": 7490.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6726.4,
+        9991.9
+      ],
+      "interval_90": [
+        6441.2,
+        10464.0
+      ],
+      "name": "Moustafa Elsisy",
+      "prior_results": 2,
+      "seconds": 7499.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7125.4,
+        7895.6
+      ],
+      "interval_90": [
+        6938.6,
+        8167.8
+      ],
+      "name": "Gerry Mayo",
+      "prior_results": 37,
+      "seconds": 7500.6
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        7054.2,
+        8017.7
+      ],
+      "interval_90": [
+        6873.3,
+        8173.1
+      ],
+      "name": "Vince Brake",
+      "prior_results": 9,
+      "seconds": 7504.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6994.0,
+        8111.6
+      ],
+      "interval_90": [
+        6713.6,
+        8469.7
+      ],
+      "name": "Anthony Duchesne",
+      "prior_results": 3,
+      "seconds": 7510.8
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        6789.2,
+        8521.6
+      ],
+      "interval_90": [
+        6485.1,
+        9085.5
+      ],
+      "name": "Isabelle Quinton",
+      "prior_results": 1,
+      "seconds": 7522.8
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7206.5,
+        7999.5
+      ],
+      "interval_90": [
+        7004.9,
+        8193.7
+      ],
+      "name": "Brandon Farewell",
+      "prior_results": 4,
+      "seconds": 7532.1
+    },
+    {
+      "hometown": "CBS",
+      "interval_80": [
+        7148.2,
+        7974.5
+      ],
+      "interval_90": [
+        6950.6,
+        8172.3
+      ],
+      "name": "Charlene Kennedy",
+      "prior_results": 7,
+      "seconds": 7533.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7164.8,
+        7926.9
+      ],
+      "interval_90": [
+        6979.6,
+        8091.0
+      ],
+      "name": "Christopher Bayliss",
+      "prior_results": 21,
+      "seconds": 7536.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7162.8,
+        7886.0
+      ],
+      "interval_90": [
+        6968.1,
+        8089.2
+      ],
+      "name": "Brad Meaney",
+      "prior_results": 26,
+      "seconds": 7549.9
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        6889.4,
+        8154.9
+      ],
+      "interval_90": [
+        6519.8,
+        8470.4
+      ],
+      "name": "Keegan Butt",
+      "prior_results": 1,
+      "seconds": 7549.9
+    },
+    {
+      "hometown": "Corner Brook",
+      "interval_80": [
+        6788.4,
+        8411.1
+      ],
+      "interval_90": [
+        6532.4,
+        8810.7
+      ],
+      "name": "Carmaleah O'Reilly",
+      "prior_results": 1,
+      "seconds": 7552.6
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        7127.9,
+        8082.9
+      ],
+      "interval_90": [
+        6973.0,
+        8354.2
+      ],
+      "name": "Jamie Traverse",
+      "prior_results": 5,
+      "seconds": 7560.7
+    },
+    {
+      "hometown": "Torbay",
+      "interval_80": [
+        7189.0,
+        7962.7
+      ],
+      "interval_90": [
+        7007.9,
+        8221.0
+      ],
+      "name": "joe craig",
+      "prior_results": 21,
+      "seconds": 7561.3
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        7182.4,
+        7950.8
+      ],
+      "interval_90": [
+        7033.2,
+        8135.0
+      ],
+      "name": "Dena Kavanagh",
+      "prior_results": 14,
+      "seconds": 7570.0
+    },
+    {
+      "hometown": "Portugal Cove-St. Philip'",
+      "interval_80": [
+        7090.0,
+        8015.8
+      ],
+      "interval_90": [
+        6909.8,
+        8207.5
+      ],
+      "name": "Kaitlyn Hall",
+      "prior_results": 23,
+      "seconds": 7571.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7174.7,
+        8022.3
+      ],
+      "interval_90": [
+        6953.8,
+        8205.8
+      ],
+      "name": "Dave Winsor",
+      "prior_results": 4,
+      "seconds": 7575.3
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        7089.2,
+        8096.3
+      ],
+      "interval_90": [
+        6935.5,
+        8356.5
+      ],
+      "name": "Brandon Shute",
+      "prior_results": 5,
+      "seconds": 7582.9
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        7201.8,
+        8028.8
+      ],
+      "interval_90": [
+        6990.5,
+        8246.5
+      ],
+      "name": "Connie Gullage",
+      "prior_results": 37,
+      "seconds": 7595.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7160.2,
+        8080.0
+      ],
+      "interval_90": [
+        7035.5,
+        8283.0
+      ],
+      "name": "Jeff Hutchings",
+      "prior_results": 10,
+      "seconds": 7614.2
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7256.0,
+        8031.5
+      ],
+      "interval_90": [
+        7088.7,
+        8261.4
+      ],
+      "name": "Joan Hartery",
+      "prior_results": 118,
+      "seconds": 7628.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7030.3,
+        8579.4
+      ],
+      "interval_90": [
+        6801.6,
+        9101.7
+      ],
+      "name": "Blair Trainor",
+      "prior_results": 8,
+      "seconds": 7634.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7142.1,
+        8034.1
+      ],
+      "interval_90": [
+        6966.3,
+        8179.5
+      ],
+      "name": "Jane Beckett",
+      "prior_results": 6,
+      "seconds": 7638.2
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        7240.0,
+        8062.3
+      ],
+      "interval_90": [
+        7032.5,
+        8302.8
+      ],
+      "name": "Doug Dorward",
+      "prior_results": 5,
+      "seconds": 7642.5
+    },
+    {
+      "hometown": "Torbay",
+      "interval_80": [
+        7269.5,
+        8201.2
+      ],
+      "interval_90": [
+        7054.4,
+        8436.5
+      ],
+      "name": "Tessa Thorne",
+      "prior_results": 8,
+      "seconds": 7653.8
+    },
+    {
+      "hometown": "Corner Brook",
+      "interval_80": [
+        7062.2,
+        8396.4
+      ],
+      "interval_90": [
+        6857.5,
+        8792.7
+      ],
+      "name": "Grace O'Brien",
+      "prior_results": 3,
+      "seconds": 7661.2
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7244.5,
+        8065.8
+      ],
+      "interval_90": [
+        7036.7,
+        8324.5
+      ],
+      "name": "Michael DeRoche",
+      "prior_results": 38,
+      "seconds": 7665.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6839.5,
+        8408.5
+      ],
+      "interval_90": [
+        6545.2,
+        8825.2
+      ],
+      "name": "Scott Atkinson",
+      "prior_results": 3,
+      "seconds": 7669.0
+    },
+    {
+      "hometown": "New Harbour",
+      "interval_80": [
+        7367.1,
+        8093.4
+      ],
+      "interval_90": [
+        7239.9,
+        8264.5
+      ],
+      "name": "Jessica Woodman",
+      "prior_results": 10,
+      "seconds": 7704.1
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        7068.0,
+        8480.8
+      ],
+      "interval_90": [
+        6841.9,
+        8826.5
+      ],
+      "name": "Neil Parsons",
+      "prior_results": 4,
+      "seconds": 7706.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7027.2,
+        8389.7
+      ],
+      "interval_90": [
+        6818.7,
+        8674.6
+      ],
+      "name": "Chris Flanagan",
+      "prior_results": 22,
+      "seconds": 7710.9
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        7143.7,
+        8378.1
+      ],
+      "interval_90": [
+        6914.9,
+        8840.4
+      ],
+      "name": "Brooke Williamson",
+      "prior_results": 1,
+      "seconds": 7713.3
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        6500.5,
+        9162.7
+      ],
+      "interval_90": [
+        6066.4,
+        9684.2
+      ],
+      "name": "Jonathan Bungay",
+      "prior_results": 1,
+      "seconds": 7716.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7343.4,
+        8123.0
+      ],
+      "interval_90": [
+        7228.9,
+        8291.3
+      ],
+      "name": "Christopher Tobin",
+      "prior_results": 45,
+      "seconds": 7720.0
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        7329.6,
+        8138.8
+      ],
+      "interval_90": [
+        7193.6,
+        8353.9
+      ],
+      "name": "Gillian Brown",
+      "prior_results": 14,
+      "seconds": 7745.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7347.7,
+        8152.2
+      ],
+      "interval_90": [
+        7124.7,
+        8354.0
+      ],
+      "name": "Trina Simms",
+      "prior_results": 10,
+      "seconds": 7751.2
+    },
+    {
+      "hometown": "Clarenville",
+      "interval_80": [
+        7325.2,
+        8228.5
+      ],
+      "interval_90": [
+        7142.6,
+        8454.2
+      ],
+      "name": "Craig Vokey",
+      "prior_results": 19,
+      "seconds": 7773.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7368.8,
+        8183.4
+      ],
+      "interval_90": [
+        7233.9,
+        8364.3
+      ],
+      "name": "Beth Hamilton",
+      "prior_results": 10,
+      "seconds": 7783.6
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        7421.1,
+        8203.5
+      ],
+      "interval_90": [
+        7248.9,
+        8361.9
+      ],
+      "name": "Tracy Lawrence",
+      "prior_results": 47,
+      "seconds": 7790.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7453.2,
+        8195.5
+      ],
+      "interval_90": [
+        7225.2,
+        8342.9
+      ],
+      "name": "Maggie Dawson",
+      "prior_results": 15,
+      "seconds": 7796.8
+    },
+    {
+      "hometown": "Middle Cove",
+      "interval_80": [
+        7264.5,
+        8438.3
+      ],
+      "interval_90": [
+        7004.6,
+        8737.0
+      ],
+      "name": "Melissa Jones",
+      "prior_results": 11,
+      "seconds": 7807.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7493.1,
+        8223.5
+      ],
+      "interval_90": [
+        7334.5,
+        8449.7
+      ],
+      "name": "Leigha Meaney",
+      "prior_results": 7,
+      "seconds": 7825.5
+    },
+    {
+      "hometown": "Glovertown",
+      "interval_80": [
+        7320.9,
+        8436.1
+      ],
+      "interval_90": [
+        7189.1,
+        8691.3
+      ],
+      "name": "Leon Dowden",
+      "prior_results": 6,
+      "seconds": 7835.6
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        7329.5,
+        8286.1
+      ],
+      "interval_90": [
+        7060.3,
+        8438.0
+      ],
+      "name": "Barbara Wells",
+      "prior_results": 36,
+      "seconds": 7851.6
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        7543.2,
+        8224.4
+      ],
+      "interval_90": [
+        7357.6,
+        8497.7
+      ],
+      "name": "Barry Walsh",
+      "prior_results": 9,
+      "seconds": 7870.6
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        7268.7,
+        8549.1
+      ],
+      "interval_90": [
+        7048.4,
+        8911.3
+      ],
+      "name": "Desmond Power",
+      "prior_results": 17,
+      "seconds": 7885.3
+    },
+    {
+      "hometown": "Flatrock",
+      "interval_80": [
+        7487.8,
+        8255.6
+      ],
+      "interval_90": [
+        7310.3,
+        8500.5
+      ],
+      "name": "Jaspen Barker",
+      "prior_results": 17,
+      "seconds": 7886.5
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        7510.9,
+        8333.0
+      ],
+      "interval_90": [
+        7349.6,
+        8511.9
+      ],
+      "name": "Roseanne Leonard",
+      "prior_results": 18,
+      "seconds": 7896.9
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        7573.2,
+        8314.4
+      ],
+      "interval_90": [
+        7331.0,
+        8467.3
+      ],
+      "name": "Andrea Buckle",
+      "prior_results": 22,
+      "seconds": 7916.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6915.2,
+        8918.9
+      ],
+      "interval_90": [
+        6626.0,
+        9333.4
+      ],
+      "name": "Deanne Cumby",
+      "prior_results": 5,
+      "seconds": 7931.1
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        7567.8,
+        8314.3
+      ],
+      "interval_90": [
+        7423.4,
+        8466.2
+      ],
+      "name": "Luc Paulin",
+      "prior_results": 16,
+      "seconds": 7933.1
+    },
+    {
+      "hometown": "Kippens",
+      "interval_80": [
+        7383.9,
+        8598.5
+      ],
+      "interval_90": [
+        7124.8,
+        9059.7
+      ],
+      "name": "Tracy Collins",
+      "prior_results": 1,
+      "seconds": 7934.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7480.6,
+        8374.8
+      ],
+      "interval_90": [
+        7318.0,
+        8562.7
+      ],
+      "name": "Heather Brandon",
+      "prior_results": 5,
+      "seconds": 7958.3
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        7578.4,
+        8288.1
+      ],
+      "interval_90": [
+        7376.8,
+        8461.6
+      ],
+      "name": "Nadine Penton",
+      "prior_results": 10,
+      "seconds": 7963.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7403.8,
+        8391.7
+      ],
+      "interval_90": [
+        7236.7,
+        8604.8
+      ],
+      "name": "Chamila Liyanage",
+      "prior_results": 4,
+      "seconds": 7966.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7436.3,
+        8704.9
+      ],
+      "interval_90": [
+        7110.4,
+        9160.2
+      ],
+      "name": "Victoria Wilkins",
+      "prior_results": 1,
+      "seconds": 7966.4
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        7410.6,
+        8631.8
+      ],
+      "interval_90": [
+        7118.6,
+        8939.4
+      ],
+      "name": "Todd Snook",
+      "prior_results": 2,
+      "seconds": 7976.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7474.5,
+        8569.0
+      ],
+      "interval_90": [
+        7140.7,
+        8943.6
+      ],
+      "name": "Nicholas Duggan",
+      "prior_results": 2,
+      "seconds": 7984.2
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        7637.2,
+        8447.1
+      ],
+      "interval_90": [
+        7419.5,
+        8638.5
+      ],
+      "name": "Aimee Penarubia",
+      "prior_results": 9,
+      "seconds": 7999.4
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        7661.5,
+        8485.0
+      ],
+      "interval_90": [
+        7464.5,
+        8876.3
+      ],
+      "name": "Tammy Lahey",
+      "prior_results": 40,
+      "seconds": 8026.6
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        7463.9,
+        8768.4
+      ],
+      "interval_90": [
+        7236.2,
+        9059.0
+      ],
+      "name": "Ryan Glynn",
+      "prior_results": 33,
+      "seconds": 8027.3
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        7420.9,
+        8613.0
+      ],
+      "interval_90": [
+        7090.4,
+        8950.7
+      ],
+      "name": "Ali Yassin",
+      "prior_results": 1,
+      "seconds": 8032.2
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7646.9,
+        8465.1
+      ],
+      "interval_90": [
+        7435.6,
+        8681.5
+      ],
+      "name": "Rona Moore",
+      "prior_results": 29,
+      "seconds": 8037.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7480.4,
+        8607.4
+      ],
+      "interval_90": [
+        7257.8,
+        8882.0
+      ],
+      "name": "Sam Kelly",
+      "prior_results": 3,
+      "seconds": 8037.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7628.8,
+        8488.4
+      ],
+      "interval_90": [
+        7493.4,
+        8632.6
+      ],
+      "name": "Kayla Walsh",
+      "prior_results": 8,
+      "seconds": 8040.5
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        6987.1,
+        9328.9
+      ],
+      "interval_90": [
+        6580.1,
+        9862.5
+      ],
+      "name": "Paul Gosse",
+      "prior_results": 2,
+      "seconds": 8054.6
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        7389.2,
+        9187.1
+      ],
+      "interval_90": [
+        7225.1,
+        9775.0
+      ],
+      "name": "Nick Diamond",
+      "prior_results": 5,
+      "seconds": 8063.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7061.9,
+        8998.2
+      ],
+      "interval_90": [
+        6717.4,
+        9300.4
+      ],
+      "name": "Brad Glynn",
+      "prior_results": 7,
+      "seconds": 8075.3
+    },
+    {
+      "hometown": "Clarenville",
+      "interval_80": [
+        7495.6,
+        8848.0
+      ],
+      "interval_90": [
+        7156.0,
+        9363.0
+      ],
+      "name": "Rayah Vokey",
+      "prior_results": 1,
+      "seconds": 8099.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7699.6,
+        8725.3
+      ],
+      "interval_90": [
+        7531.6,
+        9212.7
+      ],
+      "name": "Percy Delaney",
+      "prior_results": 17,
+      "seconds": 8103.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7604.8,
+        8618.8
+      ],
+      "interval_90": [
+        7383.0,
+        8850.8
+      ],
+      "name": "Craig Ennis",
+      "prior_results": 24,
+      "seconds": 8121.9
+    },
+    {
+      "hometown": "Bloomfield",
+      "interval_80": [
+        7733.0,
+        8543.4
+      ],
+      "interval_90": [
+        7432.1,
+        8829.0
+      ],
+      "name": "Martha Sweeting",
+      "prior_results": 38,
+      "seconds": 8128.2
+    },
+    {
+      "hometown": "Holyrood",
+      "interval_80": [
+        7773.3,
+        8533.9
+      ],
+      "interval_90": [
+        7652.0,
+        8704.0
+      ],
+      "name": "Linda Ennis",
+      "prior_results": 25,
+      "seconds": 8132.1
+    },
+    {
+      "hometown": "Placentia",
+      "interval_80": [
+        7356.6,
+        8871.5
+      ],
+      "interval_90": [
+        7091.1,
+        9167.8
+      ],
+      "name": "Kim Kerrivan",
+      "prior_results": 10,
+      "seconds": 8132.1
+    },
+    {
+      "hometown": "Torbay",
+      "interval_80": [
+        7799.8,
+        8505.0
+      ],
+      "interval_90": [
+        7646.0,
+        8630.5
+      ],
+      "name": "Janna Andronowski",
+      "prior_results": 8,
+      "seconds": 8135.0
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        6998.0,
+        9836.7
+      ],
+      "interval_90": [
+        6613.0,
+        10534.2
+      ],
+      "name": "Darren Clarke",
+      "prior_results": 0,
+      "seconds": 8153.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7570.9,
+        9062.7
+      ],
+      "interval_90": [
+        7271.0,
+        9522.2
+      ],
+      "name": "Haley Adams",
+      "prior_results": 1,
+      "seconds": 8161.5
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        6818.3,
+        10018.9
+      ],
+      "interval_90": [
+        6443.6,
+        10749.0
+      ],
+      "name": "Kiersten Van Gulick",
+      "prior_results": 0,
+      "seconds": 8164.8
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7770.6,
+        8633.4
+      ],
+      "interval_90": [
+        7591.6,
+        8872.9
+      ],
+      "name": "Andrew Leonard",
+      "prior_results": 16,
+      "seconds": 8170.3
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        6996.1,
+        10154.5
+      ],
+      "interval_90": [
+        6719.2,
+        10743.8
+      ],
+      "name": "Sarah-Kay Walker",
+      "prior_results": 0,
+      "seconds": 8170.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7780.9,
+        8600.3
+      ],
+      "interval_90": [
+        7605.3,
+        8780.0
+      ],
+      "name": "Wendy Read",
+      "prior_results": 23,
+      "seconds": 8171.9
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        7794.6,
+        8681.4
+      ],
+      "interval_90": [
+        7596.4,
+        8979.4
+      ],
+      "name": "Sarah Peters",
+      "prior_results": 13,
+      "seconds": 8179.1
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        7798.9,
+        8593.5
+      ],
+      "interval_90": [
+        7606.4,
+        8794.6
+      ],
+      "name": "Mariann Evans",
+      "prior_results": 20,
+      "seconds": 8184.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7681.9,
+        8665.2
+      ],
+      "interval_90": [
+        7466.9,
+        8996.7
+      ],
+      "name": "Vanessa Sutton-Pande",
+      "prior_results": 5,
+      "seconds": 8190.6
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        7002.3,
+        10140.7
+      ],
+      "interval_90": [
+        6630.1,
+        10534.5
+      ],
+      "name": "Olanna Barnett",
+      "prior_results": 0,
+      "seconds": 8200.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7471.2,
+        8961.6
+      ],
+      "interval_90": [
+        7291.7,
+        9173.7
+      ],
+      "name": "Lisa Spurrell",
+      "prior_results": 8,
+      "seconds": 8204.1
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        6860.8,
+        9918.0
+      ],
+      "interval_90": [
+        6572.6,
+        10666.9
+      ],
+      "name": "Nat Begley",
+      "prior_results": 0,
+      "seconds": 8208.6
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        7748.6,
+        8665.6
+      ],
+      "interval_90": [
+        7487.4,
+        8906.7
+      ],
+      "name": "Joy Penney",
+      "prior_results": 13,
+      "seconds": 8211.1
+    },
+    {
+      "hometown": "Portugal Cove-St. Philip'",
+      "interval_80": [
+        7836.7,
+        8612.0
+      ],
+      "interval_90": [
+        7689.1,
+        8868.2
+      ],
+      "name": "Bryan Tucker",
+      "prior_results": 8,
+      "seconds": 8218.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7763.0,
+        8767.1
+      ],
+      "interval_90": [
+        7579.1,
+        8995.7
+      ],
+      "name": "Val Hynes",
+      "prior_results": 10,
+      "seconds": 8222.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7877.9,
+        8655.5
+      ],
+      "interval_90": [
+        7735.8,
+        8893.2
+      ],
+      "name": "Amanda Cooper",
+      "prior_results": 19,
+      "seconds": 8234.2
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        6904.7,
+        10010.5
+      ],
+      "interval_90": [
+        6580.1,
+        10565.6
+      ],
+      "name": "Emma Chamandy",
+      "prior_results": 0,
+      "seconds": 8247.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7747.0,
+        8846.8
+      ],
+      "interval_90": [
+        7447.6,
+        9171.8
+      ],
+      "name": "Kaitlyn Hines",
+      "prior_results": 2,
+      "seconds": 8247.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7769.0,
+        9065.1
+      ],
+      "interval_90": [
+        7609.6,
+        9477.0
+      ],
+      "name": "Vanessa Alexander",
+      "prior_results": 4,
+      "seconds": 8254.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7826.3,
+        8705.4
+      ],
+      "interval_90": [
+        7524.8,
+        8925.1
+      ],
+      "name": "Kara Harrington",
+      "prior_results": 4,
+      "seconds": 8257.4
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        6901.9,
+        10068.6
+      ],
+      "interval_90": [
+        6624.3,
+        10629.8
+      ],
+      "name": "Madison Curis",
+      "prior_results": 0,
+      "seconds": 8261.8
+    },
+    {
+      "hometown": "Botwood",
+      "interval_80": [
+        7716.3,
+        8856.2
+      ],
+      "interval_90": [
+        7391.8,
+        9166.9
+      ],
+      "name": "Andrew Oake",
+      "prior_results": 3,
+      "seconds": 8262.4
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        6978.8,
+        9961.7
+      ],
+      "interval_90": [
+        6715.3,
+        10646.7
+      ],
+      "name": "Kirsten McKay",
+      "prior_results": 0,
+      "seconds": 8269.8
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        6936.6,
+        9971.5
+      ],
+      "interval_90": [
+        6648.8,
+        10792.9
+      ],
+      "name": "Ryan Slaney",
+      "prior_results": 0,
+      "seconds": 8272.3
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        6922.7,
+        10226.2
+      ],
+      "interval_90": [
+        6659.7,
+        10682.7
+      ],
+      "name": "Jennifer Noad",
+      "prior_results": 0,
+      "seconds": 8274.2
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        6914.9,
+        10131.5
+      ],
+      "interval_90": [
+        6476.5,
+        10466.8
+      ],
+      "name": "Katlin Schwartz",
+      "prior_results": 0,
+      "seconds": 8284.8
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7734.2,
+        8924.1
+      ],
+      "interval_90": [
+        7494.8,
+        9264.4
+      ],
+      "name": "Alison White",
+      "prior_results": 8,
+      "seconds": 8315.2
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        7619.4,
+        8888.9
+      ],
+      "interval_90": [
+        7417.8,
+        9265.5
+      ],
+      "name": "Rachel Waddleton",
+      "prior_results": 5,
+      "seconds": 8320.7
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        6943.9,
+        9974.3
+      ],
+      "interval_90": [
+        6594.2,
+        10792.4
+      ],
+      "name": "Kyla Squires",
+      "prior_results": 0,
+      "seconds": 8321.3
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        7718.4,
+        9021.5
+      ],
+      "interval_90": [
+        7283.6,
+        9448.5
+      ],
+      "name": "Terry Yetman",
+      "prior_results": 2,
+      "seconds": 8328.1
+    },
+    {
+      "hometown": "Torbay",
+      "interval_80": [
+        7978.3,
+        8723.7
+      ],
+      "interval_90": [
+        7827.4,
+        9057.9
+      ],
+      "name": "Bud Whitten",
+      "prior_results": 48,
+      "seconds": 8337.1
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        7958.5,
+        9080.6
+      ],
+      "interval_90": [
+        7774.0,
+        9429.7
+      ],
+      "name": "Lisa Bungay",
+      "prior_results": 10,
+      "seconds": 8347.6
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        7045.6,
+        9956.7
+      ],
+      "interval_90": [
+        6695.0,
+        10490.8
+      ],
+      "name": "Emma Burbidge",
+      "prior_results": 0,
+      "seconds": 8356.5
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        6884.3,
+        9986.5
+      ],
+      "interval_90": [
+        6490.6,
+        10597.7
+      ],
+      "name": "Mark Conway",
+      "prior_results": 0,
+      "seconds": 8357.9
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        7146.1,
+        9954.6
+      ],
+      "interval_90": [
+        6747.7,
+        10659.2
+      ],
+      "name": "Jessica Connolly",
+      "prior_results": 0,
+      "seconds": 8358.9
+    },
+    {
+      "hometown": "Colliers Riverhead",
+      "interval_80": [
+        8041.5,
+        8780.4
+      ],
+      "interval_90": [
+        7871.8,
+        8985.5
+      ],
+      "name": "Dennis Flynn",
+      "prior_results": 122,
+      "seconds": 8361.7
+    },
+    {
+      "hometown": "Portugal Cove-St Philips",
+      "interval_80": [
+        7802.3,
+        8916.6
+      ],
+      "interval_90": [
+        7535.6,
+        9191.7
+      ],
+      "name": "Alison Keough",
+      "prior_results": 2,
+      "seconds": 8376.0
+    },
+    {
+      "hometown": "Whitbourne",
+      "interval_80": [
+        7980.0,
+        8823.3
+      ],
+      "interval_90": [
+        7812.4,
+        9059.3
+      ],
+      "name": "Donna Smith",
+      "prior_results": 13,
+      "seconds": 8390.3
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        6929.0,
+        10301.8
+      ],
+      "interval_90": [
+        6542.0,
+        10653.0
+      ],
+      "name": "John Halley",
+      "prior_results": 0,
+      "seconds": 8403.6
+    },
+    {
+      "hometown": "Portugal Cove-St. Philip'",
+      "interval_80": [
+        7944.2,
+        8857.4
+      ],
+      "interval_90": [
+        7690.5,
+        9130.0
+      ],
+      "name": "Jo Mark Zurel",
+      "prior_results": 5,
+      "seconds": 8421.0
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        8060.3,
+        8862.1
+      ],
+      "interval_90": [
+        7791.8,
+        9026.2
+      ],
+      "name": "Jennifer Dominie",
+      "prior_results": 11,
+      "seconds": 8440.0
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        7988.9,
+        8902.7
+      ],
+      "interval_90": [
+        7712.3,
+        9141.7
+      ],
+      "name": "Aliyah Dunn",
+      "prior_results": 4,
+      "seconds": 8440.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8051.3,
+        8933.0
+      ],
+      "interval_90": [
+        7799.3,
+        9229.1
+      ],
+      "name": "Terasena Power",
+      "prior_results": 10,
+      "seconds": 8452.7
+    },
+    {
+      "hometown": "Conception By South",
+      "interval_80": [
+        8017.4,
+        9150.2
+      ],
+      "interval_90": [
+        7834.1,
+        9576.7
+      ],
+      "name": "Karen Mercer",
+      "prior_results": 17,
+      "seconds": 8461.1
+    },
+    {
+      "hometown": "Goulds",
+      "interval_80": [
+        7154.5,
+        9953.7
+      ],
+      "interval_90": [
+        6769.9,
+        10606.4
+      ],
+      "name": "Jeff Marshall",
+      "prior_results": 2,
+      "seconds": 8465.1
+    },
+    {
+      "hometown": "Holyrood",
+      "interval_80": [
+        7877.0,
+        9104.5
+      ],
+      "interval_90": [
+        7397.0,
+        9566.5
+      ],
+      "name": "Hannah Poole",
+      "prior_results": 2,
+      "seconds": 8467.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7791.3,
+        9058.9
+      ],
+      "interval_90": [
+        7504.6,
+        9396.5
+      ],
+      "name": "John Dichoso",
+      "prior_results": 1,
+      "seconds": 8475.3
+    },
+    {
+      "hometown": "Portugal Cove-St Philips",
+      "interval_80": [
+        7723.4,
+        9455.8
+      ],
+      "interval_90": [
+        7430.0,
+        10056.6
+      ],
+      "name": "Leeanne Jackson",
+      "prior_results": 1,
+      "seconds": 8476.8
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        7373.4,
+        10060.8
+      ],
+      "interval_90": [
+        7023.6,
+        10478.0
+      ],
+      "name": "Jerome Reyes",
+      "prior_results": 2,
+      "seconds": 8484.9
+    },
+    {
+      "hometown": "Bauline",
+      "interval_80": [
+        8106.4,
+        8927.4
+      ],
+      "interval_90": [
+        7846.7,
+        9145.1
+      ],
+      "name": "Andy Stamp",
+      "prior_results": 8,
+      "seconds": 8493.2
+    },
+    {
+      "hometown": "Bay Bulls",
+      "interval_80": [
+        7504.0,
+        9711.0
+      ],
+      "interval_90": [
+        7205.3,
+        10061.3
+      ],
+      "name": "Josh Morrissey",
+      "prior_results": 7,
+      "seconds": 8512.5
+    },
+    {
+      "hometown": "Harbour Grace",
+      "interval_80": [
+        8073.3,
+        9087.9
+      ],
+      "interval_90": [
+        7894.3,
+        9436.3
+      ],
+      "name": "Nadiya Butt-Velychko",
+      "prior_results": 5,
+      "seconds": 8518.9
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        7657.1,
+        9592.6
+      ],
+      "interval_90": [
+        7388.4,
+        9999.7
+      ],
+      "name": "Bruce Quinton",
+      "prior_results": 1,
+      "seconds": 8522.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8048.3,
+        8971.6
+      ],
+      "interval_90": [
+        7739.8,
+        9196.7
+      ],
+      "name": "Chris Bonnell",
+      "prior_results": 6,
+      "seconds": 8531.9
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        6917.1,
+        10493.6
+      ],
+      "interval_90": [
+        6521.4,
+        11394.3
+      ],
+      "name": "Kevin Flynn",
+      "prior_results": 4,
+      "seconds": 8544.0
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        8111.6,
+        9028.1
+      ],
+      "interval_90": [
+        7851.5,
+        9286.0
+      ],
+      "name": "Terrilynn Hoskins",
+      "prior_results": 15,
+      "seconds": 8554.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8056.8,
+        9013.5
+      ],
+      "interval_90": [
+        7873.7,
+        9303.0
+      ],
+      "name": "Ashley Savinov",
+      "prior_results": 4,
+      "seconds": 8557.7
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        7826.0,
+        9625.5
+      ],
+      "interval_90": [
+        7581.0,
+        10065.5
+      ],
+      "name": "Hollie Young",
+      "prior_results": 3,
+      "seconds": 8571.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8033.7,
+        9420.9
+      ],
+      "interval_90": [
+        7821.2,
+        9674.5
+      ],
+      "name": "Lisa Mackey",
+      "prior_results": 12,
+      "seconds": 8575.4
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        7975.8,
+        9458.3
+      ],
+      "interval_90": [
+        7740.9,
+        10095.0
+      ],
+      "name": "Leslie Russell",
+      "prior_results": 1,
+      "seconds": 8590.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7815.8,
+        9649.9
+      ],
+      "interval_90": [
+        7402.1,
+        10060.4
+      ],
+      "name": "Dumisa Bhebe",
+      "prior_results": 2,
+      "seconds": 8598.2
+    },
+    {
+      "hometown": "Portugal Cove-St Philips",
+      "interval_80": [
+        7845.6,
+        9463.6
+      ],
+      "interval_90": [
+        7490.4,
+        9765.4
+      ],
+      "name": "Stephanie Mandville",
+      "prior_results": 3,
+      "seconds": 8615.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8196.4,
+        8996.2
+      ],
+      "interval_90": [
+        7944.9,
+        9166.8
+      ],
+      "name": "Bernadette Jerrett",
+      "prior_results": 108,
+      "seconds": 8619.5
+    },
+    {
+      "hometown": "Traytown",
+      "interval_80": [
+        8034.2,
+        9236.0
+      ],
+      "interval_90": [
+        7803.7,
+        9487.3
+      ],
+      "name": "Sueann Fry",
+      "prior_results": 6,
+      "seconds": 8654.4
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        8203.5,
+        9038.0
+      ],
+      "interval_90": [
+        7915.2,
+        9193.8
+      ],
+      "name": "Janet MacGillivray",
+      "prior_results": 21,
+      "seconds": 8655.8
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8176.6,
+        9282.6
+      ],
+      "interval_90": [
+        7974.7,
+        9633.9
+      ],
+      "name": "Megan Burt",
+      "prior_results": 4,
+      "seconds": 8671.1
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        8049.5,
+        9492.2
+      ],
+      "interval_90": [
+        7748.2,
+        10111.2
+      ],
+      "name": "Riely Lewis",
+      "prior_results": 1,
+      "seconds": 8678.2
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8271.7,
+        9158.1
+      ],
+      "interval_90": [
+        8051.3,
+        9346.7
+      ],
+      "name": "Debbie Rice-Jerrett",
+      "prior_results": 10,
+      "seconds": 8684.7
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        8221.4,
+        9131.5
+      ],
+      "interval_90": [
+        7915.4,
+        9389.1
+      ],
+      "name": "Kenneth Smith",
+      "prior_results": 10,
+      "seconds": 8694.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8225.8,
+        9193.6
+      ],
+      "interval_90": [
+        8024.6,
+        9504.9
+      ],
+      "name": "Anna Sparkes",
+      "prior_results": 7,
+      "seconds": 8701.4
+    },
+    {
+      "hometown": "Grand Falls-Windsor",
+      "interval_80": [
+        7886.3,
+        9429.9
+      ],
+      "interval_90": [
+        7521.7,
+        9924.8
+      ],
+      "name": "Mallory Pitts",
+      "prior_results": 2,
+      "seconds": 8702.8
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8042.6,
+        9176.1
+      ],
+      "interval_90": [
+        7773.4,
+        9469.9
+      ],
+      "name": "Lynn Whitten",
+      "prior_results": 19,
+      "seconds": 8708.7
+    },
+    {
+      "hometown": null,
+      "interval_80": [
+        6924.6,
+        10904.5
+      ],
+      "interval_90": [
+        6282.0,
+        11664.8
+      ],
+      "name": "Justin Sullivan",
+      "prior_results": 1,
+      "seconds": 8724.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8048.9,
+        9399.6
+      ],
+      "interval_90": [
+        7700.7,
+        9851.4
+      ],
+      "name": "Joshua Dunks",
+      "prior_results": 3,
+      "seconds": 8728.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7180.4,
+        10528.5
+      ],
+      "interval_90": [
+        6679.0,
+        10998.0
+      ],
+      "name": "Gavin White",
+      "prior_results": 1,
+      "seconds": 8741.6
+    },
+    {
+      "hometown": "Logy Bay",
+      "interval_80": [
+        8161.8,
+        9288.6
+      ],
+      "interval_90": [
+        7906.4,
+        9548.6
+      ],
+      "name": "Fiona Curtis",
+      "prior_results": 17,
+      "seconds": 8774.8
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7950.4,
+        9393.1
+      ],
+      "interval_90": [
+        7609.5,
+        9577.1
+      ],
+      "name": "Corey Brown",
+      "prior_results": 23,
+      "seconds": 8782.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8306.5,
+        9357.1
+      ],
+      "interval_90": [
+        8077.1,
+        9615.2
+      ],
+      "name": "Jordan Walsh",
+      "prior_results": 5,
+      "seconds": 8789.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8378.0,
+        9250.4
+      ],
+      "interval_90": [
+        8202.4,
+        9452.2
+      ],
+      "name": "Donna Burt",
+      "prior_results": 27,
+      "seconds": 8792.1
+    },
+    {
+      "hometown": "Calgary",
+      "interval_80": [
+        8457.8,
+        9288.4
+      ],
+      "interval_90": [
+        8240.9,
+        9483.2
+      ],
+      "name": "Mark Pinsent",
+      "prior_results": 24,
+      "seconds": 8796.7
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        7906.3,
+        9643.3
+      ],
+      "interval_90": [
+        7443.1,
+        10125.5
+      ],
+      "name": "Kelly Kean",
+      "prior_results": 3,
+      "seconds": 8799.8
+    },
+    {
+      "hometown": "Clarkes Beach",
+      "interval_80": [
+        7535.3,
+        10193.5
+      ],
+      "interval_90": [
+        7058.0,
+        10822.9
+      ],
+      "name": "Charles Daley",
+      "prior_results": 1,
+      "seconds": 8813.9
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        8327.8,
+        9272.6
+      ],
+      "interval_90": [
+        8033.2,
+        9541.9
+      ],
+      "name": "Austin Smith",
+      "prior_results": 6,
+      "seconds": 8813.9
+    },
+    {
+      "hometown": "Calvert",
+      "interval_80": [
+        8338.9,
+        9290.1
+      ],
+      "interval_90": [
+        8169.9,
+        9567.7
+      ],
+      "name": "Carla Sullivan",
+      "prior_results": 5,
+      "seconds": 8816.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8395.6,
+        9256.7
+      ],
+      "interval_90": [
+        8177.2,
+        9442.4
+      ],
+      "name": "Kelly Butt",
+      "prior_results": 31,
+      "seconds": 8820.2
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        8416.4,
+        9229.7
+      ],
+      "interval_90": [
+        8163.8,
+        9434.8
+      ],
+      "name": "Andrea Power",
+      "prior_results": 23,
+      "seconds": 8831.3
+    },
+    {
+      "hometown": "Burin Bay Arm",
+      "interval_80": [
+        8402.5,
+        9380.1
+      ],
+      "interval_90": [
+        8176.0,
+        9637.6
+      ],
+      "name": "Gillian Flight",
+      "prior_results": 5,
+      "seconds": 8871.8
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        8453.1,
+        9499.1
+      ],
+      "interval_90": [
+        8239.3,
+        9808.3
+      ],
+      "name": "Kim French",
+      "prior_results": 10,
+      "seconds": 8895.8
+    },
+    {
+      "hometown": "Grand Falls-Win",
+      "interval_80": [
+        7922.2,
+        10047.4
+      ],
+      "interval_90": [
+        7529.6,
+        10491.8
+      ],
+      "name": "Stephanie Walker",
+      "prior_results": 1,
+      "seconds": 8908.1
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        8424.4,
+        9473.3
+      ],
+      "interval_90": [
+        8155.2,
+        9680.3
+      ],
+      "name": "Emily Sweeney",
+      "prior_results": 8,
+      "seconds": 8955.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8426.4,
+        9476.4
+      ],
+      "interval_90": [
+        8154.4,
+        9788.7
+      ],
+      "name": "Julie Fitzpatrick",
+      "prior_results": 11,
+      "seconds": 8960.0
+    },
+    {
+      "hometown": "Lewisporte",
+      "interval_80": [
+        8505.8,
+        9497.2
+      ],
+      "interval_90": [
+        8218.6,
+        9768.2
+      ],
+      "name": "Tina Belbin",
+      "prior_results": 13,
+      "seconds": 8965.6
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        8519.3,
+        9445.3
+      ],
+      "interval_90": [
+        8340.0,
+        9778.8
+      ],
+      "name": "Renee Tucker",
+      "prior_results": 13,
+      "seconds": 8971.4
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        8564.4,
+        9445.6
+      ],
+      "interval_90": [
+        8342.3,
+        9731.6
+      ],
+      "name": "Jason LeCoure",
+      "prior_results": 7,
+      "seconds": 9012.6
+    },
+    {
+      "hometown": "Goulds",
+      "interval_80": [
+        8617.7,
+        9431.9
+      ],
+      "interval_90": [
+        8334.4,
+        9697.1
+      ],
+      "name": "Arlene Williams",
+      "prior_results": 18,
+      "seconds": 9021.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8025.6,
+        9968.4
+      ],
+      "interval_90": [
+        7694.9,
+        10302.7
+      ],
+      "name": "Andres Palmera",
+      "prior_results": 1,
+      "seconds": 9032.8
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8044.0,
+        10500.2
+      ],
+      "interval_90": [
+        7774.6,
+        10902.0
+      ],
+      "name": "Michael Royle",
+      "prior_results": 2,
+      "seconds": 9043.1
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        8557.4,
+        9658.8
+      ],
+      "interval_90": [
+        8306.4,
+        10063.5
+      ],
+      "name": "Paul Churchill",
+      "prior_results": 14,
+      "seconds": 9052.4
+    },
+    {
+      "hometown": "Buffalo",
+      "interval_80": [
+        7358.9,
+        11153.2
+      ],
+      "interval_90": [
+        6927.0,
+        12055.5
+      ],
+      "name": "Peter Ruffino",
+      "prior_results": 1,
+      "seconds": 9053.9
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        8208.1,
+        9619.1
+      ],
+      "interval_90": [
+        7904.2,
+        9934.2
+      ],
+      "name": "Tammy King",
+      "prior_results": 9,
+      "seconds": 9086.1
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        8346.9,
+        9876.8
+      ],
+      "interval_90": [
+        8036.6,
+        10172.1
+      ],
+      "name": "Sabrina Morgan",
+      "prior_results": 22,
+      "seconds": 9094.8
+    },
+    {
+      "hometown": "CBS",
+      "interval_80": [
+        8593.7,
+        9682.2
+      ],
+      "interval_90": [
+        8333.4,
+        9878.7
+      ],
+      "name": "Jennifer Grandy",
+      "prior_results": 17,
+      "seconds": 9123.8
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8143.8,
+        10046.6
+      ],
+      "interval_90": [
+        7912.4,
+        10439.6
+      ],
+      "name": "Donna Ballard",
+      "prior_results": 14,
+      "seconds": 9132.7
+    },
+    {
+      "hometown": "Bay Roberts",
+      "interval_80": [
+        7303.5,
+        11104.2
+      ],
+      "interval_90": [
+        6969.4,
+        11758.3
+      ],
+      "name": "John Ruffino",
+      "prior_results": 1,
+      "seconds": 9135.3
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        8612.6,
+        9783.0
+      ],
+      "interval_90": [
+        8386.3,
+        10133.3
+      ],
+      "name": "Jessie Cahill-Bouzane",
+      "prior_results": 9,
+      "seconds": 9150.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8762.1,
+        9655.5
+      ],
+      "interval_90": [
+        8592.1,
+        9899.1
+      ],
+      "name": "Kelly Owens Fowler",
+      "prior_results": 44,
+      "seconds": 9157.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8783.4,
+        9699.4
+      ],
+      "interval_90": [
+        8600.2,
+        9926.8
+      ],
+      "name": "Heather Keough",
+      "prior_results": 13,
+      "seconds": 9199.7
+    },
+    {
+      "hometown": "Lakefield",
+      "interval_80": [
+        8355.5,
+        10289.5
+      ],
+      "interval_90": [
+        7985.5,
+        10822.0
+      ],
+      "name": "Benjamin Hodge",
+      "prior_results": 1,
+      "seconds": 9215.7
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        8293.1,
+        10195.9
+      ],
+      "interval_90": [
+        7886.0,
+        10422.0
+      ],
+      "name": "Bryan Jefford",
+      "prior_results": 1,
+      "seconds": 9254.0
+    },
+    {
+      "hometown": "Flatrock",
+      "interval_80": [
+        8839.6,
+        9834.7
+      ],
+      "interval_90": [
+        8667.1,
+        10282.6
+      ],
+      "name": "Nicole Cooze",
+      "prior_results": 7,
+      "seconds": 9269.4
+    },
+    {
+      "hometown": "Flatrock",
+      "interval_80": [
+        8573.9,
+        10036.6
+      ],
+      "interval_90": [
+        8015.8,
+        10467.8
+      ],
+      "name": "Mark Mallay",
+      "prior_results": 1,
+      "seconds": 9297.1
+    },
+    {
+      "hometown": "CBS",
+      "interval_80": [
+        7140.4,
+        11992.8
+      ],
+      "interval_90": [
+        6593.4,
+        12988.9
+      ],
+      "name": "Louise Mercer",
+      "prior_results": 1,
+      "seconds": 9314.5
+    },
+    {
+      "hometown": "Torbay",
+      "interval_80": [
+        8321.9,
+        10485.9
+      ],
+      "interval_90": [
+        7872.9,
+        11024.8
+      ],
+      "name": "Kate Barker",
+      "prior_results": 3,
+      "seconds": 9347.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8969.4,
+        9866.4
+      ],
+      "interval_90": [
+        8736.5,
+        10045.2
+      ],
+      "name": "David Whalen",
+      "prior_results": 12,
+      "seconds": 9373.4
+    },
+    {
+      "hometown": "Baie Verte",
+      "interval_80": [
+        8337.2,
+        10522.5
+      ],
+      "interval_90": [
+        8010.3,
+        11276.6
+      ],
+      "name": "Bobbi-Jo Canning",
+      "prior_results": 3,
+      "seconds": 9379.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8929.2,
+        9843.7
+      ],
+      "interval_90": [
+        8594.2,
+        10147.3
+      ],
+      "name": "Florence Barron",
+      "prior_results": 113,
+      "seconds": 9414.8
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        8617.9,
+        10617.7
+      ],
+      "interval_90": [
+        8234.6,
+        11068.5
+      ],
+      "name": "Marlena Jefford",
+      "prior_results": 1,
+      "seconds": 9475.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8737.6,
+        10504.8
+      ],
+      "interval_90": [
+        8434.8,
+        10790.3
+      ],
+      "name": "Sheila Flynn",
+      "prior_results": 12,
+      "seconds": 9544.4
+    },
+    {
+      "hometown": "Torbay",
+      "interval_80": [
+        9071.7,
+        10030.0
+      ],
+      "interval_90": [
+        8896.2,
+        10557.5
+      ],
+      "name": "Sherry Frampton",
+      "prior_results": 14,
+      "seconds": 9550.3
+    },
+    {
+      "hometown": "Goulds",
+      "interval_80": [
+        9152.7,
+        9989.2
+      ],
+      "interval_90": [
+        8851.4,
+        10166.3
+      ],
+      "name": "Karen Paddle",
+      "prior_results": 5,
+      "seconds": 9590.5
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8436.9,
+        10917.8
+      ],
+      "interval_90": [
+        8039.3,
+        11618.3
+      ],
+      "name": "Pascale Gerdun",
+      "prior_results": 1,
+      "seconds": 9617.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        9056.4,
+        10332.4
+      ],
+      "interval_90": [
+        8840.3,
+        10757.1
+      ],
+      "name": "Regina Coady",
+      "prior_results": 40,
+      "seconds": 9681.5
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        8454.6,
+        10775.6
+      ],
+      "interval_90": [
+        7992.7,
+        11114.0
+      ],
+      "name": "Will Hibbs",
+      "prior_results": 1,
+      "seconds": 9709.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        9294.2,
+        10289.3
+      ],
+      "interval_90": [
+        9113.3,
+        10533.6
+      ],
+      "name": "Ken Scott",
+      "prior_results": 91,
+      "seconds": 9778.4
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        8924.9,
+        10726.5
+      ],
+      "interval_90": [
+        8555.2,
+        11201.6
+      ],
+      "name": "Elizabeth Philpott",
+      "prior_results": 1,
+      "seconds": 9809.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8946.5,
+        10750.6
+      ],
+      "interval_90": [
+        8529.5,
+        11119.9
+      ],
+      "name": "Alexandria Dwyer",
+      "prior_results": 6,
+      "seconds": 9876.2
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8871.9,
+        11213.8
+      ],
+      "interval_90": [
+        8411.5,
+        11903.0
+      ],
+      "name": "Leo Desjardins",
+      "prior_results": 2,
+      "seconds": 9944.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        9211.7,
+        10771.9
+      ],
+      "interval_90": [
+        8901.6,
+        11126.5
+      ],
+      "name": "Alfred Power",
+      "prior_results": 40,
+      "seconds": 9990.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8698.4,
+        11128.2
+      ],
+      "interval_90": [
+        8442.4,
+        11679.4
+      ],
+      "name": "Samantha Ingerman",
+      "prior_results": 4,
+      "seconds": 10027.3
+    },
+    {
+      "hometown": "Corner Brook",
+      "interval_80": [
+        9507.4,
+        10673.9
+      ],
+      "interval_90": [
+        9263.0,
+        10977.4
+      ],
+      "name": "Stephen Perchard",
+      "prior_results": 4,
+      "seconds": 10039.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        9644.4,
+        10597.8
+      ],
+      "interval_90": [
+        9468.4,
+        10902.4
+      ],
+      "name": "Dan Owens",
+      "prior_results": 66,
+      "seconds": 10082.2
+    },
+    {
+      "hometown": "St. Bride's",
+      "interval_80": [
+        9576.7,
+        10895.4
+      ],
+      "interval_90": [
+        9296.9,
+        11178.1
+      ],
+      "name": "Valerie Foley",
+      "prior_results": 6,
+      "seconds": 10140.2
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        9793.8,
+        10737.3
+      ],
+      "interval_90": [
+        9493.9,
+        11143.6
+      ],
+      "name": "Tracy Bavis",
+      "prior_results": 13,
+      "seconds": 10202.5
+    },
+    {
+      "hometown": "Portugal Cove-St Philips",
+      "interval_80": [
+        9654.2,
+        10877.4
+      ],
+      "interval_90": [
+        9336.7,
+        11281.9
+      ],
+      "name": "Mary Beresford",
+      "prior_results": 10,
+      "seconds": 10278.5
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        9815.2,
+        11007.9
+      ],
+      "interval_90": [
+        9517.7,
+        11487.8
+      ],
+      "name": "Femy Mathew",
+      "prior_results": 5,
+      "seconds": 10379.6
+    },
+    {
+      "hometown": "Pcsp",
+      "interval_80": [
+        9871.6,
+        10977.8
+      ],
+      "interval_90": [
+        9605.6,
+        11393.8
+      ],
+      "name": "Cathie Reed",
+      "prior_results": 4,
+      "seconds": 10382.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        9998.8,
+        10887.1
+      ],
+      "interval_90": [
+        9729.7,
+        11219.7
+      ],
+      "name": "June Clarke",
+      "prior_results": 55,
+      "seconds": 10416.9
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        9678.1,
+        11285.7
+      ],
+      "interval_90": [
+        9476.4,
+        11652.7
+      ],
+      "name": "Heather Tracey",
+      "prior_results": 4,
+      "seconds": 10418.7
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        9731.1,
+        11127.9
+      ],
+      "interval_90": [
+        9360.2,
+        11326.0
+      ],
+      "name": "Nicole Legge",
+      "prior_results": 27,
+      "seconds": 10525.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        9981.5,
+        11201.0
+      ],
+      "interval_90": [
+        9733.7,
+        11594.1
+      ],
+      "name": "Lorraine Singleton",
+      "prior_results": 15,
+      "seconds": 10581.8
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        9806.4,
+        11294.0
+      ],
+      "interval_90": [
+        9499.3,
+        11629.3
+      ],
+      "name": "Rhonda Mercer",
+      "prior_results": 6,
+      "seconds": 10639.7
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        10025.1,
+        11327.2
+      ],
+      "interval_90": [
+        9774.3,
+        11650.4
+      ],
+      "name": "Kelly Deering",
+      "prior_results": 10,
+      "seconds": 10725.2
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        10305.8,
+        11240.8
+      ],
+      "interval_90": [
+        10073.1,
+        11540.7
+      ],
+      "name": "Margaret Coward",
+      "prior_results": 16,
+      "seconds": 10743.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        9797.8,
+        11397.4
+      ],
+      "interval_90": [
+        9407.6,
+        11693.2
+      ],
+      "name": "mike Fleming",
+      "prior_results": 10,
+      "seconds": 10743.0
+    },
+    {
+      "hometown": "Torbay",
+      "interval_80": [
+        10156.8,
+        11900.6
+      ],
+      "interval_90": [
+        9572.1,
+        12438.9
+      ],
+      "name": "Nellie Piotrowski",
+      "prior_results": 1,
+      "seconds": 11031.1
+    },
+    {
+      "hometown": "Holyrood",
+      "interval_80": [
+        10416.9,
+        11651.9
+      ],
+      "interval_90": [
+        10008.4,
+        12001.6
+      ],
+      "name": "Sherry Crowley",
+      "prior_results": 16,
+      "seconds": 11064.9
+    },
+    {
+      "hometown": "Goulds",
+      "interval_80": [
+        10521.4,
+        13661.9
+      ],
+      "interval_90": [
+        9918.4,
+        14206.3
+      ],
+      "name": "Mary Hayes",
+      "prior_results": 1,
+      "seconds": 12041.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        11843.5,
+        13062.0
+      ],
+      "interval_90": [
+        11520.5,
+        13320.5
+      ],
+      "name": "Theresa England",
+      "prior_results": 6,
+      "seconds": 12479.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        11913.0,
+        14688.6
+      ],
+      "interval_90": [
+        11376.1,
+        15226.2
+      ],
+      "name": "Renee Boileau",
+      "prior_results": 1,
+      "seconds": 13353.7
+    },
+    {
+      "hometown": "CBS",
+      "interval_80": [
+        12641.8,
+        14189.2
+      ],
+      "interval_90": [
+        12247.1,
+        14510.8
+      ],
+      "name": "Susan Haskell",
+      "prior_results": 22,
+      "seconds": 13413.1
+    }
+  ],
+  "schema_version": 1
+}
