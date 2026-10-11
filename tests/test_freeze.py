@@ -466,6 +466,10 @@ def test_the_website_is_built_from_the_committed_files_alone(tmp_path: Path) -> 
         "Registration opens 2026-10-16. One prediction file, due by 2026-11-10: this race "
         "publishes no start list, so there are no daily files."
     ), "a race with no start list is never promised daily files"
+    assert (
+        site.status([], False, date(2026, 10, 12), date(2026, 11, 11), True, date(2026, 10, 16))
+        == "Registration opens 2026-10-16. Daily predictions start 2026-11-04."
+    ), "and one whose list is coming is"
     # Cape to Cabot has a start list with names on it and Run to Remember has none at all,
     # which is exactly the difference the two shelves are for.
     assert upcoming[0]["group"] == "open" and upcoming[1]["group"] == "announced"

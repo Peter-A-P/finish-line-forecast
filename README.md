@@ -495,9 +495,9 @@ distance. Both sit in the range the marathon literature reports for mid-pack run
   where a runner authorises the app and sees a prediction from their own data that nobody else
   sees, is the only compliant use and is deferred.
 - **It does not know who will start.** Where the race publishes an entrant list it predicts for
-  that list and publishes the no-show rate afterwards. Where there is no list, as at Run to
-  Remember, the field itself is forecast from who has run the race before, and that forecast is
-  weak: in the backtest about 30% of the runners it names finish. The file says so beside the
+  that list and publishes the no-show rate afterwards. Where a race publishes
+  no list, the field itself can be forecast from who has run the race before, and that forecast
+  is weak: in the backtest about 30% of the runners it names finish. The file says so beside the
   names, and [PLAN.md](PLAN.md) section 13 item 42 has the measurement.
 - **It will sometimes merge two runners who share a name.** There is no runner ID in the
   archive, and hometown is not allowed to split a name because runners move, so two people of

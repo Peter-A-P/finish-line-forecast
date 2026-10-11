@@ -236,7 +236,8 @@ def race_record(
     forecast = None
     if source is not None and source.doc.get("conditions"):
         forecast = source.doc["conditions"].get("forecast")
-    listed = record.get("entrant_list") is not None
+    # A list the race has said is coming counts for what the card promises (data/live.toml).
+    listed = record.get("entrant_list") is not None or bool(record.get("entrant_list_expected"))
     opens = record.get("registration_opens")
     registration = date.fromisoformat(str(opens)) if opens else None
     return {

@@ -243,11 +243,14 @@ names will hold about 30 people who run and 90 who do not. The file says so besi
 and the score afterwards checks the promise. That is what the plan asked for and it is built:
 `freeze r2r-2026` runs on 2026-11-10 unless told otherwise.
 
-Registration opens on 2026-10-16 (Peter, 2026-10-11; `registration_opens` in `data/live.toml`,
-which the race card prints until that day). **If registration comes with a public entrant
-list, this question may go away**: the race could be predicted from the list like the others.
-That needs the list's terms read and a row in [data-terms.md](data-terms.md) before anything
-is fetched, and it is Peter's call.
+**Overtaken on 2026-10-11: Peter says Run to Remember will have a registrant list like the
+other races**, so it is predicted from the list and this question does not arise for 2026.
+Registration opens on 2026-10-16 (`registration_opens` in `data/live.toml`), and the race card
+already promises a prediction week from 2026-11-04 (`entrant_list_expected`, a flag the website
+alone reads). **Owed between 2026-10-16 and 2026-11-04**: find where the list is published,
+read its terms and add its row to [data-terms.md](data-terms.md) before fetching it, add it to
+`ingest.entrants.LISTS`, give the race an `entrant_list` in `data/live.toml` and delete the
+flag. Until that is done `freeze r2r-2026` would still forecast the field.
 
 **The case against** is that a public list saying a named person is predicted to run a race
 they had no intention of running is a small claim about them that the results never made.

@@ -26,10 +26,13 @@ course_id = "turkey-tea-10000"
 entrant_list = "tt-2026"
 gun = "2026-10-04T08:00:00-02:30"   # confirmed by Peter 2026-09-19
 
-# Field-forecast mode: the race publishes no start list, so `freeze` names its field from the
-# participation model (models/participation.py, PLAN.md 5.6), reading the backtest that
-# `finishline participation` writes to data/participation.json. One final file, no daily ones.
-# Remembrance Day is after the clocks go back.
+# No start list yet: registration opens 2026-10-16 and Peter says (2026-10-11) it will come
+# with a registrant list like the other races. `entrant_list_expected` is for the website
+# only, so the card promises a prediction week and not a forecast field. Once the list exists
+# and its terms are in docs/data-terms.md, give this race an `entrant_list` and delete the
+# flag. Until then `freeze` would still fall back to field-forecast mode (the participation
+# model, PLAN.md 5.6: one final file, no daily ones), which is why this must be wired before
+# the week starts on 2026-11-04. Remembrance Day is after the clocks go back.
 [r2r-2026]
 name = "Run to Remember"
 date = "2026-11-11"
@@ -37,3 +40,4 @@ distance_m = 11000
 course_id = "run-to-remember-11000"
 gun = "2026-11-11T08:00:00-03:30"   # confirmed by Peter 2026-09-19
 registration_opens = "2026-10-16"   # from Peter 2026-10-11; the card says so until then
+entrant_list_expected = true
