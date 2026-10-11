@@ -17,7 +17,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Any
 
-from finishline.publish import redact
+from finishline.publish import daily, redact
 
 TOP = 20
 
@@ -68,20 +68,25 @@ def before_the_gun(files: Sequence[tuple[str, dict[str, Any], str]]) -> str:
         ]
         heading = "Every runner, as the final file predicts them"
     else:
-        everyone = [
-            (name, runner)
-            for name, doc, _ in files
-            if doc.get("kind") == "daily"
-            for runner in doc["runners"]
-        ]
+        # A re-issued line stands in place of the one it replaces (`daily.standing`).
+        everyone = daily.standing(
+            (name, doc["runners"]) for name, doc, _ in files if doc.get("kind") == "daily"
+        )
         heading = "Every runner predicted so far"
     everyone.sort(key=lambda item: (item[1]["seconds"], item[1]["name"]))
     shown = redact.default().rows(runner for _, runner in everyone)
     everyone = [(name, row) for (name, _), row in zip(everyone, shown, strict=True)]
+    lines += ["", f"## {heading}, {len(everyone)}", ""]
+    if any("supersedes" in runner for _, runner in everyone):
+        lines += [
+            "A line that names two files was published twice. The first time it was predicted "
+            "from the wrong history, because the start list and the results disagreed about "
+            "who the entrant is; the later file carries the correction, published before the "
+            "gun like every other line. The earlier file still holds the earlier line, "
+            "unedited.",
+            "",
+        ]
     lines += [
-        "",
-        f"## {heading}, {len(everyone)}",
-        "",
         "| Name | Hometown | Prior results | Predicted | 80% interval | First published |",
         "|---|---|---:|---:|---|---|",
     ]
@@ -90,9 +95,14 @@ def before_the_gun(files: Sequence[tuple[str, dict[str, Any], str]]) -> str:
         lines.append(
             f"| {_cell(runner['name'])} | {_cell(runner['hometown'] or '')} "
             f"| {runner['prior_results']} | {clock(runner['seconds'])} "
-            f"| {clock(low)} to {clock(high)} | `{name}` |"
+            f"| {clock(low)} to {clock(high)} | {_source(name, runner)} |"
         )
     return "\n".join(lines) + "\n"
+
+
+def _source(name: str, runner: dict[str, Any]) -> str:
+    earlier = runner.get("supersedes")
+    return f"`{name}`, replacing `{earlier}`" if earlier else f"`{name}`"
 
 
 UNSEEN = "_a runner with no results here_"

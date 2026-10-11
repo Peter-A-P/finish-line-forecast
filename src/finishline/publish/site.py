@@ -134,6 +134,13 @@ def files_for(directory: Path, race_id: str) -> list[Published]:
     ]
 
 
+def _standing(files: Sequence[Published]) -> list[tuple[str, dict[str, Any]]]:
+    """Each entrant's standing daily line and the file it is in (`daily.standing`)."""
+    return daily.standing(
+        (item.name, item.doc["runners"]) for item in files if item.doc.get("kind") == "daily"
+    )
+
+
 def clock(seconds: float) -> str:
     """A finish time the way a results page prints one."""
     whole = round(float(seconds))
@@ -198,7 +205,7 @@ def status(
     if now == "final":
         return "Final prediction frozen and published. Nothing changes now."
     if now == "week":
-        runners = sum(len(item.doc["runners"]) for item in files)
+        runners = len(_standing(files))
         return f"Prediction week: {len(files)} daily file(s) so far, {runners} runners predicted."
     if now == "run":
         return "Race run; waiting for the official results."
@@ -379,7 +386,7 @@ def entrants_from_files(files: Sequence[Published]) -> dict[str, Any] | None:
     runners = (
         final.doc["runners"]
         if final is not None
-        else [runner for item in files for runner in item.doc["runners"]]
+        else [runner for _, runner in _standing(files)]
     )
     depth = {label: 0 for label, _low, _high in STRATA}
     for runner in runners:
@@ -426,7 +433,14 @@ def race_predictions(
             for runner in final.doc["runners"]
         ]
     else:
-        lines = [(item.name, runner) for item in files for runner in item.doc["runners"]]
+        # A re-issued line stands in place of the one it replaces, and says so.
+        lines = [
+            (
+                f"{name}, replacing {runner['supersedes']}" if "supersedes" in runner else name,
+                runner,
+            )
+            for name, runner in _standing(files)
+        ]
     lines.sort(key=lambda item: (item[1]["seconds"], item[1]["name"]))
     # The files keep the hometown as the results printed it; the page shows each town one way.
     spelled = town_spellings(runner.get("hometown") for _, runner in lines)

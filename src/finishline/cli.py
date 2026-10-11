@@ -1698,6 +1698,11 @@ def freeze(
         if not doc["runners"]:
             typer.echo("no entrant is new since the last daily file; nothing written")
             return
+        if doc["entrants"].get("reissued"):
+            typer.echo(
+                f"{doc['entrants']['reissued']} entrant(s) re-issued: the history they are "
+                "predicted from changed since their earlier line"
+            )
     else:
         path = PREDICTIONS / f"{race_id}.json"
         tag = predictions.final_tag(race_id)
@@ -2105,7 +2110,13 @@ def score_race(
     if len(read) > 1:
         # Daily files: each holds only the entrants new that morning, so together they are
         # every runner predicted, once each; the newest says how the list stood.
-        doc = {**doc, "runners": [line for _, _, one, _, _ in read for line in one["runners"]]}
+        # A re-issued line is left out: what is scored is what each runner was first given.
+        doc = {
+            **doc,
+            "runners": daily.original(
+                line for _, _, one, _, _ in read for line in one["runners"]
+            ),
+        }
     record: dict[str, Any] = {
         "file": read[-1][1],
         "sha256": read[-1][3],

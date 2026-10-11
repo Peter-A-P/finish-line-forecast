@@ -215,7 +215,10 @@ def assemble(
     it. Both None predict an average morning, and the file says `null`.
 
     `already` is what the daily files have published (`daily.published`). With `only_new`
-    this writes a daily file: the entrants in none of them, and no places. Without it, the
+    this writes a daily file: the entrants in none of them, and no places. It also carries
+    again any entrant whose earlier line stood on a different number of prior results, which
+    means the linker has since changed whose history they are given; that line says which
+    file it `supersedes` (`publish/daily.py`). Without it, the
     final file: everyone, recomputed with the day-before forecast (Peter, 2026-09-19: a
     forecast made a week out is of poor value by then), the daily file each was first
     published in named beside them, and places for the whole field. The fit and each
@@ -342,14 +345,19 @@ def assemble(
             )
 
     lines: list[RunnerPrediction] = []
+    reissued = 0
     for position, (runner_id, item) in enumerate(zip(ids, predicted, strict=True)):
         place = places.get(runner_id)
         median_place = None if place is None else place.median
         low_place = None if place is None else place.low
         high_place = None if place is None else place.high
-        if position in carried and only_new:
-            continue
+        depth = len(history.results_of(runner_id)) if item.runner is not None else 0
         source = carried[position][0] if position in carried else None
+        if only_new and position in carried:
+            # Already published. Once is enough, unless that line was about another history.
+            if carried[position][1].get("prior_results") == depth:
+                continue
+            reissued += 1
         rng = daily.runner_rng(seed, streams[position])
         from_pool = pool is not None and known_field is not None and item.runner is None
         if from_pool:
@@ -362,7 +370,6 @@ def assemble(
             draws = draws * scale.get(runner_id, 1.0)
         quantiles = summarise(draws)
         median = quantiles[QUANTILES.index(0.50)]
-        depth = len(history.results_of(runner_id)) if item.runner is not None else 0
         stratum = stratum_of(depth)
 
         intervals: dict[float, tuple[float, float]] = {}
@@ -388,7 +395,8 @@ def assemble(
                 place=median_place,
                 place_low=low_place,
                 place_high=high_place,
-                first_published=source,
+                first_published=None if only_new else source,
+                supersedes=source if only_new else None,
             )
         )
 
@@ -415,6 +423,8 @@ def assemble(
     }
     if earlier:
         entrants["published_before"] = len(carried)
+    if reissued:
+        entrants["reissued"] = reissued
     doc = document(
         race={
             "race_id": race.race_id,

@@ -284,6 +284,62 @@ def test_a_daily_file_holds_only_the_new_and_no_places(tmp_path: Path) -> None:
     assert second["entrants"]["published_before"] == 2
 
 
+def test_a_line_about_the_wrong_history_is_reissued_once_and_nothing_is_edited(
+    tmp_path: Path,
+) -> None:
+    """PLAN.md 13 item 46: listed as a man, so a newcomer; relinked, so published again."""
+    from finishline.publish import racepage
+
+    first = build([Entrant("Ann Hynes", "F"), Entrant("Bea Power", "M")], only_new=True)
+    wrong = next(r for r in first["runners"] if r["name"] == "Bea Power")
+    assert wrong["prior_results"] == 0
+    publish(tmp_path, "daily-2026-10-11.json", first)
+    before = (tmp_path / "c2c-2026" / "daily-2026-10-11.json").read_bytes()
+
+    field = [Entrant("Ann Hynes", "F"), Entrant("Bea Power", "F")]
+    second = build(field, daily.published(tmp_path, "c2c-2026"), only_new=True)
+    assert pf.validate(second) == []
+    (again,) = second["runners"]
+    assert again["name"] == "Bea Power" and again["prior_results"] == 1
+    assert again["supersedes"] == "daily-2026-10-11.json"
+    assert again["seconds"] != wrong["seconds"]
+    assert second["entrants"]["reissued"] == 1
+    publish(tmp_path, "daily-2026-10-12.json", second)
+    assert (tmp_path / "c2c-2026" / "daily-2026-10-11.json").read_bytes() == before
+
+    # One standing line each, hers from the later file; the third morning has nothing to say.
+    already = daily.published(tmp_path, "c2c-2026")
+    assert {key: [name for name, _ in lines] for key, lines in already.items()} == {
+        "annhynes": ["daily-2026-10-11.json"],
+        "beapower": ["daily-2026-10-12.json"],
+    }
+    assert build(field, already, only_new=True)["runners"] == []
+
+    page = racepage.before_the_gun(
+        [("daily-2026-10-11.json", first, "aa"), ("daily-2026-10-12.json", second, "bb")]
+    )
+    assert page.count("| Bea Power |") == 1
+    assert "`daily-2026-10-12.json`, replacing `daily-2026-10-11.json`" in page
+    assert "Every runner predicted so far, 2" in page
+
+    # The final file carries her from the file her standing line is in, and replaces nothing.
+    final = build(field, already)
+    assert pf.validate(final) == []
+    bea = next(r for r in final["runners"] if r["name"] == "Bea Power")
+    assert bea["first_published"] == "daily-2026-10-12.json" and "supersedes" not in bea
+    assert bea["seconds"] == again["seconds"]
+
+    # With no final file, the score is of what each runner was first given.
+    scored = daily.original([*first["runners"], *second["runners"]])
+    assert [r["prior_results"] for r in scored if r["name"] == "Bea Power"] == [0]
+
+
+def test_only_a_daily_file_may_replace_an_earlier_line() -> None:
+    doc = build([Entrant("Ann Hynes", "F")])
+    doc["runners"][0]["supersedes"] = "daily-2026-10-11.json"
+    assert any("only a daily file" in problem for problem in pf.validate(doc))
+
+
 def test_a_runners_time_does_not_depend_on_who_else_is_on_the_list() -> None:
     alone = build([Entrant("Dee Newcomer", "F")], only_new=True)
     crowded = build(

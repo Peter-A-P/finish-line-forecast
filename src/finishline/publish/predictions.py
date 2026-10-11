@@ -31,6 +31,10 @@ needs the whole field. The final file, the day before, holds everyone with place
 runner recomputed with the day-before forecast; `first_published` names the daily file a
 runner first appeared in.
 
+A daily line may carry `supersedes`, the name of an earlier daily file: the entrant was in
+that file, predicted from a different history, and this line replaces that one from today
+(`publish/daily.py`). The earlier file is not touched.
+
 FORECAST FIELDS
 ---------------
 A race with no start list has no daily files and one final file whose runners are the ones
@@ -111,6 +115,8 @@ class RunnerPrediction:
     # For a runner who asked not to be named (`publish/redact.py`): the keyed hash of their
     # name, which only the key can test, so later files and the score can find the line.
     redacted: str | None = None
+    # In a daily file only: the earlier daily file whose line for this entrant this replaces.
+    supersedes: str | None = None
 
     def as_record(self) -> dict[str, Any]:
         record: dict[str, Any] = {
@@ -131,6 +137,8 @@ class RunnerPrediction:
             record["first_published"] = self.first_published
         if self.redacted is not None:
             record["redacted"] = self.redacted
+        if self.supersedes is not None:
+            record["supersedes"] = self.supersedes
         return record
 
 
@@ -262,7 +270,7 @@ def validate(doc: dict[str, Any]) -> list[str]:
             problems.append("field_forecast.simulated_field.largest missing")
     allowed = {
         "name", "hometown", "prior_results", "seconds", "interval_80", "interval_90", "place",
-        "first_published", "redacted",
+        "first_published", "redacted", "supersedes",
     }
     for position, runner in enumerate(runners):
         where = f"runners[{position}]"
@@ -283,6 +291,8 @@ def validate(doc: dict[str, Any]) -> list[str]:
             else:
                 place = runner["place"]
                 median, low, high = (float(place[k]) for k in ("median", "low", "high"))
+                if "supersedes" in runner:
+                    problems.append(f"{where} only a daily file replaces an earlier line")
         except (KeyError, TypeError, ValueError) as error:
             problems.append(f"{where} incomplete: {error}")
             continue

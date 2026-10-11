@@ -23,6 +23,20 @@ with the day-before forecast** (Peter, 2026-09-19: a week-old forecast is of poo
 then) and names the daily file each runner first appeared in (`first_published`). Since the
 fit and the random numbers are the same, the weather is the only thing that moves a runner's
 time between their daily line and their final one, and both are tagged.
+
+THE ONE EXCEPTION: A LINE RE-ISSUED BECAUSE IT WAS ABOUT THE WRONG HISTORY
+--------------------------------------------------------------------------
+A published line says how many prior results it was predicted from. If, on a later morning,
+the same entrant stands on a different number, the linker has changed its mind about who
+they are (the archive cannot have moved: `load_posterior` refuses a week in which it did).
+The earlier line then describes somebody else, and waiting for the final file would leave it
+on the site for days. So that morning's daily file carries the entrant again, with
+`supersedes` naming the file the earlier line is in (PLAN.md section 13 item 46: four men
+entered as female on Cape to Cabot's 2026 list).
+
+⚠️ **Nothing is edited.** The earlier file keeps its line, its hash and its tag. `standing`
+is the reading every page uses, the newest line per entrant; `original` is the reading the
+score uses when no final file was tagged, the line each entrant was first given.
 """
 
 from __future__ import annotations
@@ -31,7 +45,7 @@ import json
 import pickle
 import tomllib
 import zlib
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -72,17 +86,63 @@ Published = dict[str, list[tuple[str, dict[str, Any]]]]
 REDACTED = "redacted:"
 
 
+def line_key(line: Mapping[str, Any]) -> str:
+    """Whose line this is: the name key, or for a redacted line its hash.
+
+    A redacted line carries no name to key on (`freeze.assemble` turns today's entrants'
+    hashes back into their name keys).
+    """
+    hashed = line.get("redacted")
+    return f"{REDACTED}{hashed}" if hashed else name_key(str(line["name"]))
+
+
+def standing(
+    files: Iterable[tuple[str, Sequence[dict[str, Any]]]],
+) -> list[tuple[str, dict[str, Any]]]:
+    """The line that stands for each entrant, from daily files in date order.
+
+    Every line, as (file name, line), except that a line with `supersedes` takes the place of
+    the one it names: same entrant, in that file. It takes its place in the order too, so the
+    second of two entrants sharing a name is still the second.
+    """
+    lines: list[tuple[str, dict[str, Any]]] = []
+    replaced: set[int] = set()
+    for name, runners in files:
+        for line in runners:
+            earlier = line.get("supersedes")
+            position = next(
+                (
+                    index
+                    for index, (file, other) in enumerate(lines)
+                    if earlier is not None
+                    and file == earlier
+                    and index not in replaced
+                    and line_key(other) == line_key(line)
+                ),
+                None,
+            )
+            if position is None:
+                lines.append((name, line))
+            else:
+                lines[position] = (name, line)
+                replaced.add(position)
+    return lines
+
+
+def original(runners: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The lines each entrant was first given: everything that is not a re-issue."""
+    return [line for line in runners if "supersedes" not in line]
+
+
 def published(directory: Path, race_id: str) -> Published:
-    """Every line already in a daily file for this race, by name key, earliest file first."""
+    """Every line standing in a daily file for this race, by name key, earliest file first."""
     found: Published = {}
-    for path in sorted((directory / race_id).glob(f"{DAILY_PREFIX}*.json")):
-        doc = json.loads(path.read_text(encoding="utf-8"))
-        for line in doc.get("runners", []):
-            # A redacted line carries no name to key on; its hash is the key (`freeze.assemble`
-            # turns today's entrants' hashes back into their name keys).
-            hashed = line.get("redacted")
-            key = f"{REDACTED}{hashed}" if hashed else name_key(str(line["name"]))
-            found.setdefault(key, []).append((path.name, line))
+    docs = [
+        (path.name, json.loads(path.read_text(encoding="utf-8")).get("runners", []))
+        for path in sorted((directory / race_id).glob(f"{DAILY_PREFIX}*.json"))
+    ]
+    for name, line in standing(docs):
+        found.setdefault(line_key(line), []).append((name, line))
     return found
 
 
