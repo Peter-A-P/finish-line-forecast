@@ -2079,11 +2079,26 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     72 to 1 female, and was already linked to a male history, so nothing changes for him: the
     rule only removes a check. On the Turkey Tea's 435 and the USR's list it fires on nobody.
 
-    **What stands.** `daily-2026-10-11.json` is tagged and is not edited. Those four lines are
-    scored as they were published, and three of them are known to be wrong by a wide margin
-    before the gun. A daily file never revisits an entrant, so the corrected predictions first
-    appear in the final file, due by 08:00 on 2026-10-17, which recomputes everyone. No saved
-    backtest moves: the linker is in no cache key and no backtest reads a start list.
+    **What stands.** `daily-2026-10-11.json` is tagged and is not edited: those four lines are
+    in it for good, and three of them are known to be wrong by a wide margin before the gun.
+    No saved backtest moves: the linker is in no cache key and no backtest reads a start list.
+
+    **The correction is published the next morning, not held for the final file (Peter, the
+    same day).** A daily file carried an entrant once and never again, so the three would have
+    stood on the site as first-timers for six days. Now a daily file also carries again any
+    entrant whose earlier line was predicted from a different number of prior results. Within
+    a prediction week the archive cannot move (the saved fit refuses if it does), so a changed
+    count means the linker changed whose history the entrant is given. The new line says which
+    file it `supersedes`; the old file is untouched; the race page and the site show the newer
+    line and name both files (`daily.standing`). The fourth entrant is now ambiguous, so
+    nothing is re-issued for them and their line leaves with the final file.
+
+    **What is scored.** The final file, as for every race: it recomputes everyone, these three
+    from their own histories. If no final file is tagged, as happened at the Turkey Tea (item
+    45), the daily files are scored and the re-issued lines are left out, so each runner is
+    held to the first line they were given (`daily.original`). A correction is a second
+    prediction, and a second prediction does not get to replace the first in the record unless
+    the file that was always going to replace it does.
 
     **Not done**: a hand-kept list of corrections. It would put a sentence about one named
     person's entry form into a public repository, and it fixes only the runners Peter happens

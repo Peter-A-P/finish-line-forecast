@@ -232,7 +232,9 @@ as each model ranks its own runners and on the runners both models answered for.
 ## 11. Freeze and score
 
 From seven days before the race, `finishline freeze --daily` publishes a file a day with the
-entrants no earlier file predicted, each with that morning's forecast at that lead; the day
+entrants no earlier file predicted (and again, marked as superseding the earlier line, any
+entrant the linker has since given a different history: PLAN.md section 13 item 46), each
+with that morning's forecast at that lead; the day
 before, the final file recomputes everyone with the day-before forecast and gives places
 (`publish/daily.py`). One fit serves the whole week, and each entrant's random
 numbers are seeded by their name, so a runner's prediction is the same whichever day computes
