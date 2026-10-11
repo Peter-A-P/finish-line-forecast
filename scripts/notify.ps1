@@ -7,12 +7,17 @@
 # centre. Showing it must never be what makes a task fail, so any error here is swallowed.
 
 function Send-FailureNotice([string]$task, [string]$detail) {
+    Send-Notice "FinishLine: $task failed" $detail
+}
+
+# Any notice, for the one task that also reports good news (scripts/check-final-tag.ps1).
+function Send-Notice([string]$title, [string]$detail) {
     try {
         [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
         $template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent(
             [Windows.UI.Notifications.ToastTemplateType]::ToastText02)
         $text = $template.GetElementsByTagName('text')
-        $text.Item(0).AppendChild($template.CreateTextNode("FinishLine: $task failed")) | Out-Null
+        $text.Item(0).AppendChild($template.CreateTextNode($title)) | Out-Null
         $text.Item(1).AppendChild($template.CreateTextNode($detail)) | Out-Null
         $toast = [Windows.UI.Notifications.ToastNotification]::new($template)
         # Keep it in the notification centre for a week, not the default few days.

@@ -661,5 +661,11 @@ item 30 has what the measurement said about that figure.
 
 AI coding assistants (Claude Code) were used for implementation and drafting, the way a senior
 engineer uses them in 2026. Every number in the tables above is reproducible from this
-repository with one command, and every live prediction will be verifiable from a tag that
-predates the race it describes.
+repository with one command, and every live prediction is verifiable from a tag that predates
+the race it describes.
+
+## Licence
+
+The code is under the [MIT licence](LICENSE). The race results it reads are not this project's
+to license: they belong to the organisations that publish them, on the terms set out in
+[docs/data-terms.md](docs/data-terms.md).

@@ -207,9 +207,13 @@ Cape to Cabot's first daily file was tagged on 2026-10-11 with 477 runners.
 the day-before forecast, is due by 08:00 on 2026-10-17.
 
 ⚠️ **The final file is the first to use the tag `predictions/c2c-2026/final`**, the fix for the
-collision that lost the Turkey Tea's. A test covers it, but no real final file has been tagged
-after daily ones yet, so read `data/cache/freeze/predictions.log` that morning rather than
-trusting the silence, while there is still time before 08:00 to tag by hand.
+collision that lost the Turkey Tea's. A test covers it, and on 2026-10-11 the tag was made and
+pushed beside the daily one in a throwaway clone, so git accepts the name. What no rehearsal
+covers is the morning itself, so a second task, "FinishLine final file check"
+(`scripts/check-final-tag.ps1`, registered by `scripts/register-final-check-task.ps1`), looks
+on GitHub at 07:00 on any morning a final file is due and raises a Windows notice either way:
+published, or not published with an hour left to tag by hand. Like the other tasks it is not
+in git and moves with the working copy.
 
 ⚠️ **Nothing enters the archive until the final file is tagged**: every file in the week needs
 a saved backtest that matches the code and the data, so nothing in `models/`, `history.py` or
@@ -238,6 +242,12 @@ finish (24% on Run to Remember's own three scored editions), so a final file of 
 names will hold about 30 people who run and 90 who do not. The file says so beside the names,
 and the score afterwards checks the promise. That is what the plan asked for and it is built:
 `freeze r2r-2026` runs on 2026-11-10 unless told otherwise.
+
+Registration opens on 2026-10-16 (Peter, 2026-10-11; `registration_opens` in `data/live.toml`,
+which the race card prints until that day). **If registration comes with a public entrant
+list, this question may go away**: the race could be predicted from the list like the others.
+That needs the list's terms read and a row in [data-terms.md](data-terms.md) before anything
+is fetched, and it is Peter's call.
 
 **The case against** is that a public list saying a named person is predicted to run a race
 they had no intention of running is a small claim about them that the results never made.

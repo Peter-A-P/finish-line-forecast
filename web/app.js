@@ -453,6 +453,8 @@
       ["Race day", shortDate(race.date), 3],
       ["Scored", "when results are posted", 4]
     ];
+    /* No start list, no daily files: the field is forecast once, the day before. */
+    if (!race.entrant_list) { steps.shift(); }
     var list = el("ol", { "class": "week-steps" });
     steps.forEach(function (step) {
       var cls = step[2] < at ? "done" : step[2] === at ? "now" : "next";

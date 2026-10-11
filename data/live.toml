@@ -36,3 +36,4 @@ date = "2026-11-11"
 distance_m = 11000
 course_id = "run-to-remember-11000"
 gun = "2026-11-11T08:00:00-03:30"   # confirmed by Peter 2026-09-19
+registration_opens = "2026-10-16"   # from Peter 2026-10-11; the card says so until then

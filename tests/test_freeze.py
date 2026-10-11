@@ -433,7 +433,7 @@ def test_the_website_is_built_from_the_committed_files_alone(tmp_path: Path) -> 
         'course_id = "cape-to-cabot-20000"\nentrant_list = "c2c-2026"\n'
         'gun = "2026-10-18T08:00:00-02:30"\n'
         '[r2r-2026]\nname = "Run to Remember"\ndate = "2026-11-11"\n'
-        'course_id = "run-to-remember-11000"\n',
+        'course_id = "run-to-remember-11000"\nregistration_opens = "2026-10-16"\n',
         encoding="utf-8",
     )
     out = tmp_path / "site"
@@ -462,7 +462,10 @@ def test_the_website_is_built_from_the_committed_files_alone(tmp_path: Path) -> 
     upcoming = [race for race in races if race["group"] != "run"]
     assert [race["id"] for race in upcoming] == ["c2c-2026", "r2r-2026"], "soonest first"
     assert upcoming[0]["stage"] == "week" and "1 daily file(s)" in upcoming[0]["status"]
-    assert upcoming[1]["status"] == "Daily predictions start 2026-11-04."
+    assert upcoming[1]["status"] == (
+        "Registration opens 2026-10-16. One prediction file, due by 2026-11-10: this race "
+        "publishes no start list, so there are no daily files."
+    ), "a race with no start list is never promised daily files"
     # Cape to Cabot has a start list with names on it and Run to Remember has none at all,
     # which is exactly the difference the two shelves are for.
     assert upcoming[0]["group"] == "open" and upcoming[1]["group"] == "announced"

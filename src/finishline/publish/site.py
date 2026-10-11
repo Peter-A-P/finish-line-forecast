@@ -76,6 +76,8 @@ HOST_CONFIG: dict[str, Any] = {
         ".html": "text/html",
         ".woff2": "font/woff2",
         ".txt": "text/plain",
+        ".svg": "image/svg+xml",
+        ".png": "image/png",
     },
     "routes": [
         {
@@ -175,8 +177,21 @@ def group_of(record: Mapping[str, Any], entrants_seen: int | None, today: date) 
     return "open" if entrants_seen else "announced"
 
 
-def status(files: Sequence[Published], scored: bool, today: date, race_date: date) -> str:
-    """One line saying where this race is in its week."""
+def status(
+    files: Sequence[Published],
+    scored: bool,
+    today: date,
+    race_date: date,
+    entrant_list: bool = True,
+    registration: date | None = None,
+) -> str:
+    """One line saying where this race is in its week.
+
+    ⚠️ **A race with no start list has no prediction week.** Its field is forecast and it gets
+    one file the day before (`cli.due` gives it no daily ones), so promising "daily predictions
+    from" a date is promising something that will not happen. Run to Remember's card did until
+    2026-10-11.
+    """
     now = stage(files, scored, today, race_date)
     if now == "scored":
         return "Scored against the official results."
@@ -189,10 +204,21 @@ def status(files: Sequence[Published], scored: bool, today: date, race_date: dat
         return "Race run; waiting for the official results."
     # A date, not a countdown: the site is rebuilt only when something is pushed, so "in 8
     # days" would go stale on every morning nothing is.
+    opens = (
+        f"Registration opens {registration.isoformat()}. "
+        if registration is not None and today < registration
+        else ""
+    )
+    if not entrant_list:
+        final_by = race_date - timedelta(days=1)
+        return (
+            f"{opens}One prediction file, due by {final_by.isoformat()}: this race publishes "
+            "no start list, so there are no daily files."
+        )
     start = race_date - timedelta(days=daily.FIRST_LEAD_DAYS)
     if today >= start:
         return "The first daily prediction is due; none is published yet."
-    return f"Daily predictions start {start.isoformat()}."
+    return f"{opens}Daily predictions start {start.isoformat()}."
 
 
 def _file_url(race_id: str, item: Published) -> str:
@@ -210,6 +236,9 @@ def race_record(
     forecast = None
     if source is not None and source.doc.get("conditions"):
         forecast = source.doc["conditions"].get("forecast")
+    listed = record.get("entrant_list") is not None
+    opens = record.get("registration_opens")
+    registration = date.fromisoformat(str(opens)) if opens else None
     return {
         "id": race_id,
         "name": str(record.get("name", race_id)),
@@ -217,10 +246,10 @@ def race_record(
         "gun": record.get("gun"),
         "distance_m": record.get("distance_m"),
         "course_id": record.get("course_id"),
-        "entrant_list": record.get("entrant_list") is not None,
+        "entrant_list": listed,
         "newcomer_pool": record.get("newcomers") == "course",
         "stage": stage(files, scored, today, when),
-        "status": status(files, scored, today, when),
+        "status": status(files, scored, today, when, listed, registration),
         "week_start": (when - timedelta(days=daily.FIRST_LEAD_DAYS)).isoformat(),
         "final_by": (when - timedelta(days=1)).isoformat(),
         "forecast": forecast,
