@@ -1,0 +1,148 @@
+{
+  "conditions": {
+    "bearing_deg": 321.0,
+    "conditions_mean": {
+      "log_distance_5k": 1.3863,
+      "observed": 1.0,
+      "sun": 0.08,
+      "tailwind": 4.5857,
+      "temp_c": 9.3467,
+      "wind": 23.2124
+    },
+    "forecast": {
+      "sun_share": 0.08,
+      "temp_c": 7.13,
+      "wind_east_kmh": 16.9,
+      "wind_kmh": 25.77,
+      "wind_north_kmh": 19.45
+    },
+    "forecast_error": {
+      "east_bias": -7.1858,
+      "east_sd": 12.362,
+      "mornings": 36,
+      "north_bias": -4.8327,
+      "north_sd": 14.9458,
+      "temp_bias": -2.295,
+      "temp_sd": 3.5152,
+      "wind_bias": -9.3025,
+      "wind_sd": 7.5557
+    },
+    "hours": 3,
+    "lead_days": 6,
+    "source": "Open-Meteo forecast, St. John's airport",
+    "used": true
+  },
+  "entrant_snapshot": {
+    "file": "c2c-2026_ane-list_20261008T2253Z.html",
+    "sha256": "7548c7706a39193645b8fec5e2423a3c3c709c386f630c3bc0937c49fcf23f65"
+  },
+  "entrants": {
+    "ambiguous": 24,
+    "linked": 446,
+    "listed": 500,
+    "new": 30,
+    "predicted": 3,
+    "published_before": 476,
+    "reissued": 3
+  },
+  "frozen_at": "2026-10-12T08:47:12.719966+00:00",
+  "gun": "2026-10-18T08:00:00-02:30",
+  "kind": "daily",
+  "model": {
+    "blend": {
+      "centre": "(1 - w) * log(hierarchical) + w * log(lightgbm)",
+      "challenger_answered": 476,
+      "distribution": "the hierarchical model's draws, scaled onto the blended centre",
+      "weight": 0.65
+    },
+    "calibration": {
+      "80": {
+        "0": 0.0188678501724322,
+        "1": 0.01744992190553951,
+        "2 to 3": 0.014572735732509834,
+        "4 or more": 0.0002721728411323454
+      },
+      "90": {
+        "0": 0.038112103969682565,
+        "1": 0.02852210945618694,
+        "2 to 3": 0.029386054297408037,
+        "4 or more": 0.004181407023878592
+      }
+    },
+    "commit": "ec29cfb805682742f4df50c9fe1cb3326cd549d1",
+    "diagnostics": {
+      "divergences": 0.0,
+      "draws": 1200.0,
+      "max_rhat": 2.090390126902807,
+      "min_ess_bulk": 5.463429791477384
+    },
+    "fit_on_results_before": "2026-10-18",
+    "name": "blend",
+    "settings": {
+      "chains": 4,
+      "draws": 300,
+      "months": 3,
+      "tune": 400,
+      "weather": 1
+    }
+  },
+  "newcomers": {
+    "course_id": "cape-to-cabot-20000",
+    "method": "course pool"
+  },
+  "race": {
+    "course_id": "cape-to-cabot-20000",
+    "date": "2026-10-18",
+    "distance_m": 20000.0,
+    "name": "Cape to Cabot",
+    "race_id": "c2c-2026"
+  },
+  "runners": [
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        4554.0,
+        5051.2
+      ],
+      "interval_90": [
+        4436.7,
+        5193.5
+      ],
+      "name": "John Halley",
+      "prior_results": 23,
+      "seconds": 4810.7,
+      "supersedes": "daily-2026-10-11.json"
+    },
+    {
+      "hometown": "Paradise",
+      "interval_80": [
+        4865.3,
+        5312.5
+      ],
+      "interval_90": [
+        4756.6,
+        5486.5
+      ],
+      "name": "Darren Clarke",
+      "prior_results": 20,
+      "seconds": 5087.9,
+      "supersedes": "daily-2026-10-11.json"
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        5663.9,
+        6216.2
+      ],
+      "interval_90": [
+        5471.0,
+        6368.2
+      ],
+      "name": "Mark Conway",
+      "prior_results": 8,
+      "seconds": 5932.0,
+      "supersedes": "daily-2026-10-11.json"
+    }
+  ],
+  "schema_version": 1
+}
