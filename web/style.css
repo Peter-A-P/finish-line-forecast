@@ -347,12 +347,12 @@ strong { font-weight: 600; }
    wraps on a phone rather than scrolling sideways. */
 /* The picker over the hero strip. Narrow, because it governs six small cards rather than the
    page, and left-aligned with them. */
-.hero-slicer {
-  max-width: 22rem;
-  margin: 1.5rem 0 0;
-}
+.hero-slicer { margin: 1.5rem 0 0; }
 
+/* The width belongs to the dropdown, not the block: on the block it also broke the hint above
+   it onto a second line with most of the page empty beside it. */
 .hero-slicer label { display: block; font-weight: 600; font-size: 0.9rem; }
+.hero-slicer select { max-width: 22rem; }
 
 .hero-strip-label {
   font-size: 0.84rem;
