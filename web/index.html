@@ -215,9 +215,8 @@
     <p class="lead">
       The rest of this page is the whole method, in the order it happens. Each part starts in
       plain language, with a picture. Where there is more to say for someone who builds models
-      for a living, it is folded away under <strong>For the technical reader</strong>, so a
-      reader who only wants the idea can skip it and a reader who wants the detail loses
-      nothing.
+      for a living, it is folded away under <strong>For the technical reader</strong>, so
+      you can skip it if you only want the idea.
     </p>
   </div>
 
@@ -225,7 +224,7 @@
     <h2>The whole idea in one picture</h2>
     <p class="section-lead">
       Seven steps, and the order matters: the prediction is fixed in public before the race
-      exists, so the scoring at the end is a real test rather than a story told afterwards.
+      exists, so the prediction cannot be adjusted once the result is known.
     </p>
     <ol class="pipeline">
       <li><span class="step">1</span><strong>Read</strong><span>Every public road-race result in the province since {{first_year}}, fetched once, politely.</span></li>
@@ -241,7 +240,8 @@
         <strong>Most predictions of this kind are never checked.</strong> A backtest, where a
         model predicts races that have already happened, is useful and is done here too, but it
         is always possible to tune a model until its backtest looks good. A prediction locked
-        before the race cannot be tuned afterwards. That is the point of the whole project.
+        before the race cannot be tuned afterwards. That is why this project locks its
+        predictions.
       </p>
     </div>
   </section>
@@ -261,9 +261,9 @@
     </figure>
     <p>
       Before any of it was read, the two organisations whose pages it uses were told what would
-      be fetched and why, and offered the chance to say no. That is not only a courtesy: the
-      crawler refuses to run until it has been told the notes went out, and the automated
-      checks confirm that it refuses. It fetches one page a second, each page once, and keeps
+      be fetched and why, and offered the chance to say no. The crawler enforces this: it
+      refuses to run until it has been told the notes went out, and the automated checks
+      confirm that it refuses. It fetches one page a second, each page once, and keeps
       it.
     </p>
     <details class="disclose">
@@ -273,15 +273,15 @@
         across the years, and two thirds of them draw no ruler under the header. Column
         boundaries are measured from the character positions that are blank in every row, and
         header words are assigned to a column rather than sliced by it, because several pages
-        centre their headers left of their data. An unrecognised header raises and names
-        itself rather than landing values in the wrong fields; {{unparsed}} pages still refuse,
-        and each is listed in the repository.
+        centre their headers left of their data. A header the parser does not recognise stops
+        it with an error naming that header, so values never end up in the wrong fields.
+        {{unparsed}} pages still fail this way, and each is listed in the repository.
       </p>
       <p>
-        Two findings from reading it: eight years of the archive were silently missing because
-        older index pages say "Road Race Series" where newer ones say "Road Running", and eighty
-        apparent courses were really {{courses}}, because older pages name a race after its
-        sponsor of the year. Both are regression tests now.
+        Two things turned up along the way. Eight years of the archive were missing and nothing
+        reported it, because older index pages say "Road Race Series" where newer ones say
+        "Road Running". And what looked like eighty courses were really {{courses}}, because
+        older pages name a race after that year's sponsor. There is a regression test for each.
       </p>
     </details>
   </section>
@@ -325,7 +325,7 @@
     </div>
     <div class="verdict">
       <p>
-        <strong>When in doubt, it refuses.</strong> Splitting one runner in two costs some
+        <strong>Runners it cannot tell apart are left out.</strong> Splitting one runner in two costs some
         accuracy. Merging two people into one would publish a confident prediction for a real
         person built from somebody else's results. So {{ambiguous}} runners the archive cannot
         tell apart are left out of every published prediction and counted, rather than guessed
@@ -333,17 +333,17 @@
       </p>
     </div>
     <details class="disclose">
-      <summary>For the technical reader: what that trade costs, and how it is bounded</summary>
+      <summary>For the technical reader: what this rule can get wrong</summary>
       <p>
-        Names are compared on a normalised key (case, accents, apostrophes, spacing, hyphens),
-        never fuzzily: nicknames are deliberately not merged, because Mike and Michael Power
+        Names are compared on a normalised key (case, accents, apostrophes, spacing, hyphens)
+        and never by fuzzy matching. Nicknames are not merged, because Mike and Michael Power
         are often two people. Within a name key, results are clustered by intersecting
         birth-year windows; a result compatible with more than one cluster and carrying no
         age group is held back. Allowing towns to change means two people of one name and a
-        compatible age can merge. That risk is published rather than argued about: the share
-        of resolved runners whose printed town flips back and forth, the pattern two merged
-        people would make, is reported in the README, and reading them shows most are one
-        person spelling their own town differently.
+        compatible age can merge. The README reports how often that may have happened: the
+        share of resolved runners whose printed town switches back and forth, which is what two
+        merged people would look like. Read one by one, most are one person spelling their
+        town two ways.
       </p>
       <p>
         For a live race the same rules link each person on the entrant list to at most one
@@ -434,27 +434,28 @@
     <details class="disclose">
       <summary>For the technical reader: separating the course from the runners on it, and the length from the road</summary>
       <p>
-        <strong>What the reference costs.</strong> The outcome is a finish over Daniels' time for
+        <strong>A side effect of the reference time.</strong> The outcome is a finish over Daniels' time for
         a reference runner at that distance, and each runner carries one level for their whole
         career, so a population that fades over distance differently from Daniels' curve leaves
-        that difference in the effects of the long courses. The archive shows it plainly:
+        that difference in the effects of the long courses. It shows in the archive:
         {{marathon_span}} Measured against each other the marathons scatter around zero, which is
         what five ordinary road marathons should do. Course and length cannot be separated from
-        finishes alone, because every course is run at one distance, so both numbers are
-        published and neither is dressed up as the other. The Tely read from runners who also
-        race a half marathon or longer is 1.3 points faster than the same course read from
-        runners who never go beyond 15 km, which is the mechanism caught in the act. None of
-        this reaches a prediction: a course factor is only ever applied to that course, at its
-        own distance, where the length belongs in the answer.
+        finishes alone, because every course is run at one distance, so the page gives both
+        numbers and says which is which. The Tely read from runners who also race a half
+        marathon or longer is 1.3 points faster than the same course read from runners who
+        never go beyond 15 km, which is the same effect showing up inside a single course.
+        None of this affects a prediction. A course factor is only applied to its own course at
+        its own distance, and there the length effect should be included.
       </p>
       <p>
         Course and edition effects are estimated jointly with per-runner levels and trends by
         alternating least squares on the log-ratio scale, with a bootstrap over runners for the
         intervals; the full model then carries a zero-sum course effect with editions summing
-        to zero within their course. Leaving out the per-runner trend produced a striking false
-        finding: every well-covered course appeared to get harder by about 0.6% a year. It was
-        the field ageing, absorbed into the course. With the trend in, the drift is zero and
-        the signs scatter, and a test plants ageing on unchanged courses to keep it that way.
+        to zero within their course. Without the per-runner trend the fit said something false:
+        every well-covered course seemed to get about 0.6% harder a year. That was the field
+        getting older, and the fit had put it on the course. With the trend in, the drift is
+        zero and the signs go both ways. A test plants ageing on unchanged courses and checks
+        that it stays out of the course effects.
       </p>
     </details>
   </section>
@@ -494,11 +495,11 @@
         signed tailwind.
       </p>
       <p>
-        The straight line in temperature that most race models use was built, backtested and
-        rejected: on two leave-one-year-out tests over eighteen years it was the worst shape
-        offered, and on 19,035 runners who ran consecutive editions of the same race it predicted
-        the change between years worse than predicting no change at all. It also hid inside the
-        calendar-year effect. The full write-up is <a href="{{repository}}/blob/main/docs/rejected.md">the rejected approach</a>.
+        The straight line in temperature that most race models use was built and backtested
+        too. In two leave-one-year-out tests over eighteen years it was the worst of the shapes
+        tried. On 19,035 runners who ran the same race in consecutive years, it predicted the
+        change between years worse than assuming no change. Some of the heat effect also ended
+        up in the calendar-year term, where it could not be seen. The full write-up is <a href="{{repository}}/blob/main/docs/rejected.md">the rejected approach</a>.
       </p>
       <p>
         For a live race the weather is a forecast, not an observation, so its error was measured
@@ -544,23 +545,24 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
       <p>
         Fitted in PyMC with the nutpie sampler, non-centred throughout. PyMC's default NUTS hit
         its maximum tree depth with R-hat above 2 on this model; nutpie sampled the same model
-        cleanly. A prediction is not a single number but the full set of posterior draws, each
-        walked forward to race day and given a fresh morning and a fresh bad day; the median is
+        cleanly. A prediction is kept as the full set of posterior draws. Each draw is carried
+        forward to race day and given its own race morning and its own noise. The median is
         the headline time and the quantiles feed the ranges below.
       </p>
       <p>
-        An honest limitation, stated in the repository beside the numbers: years since a
+        One known limitation, which the repository states next to the numbers: years since a
         runner's first race and the calendar year move together, so the group drift, the year
         effect and the group means trade off along a ridge the sampler mixes poorly on (worst
         R-hat 1.41 to 2.15 across fits). The quantities a returning runner's prediction reads
-        converge (median R-hat 1.006); a first-timer's starting level does not fully, which is
-        why first-timers' ranges are calibrated separately, and why a constraint that was tried
-        to fix it, and made every chain disagree, was taken out.
+        converge (median R-hat 1.006). A first-timer's starting level does not fully converge,
+        so first-timers' ranges are calibrated separately. One constraint was tried as a fix.
+        It made every chain disagree and was removed.
       </p>
       <p>
-        The first version gave each runner a straight-line career trend. The backtest refuted
-        it: carried to race day, a line fitted across a runner's improving early years predicts
-        improvement nobody has, 8.3% too fast across 49 races. Form as a random walk replaced it.
+        The first version gave each runner a straight-line career trend. It failed the
+        backtest. A line fitted through a runner's early, improving years keeps improving when
+        it is extended to race day, and the predictions came out 8.3% too fast across 49 races.
+        A random walk for form replaced it.
       </p>
     </details>
   </section>
@@ -568,9 +570,9 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
   <section class="section" id="ranges">
     <h2>Ranges that keep their promise</h2>
     <p class="section-lead">
-      A prediction without a range is an opinion. Each runner gets a range that should contain
-      their finish four times in five (80%) and a wider one for nine in ten (90%). The test of a
-      range is simple: across many runners, does it hold as often as it claims?
+      Each runner gets a range that should contain their finish four times in five (80%) and a
+      wider one for nine in ten (90%). The test of a range is simple: across many runners, does
+      it hold as often as it claims?
     </p>
     <figure class="chart-figure">
       <div id="coverage-chart" class="chart"></div>
@@ -583,8 +585,8 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
         races, and calibration fixes that.</strong> Before each race, the ranges are widened or
         narrowed by exactly as much as they missed on earlier races, separately for each depth of
         history. A first-timer's range is wide, around {{width_new}} minutes, and a runner with a
-        long history gets about {{width_deep}}: the range is as wide as the evidence requires and
-        no wider.
+        long history gets about {{width_deep}}: the less history a runner has, the wider the
+        range.
       </p>
     </div>
     <div id="challenger-ranges" hidden>
@@ -620,7 +622,7 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
         score is how far outside the model's own interval their finish fell; a new race's interval
         is stretched multiplicatively by the finite-sample quantile of the scores from races
         dated strictly before it, per history-depth stratum (0, 1, 2 to 3, 4 or more prior
-        results). Two races on the same morning are not each other's calibration. A stratum with
+        results). Races on the same morning are not used to calibrate each other. A stratum with
         fewer than fifty earlier scores is left unadjusted and counted, and coverage intervals
         resample races rather than runners, because runners in one race share its morning.
       </p>
@@ -657,13 +659,12 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
     <details class="disclose">
       <summary>For the technical reader: comparing placing fairly</summary>
       <p>
-        A naive placing table ranks each model among the runners it answers for, which ranks
-        "last time" only among runners with a history and the model over the whole field,
-        newcomers included, whose order is close to a guess. That comparison made the model look
-        twice as bad as it is. The fair comparison ranks both over exactly the runners both
-        answered for, race by race, with a bootstrap over races for the interval; both tables are
-        published, because scoring each model on the subset that suits it is how a table stops
-        being checkable.
+        The simple way to build a placing table ranks each model among the runners it answers
+        for, which ranks "last time" only among runners with a history and the model over the
+        whole field, newcomers included, whose order is close to a guess. On that table the
+        model looked twice as bad as it is. The fair comparison ranks both over exactly the
+        runners both answered for, race by race, with a bootstrap over races for the interval.
+        Both tables are published.
       </p>
     </details>
   </section>
@@ -687,7 +688,7 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
         difficulty measured against every other course in the province. All of that is this
         project, and the rules of thumb are computed by it. So the comparison below is not this
         model against something a runner can look up; it is this model against the best simple
-        answer the same machinery can give, which is a harder test and the only honest one.
+        answer the same machinery can give, which is a harder test.
       </p>
       <p>
         <strong>And a rule of thumb cannot answer for everybody.</strong> "Last time" has nothing
@@ -750,32 +751,32 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
         simulate a field from.
       </p>
       <p>
-        So the published distribution is the Bayesian model's, moved. Each runner's draws are
+        So the published distribution is the Bayesian model's, shifted. Each runner's draws are
         multiplied by the single factor that puts their median on the averaged centre, which
-        shifts their whole range with their time and leaves the shared morning intact, so the
-        time and the place a runner reads are the same prediction rather than two. The
-        calibration step then runs on the average's own backtest errors, not the Bayesian
-        model's, which is what keeps the published coverage honest. A first-timer at one of the
-        biggest races is drawn instead from how first-timers actually finished on that course,
-        and is left out of the average: that pool is a measurement, and the trees have nothing
-        to add to it.
+        shifts their whole range with their time and leaves the shared morning intact, so a
+        runner's time and place come from the same draws. The calibration step then runs on
+        the average's own backtest errors, not the Bayesian model's, so the coverage is
+        measured on what is actually published. A first-timer at one of the biggest races is
+        drawn instead from how first-timers actually finished on that course, and is left out
+        of the average: that pool is already made of observed finishes, so the trees are not
+        averaged in.
       </p>
       <p>
         How far to lean was chosen on the 2022 and 2023 races only, the same window the
         challenger's own settings were tuned on, and never on the races scored above. On that
         window the best weight was {{blend_weight}}, the curve was flat between 0.60 and 0.75, and
-        resampling races put it between 0.50 and 0.80, so what the window fixes is the
-        direction rather than the second decimal. Reading it off the races in the tables above
-        would have made those races report a number about themselves.
+        resampling races put it between 0.50 and 0.80, so the data settle that the weight leans
+        toward the trees, but not its second decimal. Choosing it on the races in the tables
+        above would have tuned the weight on the same races it is scored on.
       </p>
     </details>
     <details class="disclose">
       <summary>For the technical reader: how the backtest avoids cheating</summary>
       <p>
         The only way any model sees the archive is through a history object that takes the
-        origin date and keeps nothing dated on or after it, so leakage is something a model
-        cannot reach rather than something to remember; the harness re-checks it at every
-        origin. Two leaks the tests found and closed: races on the same morning are not each
+        origin date and keeps nothing dated on or after it, so a model has no way to reach
+        later results, and the harness checks this again at every origin. The tests found two
+        leaks, both now closed: races on the same morning are not each
         other's history, and the runner handed to a model carries only the results the history
         carries. The model is refitted once per calendar quarter on the history before the
         quarter, so it knows less about a race late in a quarter than the baselines do, which
@@ -789,7 +790,7 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
   <section class="section" id="record">
     <h2>Written down before the gun</h2>
     <p class="section-lead">
-      This is what makes the predictions trustworthy. Each prediction file is saved into the
+      This is how anyone can check that a prediction was not changed. Each prediction file is saved into the
       public repository with a fingerprint, and the save is stamped with the time. If a single
       character were changed later, the fingerprint would no longer match.
     </p>
@@ -804,7 +805,7 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
     <div class="verdict">
       <p>
         <strong>A mistake found after the gun is scored as it stands and written up, not
-        fixed.</strong> That rule is what separates a forecast from a story told afterwards.
+        fixed.</strong>
       </p>
     </div>
     <div class="assumption">
@@ -895,7 +896,7 @@ sha256sum predictions/tt-2026/daily-2026-09-27.json       # the same hash, or it
       <li><strong>Only what the results already publish.</strong> A name as printed, a hometown as printed, and the prediction. The entrant lists also show shirt sizes; they are never read.</li>
       <li><strong>No training data, for anyone.</strong> The original idea used runners' public Strava activity. Strava's terms forbid displaying other users' data even when it is public, and forbid training models on it, so the public model uses race results only. It is weaker, and the repository says so first.</li>
       <li><strong>Not in search engines.</strong> The prediction data asks search engines not to index it, so a person's prediction does not turn up when someone searches their name.</li>
-      <li><strong>Anyone can opt out, in one email.</strong> The link under every runner table opens an email to ask. From then on that runner's row reads "Redacted name" with no hometown, on this site and in every later prediction file, and the list of who asked holds no names, only a keyed fingerprint of each. A file already tagged before the request is not edited, because a prediction that can be changed afterwards is not one; the site stops showing the name from it all the same.</li>
+      <li><strong>Anyone can opt out, in one email.</strong> The link under every runner table opens an email to ask. From then on that runner's row reads "Redacted name" with no hometown, on this site and in every later prediction file, and the list of who asked holds no names, only a keyed fingerprint of each. A file already tagged before the request is not edited, because tagged files are never changed; the site stops showing the name from it all the same.</li>
       <li><strong>No tracking.</strong> This page loads nothing from anywhere else: no analytics, no fonts from a third party, no advertising.</li>
       <li><strong>Ambiguous runners are left out.</strong> If the archive cannot tell two people apart, neither gets a published prediction.</li>
     </ul>
@@ -904,8 +905,8 @@ sha256sum predictions/tt-2026/daily-2026-09-27.json       # the same hash, or it
   <section class="section" id="engineering">
     <h2>How it is engineered</h2>
     <p class="section-lead">
-      Built the way production systems should be: typed, tested, reproducible and automated,
-      so that the numbers on this page can be regenerated by anyone from the repository.
+      The code is typed and tested and the pipeline is automated, so anyone can regenerate the
+      numbers on this page from the repository.
     </p>
     <div class="headline">
       <div class="stat"><span class="figure">{{tests}}</span><span class="caption">automated tests, including golden pages for the parser, a leakage test on the backtest, and closed-form checks on the running formulas</span></div>
@@ -923,9 +924,9 @@ sha256sum predictions/tt-2026/daily-2026-09-27.json       # the same hash, or it
       <summary>For the technical reader: the choices that are easy to get wrong</summary>
       <ul>
         <li><strong>Long runs are checkpointed.</strong> A full backtest is eight quarterly model fits of about twenty minutes each on a desktop CPU. Each fit is saved as it finishes, keyed on a hash of the model's source, the data and the settings, so a crashed run resumes and a stale one is never reported.</li>
-        <li><strong>Reports are generated, never typed.</strong> The README's tables and this page's numbers are written by the same command from the same objects, so they cannot disagree.</li>
-        <li><strong>Refusals are in code, not in documents.</strong> The crawler refuses until the courtesy notes are acknowledged; the freeze refuses inside 24 hours of the gun, with uncommitted code, or without a backtest that matches today's code and data.</li>
-        <li><strong>Time zones are required, not assumed.</strong> 08:00 in St. John's is 10:30 UTC, and a naive comparison passes in exactly the wrong direction, so a gun time without a zone is refused.</li>
+        <li><strong>The reports are generated.</strong> The README's tables and this page's numbers are written by the same command from the same objects, so they cannot disagree.</li>
+        <li><strong>The refusals are enforced in code.</strong> The crawler refuses until the courtesy notes are acknowledged; the freeze refuses inside 24 hours of the gun, with uncommitted code, or without a backtest that matches today's code and data.</li>
+        <li><strong>A gun time must carry a time zone.</strong> 08:00 in St. John's is 10:30 UTC, and a comparison that ignores the zone can pass when it should refuse, so a gun time without a zone is refused.</li>
         <li><strong>The website has no framework and makes no outside request.</strong> Charts are hand-built SVG, and the content security policy forbids anything inline or off-site.</li>
       </ul>
     </details>
@@ -934,34 +935,36 @@ sha256sum predictions/tt-2026/daily-2026-09-27.json       # the same hash, or it
   <section class="section" id="built">
     <h2>How this was built</h2>
     <p>
-      Design, methodology, evaluation choices and judgement are Peter Parker's, including years
-      of racing and coaching on these courses: the insight that the Tely's prevailing westerly is
-      a tailwind for almost the whole race, and that the biggest races draw fast visitors the
-      archive has never seen, came from the road before the data confirmed them. AI coding
-      assistants (Claude Code) were used for implementation and drafting, the way a senior
-      engineer uses them in 2026. Every number on this page is reproducible from
-      <a href="{{repository}}">the repository</a>, and every live prediction is verifiable from
-      a timestamp that predates the race it predicts.
+      I designed this project and made the calls in it: what to model, how to test it, and what
+      to do when a test came back wrong. I have raced and coached on these courses for years,
+      and some of what is in the model I knew from running before I had the data to check it.
+      The Tely has the prevailing westerly behind it for almost the whole race. The biggest
+      races bring in fast visitors who have never raced here, so the archive has no record of
+      them. Both held up when I measured them.
     </p>
     <p>
-      <strong>The weather model is the clearest case of that judgement paying off.</strong> Four
-      designs failed before it, all of them reasonable: heat as a straight line, humidity, dew
-      point, sunshine as an effect of its own. What worked was Peter's specification, which came
-      from running in it rather than from the data. Heat does not act in a straight line. Below a
-      threshold it costs nothing at all, above it each degree costs more than the last, and it
-      costs more the longer the race, because a 5 km field meets fifteen minutes of weather and a
-      marathon field meets four hours of it. Sunshine has no effect of its own; it raises the
-      temperature a runner feels. Written that way, the weather explains twice as much of what
-      separates one edition of a race from the next as the straight line did.
+      I used an AI coding assistant (Claude Code) for implementation and drafting. Every number
+      on this page can be reproduced from <a href="{{repository}}">the repository</a>, and
+      every live prediction has a timestamp from before its race.
     </p>
     <p>
-      The arithmetic underneath it is borrowed from
-      <a href="https://peterparker.ca/projects/overload/">Overload</a>, Peter's AI coaching team
-      for runners: Daniels' formulas, the age-grading tables and the heat and wind corrections,
-      including the full-sun figure Overload takes from the US National Weather Service, which
-      this project then measured against eighteen years of races rather than assuming. Constants
-      that arrived from Overload are used as starting assumptions and labelled as such wherever
-      they appear; everything the archive can measure is measured here instead.
+      The weather model is where my own running mattered most. Four designs failed first: heat
+      as a straight line, humidity, dew point, and sunshine as a separate effect. The one that
+      worked I wrote down from what running in heat is like. Up to a certain temperature it
+      costs nothing. Past that, each degree costs more than the one before, and it gets worse
+      the longer the race, because a 5 km field is out in the weather for fifteen minutes and a
+      marathon field for four hours. Sun does not slow a runner by itself. It makes the
+      temperature feel higher. Set up that way, the weather explains twice as much of the
+      difference between one edition of a race and the next as the straight line did.
+    </p>
+    <p>
+      The running arithmetic comes from
+      <a href="https://peterparker.ca/projects/overload/">Overload</a>, my AI coaching team for
+      runners: Daniels' formulas, the age-grading tables, and the heat and wind corrections.
+      That includes the figure for full sun, which Overload takes from the US National Weather
+      Service. Here I checked it against eighteen years of races instead of taking it as given.
+      Any constant that came over from Overload is treated as a starting assumption and
+      labelled that way where it is used. Anything the archive can measure, I measured.
     </p>
     <details class="disclose">
       <summary>Glossary</summary>
