@@ -940,28 +940,22 @@ sha256sum predictions/tt-2026/daily-2026-09-27.json       # the same hash, or it
       and some of what is in the model I knew from running before I had the data to check it.
       The Tely has the prevailing westerly behind it for almost the whole race. The biggest
       races bring in fast visitors who have never raced here, so the archive has no record of
-      them. Both held up when I measured them.
+      them. Both held up when I measured them. The weather model came the same way, after four
+      other designs failed: heat costs nothing up to a certain temperature, then each degree
+      costs more than the one before, and more the longer the race. Set up that way, the
+      weather explains twice as much of the difference between one edition of a race and the
+      next as a straight line in temperature did.
     </p>
     <p>
-      I used an AI coding assistant (Claude Code) for implementation and drafting. Every number
-      on this page can be reproduced from <a href="{{repository}}">the repository</a>, and
-      every live prediction has a timestamp from before its race.
+      I used an AI coding assistant (Claude Code) for implementation and drafting, which is now
+      standard practice in software, data science and machine learning work. Every number on
+      this page can be reproduced from <a href="{{repository}}">the repository</a>, and every
+      live prediction has a timestamp from before its race.
     </p>
     <p>
-      The weather model is where my own running mattered most. Four designs failed first: heat
-      as a straight line, humidity, dew point, and sunshine as a separate effect. The one that
-      worked I wrote down from what running in heat is like. Up to a certain temperature it
-      costs nothing. Past that, each degree costs more than the one before, and it gets worse
-      the longer the race, because a 5 km field is out in the weather for fifteen minutes and a
-      marathon field for four hours. Sun does not slow a runner by itself. It makes the
-      temperature feel higher. Set up that way, the weather explains twice as much of the
-      difference between one edition of a race and the next as the straight line did.
-    </p>
-    <p>
-      The running arithmetic comes from
-      <a href="https://peterparker.ca/projects/overload/">Overload</a>, my AI coaching team for
-      runners: Daniels' formulas, the age-grading tables, and the heat and wind corrections.
-      That includes the figure for full sun, which Overload takes from the US National Weather
+      The running arithmetic comes from Overload, my own running application - this includes
+      Daniels' formulas, the age-grading tables, and the heat and wind corrections. The figure
+      for full sun is one of them, and Overload takes it from the US National Weather
       Service. Here I checked it against eighteen years of races instead of taking it as given.
       Any constant that came over from Overload is treated as a starting assumption and
       labelled that way where it is used. Anything the archive can measure, I measured.
