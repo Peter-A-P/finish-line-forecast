@@ -82,9 +82,14 @@ class Desk:
         """Everything the page draws."""
         made = {pick.key: pick for pick in picks.load(self.path)}
         cards = []
+        drawn: set[str] = set()
         for item in self.refused:
             entrant = item.entrant
             key = name_key(entrant.name)
+            # A name the list prints twice is one card that says so, not two identical ones.
+            if key in drawn:
+                continue
+            drawn.add(key)
             everyone = link.candidates_for(entrant, self.archive)
             committed = [runner for runner in everyone if not runner.ambiguous]
             unplaced = [runner for runner in everyone if runner.ambiguous]
@@ -95,6 +100,7 @@ class Desk:
                 "sex": entrant.sex or "",
                 "town": entrant.hometown or "",
                 "reason": item.reason,
+                "listed": self.shared[key],
                 "decidable": self.shared[key] == 1,
                 "published": self.published.get(key),
                 "earlier": None if key in self.published else self.earlier.get(key),
@@ -321,6 +327,7 @@ th { color: var(--faint); font-weight: 600; position: sticky; top: 0; background
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 tr.here td { background: var(--here); }
 .error { color: var(--warn); font-weight: 600; }
+.saved { color: var(--accent); }
 .hidden { display: none; }
 </style>
 </head>
@@ -336,6 +343,7 @@ tr.here td { background: var(--here); }
   <div class="bar">
     <span class="count" id="count"></span>
     <label><input type="checkbox" id="open-only"> Only entrants with no pick</label>
+    <span class="saved" id="saved" role="status">Picks are saved as you make them; there is nothing else to press.</span>
     <span class="error" id="error" role="alert"></span>
   </div>
 </header>
@@ -426,6 +434,7 @@ tr.here td { background: var(--here); }
       state.race.name + ", " + state.race.date + ": refused entrants";
     document.getElementById("count").textContent =
       decided + " of " + state.cards.length + " picked";
+    document.title = decided + " of " + state.cards.length + " picked";
     state.cards.forEach(function (card) {
       var stands = card.pick && card.pick.stands;
       if (onlyOpen && stands) { return; }
@@ -433,7 +442,7 @@ tr.here td { background: var(--here); }
       var top = el("div", { "class": "top" });
       add(top, [
         el("h2", null, card.entrant),
-        el("span", { "class": "listed" }, "listed as " + (card.sex || "no sex") + (card.town ? ", " + card.town : "")),
+        el("span", { "class": "listed" }, "listed as " + (card.sex || "no sex") + (card.town ? ", " + card.town : "") + (card.listed > 1 ? ", " + card.listed + " times" : "")),
         el("span", { "class": "chip" + (stands ? " ok" : "") },
           !card.pick ? "no pick" :
           !card.pick.stands ? "pick no longer matches the archive" :
@@ -446,7 +455,7 @@ tr.here td { background: var(--here); }
       }
       box.appendChild(el("p", { "class": "reason" }, "The linker: " + card.reason + "."));
       if (!card.decidable) {
-        box.appendChild(el("p", { "class": "reason" }, "Two entrants on the list share this name, so a pick could not say which of them it means. This one stays refused."));
+        box.appendChild(el("p", { "class": "reason" }, "The entrant list prints this name " + card.listed + " times. It does not say whether that is one person entered twice or different people, so a pick could not say which entry it means, and the buttons are off. These entries stay out of the predictions."));
       }
 
       var locked = !card.decidable || Boolean(card.published);
@@ -463,8 +472,12 @@ tr.here td { background: var(--here); }
           call("/pick", {
             entrant: card.entrant, action: action, candidate: candidate,
             evidence: evidence.value, note: note.value
-          }).then(function (value) { state = value; draw(); })
-            .catch(function (problem) { fail(card.entrant + ": " + problem.message); });
+          }).then(function (value) {
+            state = value;
+            draw();
+            document.getElementById("saved").textContent =
+              (action === "clear" ? "Cleared and saved: " : "Saved: ") + card.entrant + ".";
+          }).catch(function (problem) { fail(card.entrant + ": " + problem.message); });
         }
       };
       var none = el("button", { type: "button" }, "None of these: a newcomer");

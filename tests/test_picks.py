@@ -205,6 +205,22 @@ def test_a_line_the_rules_made_before_refusing_the_entrant_locks_nothing(tmp_pat
     assert [pick.choice for pick in picks.load(table.path)] == [picks.NEWCOMER]
 
 
+def test_a_name_the_list_prints_twice_is_one_card_that_cannot_be_decided(tmp_path: Path) -> None:
+    """Peter, 2026-10-12: it was drawn as two identical cards with dead buttons and no reason."""
+    table = pickpage.Desk(
+        LIVE,
+        [Entrant("Chris Walsh", "M"), Entrant("Chris Walsh", "M")],
+        walshes(),
+        RACES,
+        picks.path_for(tmp_path, "c2c-2026"),
+        {},
+        TODAY,
+    )
+    (card,) = table.cases()["cards"]
+    assert card["listed"] == 2 and not card["decidable"]
+    assert "prints this name" in pickpage.PAGE
+
+
 def test_the_page_puts_names_in_as_text_and_ships_none() -> None:
     assert "innerHTML" not in pickpage.PAGE
     assert "Walsh" not in pickpage.PAGE
