@@ -387,7 +387,9 @@ a quarter, never more.
 field. Each name is resolved against the history exactly as results are resolved against
 each other (section 5.2); an entrant with no match is predicted from the group prior with
 their listed sex, and counted. A listed sex that almost nobody of that first name has in the
-archive is read as not stated (section 13 item 46, amended 2026-10-11). The no-show rate and the late-entry rate are measured on the
+archive is read as not stated (section 13 item 46, amended 2026-10-11). An entrant the rules
+refuse, because more than one runner has their name, may be given to one of them by a person
+before the race; that line is marked and counted (section 13 item 47, amended 2026-10-12). The no-show rate and the late-entry rate are measured on the
 USR of 2026-09-13, whose list was saved on 2026-09-12, and reported with the Cape to Cabot
 prediction as the expected gap between the list and the finishers.
 
@@ -2102,4 +2104,51 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
 
     **Not done**: a hand-kept list of corrections. It would put a sentence about one named
     person's entry form into a public repository, and it fixes only the runners Peter happens
-    to know.
+    to know. (Item 47, the next day, keeps a hand-made list after all, for a different case
+    and outside the repository.)
+
+47. **"Excluded and counted, never guessed" was the right rule for a program and left a person
+    out (2026-10-12).** The linker refuses an entrant whose name more than one archive runner
+    carries, because the list prints no age (5.6, `identity/link.py`). On Cape to Cabot's list
+    that is 24 of 500 entrants with no prediction at all. Laid side by side, many are not
+    close: one candidate with 40 finishes through 2026 against one with a single finish in
+    2024; seven finishes through 2026 against one in 2019. The rule refused to choose "the one
+    with the longer history" because a program doing that is guessing at scale and nobody
+    would see which guesses were wrong. A person looking at one card at a time is not that.
+
+    **Changed (Peter).** `finishline review <race>` serves a page on the local machine with
+    each refused entrant beside every runner of their name: where and when each raced, the
+    towns and age bands printed, the age those bands allow on race day, and whether they have
+    run this course. A pick gives the entrant to one runner or to nobody (a newcomer), with
+    the kind of evidence it was made on, and is saved to `data/links/<race>.json`
+    (`identity/picks.py`, `identity/pickpage.py`). The next `freeze` reads it, so an entrant
+    picked today is a new line in tomorrow's daily file and is placed in the final one. No
+    change to the daily mechanism was needed: a refused entrant is in no earlier file.
+
+    **What a pick may not do.** Overrule a link the rules made; choose a runner the resolver
+    itself refused (that history is in no fit, and changing the resolver's mind moves the
+    archive, which a prediction week forbids); decide between two entrants on the list who
+    share the name; or be changed from the page once its line is in a tagged file. On the
+    2026-10-08 snapshot 18 of the 24 can be picked: four have no runner the archive commits
+    to, and two are a pair of entrants under one name.
+
+    **What keeps it honest.** The picked line carries `resolved_by_hand` in the prediction
+    file, `entrants.resolved_by_hand` counts them, and `entrant_snapshot.picks_sha256` is the
+    hash of the picks as they stood, because the pick is an input the hashed snapshot does not
+    hold. The website and the race page mark the runner after the name and say under the table
+    what the mark means. The score card scores them with everyone and again in a row of their
+    own, so the picks can be judged apart from the model and the headline cannot lean on them
+    unseen. The backtest's numbers are still those of the rules alone: no backtest reads a
+    start list, and no saved run moves.
+
+    **Why the list is not in the repository,** which is what item 46 objected to. A pick says
+    which of two people of one name entered a race, and no results page prints that, so the
+    file is gitignored with the entrant lists. The cost is that a stranger cannot rebuild a
+    hand-resolved line from the public inputs, and the file says so line by line rather than
+    hiding it. A pick names its runner by one of their results (race, printed name, time), not
+    by an archive id, because the ids of a name can renumber after a crawl; a pick whose result
+    no committed runner holds any more decides nothing.
+
+    **Not measured yet**: whether the picks are right. The results will print an age group for
+    most of these runners, and each pick can then be checked against the band (docs/todo.md).
+    Item 46's other objection stands as written: this fixes the entrants a person looked at.

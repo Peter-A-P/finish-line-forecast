@@ -12,11 +12,12 @@ import pytest
 
 from finishline.history import History
 from finishline.identity import link
+from finishline.identity import picks as picks_
 from finishline.identity.resolve import Runner
 from finishline.ingest.entrants import Entrant
 from finishline.models import hierarchical as hm
 from finishline.models import weather
-from finishline.publish import daily, freeze
+from finishline.publish import daily, freeze, racepage
 from finishline.publish import predictions as pf
 from finishline.schema import Race, Result
 
@@ -227,7 +228,11 @@ def test_the_forecast_used_is_recorded_and_moves_the_prediction() -> None:
 
 
 def build(
-    entrants: list[Entrant], already: daily.Published | None = None, only_new: bool = False
+    entrants: list[Entrant],
+    already: daily.Published | None = None,
+    only_new: bool = False,
+    also: list[Runner] | None = None,
+    picks: list[picks_.Pick] | None = None,
 ) -> dict[str, Any]:
     posterior, _links, history = setup()
     archive = [
@@ -241,7 +246,7 @@ def build(
     ]
     return freeze.assemble(
         posterior=posterior,
-        links=link.link(entrants, archive),
+        links=link.link(entrants, [*archive, *(also or [])], picks or ()),
         history=history,
         live=LIVE,
         now=NOW,
@@ -1046,3 +1051,73 @@ def test_events_on_a_list_the_race_does_not_have_are_refused(tmp_path: Path) -> 
     )
     with pytest.raises(ValueError, match="does not have"):
         freeze.load_live(path, "x-2026")
+
+
+# --- an entrant resolved by hand (identity/picks.py, PLAN.md 13 item 47) -------------
+
+
+# Ann Hynes (r1 in `setup`), named by her result at race "a".
+HER_PICK = picks_.Pick("Ann Hynes", picks_.RUNNER, "course", "", "2026-10-12", "a", "x", 5400.0)
+
+
+def test_a_resolved_entrant_is_published_the_next_morning_marked_and_counted(
+    tmp_path: Path,
+) -> None:
+    # test_freeze's archive: Ann Hynes is r1. A second runner of her name makes her refused.
+    twin = Runner("r9", "Ann Hynes", "Gander", "F", (), False)
+    field = [Entrant("Ann Hynes", "F"), Entrant("Bea Power", "F")]
+
+    first = build(field, only_new=True, also=[twin])
+    assert [runner["name"] for runner in first["runners"]] == ["Bea Power"]
+    assert first["entrants"]["ambiguous"] == 1 and "resolved_by_hand" not in first["entrants"]
+    publish(tmp_path, "daily-2026-10-12.json", first)
+
+    made = [HER_PICK]
+    already = daily.published(tmp_path, "c2c-2026")
+    second = build(field, already, only_new=True, also=[twin], picks=made)
+    assert pf.validate(second) == []
+    (line,) = second["runners"]
+    assert line["name"] == "Ann Hynes" and line["prior_results"] == 2
+    assert line["resolved_by_hand"] is True and "supersedes" not in line
+    assert second["entrants"]["ambiguous"] == 0
+    assert second["entrants"]["resolved_by_hand"] == 1
+    publish(tmp_path, "daily-2026-10-13.json", second)
+
+    page = racepage.before_the_gun(
+        [("daily-2026-10-12.json", first, "aa"), ("daily-2026-10-13.json", second, "bb")]
+    )
+    assert "| Ann Hynes (i) |" in page and "| Bea Power |" in page
+    assert "decided by hand before the race" in page
+
+    # The final file carries the mark with the line, and nothing is published twice.
+    already = daily.published(tmp_path, "c2c-2026")
+    assert build(field, already, only_new=True, also=[twin], picks=made)["runners"] == []
+    final = build(field, already, also=[twin], picks=made)
+    assert pf.validate(final) == []
+    ann = next(runner for runner in final["runners"] if runner["name"] == "Ann Hynes")
+    assert ann["resolved_by_hand"] is True
+    assert ann["first_published"] == "daily-2026-10-13.json"
+    assert "Ann Hynes (i)" in racepage.before_the_gun([("c2c-2026.json", final, "cc")])
+
+
+def test_the_mark_is_true_or_absent_and_nothing_else() -> None:
+    doc = build([Entrant("Ann Hynes", "F")])
+    assert "resolved_by_hand" not in doc["runners"][0], "an ordinary line says nothing about it"
+    doc["runners"][0]["resolved_by_hand"] = False
+    assert any("resolved_by_hand" in problem for problem in pf.validate(doc))
+
+
+def test_the_website_marks_the_runner_and_the_score_keeps_them_apart(tmp_path: Path) -> None:
+    from finishline.publish import scorecard, site
+
+    twin = Runner("r9", "Ann Hynes", "Gander", "F", (), False)
+    made = [HER_PICK]
+    doc = build([Entrant("Ann Hynes", "F"), Entrant("Bea Power", "F")], also=[twin], picks=made)
+
+    shown = site.race_predictions([site.Published("c2c-2026.json", doc, "aa")])
+    marks = {runner["name"]: runner.get("resolved") for runner in shown["runners"]}
+    assert marks == {"Ann Hynes": True, "Bea Power": None}
+
+    lines = scorecard.published(doc)
+    assert [line.resolved_by_hand for line in lines if line.name == "Ann Hynes"] == [True]
+    assert json.loads(pf.to_bytes(doc))["entrants"]["resolved_by_hand"] == 1

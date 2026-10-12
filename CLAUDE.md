@@ -13,7 +13,7 @@ prediction-then-error record. The plan is in [PLAN.md](PLAN.md).
   the code and say why in the commit message.
 - [docs/data-terms.md](docs/data-terms.md): what may be fetched, from where, under what
   terms, and how a runner asks to be removed. Add a source's row before fetching it.
-- **[PLAN.md](PLAN.md) section 13 is the log of designs the data refuted.** Forty-six entries
+- **[PLAN.md](PLAN.md) section 13 is the log of designs the data refuted.** Forty-seven entries
   and growing. Read it before changing the parser, the resolver, the course layer or the
   conditions layer: most of what looks like an odd choice in those modules is there because
   the obvious choice was measured and was wrong.
@@ -52,6 +52,8 @@ finishline participation the field forecast for a race with no start list: backt
                         written to data/participation.json, which `freeze` reads
 finishline freeze <race> the prediction file, hashed, refused inside 24 hours of the gun
                         (--daily from seven days out: only entrants no earlier file had)
+finishline review <race> the entrants the linker refused, beside the runners of their name,
+                        on a local page: a pick is read by the next freeze (identity/picks.py)
 finishline due          which live races want a daily or final file today
 finishline page <race>  the race page, rendered from the published prediction files
 finishline site         the public website: web/ filled from data/site/results.json,
@@ -74,7 +76,8 @@ interpreter is `.venv/Scripts/python.exe`.
   backtest, coverage on a synthetic fixture, schema and hash on the prediction file.
 - `pyproject.toml` with pinned major versions and a comment saying why for each pin.
 - Docs ship in the same commit as the change.
-- Never commit raw pages, entrant lists, the resolved history cache, credentials or `.env`.
+- Never commit raw pages, entrant lists, the hand picks in `data/links/`, the resolved history
+  cache, credentials or `.env`.
 
 ## Rules specific to this repository
 
@@ -97,7 +100,9 @@ interpreter is `.venv/Scripts/python.exe`.
   nothing else. Never the shirt size or anything else an entrant list alone holds. Ambiguous
   runners are excluded from every figure and counted, and a runner the resolver would not
   commit to gets no gender and no age either, because the row is there to say this project
-  does not know which person it is. Widened from "name and hometown, the prediction, nothing
+  does not know which person it is. An entrant the linker refused and Peter resolved by hand
+  before the race (`finishline review`, PLAN.md 13 item 47) is predicted like any other and
+  marked wherever shown; the picks in `data/links/` name people and are never committed. Widened from "name and hometown, the prediction, nothing
   else" on 2026-09-20 at Peter's request, for the runner table of an already-run race: the
   club's finish lists print no sex and no age, so the two columns are borrowed from that
   runner's other results on nlaa.ca, where they are public under the same name, and the page

@@ -223,6 +223,17 @@ a saved backtest that matches the code and the data, so nothing in `models/`, `h
 After the race, once NLAA posts the results: `finishline crawl --refresh-index`, then
 `finishline score c2c-2026`, then `finishline report`, commit and push. Scoring has no deadline.
 
+### 3c. Whether the hand picks were right, once the results print an age
+
+Entrants the linker refused can be resolved by hand since 2026-10-12 (`finishline review`,
+PLAN.md 13 item 47), and nothing yet measures whether those picks were right. When the
+association posts a race's results with age groups, each pick can be checked: the printed band
+either fits the birth years of the runner who was picked or it does not. That is a count of
+"N of M consistent" for the race page, read from `data/links/<race>.json` and the results.
+Athletics NorthEAST's own finish lists print no age, so this waits for nlaa.ca's page. Not
+built: the score card today reports the hand-resolved runners' error in a row of their own,
+which says how the predictions did and not whether the person was the right one.
+
 ## Open questions the assistant should not settle alone
 
 ### 4. The 2013 Tely 10, which the parser refuses on principle

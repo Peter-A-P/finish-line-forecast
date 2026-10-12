@@ -1509,6 +1509,8 @@ LIVE = DATA / "live.toml"
 # The fit a prediction week reuses (publish/daily.py). Local: it is every runner's draws.
 FREEZE_FITS = DATA / "cache" / "freeze"
 PREDICTIONS = Path("predictions")
+# Who a person says a refused entrant is (identity/picks.py). Names: local, never committed.
+LINKS = DATA / "links"
 
 
 @app.command()
@@ -1542,7 +1544,7 @@ def freeze(
     from datetime import UTC, datetime
 
     from finishline.conformal import split
-    from finishline.identity import link
+    from finishline.identity import link, picks
     from finishline.models import hierarchical
     from finishline.publish import daily, predictions
     from finishline.publish import freeze as freezing
@@ -1657,12 +1659,20 @@ def freeze(
     if snapshot_path is not None:
         # Only this race's entrants, where one list covers several (`LiveRace.entrant_events`).
         entered = entrants.for_events(entrants.load(snapshot_path), live.entrant_events)
-        links_ = link.link(entered, data.runners)
+        # Entrants the linker refuses and a person decided (`finishline review`).
+        chosen = picks.load(picks.path_for(LINKS, race_id))
+        links_ = link.link(entered, data.runners, chosen)
         challenger = _challenger_predictions(history, links_, live, covariates, conditions)
         snapshot: dict[str, Any] = {
             "file": snapshot_path.name,
             "sha256": predictions.sha256(snapshot_path.read_bytes()),
         }
+        if any(item.by_hand for item in links_):
+            # The picks are an input the snapshot does not hold, so they are hashed beside it.
+            snapshot["picks_sha256"] = predictions.sha256(picks.to_bytes(chosen))
+            typer.echo(
+                f"{sum(1 for item in links_ if item.by_hand)} entrant(s) resolved by hand"
+            )
         if live.entrant_events:
             # Which of the list's events this race is, so the field can be rebuilt from the
             # hashed snapshot by anyone holding it.
@@ -1885,6 +1895,58 @@ def _git_bytes(*args: str) -> bytes | None:
 
     done = subprocess.run(["git", *args], capture_output=True, check=False)
     return done.stdout if done.returncode == 0 else None
+
+
+@app.command(name="review")
+def review_entrants(
+    race_id: Annotated[str, typer.Argument(help="A race in data/live.toml, e.g. c2c-2026.")],
+    port: Annotated[int, typer.Option(help="Port to listen on, this machine only.")] = 8090,
+    first: Annotated[int, typer.Option(help="First year to read.")] = FIRST_YEAR,
+    last: Annotated[int, typer.Option(help="Last year to read.")] = LAST_YEAR,
+) -> None:
+    """Decide by hand who the entrants the linker refused are, on a page on this machine.
+
+    Shows every refused entrant on the latest snapshot beside the runners of their name, and
+    saves each pick to data/links/<race>.json (`identity/picks.py`), which the next `freeze`
+    reads. An entrant picked today is in tomorrow's daily file, marked as resolved by hand.
+    The page shows named people's histories side by side and is never part of the website.
+    """
+    from finishline.identity import pickpage, picks
+    from finishline.publish import daily
+    from finishline.publish import freeze as freezing
+
+    try:
+        live = freezing.load_live(LIVE, race_id)
+    except (KeyError, ValueError) as refusal:
+        typer.echo(f"refused: {refusal}", err=True)
+        raise typer.Exit(code=2) from refusal
+    snapshot_path = (
+        None
+        if live.entrant_list is None
+        else entrants.latest_snapshot(ENTRANTS, live.entrant_list)
+    )
+    if snapshot_path is None:
+        typer.echo("no snapshot of a start list for this race; there is nobody to review")
+        raise typer.Exit(code=2)
+    data = _dataset(first, last)
+    entered = entrants.for_events(entrants.load(snapshot_path), live.entrant_events)
+    published = {
+        key: (lines[-1][0], bool(lines[-1][1].get("resolved_by_hand")))
+        for key, lines in daily.published(PREDICTIONS, race_id).items()
+    }
+    desk = pickpage.Desk(
+        live.race,
+        entered,
+        data.runners,
+        data.races,
+        picks.path_for(LINKS, race_id),
+        published,
+        date.today(),
+    )
+    typer.echo(
+        f"{snapshot_path.name}: {len(entered)} entrants, {len(desk.refused)} refused by the linker"
+    )
+    pickpage.serve(desk, port)
 
 
 @app.command(name="due")

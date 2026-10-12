@@ -457,6 +457,9 @@ def race_predictions(
         }
         if "place" in runner:
             row["place"] = runner["place"]
+        if runner.get("resolved_by_hand"):
+            # Drawn as a mark after the name, with what it means under the table.
+            row["resolved"] = True
         runners.append(row)
     # After the race: each finisher's printed time and place beside their prediction.
     finished = {item["name"]: item for item in (card or {}).get("finishers", [])}

@@ -617,7 +617,9 @@
       var held = isNumber(r.actual) && r.i80[0] <= r.actual && r.actual <= r.i80[1];
       columns.forEach(function (c) {
         var cls = c[1] + (c[0] === "Off by" && held ? " close" : "");
-        row.appendChild(el("td", { "class": cls }, c[2](r)));
+        var cell = c[0] === "Name" ? nameCell(r) : el("td", null, c[2](r));
+        cell.className = cls;
+        row.appendChild(cell);
       });
       row.addEventListener("click", function () { drawField(runners, r); });
       body.appendChild(row);
@@ -625,6 +627,7 @@
     table.appendChild(body);
     wrap.appendChild(table);
     target.appendChild(wrap);
+    append(target, [resolvedNote(runners)]);
     target.appendChild(el("p", { id: "find-count", "class": "note" }));
     target.appendChild(optOut(race));
 
@@ -652,13 +655,49 @@
     return (seconds > 0 ? "+" : seconds < 0 ? "-" : "") + clock(Math.abs(seconds));
   }
 
+  /* The mark after the name of a runner whose identity was decided by hand before the race
+     (`resolved_by_hand` in the prediction file): the entrant shares a name with another runner
+     in the archive, the start list prints no age, and a person chose between the histories.
+     The runner is predicted like any other, so the row is an ordinary row; the mark and the
+     note under the table are how the page says where that prediction's history came from. */
+  var RESOLVED = "More than one runner in the archive has this name. Which of them entered " +
+    "was decided by hand before the race, from where and when each had raced.";
+
+  function resolvedMark() {
+    return el("span", { "class": "name-mark", title: RESOLVED, role: "img", "aria-label": "Resolved by hand before the race. " + RESOLVED }, "i");
+  }
+
+  function nameCell(r) {
+    var cell = el("td", null, r.name);
+    if (r.resolved) { append(cell, [document.createTextNode(" "), resolvedMark()]); }
+    return cell;
+  }
+
+  /* Written out under the table as well, because a tooltip does not exist on a touch screen. */
+  function resolvedNote(runners) {
+    var marked = runners.filter(function (r) { return r.resolved; }).length;
+    if (!marked) { return null; }
+    var note = el("p", { "class": "note" });
+    append(note, [
+      resolvedMark(),
+      document.createTextNode(" "),
+      el("strong", null, "Potentially duplicate names, resolved before the race"),
+      document.createTextNode(": " + count(marked) + (marked === 1 ? " runner is" : " runners are") +
+        " marked this way. A runner so marked shares a name with another runner in the archive, and the " +
+        "entrant list prints no age to tell them apart, so which of them entered was decided " +
+        "by hand before the race, from where and when each had raced. The prediction is then " +
+        "made like every other, and the mark is in the tagged prediction file too.")
+    ]);
+    return note;
+  }
+
   /* The name, and for a finisher the archive would not commit to, the tag that says so. The
      resolver's own sentence rides on the tag's tooltip rather than in a cell of its own: it
      is the same sentence for every such row here, it is long, and a column wide enough to
      hold it pushed the numbers off the side of a phone. The plain-sight copy of it is the
      bolded note above the table, because a tooltip does not exist on a touch screen. */
   function named(r) {
-    var cell = el("td", null, r.name);
+    var cell = nameCell(r);
     if (r.excluded) {
       cell.appendChild(document.createTextNode(" "));
       cell.appendChild(el("span", { "class": "name-tag", title: r.excluded }, "(potential duplicate)"));
@@ -830,6 +869,7 @@
           " of the " + count(info.finishers) + " finishers.")
     ]);
     target.appendChild(borrowed);
+    append(target, [resolvedNote(runners)]);
     target.appendChild(el("p", { id: "find-count", "class": "note" }));
     target.appendChild(optOut(race));
     applySearch();
@@ -904,7 +944,7 @@
       } else {
         var r = named[next++];
         if (!r) { break; }
-        append(row, [el("td", { "class": "num" }, rank), el("td", null, r.name), el("td", null, r.hometown || ""),
+        append(row, [el("td", { "class": "num" }, rank), nameCell(r), el("td", null, r.hometown || ""),
           el("td", null, Math.round(r.place.low) + " to " + Math.round(r.place.high)),
           el("td", { "class": "num" }, clock(r.seconds)), el("td", null, clock(r.i80[0]) + " to " + clock(r.i80[1]))]);
       }

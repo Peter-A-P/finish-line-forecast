@@ -7,7 +7,9 @@ from the saved backtest, and hands all of it here.
 
 What happens to each entrant:
 
-1. **Excluded if the linker refused them** (`identity.link`), and counted in `entrants`.
+1. **Excluded if the linker refused them** (`identity.link`), and counted in `entrants`,
+   unless a person chose who they are before the race (`identity.picks`): that entrant is
+   predicted like any other, and their line is marked `resolved_by_hand`.
 2. **A finish-time distribution** from `Posterior.predict`: the linked runner's own history,
    or the group prior for their listed sex.
 3. **Intervals adjusted by the conformal shift for their history depth**, measured on every
@@ -397,6 +399,7 @@ def assemble(
                 place_high=high_place,
                 first_published=None if only_new else source,
                 supersedes=source if only_new else None,
+                resolved_by_hand=item.by_hand,
             )
         )
 
@@ -421,6 +424,10 @@ def assemble(
         "ambiguous": tally[Status.AMBIGUOUS.value],
         "predicted": len(lines),
     }
+    by_hand = sum(1 for item in predicted if item.by_hand)
+    if by_hand:
+        # Of the whole predicted field, not only of the lines a daily file carries.
+        entrants["resolved_by_hand"] = by_hand
     if earlier:
         entrants["published_before"] = len(carried)
     if reissued:

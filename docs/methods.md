@@ -154,6 +154,17 @@ runners in the archive share the entrant's first name and no more than 2% of the
 listed sex, the list is taken to be the mistake and the sex is read as not stated (PLAN.md
 section 13 item 46: four men on Cape to Cabot's 2026 list were entered as female).
 
+An entrant excluded that way can be resolved by hand before the race (`finishline review`,
+`identity/picks.py`, PLAN.md section 13 item 47). A page on the local machine shows the
+entrant beside every runner of their name, and a person may give them to one of the runners
+the archive commits to, or to none, recording what the choice was made on. That entrant is
+then predicted like any other, from the next daily file on. The line is marked
+`resolved_by_hand`, the file counts such lines and carries the hash of the picks, every table
+that shows the runner marks the name, and the score reports them with the field and again on
+their own. The picks themselves stay off the repository: they say which of two people of one
+name entered, which no results page prints. The backtest has no such step, so its figures
+describe the rules alone.
+
 A race without a list (Run to Remember) has its field forecast (`models/participation.py`,
 PLAN.md 5.6 and section 13 item 42). Every runner with a finish in the eighteen months before
 the race is a candidate, and a logistic regression on what the archive says about them (did

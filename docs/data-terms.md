@@ -379,6 +379,16 @@ rather than quietly averaged in: 55 of the 282 editions.
 and the window runs from there to roughly when the back of the field finishes. It is an
 argument rather than a constant so the assumption can be moved and the effect measured.
 
+## Entrants resolved by hand
+
+`finishline review <race>` shows, on the local machine only, each entrant the linker could
+not tell apart beside the public results of every runner of that name, so that a person can
+say which of them entered (PLAN.md section 13 item 47). Nothing is fetched for it: it reads
+the saved entrant list and the cached results. The picks are saved in `data/links/`, which is
+gitignored and never published, because which of two people of one name entered a race is not
+something any results page prints. What is published is a mark on that runner's prediction
+line, a count, and a hash of the picks file.
+
 ## Removal
 
 A runner who does not want to be named emails the address in the crawler's user agent; the

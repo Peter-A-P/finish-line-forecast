@@ -81,6 +81,8 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["ANN201"]  # a test function returns None and saying so on every one is noise
+# The review page is one HTML document in a string; its CSS and script lines are not Python's
+"src/finishline/identity/pickpage.py" = ["E501"]
 
 [tool.mypy]
 files = ["src", "tests"]

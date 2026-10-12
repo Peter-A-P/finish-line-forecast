@@ -959,6 +959,26 @@ td.why { font-size: 0.82rem; font-style: italic; white-space: nowrap; }
 }
 #everyone td[title] { border-bottom: 1px dotted var(--line); }
 
+/* The i in a circle after the name of a runner resolved by hand before the race. Drawn, not
+   a character from a symbol font, so it is the same on every machine; the note under the
+   table repeats it beside the sentence it stands for. */
+.name-mark {
+  display: inline-block;
+  width: 1.05em;
+  height: 1.05em;
+  line-height: 1em;
+  text-align: center;
+  font-family: var(--serif);
+  font-size: 0.82em;
+  font-style: italic;
+  font-weight: 600;
+  color: var(--accent-ink);
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  cursor: help;
+  vertical-align: 0.08em;
+}
+
 /* A note whose opening words are the thing a reader must not miss: the tag in the table
    above it, and where two of its columns came from. Bold alone is not enough in a colour
    this faint. */

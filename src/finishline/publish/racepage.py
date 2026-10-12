@@ -34,6 +34,20 @@ def _cell(text: object) -> str:
     return str(text).replace("|", "/")
 
 
+# After a name: the linker refused this entrant and a person chose who they are.
+MARK = " (i)"
+RESOLVED_NOTE = (
+    f"A name followed by{MARK} is one more than one runner in the archive has. The start list "
+    "prints no age to tell them apart, so which of them entered was decided by hand before the "
+    "race, from where and when each had raced, and the prediction file marks the line "
+    "`resolved_by_hand`."
+)
+
+
+def _named(runner: dict[str, Any]) -> str:
+    return _cell(runner["name"]) + (MARK if runner.get("resolved_by_hand") else "")
+
+
 def before_the_gun(files: Sequence[tuple[str, dict[str, Any], str]]) -> str:
     """The page, from (file name, document, sha256) in the order they were published."""
     if not files:
@@ -86,6 +100,8 @@ def before_the_gun(files: Sequence[tuple[str, dict[str, Any], str]]) -> str:
             "unedited.",
             "",
         ]
+    if any(runner.get("resolved_by_hand") for _, runner in everyone):
+        lines += [RESOLVED_NOTE, ""]
     lines += [
         "| Name | Hometown | Prior results | Predicted | 80% interval | First published |",
         "|---|---|---:|---:|---|---|",
@@ -93,7 +109,7 @@ def before_the_gun(files: Sequence[tuple[str, dict[str, Any], str]]) -> str:
     for name, runner in everyone:
         low, high = runner["interval_80"]
         lines.append(
-            f"| {_cell(runner['name'])} | {_cell(runner['hometown'] or '')} "
+            f"| {_named(runner)} | {_cell(runner['hometown'] or '')} "
             f"| {runner['prior_results']} | {clock(runner['seconds'])} "
             f"| {clock(low)} to {clock(high)} | {_source(name, runner)} |"
         )
@@ -155,7 +171,7 @@ def top_table(final: dict[str, Any]) -> list[str]:
         place = runner["place"]
         low, high = runner["interval_80"]
         lines.append(
-            f"| {rank} | {_cell(runner['name'])} | {_cell(runner['hometown'] or '')} "
+            f"| {rank} | {_named(runner)} | {_cell(runner['hometown'] or '')} "
             f"| {place['median']:.0f} | {place['low']:.0f} to {place['high']:.0f} "
             f"| {clock(runner['seconds'])} | {clock(low)} to {clock(high)} |"
         )

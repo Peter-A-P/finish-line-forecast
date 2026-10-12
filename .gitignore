@@ -38,3 +38,7 @@ data/cache/eccc/
 # The hand-labelled resolution pairs (names as printed): kept local until it is decided
 # whether a labelled sample of named people is committed (docs/todo.md item 6)
 data/labels/
+
+# Who a person says a refused entrant is (identity/picks.py): which of two people of one name
+# entered a race, which no results page prints. Never committed.
+data/links/

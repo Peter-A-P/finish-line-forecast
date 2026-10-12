@@ -40,6 +40,16 @@ listed sex is read as not stated. Everything above still applies: one runner of 
 linked, two are a refusal. A linked entrant then carries the sex the results printed, because
 the models read a runner's sex from the entrant. An entrant with nobody of their name in the
 archive keeps the sex they listed; a first name alone is not enough to change it.
+
+**Unless a person chose, before the race** (PLAN.md section 13 item 47, `identity.picks`). An
+entrant this module refuses can be given to one of the runners of their name by hand, or
+called a newcomer, on evidence the list does not print: one candidate last raced in 2011 and
+the other ran this course a year ago. The pick is an input like the list is, so the line it
+makes is marked (`Link.by_hand`, `resolved_by_hand` in the prediction file) and counted, and
+every page that shows the runner says so. A pick decides only what this module refused: it
+never overrules a link the rules made, it can only choose a runner the resolver committed to,
+and it is ignored where two entrants on the list share the name, because it does not say
+which of them it means.
 """
 
 from __future__ import annotations
@@ -50,6 +60,7 @@ from dataclasses import dataclass, replace
 from enum import StrEnum
 
 from finishline.identity.normalise import name_key, town_key
+from finishline.identity.picks import NEWCOMER, Pick
 from finishline.identity.resolve import Runner
 from finishline.ingest.entrants import Entrant
 
@@ -70,32 +81,56 @@ class Link:
     """One entrant, and what the archive can say about who they are.
 
     `entrant` is the list's own line, except the sex of a linked entrant whose listed sex the
-    archive overruled, which is the runner's.
+    archive overruled, which is the runner's. `by_hand` says a person made the decision this
+    module would not (`identity.picks`).
     """
 
     entrant: Entrant
     status: Status
     runner: Runner | None
     reason: str
+    by_hand: bool = False
 
 
-def link(entrants: Sequence[Entrant], runners: Iterable[Runner]) -> list[Link]:
-    """Every entrant, in list order, linked to at most one runner."""
+Index = tuple[dict[str, list[Runner]], dict[str, Counter[str]]]
+
+
+def index(runners: Iterable[Runner]) -> Index:
+    """The archive by name key, and how each first name splits by sex."""
     by_key: dict[str, list[Runner]] = defaultdict(list)
     first_names: dict[str, Counter[str]] = defaultdict(Counter)
     for runner in runners:
         by_key[name_key(runner.name)].append(runner)
         if runner.sex is not None and not runner.ambiguous:
             first_names[_first_name(runner.name)][runner.sex] += 1
+    return by_key, first_names
+
+
+def candidates_for(entrant: Entrant, archive: Index) -> list[Runner]:
+    """The runners of this entrant's name whose sex the list does not rule out."""
+    by_key, first_names = archive
+    listed = None if _overruled(entrant, first_names) else entrant.sex
+    return [
+        runner
+        for runner in by_key.get(name_key(entrant.name), [])
+        if listed is None or runner.sex is None or runner.sex == listed
+    ]
+
+
+def link(
+    entrants: Sequence[Entrant], runners: Iterable[Runner], picks: Iterable[Pick] = ()
+) -> list[Link]:
+    """Every entrant, in list order, linked to at most one runner.
+
+    `picks` are the decisions a person made about entrants this would otherwise refuse.
+    """
+    archive = index(runners)
+    listed_names = Counter(name_key(entrant.name) for entrant in entrants)
+    by_pick = {pick.key: pick for pick in picks}
 
     first_pass: list[Link] = []
     for entrant in entrants:
-        listed = None if _overruled(entrant, first_names) else entrant.sex
-        candidates = [
-            runner
-            for runner in by_key.get(name_key(entrant.name), [])
-            if listed is None or runner.sex is None or runner.sex == listed
-        ]
+        candidates = candidates_for(entrant, archive)
         if not candidates:
             first_pass.append(Link(entrant, Status.NEW, None, "no runner of this name"))
         elif any(runner.ambiguous for runner in candidates):
@@ -131,6 +166,13 @@ def link(entrants: Sequence[Entrant], runners: Iterable[Runner]) -> list[Link]:
             )
         else:
             first_pass.append(Link(entrant, Status.LINKED, candidates[0], "one runner"))
+        pick = by_pick.get(name_key(entrant.name))
+        if (
+            pick is not None
+            and first_pass[-1].status is Status.AMBIGUOUS
+            and listed_names[pick.key] == 1
+        ):
+            first_pass[-1] = _picked(entrant, candidates, pick) or first_pass[-1]
 
     claimed = Counter(
         item.runner.runner_id for item in first_pass if item.runner is not None
@@ -146,6 +188,35 @@ def link(entrants: Sequence[Entrant], runners: Iterable[Runner]) -> list[Link]:
         else item
         for item in first_pass
     ]
+
+
+def _picked(entrant: Entrant, candidates: Sequence[Runner], pick: Pick) -> Link | None:
+    """The link a person chose for an entrant this module refused, or None when it cannot stand.
+
+    It cannot stand when the runner it names is no longer one the resolver commits to: the
+    archive has moved since the pick, and the entrant goes back to being refused.
+    """
+    committed = [runner for runner in candidates if not runner.ambiguous]
+    if pick.choice == NEWCOMER:
+        return Link(
+            entrant,
+            Status.NEW,
+            None,
+            f"none of the {len(candidates)} runners of this name, chosen by hand",
+            by_hand=True,
+        )
+    chosen = pick.among(committed)
+    if chosen is None:
+        return None
+    # The models read a runner's sex from the entrant, as where the archive overrules a list.
+    listed = entrant if chosen.sex in (None, entrant.sex) else replace(entrant, sex=chosen.sex)
+    return Link(
+        listed,
+        Status.LINKED,
+        chosen,
+        f"chosen by hand from the {len(candidates)} runners of this name",
+        by_hand=True,
+    )
 
 
 def _first_name(name: str) -> str:

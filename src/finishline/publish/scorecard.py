@@ -117,6 +117,8 @@ class Published:
     place_high: float | None
     # The keyed hash a redacted line carries in place of a name (`publish/redact.py`).
     redacted: str | None = None
+    # The linker refused this entrant and a person chose who they are (`identity.picks`).
+    resolved_by_hand: bool = False
 
     @classmethod
     def read(cls, position: int, record: Mapping[str, Any]) -> Published:
@@ -135,6 +137,7 @@ class Published:
             place_low=None if place is None else float(place["low"]),
             place_high=None if place is None else float(place["high"]),
             redacted=record.get("redacted"),
+            resolved_by_hand=bool(record.get("resolved_by_hand", False)),
         )
 
     def interval(self, level: str) -> tuple[float, float]:
@@ -443,6 +446,17 @@ def evaluate(
             if not redact.default().hides(item.line.name)
         ],
     }
+    by_hand = [item for item in matching.matches if item.line.resolved_by_hand]
+    if by_hand:
+        # Entrants the linker refused and a person decided before the race (`identity.picks`).
+        # Scored on their own as well as with everyone, so a reader can see what the picks
+        # were worth and that the headline does not lean on them.
+        mine = [item for item in finishes if item.line.resolved_by_hand]
+        card["resolved_by_hand"] = {
+            "predicted": len(by_hand),
+            "error": _errors(mine, carry_forward),
+            "intervals": _intervals(mine),
+        }
     forecast = doc.get("field_forecast")
     if forecast is not None:
         # A race with no start list: the file named its runners from the participation
@@ -508,6 +522,24 @@ NOT_FOUND_NOTE = (
 )
 
 
+# After a name, in a table written as Markdown: this entrant was resolved by hand.
+MARK = " (i)"
+BY_HAND_NOTE = (
+    f"\"Resolved by hand\" and the{MARK} after a name mark entrants who share a name with more "
+    "than one runner in the archive. The start list prints no age to tell them apart, so the "
+    "linker refused them, and which runner entered was decided by a person before the race, "
+    "from where and when each had raced. They are in every row above as well; the row of their "
+    "own is there so the picks can be judged apart from the model."
+)
+
+
+def _by_hand_rows(card: Mapping[str, Any]) -> list[str]:
+    by_hand = card.get("resolved_by_hand")
+    if by_hand is None:
+        return []
+    return [f"| Of those, resolved by hand before the race | {by_hand['predicted']} |"]
+
+
 def race_page(card: Mapping[str, Any], matching: Matching) -> str:
     """The race's page: the counts, the error tables, and every finisher side by side."""
     race = card["race"]
@@ -527,6 +559,7 @@ def race_page(card: Mapping[str, Any], matching: Matching) -> str:
         f"| Linked to a history in the archive | {field['linked']} |",
         f"| Excluded at freeze as ambiguous | {field['excluded_at_freeze']} |",
         f"| Predicted | {field['predicted']} |",
+        *_by_hand_rows(card),
         f"| Predicted and finished | {field['finished']} |",
         f"| Predicted, did not finish | {field['did_not_finish']} |",
         f"| Predicted, not found in the results | {field['not_found']} |",
@@ -549,7 +582,9 @@ def race_page(card: Mapping[str, Any], matching: Matching) -> str:
         "|---|---:|---|---|---|---:|---|---|---|",
     ]
     errors = card["error"]
-    for label, record in [("All", errors["all"]), *errors["by_stratum"].items()]:
+    by_hand = card.get("resolved_by_hand")
+    extra = [] if by_hand is None else [(f"Resolved by hand{MARK}", by_hand["error"])]
+    for label, record in [("All", errors["all"]), *errors["by_stratum"].items(), *extra]:
         paired = record["carry_forward"]
         lines.append(
             f"| {label} | {record['runners']} | {ci(record['mae_minutes'])} "
@@ -562,6 +597,7 @@ def race_page(card: Mapping[str, Any], matching: Matching) -> str:
         "",
         "Negative in the last column means the model was closer. Bias is predicted minus actual, "
         "so positive means predicted too slow.",
+        *([] if by_hand is None else ["", BY_HAND_NOTE]),
         "",
         "## Intervals",
         "",
@@ -628,7 +664,8 @@ def race_page(card: Mapping[str, Any], matching: Matching) -> str:
         sign = "+" if error >= 0 else "-"
         place = item.result.place if item.result is not None else None
         lines.append(
-            f"| {who['name']} | {who['hometown'] or ''} | {line.prior_results} "
+            f"| {who['name']}{MARK if line.resolved_by_hand else ''} "
+            f"| {who['hometown'] or ''} | {line.prior_results} "
             f"| {_clock(line.seconds)} | {_clock(low)} to {_clock(high)} "
             f"| {_clock(item.actual)} | {sign}{_clock(abs(error))} "
             f"| {_place_range(line)} "
@@ -700,6 +737,7 @@ def story(
             "out_by": round(actual - line.seconds, 1),
             "places_out": places,
             "excluded": None,
+            **({"resolved": True} if line.resolved_by_hand else {}),
         })
 
     paired = [

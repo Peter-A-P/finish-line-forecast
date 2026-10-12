@@ -35,6 +35,15 @@ A daily line may carry `supersedes`, the name of an earlier daily file: the entr
 that file, predicted from a different history, and this line replaces that one from today
 (`publish/daily.py`). The earlier file is not touched.
 
+RESOLVED BY HAND
+----------------
+A line may carry `"resolved_by_hand": true`. The entrant shares a name with more than one
+runner in the archive, the linker refused to choose, and a person chose before the file was
+written (`identity.picks`, PLAN.md 13 item 47). `entrants.resolved_by_hand` counts them and
+`entrant_snapshot.picks_sha256` is the hash of the picks as they stood, so the prediction
+still names every input it was made from. The picks themselves are not published: they say
+which of two people of one name entered, and no results page prints that.
+
 FORECAST FIELDS
 ---------------
 A race with no start list has no daily files and one final file whose runners are the ones
@@ -117,6 +126,8 @@ class RunnerPrediction:
     redacted: str | None = None
     # In a daily file only: the earlier daily file whose line for this entrant this replaces.
     supersedes: str | None = None
+    # The linker refused this entrant and a person chose who they are (`identity.picks`).
+    resolved_by_hand: bool = False
 
     def as_record(self) -> dict[str, Any]:
         record: dict[str, Any] = {
@@ -139,6 +150,8 @@ class RunnerPrediction:
             record["redacted"] = self.redacted
         if self.supersedes is not None:
             record["supersedes"] = self.supersedes
+        if self.resolved_by_hand:
+            record["resolved_by_hand"] = True
         return record
 
 
@@ -270,7 +283,7 @@ def validate(doc: dict[str, Any]) -> list[str]:
             problems.append("field_forecast.simulated_field.largest missing")
     allowed = {
         "name", "hometown", "prior_results", "seconds", "interval_80", "interval_90", "place",
-        "first_published", "redacted", "supersedes",
+        "first_published", "redacted", "supersedes", "resolved_by_hand",
     }
     for position, runner in enumerate(runners):
         where = f"runners[{position}]"
@@ -296,6 +309,8 @@ def validate(doc: dict[str, Any]) -> list[str]:
         except (KeyError, TypeError, ValueError) as error:
             problems.append(f"{where} incomplete: {error}")
             continue
+        if runner.get("resolved_by_hand", True) is not True:
+            problems.append(f"{where} resolved_by_hand is either true or absent")
         if not str(runner.get("name", "")).strip():
             problems.append(f"{where} has no name")
         if not low80 <= seconds <= high80:

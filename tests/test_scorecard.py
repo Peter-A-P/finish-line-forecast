@@ -118,10 +118,10 @@ def test_matching_is_by_name_key_and_refuses_to_guess() -> None:
     assert matching.unpredicted_finishers == 5  # two Walshes, the other Power, Fay, Gus
 
 
-def scored() -> tuple[dict[str, Any], sc.Matching]:
+def scored(by_hand: bool = False) -> tuple[dict[str, Any], sc.Matching]:
     prediction = doc(
         [
-            line("Ann Hynes", 6000.0, prior=5),
+            replace(line("Ann Hynes", 6000.0, prior=5), resolved_by_hand=by_hand),
             line("Bea Power", 7000.0, prior=5),
             line("Cy Walsh", 6500.0, prior=0),
             line("Dee Noshow", 8000.0, prior=1),
@@ -179,6 +179,23 @@ def test_carry_forward_is_compared_on_the_runners_it_answered_for() -> None:
     assert paired["difference_minutes"][0] == pytest.approx((-100 + 0) / 2 / 60)
     low, high = paired["difference_minutes"][1:]
     assert low <= paired["difference_minutes"][0] <= high
+
+
+def test_entrants_resolved_by_hand_are_scored_with_everyone_and_on_their_own() -> None:
+    """PLAN.md 13 item 47: the picks are judged apart from the model, and the page says so."""
+    plain, matching = scored()
+    assert "resolved_by_hand" not in plain
+    assert "esolved by hand" not in sc.race_page(plain, matching)
+
+    card, matching = scored(by_hand=True)
+    assert card["error"] == plain["error"], "the headline is the same field either way"
+    mine = card["resolved_by_hand"]
+    assert mine["predicted"] == 1 and mine["error"]["runners"] == 1
+    assert mine["error"]["mae_minutes"][0] == pytest.approx(100 / 60)
+    page = sc.race_page(card, matching)
+    assert "| Of those, resolved by hand before the race | 1 |" in page
+    assert "| Resolved by hand (i) | 1 |" in page
+    assert "| Ann Hynes (i) |" in page and "| Bea Power |" in page
 
 
 def test_the_card_is_canonical_json_with_no_nan() -> None:
