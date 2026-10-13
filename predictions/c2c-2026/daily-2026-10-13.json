@@ -1,0 +1,316 @@
+{
+  "conditions": {
+    "bearing_deg": 321.0,
+    "conditions_mean": {
+      "log_distance_5k": 1.3863,
+      "observed": 1.0,
+      "sun": 0.0275,
+      "tailwind": -6.517,
+      "temp_c": 9.8303,
+      "wind": 19.1337
+    },
+    "forecast": {
+      "sun_share": 0.028,
+      "temp_c": 7.43,
+      "wind_east_kmh": 21.53,
+      "wind_kmh": 22.7,
+      "wind_north_kmh": 7.14
+    },
+    "forecast_error": {
+      "east_bias": -5.5218,
+      "east_sd": 14.1334,
+      "mornings": 36,
+      "north_bias": -5.4315,
+      "north_sd": 12.3834,
+      "temp_bias": -2.4643,
+      "temp_sd": 2.8947,
+      "wind_bias": -9.0739,
+      "wind_sd": 7.7923
+    },
+    "hours": 3,
+    "lead_days": 5,
+    "source": "Open-Meteo forecast, St. John's airport",
+    "used": true
+  },
+  "entrant_snapshot": {
+    "file": "c2c-2026_ane-list_20261008T2253Z.html",
+    "picks_sha256": "e96939147f59ed66e52e75bfb0303e268ff5fdcabc407714add22adf1ffd9257",
+    "sha256": "7548c7706a39193645b8fec5e2423a3c3c709c386f630c3bc0937c49fcf23f65"
+  },
+  "entrants": {
+    "ambiguous": 10,
+    "linked": 460,
+    "listed": 500,
+    "new": 30,
+    "predicted": 14,
+    "published_before": 477,
+    "reissued": 1,
+    "resolved_by_hand": 14
+  },
+  "frozen_at": "2026-10-13T08:47:29.427214+00:00",
+  "gun": "2026-10-18T08:00:00-02:30",
+  "kind": "daily",
+  "model": {
+    "blend": {
+      "centre": "(1 - w) * log(hierarchical) + w * log(lightgbm)",
+      "challenger_answered": 490,
+      "distribution": "the hierarchical model's draws, scaled onto the blended centre",
+      "weight": 0.65
+    },
+    "calibration": {
+      "80": {
+        "0": 0.0188678501724322,
+        "1": 0.01744992190553951,
+        "2 to 3": 0.014572735732509834,
+        "4 or more": 0.0002721728411323454
+      },
+      "90": {
+        "0": 0.038112103969682565,
+        "1": 0.02852210945618694,
+        "2 to 3": 0.029386054297408037,
+        "4 or more": 0.004181407023878592
+      }
+    },
+    "commit": "987d986c960862501cc3382f44a748313ba81867",
+    "diagnostics": {
+      "divergences": 0.0,
+      "draws": 1200.0,
+      "max_rhat": 2.090390126902807,
+      "min_ess_bulk": 5.463429791477384
+    },
+    "fit_on_results_before": "2026-10-18",
+    "name": "blend",
+    "settings": {
+      "chains": 4,
+      "draws": 300,
+      "months": 3,
+      "tune": 400,
+      "weather": 1
+    }
+  },
+  "newcomers": {
+    "course_id": "cape-to-cabot-20000",
+    "method": "course pool"
+  },
+  "race": {
+    "course_id": "cape-to-cabot-20000",
+    "date": "2026-10-18",
+    "distance_m": 20000.0,
+    "name": "Cape to Cabot",
+    "race_id": "c2c-2026"
+  },
+  "runners": [
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        4742.6,
+        5217.3
+      ],
+      "interval_90": [
+        4655.6,
+        5341.4
+      ],
+      "name": "Stephen Barnes",
+      "prior_results": 9,
+      "resolved_by_hand": true,
+      "seconds": 4980.2
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        5901.2,
+        6610.7
+      ],
+      "interval_90": [
+        5775.1,
+        6785.8
+      ],
+      "name": "Matthew Power",
+      "prior_results": 21,
+      "resolved_by_hand": true,
+      "seconds": 6221.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        5831.3,
+        6835.8
+      ],
+      "interval_90": [
+        5588.2,
+        7153.0
+      ],
+      "name": "Ryan Slaney",
+      "prior_results": 1,
+      "resolved_by_hand": true,
+      "seconds": 6259.6,
+      "supersedes": "daily-2026-10-11.json"
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6092.7,
+        6688.1
+      ],
+      "interval_90": [
+        5964.9,
+        6811.9
+      ],
+      "name": "John Walsh",
+      "prior_results": 61,
+      "resolved_by_hand": true,
+      "seconds": 6378.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6062.7,
+        7297.2
+      ],
+      "interval_90": [
+        5818.1,
+        7651.8
+      ],
+      "name": "Kyle Smith",
+      "prior_results": 1,
+      "resolved_by_hand": true,
+      "seconds": 6678.3
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6415.3,
+        7050.1
+      ],
+      "interval_90": [
+        6265.5,
+        7227.2
+      ],
+      "name": "Andrew Smith",
+      "prior_results": 57,
+      "resolved_by_hand": true,
+      "seconds": 6732.0
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6478.2,
+        7151.1
+      ],
+      "interval_90": [
+        6260.2,
+        7451.0
+      ],
+      "name": "David Martin",
+      "prior_results": 17,
+      "resolved_by_hand": true,
+      "seconds": 6796.8
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6885.0,
+        7683.1
+      ],
+      "interval_90": [
+        6716.7,
+        7823.6
+      ],
+      "name": "Alex Porter",
+      "prior_results": 8,
+      "resolved_by_hand": true,
+      "seconds": 7277.4
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        6914.8,
+        7730.1
+      ],
+      "interval_90": [
+        6765.1,
+        7995.1
+      ],
+      "name": "Daniel Whalen",
+      "prior_results": 5,
+      "resolved_by_hand": true,
+      "seconds": 7298.6
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        7177.9,
+        7991.1
+      ],
+      "interval_90": [
+        6981.0,
+        8150.4
+      ],
+      "name": "Seamus O'Brien",
+      "prior_results": 7,
+      "resolved_by_hand": true,
+      "seconds": 7567.9
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        8317.2,
+        9371.4
+      ],
+      "interval_90": [
+        8028.4,
+        9633.1
+      ],
+      "name": "Kim O'Brien",
+      "prior_results": 4,
+      "resolved_by_hand": true,
+      "seconds": 8815.7
+    },
+    {
+      "hometown": "Mount Pearl",
+      "interval_80": [
+        8419.2,
+        9300.1
+      ],
+      "interval_90": [
+        8211.5,
+        9495.3
+      ],
+      "name": "Bill Saunders",
+      "prior_results": 40,
+      "resolved_by_hand": true,
+      "seconds": 8819.8
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        9353.3,
+        10252.3
+      ],
+      "interval_90": [
+        9097.4,
+        10611.0
+      ],
+      "name": "Linda Ryan",
+      "prior_results": 15,
+      "resolved_by_hand": true,
+      "seconds": 9801.3
+    },
+    {
+      "hometown": "Avondale",
+      "interval_80": [
+        10545.5,
+        13228.4
+      ],
+      "interval_90": [
+        10194.1,
+        15438.8
+      ],
+      "name": "Jennifer Ryan",
+      "prior_results": 2,
+      "resolved_by_hand": true,
+      "seconds": 11476.6
+    }
+  ],
+  "schema_version": 1
+}
