@@ -1,0 +1,118 @@
+{
+  "conditions": {
+    "bearing_deg": 321.0,
+    "conditions_mean": {
+      "log_distance_5k": 1.3863,
+      "observed": 1.0,
+      "sun": 0.0004,
+      "tailwind": -7.926,
+      "temp_c": 6.7683,
+      "wind": 10.1057
+    },
+    "forecast": {
+      "sun_share": 0.0,
+      "temp_c": 4.73,
+      "wind_east_kmh": 15.5,
+      "wind_kmh": 16.2,
+      "wind_north_kmh": 3.81
+    },
+    "forecast_error": {
+      "east_bias": -5.8608,
+      "east_sd": 10.7235,
+      "mornings": 36,
+      "north_bias": -2.6513,
+      "north_sd": 8.1115,
+      "temp_bias": -2.0969,
+      "temp_sd": 2.666,
+      "wind_bias": -9.0819,
+      "wind_sd": 6.7723
+    },
+    "hours": 3,
+    "lead_days": 4,
+    "source": "Open-Meteo forecast, St. John's airport",
+    "used": true
+  },
+  "entrant_snapshot": {
+    "file": "c2c-2026_ane-list_20261013T2253Z.html",
+    "picks_sha256": "e96939147f59ed66e52e75bfb0303e268ff5fdcabc407714add22adf1ffd9257",
+    "sha256": "7d4489276e9a542746cfa18a11d34b6eebddda7f7e26cf1e8529a54c0f4789ab"
+  },
+  "entrants": {
+    "ambiguous": 10,
+    "linked": 460,
+    "listed": 501,
+    "new": 31,
+    "predicted": 1,
+    "published_before": 490,
+    "resolved_by_hand": 14
+  },
+  "frozen_at": "2026-10-14T08:47:25.832662+00:00",
+  "gun": "2026-10-18T08:00:00-02:30",
+  "kind": "daily",
+  "model": {
+    "blend": {
+      "centre": "(1 - w) * log(hierarchical) + w * log(lightgbm)",
+      "challenger_answered": 491,
+      "distribution": "the hierarchical model's draws, scaled onto the blended centre",
+      "weight": 0.65
+    },
+    "calibration": {
+      "80": {
+        "0": 0.0188678501724322,
+        "1": 0.01744992190553951,
+        "2 to 3": 0.014572735732509834,
+        "4 or more": 0.0002721728411323454
+      },
+      "90": {
+        "0": 0.038112103969682565,
+        "1": 0.02852210945618694,
+        "2 to 3": 0.029386054297408037,
+        "4 or more": 0.004181407023878592
+      }
+    },
+    "commit": "84beb05131dfacd402d2ad1a79b4ca26564c016d",
+    "diagnostics": {
+      "divergences": 0.0,
+      "draws": 1200.0,
+      "max_rhat": 2.090390126902807,
+      "min_ess_bulk": 5.463429791477384
+    },
+    "fit_on_results_before": "2026-10-18",
+    "name": "blend",
+    "settings": {
+      "chains": 4,
+      "draws": 300,
+      "months": 3,
+      "tune": 400,
+      "weather": 1
+    }
+  },
+  "newcomers": {
+    "course_id": "cape-to-cabot-20000",
+    "method": "course pool"
+  },
+  "race": {
+    "course_id": "cape-to-cabot-20000",
+    "date": "2026-10-18",
+    "distance_m": 20000.0,
+    "name": "Cape to Cabot",
+    "race_id": "c2c-2026"
+  },
+  "runners": [
+    {
+      "hometown": null,
+      "interval_80": [
+        6850.8,
+        10125.8
+      ],
+      "interval_90": [
+        6539.2,
+        10712.9
+      ],
+      "name": "Eleanor Colledge",
+      "prior_results": 0,
+      "seconds": 8365.6
+    }
+  ],
+  "schema_version": 1
+}
