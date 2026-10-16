@@ -951,6 +951,66 @@ def _json(path: Path, payload: Any) -> None:
     )
 
 
+def architecture_sections(docs: Path = Path("docs")) -> str:
+    """docs/architecture.md after its introduction, one section per diagram, as HTML.
+
+    Rendered from the document itself so the site and the repository cannot tell different
+    stories. `code` stays code; a link becomes its words, because the document's links point
+    inside the repository."""
+
+    def inline(text: str) -> str:
+        text = html.escape(text, quote=False)
+        text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
+        return re.sub(r"`([^`]+)`", r"<code>\1</code>", text)
+
+    out: list[str] = []
+    document = (docs / "architecture.md").read_text(encoding="utf-8")
+    for section in re.split(r"^## ", document, flags=re.M)[1:]:
+        title, _, body = section.partition("\n")
+        blocks = [block.strip() for block in body.strip().split("\n\n") if block.strip()]
+        image = re.fullmatch(r"!\[(.*)\]\(architecture/([^)]+\.svg)\)", blocks[0], re.S)
+        if image is None:
+            raise ValueError(f"docs/architecture.md: {title!r} does not open with a diagram")
+        alt, name = image.groups()
+        svg = (docs / "architecture" / name).read_text(encoding="utf-8")
+        size = re.search(r'width="(\d+)" height="(\d+)"', svg)
+        dims = f' width="{size.group(1)}" height="{size.group(2)}"' if size else ""
+        slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
+        paragraphs = []
+        for block in blocks[1:]:
+            text = " ".join(line.strip() for line in block.splitlines())
+            where = ' class="where"' if text.startswith("Where it lives:") else ""
+            paragraphs.append(f"      <p{where}>{inline(text)}</p>")
+        out.append(
+            f'  <section class="section" id="{slug}">\n'
+            f"    <h2>{inline(title.strip())}</h2>\n"
+            f'    <figure class="arch-figure"><a href="architecture/{name}">'
+            f'<img src="architecture/{name}"{dims} alt="{html.escape(alt)}"></a></figure>\n'
+            '    <div class="prose">\n' + "\n".join(paragraphs) + "\n    </div>\n  </section>\n"
+        )
+    return "\n".join(out)
+
+
+def write_architecture(out: Path, web: Path = Path("web"), docs: Path = Path("docs")) -> list[Path]:
+    """The architecture page and its diagrams, into a built site; returns the files written."""
+    page = out / "architecture.html"
+    page.write_text(
+        fill(
+            (web / "architecture.html").read_text(encoding="utf-8"),
+            {"repository": REPOSITORY, "architecture_sections": architecture_sections(docs)},
+        ),
+        encoding="utf-8",
+        newline="\n",
+    )
+    written = [page]
+    (out / "architecture").mkdir(parents=True, exist_ok=True)
+    for svg in sorted((docs / "architecture").glob("*.svg")):
+        target = out / "architecture" / svg.name
+        shutil.copyfile(svg, target)
+        written.append(target)
+    return written
+
+
 def build(
     out: Path,
     live: Path,
@@ -965,13 +1025,14 @@ def build(
     plan: Path = Path("PLAN.md"),
     tests: Path = Path("tests"),
     source: Path = Path("src"),
+    docs: Path = Path("docs"),
 ) -> list[Path]:
     """Write the whole site; returns the files written."""
     records: dict[str, Any] = tomllib.loads(live.read_text(encoding="utf-8"))
     measured: dict[str, Any] = json.loads(results.read_text(encoding="utf-8"))
     if out.exists():
         shutil.rmtree(out)
-    shutil.copytree(web, out, ignore=shutil.ignore_patterns("index.html"))
+    shutil.copytree(web, out, ignore=shutil.ignore_patterns("index.html", "architecture.html"))
     written: list[Path] = []
 
     races = []
@@ -1079,4 +1140,5 @@ def build(
     config.write_text(json.dumps(host, indent=2) + "\n", encoding="utf-8", newline="\n")
     robots = out / "robots.txt"
     robots.write_text(ROBOTS, encoding="utf-8", newline="\n")
-    return [page, config, robots, *written]
+    architecture = write_architecture(out, web, docs)
+    return [page, config, robots, *architecture, *written]

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How it's built: The Whole Field, Called Before the Gun</title>
+<meta name="description" content="How the race predictions on finishline.peterparker.ca are made, published and scored, in three diagrams: the whole system, one live race, and the model.">
+<link rel="canonical" href="https://finishline.peterparker.ca/architecture.html">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <a class="brand" href="https://peterparker.ca"><span class="mono-mark" aria-hidden="true">P</span>Peter Parker</a>
+    <p class="top-nav"><a href="{{repository}}">Project 12: The Whole Field, Called Before the Gun</a></p>
+  </div>
+</header>
+<nav class="tabs" aria-label="This site">
+  <div class="tabs-inner">
+    <a href="index.html">Overview</a>
+    <a href="index.html#races">The races</a>
+    <a href="index.html#picture">The idea</a>
+    <a href="index.html#model">The model</a>
+    <a href="index.html#ranges">Ranges</a>
+    <a href="index.html#results">Does it work?</a>
+    <a href="index.html#record">The record</a>
+    <a href="architecture.html" aria-current="page">How it's built</a>
+  </div>
+</nav>
+<main>
+
+  <header class="hero">
+    <p class="eyebrow">Architecture</p>
+    <h1>How it's built</h1>
+    <p class="lead">
+      How the predictions are made, published and scored, in three pictures: the whole system,
+      one live race from the entrant list to a scored prediction, and the model itself. Select a
+      diagram to open it full size.
+    </p>
+    <p class="hero-note"><a href="index.html">Back to the races</a></p>
+  </header>
+
+{{architecture_sections}}
+</main>
+
+<footer class="foot">
+  <div class="foot-inner">
+    <p>
+      The same three diagrams are in the repository's docs/architecture.md, rendered from that
+      file. Source, methods, the full results and every prediction file:
+      <a href="{{repository}}">github.com/Peter-A-P/finish-line-forecast</a>.
+    </p>
+    <ul>
+      <li>Type: Newsreader and Inter, SIL Open Font License, served from this host</li>
+    </ul>
+  </div>
+</footer>
+</body>
+</html>

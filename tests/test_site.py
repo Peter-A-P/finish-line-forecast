@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import re
+from pathlib import Path
+
 from finishline.publish import site
 
 
@@ -38,3 +41,28 @@ def test_a_scored_race_shows_each_finish_beside_its_prediction() -> None:
     rows = {row["name"]: row for row in site.race_predictions(files, card)["runners"]}
     assert rows["Ann Poe"]["actual"] == 3050.0 and rows["Ann Poe"]["actual_place"] == 7
     assert "actual" not in rows["Bea Roe"]  # no show, or not found: no result to show
+
+
+def test_the_architecture_page_shows_every_diagram_as_committed(tmp_path: Path) -> None:
+    """Rendered from docs/architecture.md, so every diagram in docs/ is on it, copied as is."""
+    written = site.write_architecture(tmp_path)
+    page = (tmp_path / "architecture.html").read_text(encoding="utf-8")
+    docs = Path("docs") / "architecture"
+    shown = set(re.findall(r'<img src="architecture/([^"]+)"', page))
+    assert shown == {p.name for p in docs.glob("*.svg")}
+    assert len(shown) >= 3
+    for name in shown:
+        assert (tmp_path / "architecture" / name).read_bytes() == (docs / name).read_bytes()
+    assert tmp_path / "architecture.html" in written
+    assert "{{" not in page and 'aria-current="page">How it' in page
+    assert not re.search(r"<script|<style|\sstyle=", page)
+
+
+def test_the_front_page_carries_the_menu_and_an_early_link_to_it() -> None:
+    page = Path("web/index.html").read_text(encoding="utf-8")
+    menu = page.partition('<nav class="tabs"')[2].partition("</nav>")[0]
+    assert 'href="architecture.html"' in menu
+    for anchor in re.findall(r'href="#([^"]+)"', menu):
+        assert f'id="{anchor}"' in page, anchor
+    hero = page.partition('<header class="hero"')[2].partition("</header>")[0]
+    assert 'href="architecture.html"' in hero
