@@ -1,0 +1,118 @@
+{
+  "conditions": {
+    "bearing_deg": 321.0,
+    "conditions_mean": {
+      "log_distance_5k": 1.3863,
+      "observed": 1.0,
+      "sun": 0.0,
+      "tailwind": -9.5069,
+      "temp_c": 6.0172,
+      "wind": 6.4096
+    },
+    "forecast": {
+      "sun_share": 0.0,
+      "temp_c": 4.6,
+      "wind_east_kmh": 14.9,
+      "wind_kmh": 15.03,
+      "wind_north_kmh": 1.72
+    },
+    "forecast_error": {
+      "east_bias": -4.5195,
+      "east_sd": 8.4939,
+      "mornings": 36,
+      "north_bias": -1.1413,
+      "north_sd": 8.335,
+      "temp_bias": -1.4648,
+      "temp_sd": 2.0501,
+      "wind_bias": -7.7669,
+      "wind_sd": 5.0403
+    },
+    "hours": 3,
+    "lead_days": 2,
+    "source": "Open-Meteo forecast, St. John's airport",
+    "used": true
+  },
+  "entrant_snapshot": {
+    "file": "c2c-2026_ane-list_20261015T2253Z.html",
+    "picks_sha256": "e96939147f59ed66e52e75bfb0303e268ff5fdcabc407714add22adf1ffd9257",
+    "sha256": "90f5b1428c4b5cf4f007a3be101af9c2cd12cb29b8b44411e0b45ff336faa0ea"
+  },
+  "entrants": {
+    "ambiguous": 10,
+    "linked": 460,
+    "listed": 502,
+    "new": 32,
+    "predicted": 1,
+    "published_before": 491,
+    "resolved_by_hand": 14
+  },
+  "frozen_at": "2026-10-16T08:47:24.617330+00:00",
+  "gun": "2026-10-18T08:00:00-02:30",
+  "kind": "daily",
+  "model": {
+    "blend": {
+      "centre": "(1 - w) * log(hierarchical) + w * log(lightgbm)",
+      "challenger_answered": 492,
+      "distribution": "the hierarchical model's draws, scaled onto the blended centre",
+      "weight": 0.65
+    },
+    "calibration": {
+      "80": {
+        "0": 0.0188678501724322,
+        "1": 0.01744992190553951,
+        "2 to 3": 0.014572735732509834,
+        "4 or more": 0.0002721728411323454
+      },
+      "90": {
+        "0": 0.038112103969682565,
+        "1": 0.02852210945618694,
+        "2 to 3": 0.029386054297408037,
+        "4 or more": 0.004181407023878592
+      }
+    },
+    "commit": "9ab6d59b81421baae640d554fa528539056dc888",
+    "diagnostics": {
+      "divergences": 0.0,
+      "draws": 1200.0,
+      "max_rhat": 2.090390126902807,
+      "min_ess_bulk": 5.463429791477384
+    },
+    "fit_on_results_before": "2026-10-18",
+    "name": "blend",
+    "settings": {
+      "chains": 4,
+      "draws": 300,
+      "months": 3,
+      "tune": 400,
+      "weather": 1
+    }
+  },
+  "newcomers": {
+    "course_id": "cape-to-cabot-20000",
+    "method": "course pool"
+  },
+  "race": {
+    "course_id": "cape-to-cabot-20000",
+    "date": "2026-10-18",
+    "distance_m": 20000.0,
+    "name": "Cape to Cabot",
+    "race_id": "c2c-2026"
+  },
+  "runners": [
+    {
+      "hometown": null,
+      "interval_80": [
+        6911.0,
+        9917.6
+      ],
+      "interval_90": [
+        6631.7,
+        10522.3
+      ],
+      "name": "Martine Cousineau",
+      "prior_results": 0,
+      "seconds": 8226.8
+    }
+  ],
+  "schema_version": 1
+}
