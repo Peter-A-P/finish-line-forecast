@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1152" height="860" viewBox="0 0 1152 860" role="img" aria-label="Every finish is put on one scale; a hierarchical model gives each runner a fitness, a distance fade and a form that walks year to year, shrunk towards their age and sex group, and each race its measured course difficulty, calendar year and that morning&#x27;s heat and wind; a boosted challenger is blended in, the range is conformalised by history depth, and places come from drawing the whole field together." font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#14201E"/></marker><marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#0E6E60"/></marker><marker id="arrow-signal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#A64C1C"/></marker><marker id="arrow-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#5C6B67"/></marker></defs>
+<rect width="1152" height="860" fill="#FFFFFF"/>
+<text x="28" y="42" font-size="16" font-weight="700" fill="#14201E">What the model shares, and what each runner gets</text>
+<path d="M 440.0 98.0 L 170.0 98.0 Q 164.0 98.0 164.0 104.0 L 164.0 177.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 712.0 98.0 L 982.0 98.0 Q 988.0 98.0 988.0 104.0 L 988.0 170.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 300.0 210.0 L 524.7 210.0 Q 530.7 210.0 530.7 216.0 L 530.7 290.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 852.0 210.0 L 627.3 210.0 Q 621.3 210.0 621.3 216.0 L 621.3 290.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 576.0 354.0 L 576.0 402.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 988.0 354.0 L 988.0 428.0 Q 988.0 434.0 982.0 434.0 L 712.0 434.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 576.0 466.0 L 576.0 514.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 576.0 578.0 L 576.0 626.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 300.0 658.0 L 440.0 658.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<path d="M 576.0 690.0 L 576.0 738.0" fill="none" stroke="#14201E" stroke-width="1.4" marker-end="url(#arrow)"/>
+<rect x="440.0" y="66.0" width="272.0" height="64.0" rx="4" fill="#FFFFFF" stroke="#14201E" stroke-width="1.1"/>
+<text x="576.0" y="87.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">Every finish on one scale</text>
+<text x="576.0" y="103.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">log(time / Daniels reference)</text>
+<text x="576.0" y="120.0" font-size="11" font-family="Consolas, Menlo, 'DejaVu Sans Mono', monospace" text-anchor="middle" fill="#5C6B67">finishline.metrics.daniels</text>
+<rect x="28.0" y="177.0" width="272.0" height="66.0" rx="4" fill="#FFFFFF" stroke="#0E6E60" stroke-width="1.6"/>
+<rect x="28.0" y="177.0" width="5" height="66.0" rx="2" fill="#0E6E60"/>
+<text x="164.0" y="198.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">Runner effects</text>
+<text x="164.0" y="214.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">fitness, distance fade, form by year;</text>
+<text x="164.0" y="230.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">shrunk to the age and sex group</text>
+<rect x="852.0" y="170.0" width="272.0" height="80.0" rx="4" fill="#FFFFFF" stroke="#0E6E60" stroke-width="1.6"/>
+<rect x="852.0" y="170.0" width="5" height="80.0" rx="2" fill="#0E6E60"/>
+<text x="988.0" y="191.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">Race effects</text>
+<text x="988.0" y="207.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">course difficulty from crossings; the</text>
+<text x="988.0" y="223.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">year; heat and wind that morning</text>
+<text x="988.0" y="240.0" font-size="11" font-family="Consolas, Menlo, 'DejaVu Sans Mono', monospace" text-anchor="middle" fill="#5C6B67">finishline.models.courses, weather</text>
+<rect x="440.0" y="290.0" width="272.0" height="64.0" rx="4" fill="#FFFFFF" stroke="#0E6E60" stroke-width="1.6"/>
+<rect x="440.0" y="290.0" width="5" height="64.0" rx="2" fill="#0E6E60"/>
+<text x="576.0" y="311.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">Posterior prediction</text>
+<text x="576.0" y="327.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">PyMC, hierarchical</text>
+<text x="576.0" y="344.0" font-size="11" font-family="Consolas, Menlo, 'DejaVu Sans Mono', monospace" text-anchor="middle" fill="#5C6B67">finishline.models.hierarchical</text>
+<rect x="852.0" y="290.0" width="272.0" height="64.0" rx="4" fill="#FFFFFF" stroke="#14201E" stroke-width="1.1"/>
+<text x="988.0" y="311.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">LightGBM quantile challenger</text>
+<text x="988.0" y="327.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">hand-built features</text>
+<text x="988.0" y="344.0" font-size="11" font-family="Consolas, Menlo, 'DejaVu Sans Mono', monospace" text-anchor="middle" fill="#5C6B67">finishline.models.gbm</text>
+<rect x="440.0" y="402.0" width="272.0" height="64.0" rx="4" fill="#FFFFFF" stroke="#14201E" stroke-width="1.1"/>
+<text x="576.0" y="423.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">The blend on the log scale</text>
+<text x="576.0" y="439.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">0.65 to the trees, set on 2022 and 2023</text>
+<text x="576.0" y="456.0" font-size="11" font-family="Consolas, Menlo, 'DejaVu Sans Mono', monospace" text-anchor="middle" fill="#5C6B67">finishline.models.blend</text>
+<rect x="440.0" y="514.0" width="272.0" height="64.0" rx="4" fill="#FFFFFF" stroke="#0E6E60" stroke-width="1.6"/>
+<rect x="440.0" y="514.0" width="5" height="64.0" rx="2" fill="#0E6E60"/>
+<text x="576.0" y="535.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">The range</text>
+<text x="576.0" y="551.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">rolling residuals, by history depth</text>
+<text x="576.0" y="568.0" font-size="11" font-family="Consolas, Menlo, 'DejaVu Sans Mono', monospace" text-anchor="middle" fill="#5C6B67">finishline.conformal</text>
+<rect x="28.0" y="626.0" width="272.0" height="64.0" rx="4" fill="#FFFFFF" stroke="#14201E" stroke-width="1.1"/>
+<text x="164.0" y="647.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">Entrants with no results here</text>
+<text x="164.0" y="663.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">drawn from past first-timers&#x27; finishes</text>
+<text x="164.0" y="680.0" font-size="11" font-family="Consolas, Menlo, 'DejaVu Sans Mono', monospace" text-anchor="middle" fill="#5C6B67">finishline.placing.unseen</text>
+<rect x="440.0" y="626.0" width="272.0" height="64.0" rx="4" fill="#FFFFFF" stroke="#0E6E60" stroke-width="1.6"/>
+<rect x="440.0" y="626.0" width="5" height="64.0" rx="2" fill="#0E6E60"/>
+<text x="576.0" y="647.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">The whole field drawn together</text>
+<text x="576.0" y="663.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">one shared morning, places that add up</text>
+<text x="576.0" y="680.0" font-size="11" font-family="Consolas, Menlo, 'DejaVu Sans Mono', monospace" text-anchor="middle" fill="#5C6B67">finishline.placing.simulate</text>
+<rect x="440.0" y="738.0" width="272.0" height="64.0" rx="4" fill="#FFFFFF" stroke="#A64C1C" stroke-width="1.6"/>
+<rect x="440.0" y="738.0" width="5" height="64.0" rx="2" fill="#A64C1C"/>
+<text x="576.0" y="766.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">Per runner: time, 80% and 90% ranges,</text>
+<text x="576.0" y="782.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">likely place</text>
+<rect x="243.1" y="88.0" width="117.8" height="20.0" rx="3" fill="#FFFFFF"/>
+<text x="302.0" y="100.0" font-size="12" text-anchor="middle" fill="#14201E">a runner&#x27;s history</text>
+<rect x="785.2" y="88.0" width="129.6" height="20.0" rx="3" fill="#FFFFFF"/>
+<text x="850.0" y="100.0" font-size="12" text-anchor="middle" fill="#14201E">each race&#x27;s finishes</text>
+<rect x="525.9" y="368.0" width="100.2" height="20.0" rx="3" fill="#FFFFFF"/>
+<text x="576.0" y="380.0" font-size="12" text-anchor="middle" fill="#14201E">mean and spread</text>
+<rect x="817.5" y="424.0" width="64.9" height="20.0" rx="3" fill="#FFFFFF"/>
+<text x="850.0" y="436.0" font-size="12" text-anchor="middle" fill="#14201E">quantiles</text>
+<rect x="523.0" y="480.0" width="106.1" height="20.0" rx="3" fill="#FFFFFF"/>
+<text x="576.0" y="492.0" font-size="12" text-anchor="middle" fill="#14201E">point and spread</text>
+<rect x="493.6" y="592.0" width="164.9" height="20.0" rx="3" fill="#FFFFFF"/>
+<text x="576.0" y="604.0" font-size="12" text-anchor="middle" fill="#14201E">a distribution per entrant</text>
+<rect x="328.7" y="648.0" width="82.6" height="20.0" rx="3" fill="#FFFFFF"/>
+<text x="370.0" y="660.0" font-size="12" text-anchor="middle" fill="#14201E">first-timers</text>
+<rect x="555.3" y="704.0" width="41.4" height="20.0" rx="3" fill="#FFFFFF"/>
+<text x="576.0" y="716.0" font-size="12" text-anchor="middle" fill="#14201E">draws</text>
+<rect x="28" y="824" width="26" height="16" rx="3" fill="#FFFFFF" stroke="#0E6E60" stroke-width="1.6"/>
+<text x="62" y="836" font-size="11" fill="#5C6B67">built here</text>
+<rect x="141.9" y="824" width="26" height="16" rx="3" fill="#FFFFFF" stroke="#A64C1C" stroke-width="1.6"/>
+<text x="175.9" y="836" font-size="11" fill="#5C6B67">what is published</text>
+</svg>

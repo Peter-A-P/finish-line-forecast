@@ -594,6 +594,9 @@ The short version. The long one is [docs/methods.md](docs/methods.md), and the d
    Nothing in a prediction file is ever edited after it is tagged, including a defect found
    later, which is written up instead.
 
+Three architecture diagrams, the system, one live race from entrant list to scored prediction, and the
+model, are in [docs/architecture.md](docs/architecture.md).
+
 ## Run it yourself
 
 Python 3.13 and [uv](https://docs.astral.sh/uv/). Everything reads from a local cache, so a
