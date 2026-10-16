@@ -60,25 +60,25 @@
 <text x="1008.0" y="983.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">finishline.peterparker.ca</text>
 <text x="1008.0" y="999.0" font-size="13" font-weight="500" text-anchor="middle" fill="#14201E">rebuilt by the Website workflow</text>
 <text x="1008.0" y="1016.0" font-size="11" font-family="Consolas, Menlo, 'DejaVu Sans Mono', monospace" text-anchor="middle" fill="#5C6B67">.github/workflows/site.yml</text>
-<rect x="544.7" y="144.0" width="82.6" height="20.0" rx="3" fill="#FFFFFF"/>
+<rect x="545.3" y="144.0" width="81.4" height="20.0" rx="3" fill="#FFFFFF"/>
 <text x="586.0" y="156.0" font-size="12" text-anchor="middle" fill="#14201E">each morning</text>
-<rect x="480.0" y="256.0" width="211.9" height="20.0" rx="3" fill="#FFFFFF"/>
+<rect x="497.6" y="256.0" width="176.7" height="20.0" rx="3" fill="#FFFFFF"/>
 <text x="586.0" y="268.0" font-size="12" text-anchor="middle" fill="#14201E">entrants no earlier file predicted</text>
-<rect x="547.7" y="368.0" width="76.7" height="20.0" rx="3" fill="#FFFFFF"/>
+<rect x="557.3" y="368.0" width="57.3" height="20.0" rx="3" fill="#FFFFFF"/>
 <text x="586.0" y="380.0" font-size="12" text-anchor="middle" fill="#14201E">daily files</text>
-<rect x="761.6" y="424.0" width="70.8" height="20.0" rx="3" fill="#FFFFFF"/>
+<rect x="765.7" y="424.0" width="62.7" height="20.0" rx="3" fill="#FFFFFF"/>
 <text x="797.0" y="436.0" font-size="12" text-anchor="middle" fill="#14201E">heat, wind</text>
-<rect x="518.3" y="480.0" width="135.5" height="20.0" rx="3" fill="#FFFFFF"/>
+<rect x="527.6" y="480.0" width="116.7" height="20.0" rx="3" fill="#FFFFFF"/>
 <text x="586.0" y="492.0" font-size="12" text-anchor="middle" fill="#14201E">the file and the page</text>
-<rect x="509.4" y="592.0" width="153.1" height="20.0" rx="3" fill="#FFFFFF"/>
+<rect x="519.0" y="592.0" width="134.1" height="20.0" rx="3" fill="#FFFFFF"/>
 <text x="586.0" y="604.0" font-size="12" text-anchor="middle" fill="#14201E">at least 24 hours before</text>
-<rect x="556.5" y="704.0" width="59.0" height="20.0" rx="3" fill="#FFFFFF"/>
+<rect x="560.0" y="704.0" width="52.0" height="20.0" rx="3" fill="#FFFFFF"/>
 <text x="586.0" y="716.0" font-size="12" text-anchor="middle" fill="#14201E">the race</text>
-<rect x="547.7" y="816.0" width="76.7" height="20.0" rx="3" fill="#FFFFFF"/>
+<rect x="559.0" y="816.0" width="54.0" height="20.0" rx="3" fill="#FFFFFF"/>
 <text x="586.0" y="828.0" font-size="12" text-anchor="middle" fill="#14201E">finish list</text>
-<rect x="515.3" y="928.0" width="141.4" height="20.0" rx="3" fill="#FFFFFF"/>
+<rect x="522.6" y="928.0" width="126.7" height="20.0" rx="3" fill="#FFFFFF"/>
 <text x="586.0" y="940.0" font-size="12" text-anchor="middle" fill="#14201E">scored, nothing edited</text>
-<rect x="770.4" y="984.0" width="53.2" height="20.0" rx="3" fill="#FFFFFF"/>
+<rect x="771.7" y="984.0" width="50.7" height="20.0" rx="3" fill="#FFFFFF"/>
 <text x="797.0" y="996.0" font-size="12" text-anchor="middle" fill="#14201E">on push</text>
 <rect x="28" y="1048" width="26" height="16" rx="3" fill="#FFFFFF" stroke="#0E6E60" stroke-width="1.6"/>
 <text x="62" y="1060" font-size="11" fill="#5C6B67">built here</text>
