@@ -55,6 +55,8 @@ def test_the_architecture_page_shows_every_diagram_as_committed(tmp_path: Path) 
         assert (tmp_path / "architecture" / name).read_bytes() == (docs / name).read_bytes()
     assert tmp_path / "architecture.html" in written
     assert "{{" not in page and 'aria-current="page">How it' in page
+    # A way back at the bottom, for a reader who has scrolled past every diagram.
+    assert page.rindex('<p class="arch-back"><a href="index.html">') > page.rindex("<img ")
     assert not re.search(r"<script|<style|\sstyle=", page)
 
 
