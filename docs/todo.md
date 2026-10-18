@@ -130,6 +130,11 @@ direction; ten is plenty for most. In order of finishes near the airport (share 
 | USR 10 km | 1,134 | 85% |
 | Run to Remember 11 km | 1,117 | 87% |
 
+**Status 2026-10-18: done for every course in the table except two.** Nine have points (seven
+from Peter's watch files, Run to Remember, Turkey Tea and Flat Out placed by him on a map).
+Harbour Front will not get any: discontinued after 2019, no published course map, never
+recorded. CHCM 10 km and the USR 10 km would be the next worth having.
+
 A course without them is taken to face every way, which is honest and costs that course its
 direction. **Nothing below this paragraph about bearings is current**; it is kept as the
 record of how the single bearing came to be.

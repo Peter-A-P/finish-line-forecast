@@ -333,7 +333,7 @@ the points where its road turns. They are in `data/courses.toml` as `waypoints`,
 | Run to Remember 11 km, Turkey Tea 10 km | Points Peter placed on Google Maps on 2026-10-18: Run to Remember start to turnaround and the same back, Turkey Tea start to finish | Typed by him onto a public trail; nothing else from Google is used. |
 
 A course with no waypoints is taken to face every way, which is honest and costs that course
-its direction: Harbour Front, as of this row, waits for its points.
+its direction. Harbour Front is the one that will stay that way: its last edition was 2019, no course map is published anywhere, and Peter never recorded it (2026-10-18). Its four editions still count; only the wind on them is spread over every direction.
 
 ## Weather
 
