@@ -170,18 +170,30 @@ GROUPS: tuple[tuple[str, str], ...] = (
 )
 
 
-def group_of(record: Mapping[str, Any], entrants_seen: int | None, today: date) -> str:
+def group_of(
+    record: Mapping[str, Any],
+    entrants_seen: int | None,
+    today: date,
+    registration: date | None = None,
+) -> str:
     """Which shelf a race belongs on.
 
     ⚠️ **"Entries open" means a list with somebody on it, not a date in the future.** A race
     can be announced for months before registration opens, and the only evidence this project
     has either way is whether a start list has been seen with at least one name on it. So the
-    test is the snapshot, not the calendar.
+    test is the snapshot, not the calendar. The one other evidence is a `registration_opens`
+    date in data/live.toml that has passed, which is Peter's word that it opened: Run to
+    Remember opened on 2026-10-16 with no list this project can read yet.
+
+    A scored race is run whatever the date: Cape to Cabot was scored the morning it ran, and
+    sat under "Entries open" until midnight.
     """
     when = date.fromisoformat(str(record["date"]))
-    if when < today:
+    if when < today or record.get("stage") == "scored":
         return "run"
-    return "open" if entrants_seen else "announced"
+    if entrants_seen or (registration is not None and registration <= today):
+        return "open"
+    return "announced"
 
 
 def status(
@@ -1045,7 +1057,10 @@ def build(
         if counted is not None:
             record["entrants"] = counted
         listed = (counted or story.get("entrants") or {}).get("listed")
-        record["group"] = group_of(record, listed, today)
+        opens = records[race_id].get("registration_opens")
+        record["group"] = group_of(
+            record, listed, today, date.fromisoformat(str(opens)) if opens else None
+        )
         record["listed"] = listed
         races.append(record)
         card = None

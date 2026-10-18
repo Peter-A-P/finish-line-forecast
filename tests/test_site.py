@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from datetime import date
 from pathlib import Path
 
 from finishline.publish import site
@@ -68,3 +69,16 @@ def test_the_front_page_carries_the_menu_and_an_early_link_to_it() -> None:
         assert f'id="{anchor}"' in page, anchor
     hero = page.partition('<header class="hero"')[2].partition("</header>")[0]
     assert 'href="architecture.html"' in hero
+
+
+def test_a_scored_race_is_run_and_an_opened_registration_is_open() -> None:
+    today = date(2026, 10, 18)
+    assert site.group_of({"date": "2026-10-18", "stage": "scored"}, 503, today) == "run"
+    assert site.group_of({"date": "2026-10-18", "stage": "final"}, 503, today) == "open"
+    assert site.group_of({"date": "2026-11-11", "stage": "before"}, None, today) == "announced"
+    assert site.group_of(
+        {"date": "2026-11-11", "stage": "before"}, None, today, date(2026, 10, 16)
+    ) == "open"
+    assert site.group_of(
+        {"date": "2026-11-11", "stage": "before"}, None, today, date(2026, 10, 20)
+    ) == "announced"

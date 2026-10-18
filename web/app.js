@@ -540,10 +540,14 @@
   }
 
   function drawPredictions(race, data) {
-    if (data.result) { drawRetrospect(race, data.result, data.result); return; }
+    if (data.result) {
+      drawRetrospect(race, data.result, data.result);
+      if (race.score) { drawPreview(race, data.result.runners); }
+      return;
+    }
     var target = clear(byId("predictions"));
     var runners = data.runners;
-    if (race.score) { target.appendChild(scoreBlock(race)); }
+    if (race.score) { target.appendChild(scoreBlock(race)); drawPreview(race, runners); }
     var scored = runners.some(function (r) { return isNumber(r.actual); });
     var stats = el("div", { "class": "headline" });
     var known = runners.filter(function (r) { return r.prior > 0; }).length;
@@ -1052,30 +1056,67 @@
     else if (data && q === "") { drawField(data.runners, null); }
   }
 
-  /* How the model did at this course's last backtested edition ---------------------- */
+  /* How the model did at this course's last backtested edition, or, once a race is scored,
+     at this one: the published predictions against today's finishes, from the prediction
+     file's runners (`runners`, passed once it has loaded; until then the box stays hidden,
+     because last year's backtest is not what a scored race should open on). */
 
-  function drawPreview(race) {
+  function drawPreview(race, runners) {
+    var box = byId("preview");
+    if (race.score) {
+      box.hidden = !runners;
+      if (runners) { drawScatter(race.date.slice(0, 4), scoredPreview(race, runners)); }
+      return;
+    }
     var info = story(race);
     var bt = info && info.backtest;
-    var box = byId("preview");
     box.hidden = !bt;
     if (!bt) { return; }
     var year = bt.date.slice(0, 4);
     var here = race.stage === "retrospect" && bt.date === race.date;
-    byId("preview-title").textContent = here
-      ? "This race, runner by runner"
-      : "How this model did at the " + year + " " + race.name + ", predicted only from races before it";
-    byId("preview-lede").textContent = here
-      ? "The same rows as the table below, drawn. Each dot is one runner: across is what the model would have said, up is what they actually ran. On the diagonal the two agree. Above it the runner was slower than the model expected, below it faster."
-      : "In the backtest, the " + year + " race was predicted as if it were tomorrow, from results dated before it, and then compared with what happened. Each dot is one runner: across is the prediction, up is the actual finish. On the diagonal, the prediction was exact.";
-    var stats = clear(byId("preview-stats"));
-    append(stats, [
-      stat(bt.mae_min.toFixed(1) + " min", "average miss across all " + count(bt.runners) + " finishers, first-timers included"),
-      bt.paired ? stat(bt.paired_model_min.toFixed(1) + " vs " + bt.paired_baseline_min.toFixed(1), "minutes, the model against \"last time\", on the " + count(bt.paired) + " runners both could predict") : null,
-      isNumber(bt.coverage80) ? stat(percent(bt.coverage80), "of finishes inside their 80% range") : null
-    ]);
+    drawScatter(year, {
+      title: here
+        ? "This race, runner by runner"
+        : "How this model did at the " + year + " " + race.name + ", predicted only from races before it",
+      lede: here
+        ? "The same rows as the table below, drawn. Each dot is one runner: across is what the model would have said, up is what they actually ran. On the diagonal the two agree. Above it the runner was slower than the model expected, below it faster."
+        : "In the backtest, the " + year + " race was predicted as if it were tomorrow, from results dated before it, and then compared with what happened. Each dot is one runner: across is the prediction, up is the actual finish. On the diagonal, the prediction was exact.",
+      stats: [
+        stat(bt.mae_min.toFixed(1) + " min", "average miss across all " + count(bt.runners) + " finishers, first-timers included"),
+        bt.paired ? stat(bt.paired_model_min.toFixed(1) + " vs " + bt.paired_baseline_min.toFixed(1), "minutes, the model against \"last time\", on the " + count(bt.paired) + " runners both could predict") : null,
+        isNumber(bt.coverage80) ? stat(percent(bt.coverage80), "of finishes inside their 80% range") : null
+      ],
+      points: bt.points,
+      none: "first race here",
+      caption: "Every finisher in the " + year + " edition who was in the backtest, shown without names. Most misses above the diagonal are runners who ran slower than their history said: a bad day, an injury, or a friend being paced."
+    });
+  }
+
+  /* A scored race's chart: every runner with a published prediction and a finish. */
+  function scoredPreview(race, runners) {
+    var s = race.score;
+    var finished = runners.filter(function (r) { return isNumber(r.actual) && isNumber(r.seconds) && r.i80; });
+    return {
+      title: "Today's race: the published predictions against the finishes",
+      lede: "Each dot is one runner who finished: across is the prediction published before the gun, up is the time they ran. On the diagonal, the prediction was exact. Above it the runner was slower than predicted, below it faster.",
+      stats: [
+        stat(errorText(s.mae_minutes[0]), "average miss across the " + count(s.finished) + " finishers with a prediction, first-timers included"),
+        isNumber(s.versus_carry_forward[0]) ? stat(Math.abs(s.versus_carry_forward[0]).toFixed(1) + " min " + (s.versus_carry_forward[0] < 0 ? "closer" : "further"),
+          "than \"last time\", on the " + count(s.carry_forward_runners) + " runners both could predict") : null,
+        stat(percent(s.held80[0]), "of finishes inside their 80% range")
+      ],
+      points: finished.map(function (r) { return [r.seconds, r.actual, r.i80[0], r.i80[1], r.prior]; }),
+      none: "no past races in the archive",
+      caption: "Every finisher in today's race who had a prediction, shown without names; the table below has them by name. Most misses above the diagonal are runners who ran slower than their history said: a bad day, an injury, or a friend being paced."
+    };
+  }
+
+  function drawScatter(year, view) {
+    byId("preview-title").textContent = view.title;
+    byId("preview-lede").textContent = view.lede;
+    append(clear(byId("preview-stats")), view.stats);
     var node = clear(byId("preview-chart"));
-    var pts = bt.points;
+    var pts = view.points;
     var all = [];
     pts.forEach(function (p) { all.push(p[0], p[1]); });
     all.sort(function (a, b) { return a - b; });
@@ -1097,14 +1138,14 @@
       if (pm < lo || pm > hi || am < lo || am > hi) { return; }
       var held = isNumber(p[2]) && isNumber(p[3]) ? (p[1] >= p[2] && p[1] <= p[3]) : null;
       var dot = svg("circle", { cx: x(pm), cy: y(am), r: 3.2, "class": "pt " + (held === null ? "pt-none" : held ? "pt-hit" : "pt-miss") });
-      var history = p[4] === 0 ? "first race here" : p[4] >= 4 ? "4 or more past races" : p[4] + " past race" + (p[4] === 1 ? "" : "s");
+      var history = p[4] === 0 ? view.none : p[4] >= 4 ? "4 or more past races" : p[4] + " past race" + (p[4] === 1 ? "" : "s");
       hover(dot, "preview-readout", "Predicted " + clock(p[0]) + ", ran " + clock(p[1]) + " (" + history + ")" +
         (held === null ? "" : held ? "; inside the 80% range" : "; outside the 80% range"));
       root.appendChild(dot);
     });
     node.appendChild(root);
     legend("preview-legend", [["dot pt-hit-sw", "finish inside its 80% range"], ["dot pt-miss-sw", "outside it"], ["dashed sw-faint", "a perfect prediction"]]);
-    byId("preview-caption").textContent = "Every finisher in the " + year + " edition who was in the backtest, shown without names. Most misses above the diagonal are runners who ran slower than their history said: a bad day, an injury, or a friend being paced.";
+    byId("preview-caption").textContent = view.caption;
   }
 
   /* The course, start to finish ----------------------------------------------------------- */
