@@ -8,6 +8,9 @@ CLAUDE.local.md
 # Fetched pages, entrant lists and the resolved history cache: personal data, never committed
 data/cache/
 data/raw/
+# Peter's own watch files (.fit/.gpx) the route waypoints are read from: they carry times,
+# pace and heart rate, and only the turn points they yield are committed (data/courses.toml)
+data/courses/
 data/entrants/
 data/resolved/
 
