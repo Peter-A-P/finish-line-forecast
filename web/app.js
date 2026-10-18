@@ -1107,7 +1107,11 @@
       ],
       points: finished.map(function (r) { return [r.seconds, r.actual, r.i80[0], r.i80[1], r.prior]; }),
       none: "no past races in the archive",
-      caption: "Every finisher in today's race who had a prediction, shown without names; the table below has them by name. Most misses above the diagonal are runners who ran slower than their history said: a bad day, an injury, or a friend being paced."
+      /* Every finisher, the winner included: on a race's own day the extremes are the
+         runners people look for first. Cape to Cabot 2026 was won in 1:10:19 by a first-timer, who
+         was trimmed off the axes while this chart kept the backtest's middle 99%. */
+      whole: true,
+      caption: "Every finisher in today's race who had a prediction, shown without names; the table above has them by name. Most misses above the diagonal are runners who ran slower than their history said: a bad day, an injury, or a friend being paced."
     };
   }
 
@@ -1120,7 +1124,8 @@
     var all = [];
     pts.forEach(function (p) { all.push(p[0], p[1]); });
     all.sort(function (a, b) { return a - b; });
-    var lo = all[Math.floor(all.length * 0.005)] / 60, hi = all[Math.floor(all.length * 0.995) - 1] / 60;
+    var lo = view.whole ? all[0] / 60 : all[Math.floor(all.length * 0.005)] / 60;
+    var hi = view.whole ? all[all.length - 1] / 60 : all[Math.floor(all.length * 0.995) - 1] / 60;
     var pad = (hi - lo) * 0.04;
     lo -= pad; hi += pad;
     var H = 440, L = 58, R = WIDTH - 16, T = 14, B = H - 36;
