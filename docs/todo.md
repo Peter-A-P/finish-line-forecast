@@ -137,8 +137,9 @@ The heights alone had said all three of Mews and the Five and Dimes were point t
 because each finishes well below its start. For the Five and Dime that was wrong: both races
 start and finish at the same two points, 1.15 km apart, and wander in between. Mundy Pond
 (3.3 m between its ends over 5 km) and the Huffin Puffin marathon (2 m over 42 km) need no
-points to be called loops. **No `bearing_deg` has been set**, for the reason in the warning
-below: Mews Memorial's 49 degrees goes in with the first backtest after Cape to Cabot.
+points to be called loops. **Mews Memorial's 49 degrees was set on 2026-10-18**, with the
+first backtest after Cape to Cabot, as the warning below asked. The Five and Dimes still wait
+on the share decision.
 
 Run to Remember is an out-and-back and has none. Turkey Tea has had one since 2026-09-19 (79
 degrees). Flat Out was checked on 2026-09-21 and has none on purpose: nearly two laps of one
@@ -253,6 +254,12 @@ finish (24% on Run to Remember's own three scored editions), so a final file of 
 names will hold about 30 people who run and 90 who do not. The file says so beside the names,
 and the score afterwards checks the promise. That is what the plan asked for and it is built:
 `freeze r2r-2026` runs on 2026-11-10 unless told otherwise.
+
+**Settled on 2026-10-18: the list is wired.** It is on Trackie (event 1039132,
+`ingest.entrants.LISTS`), registration filled its cap of 200 within two days of opening, and
+`data/live.toml` gives the race an `entrant_list`, so it gets a prediction week from 2026-11-04
+like the others and no field forecast. The list prints no sex, so newcomers are predicted from
+first-timers of both sexes. The rest of this item is kept for the record.
 
 **Overtaken on 2026-10-11: Peter says Run to Remember will have a registrant list like the
 other races**, so it is predicted from the list and this question does not arise for 2026.

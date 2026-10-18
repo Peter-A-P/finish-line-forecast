@@ -74,6 +74,9 @@ LISTS: dict[str, str] = {
     "c2c-2026": _STORE + "4",
     "usr-2026": _STORE + "1",
     "tt-2026": "https://www.trackie.com/entry-list/body-quest-turkey-tea-10k-race/1038734/",
+    # Prints a name, a hometown and a team, and no sex: registration opened 2026-10-16 and
+    # filled its cap of 200 within days, so this list is close to the field already.
+    "r2r-2026": "https://www.trackie.com/entry-list/run-to-remember/1039132/",
 }
 
 # Trackie's list page is a shell; the names arrive from a second request the page makes

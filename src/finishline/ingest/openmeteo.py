@@ -66,12 +66,12 @@ VARIABLES = ("temperature_2m", "wind_speed_10m", "wind_direction_10m")
 # How far behind today the reanalysis archive runs. A year fetched inside this window is
 # incomplete and is fetched again later, the same rule the ECCC months follow.
 ARCHIVE_LAG = timedelta(days=6)
-# A clear noon's direct sun, the unit the share is measured in (TrainAI uses the same).
+# A clear noon's direct sun, the unit the share is measured in (Overload uses the same).
 SUN_REFERENCE_W_M2 = 800.0
 # The sun, which the airport does not record and the model needs: it is what makes a warm road
 # feel hotter than the thermometer (`models.weather.heat`). Direct (beam) radiation rather than
 # cloud cover, because 100% thin cirrus and 100% storm cloud are the same cloud cover and not
-# the same sky, which is TrainAI's reasoning (project 11); the forecast carries it too.
+# the same sky, which is Overload's reasoning (project 11); the forecast carries it too.
 SKY = "direct_radiation"
 MIN_INTERVAL = 1.0
 

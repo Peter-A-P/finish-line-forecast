@@ -305,8 +305,16 @@ climb_m = 28.2
 drop_m = 103.2
 steepest_grade = 0.0168
 fastest_grade = -0.0292
+bearing_deg = 49
 start = [47.5500, -52.7441]
 finish = [47.5777, -52.6968]
+bearing_source = """\
+Great-circle bearing from the start to the finish below, the first and last points of Peter's \
+2022 recording: 4,699 m apart on 49 degrees, north-east. 59 percent of the 8 km has that net \
+direction and the rest cancels, the share Cape to Cabot's note explains. Set on 2026-10-18 \
+with the first backtest after Cape to Cabot, as planned (docs/todo.md item 2); the tailwind \
+is in the weather covariates both backtest keys hash, so the saved runs went stale with it.\
+"""
 source = """\
 data/profiles/mews-memorial-8000.json (see the note above), Peter's recording of the \
 2022-07-10 edition: 8.00 km recorded, 28.2 m of climb and 103.2 m of descent on the smoothed \
@@ -336,10 +344,7 @@ PLAN.md 13 item 43 counts it for what it is.
 **Point to point, and now with a direction.** Start and finish are 4,699 m apart on a bearing \
 of 49 degrees, north-east from the west end of the city towards the east end, so 59 percent \
 of the course has a net direction: more than Cape to Cabot's 37. This is the course in the \
-file that most wants a bearing. **`bearing_deg` is deliberately not set yet**: it feeds the \
-tailwind term, which feeds every hierarchical fit, and `backtest/saved.key` does not hash this \
-file, so a bearing added now would change a model input while every saved backtest still \
-looked current. It lands with the first backtest after Cape to Cabot (docs/todo.md item 2).\
+file that most wants a bearing, and since 2026-10-18 has one (`bearing_source` above).\
 """
 
 [harbour-front-10000]

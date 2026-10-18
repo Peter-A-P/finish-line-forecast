@@ -20,7 +20,7 @@ a 16 C one; it scored 0.184 out of sample against 0.35 for a hinge (PLAN.md 13 i
 the knee sits the two tests of item 30 disagree, editions wanting it low and the same runners
 wanting it high; 12 C is the value whose worst shortfall across both is smallest. How much the
 sun adds could not be settled by a grid on a 9 km reanalysis sky, so the model estimates it,
-under a prior on the scale of the NWS figure TrainAI uses, 15 F for full sun.
+under a prior on the scale of the NWS figure Overload uses, 15 F for full sun.
 
 FORECAST ERROR
 --------------
@@ -67,12 +67,12 @@ PARAMETERS: tuple[str, ...] = ("heat", "heat_x_log_distance", "wind", "tailwind"
 HEAT_THRESHOLD_C = 12.0
 
 # The sun, as the direct (beam) radiation over the race hours as a share of a clear noon's
-# 800 W/m2, which is TrainAI's measure: 100% thin cirrus and 100% storm cloud are the same
+# 800 W/m2, which is Overload's measure: 100% thin cirrus and 100% storm cloud are the same
 # cloud cover and not the same sky.
 SUN_REFERENCE_W_M2 = 800.0
 
 # The scale of the prior on what a full sun adds, in degrees: the US National Weather
-# Service's "up to 15 F" in direct sunlight, which TrainAI (project 11) adopts. A HalfNormal on
+# Service's "up to 15 F" in direct sunlight, which Overload (project 11) adopts. A HalfNormal on
 # this scale allows anything from nothing to about twice that, so the posterior is the data's
 # answer rather than the prior's.
 SUN_PRIOR_SCALE_C = 15.0 * 5.0 / 9.0

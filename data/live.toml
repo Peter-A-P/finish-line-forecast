@@ -26,18 +26,16 @@ course_id = "turkey-tea-10000"
 entrant_list = "tt-2026"
 gun = "2026-10-04T08:00:00-02:30"   # confirmed by Peter 2026-09-19
 
-# No start list yet: registration opens 2026-10-16 and Peter says (2026-10-11) it will come
-# with a registrant list like the other races. `entrant_list_expected` is for the website
-# only, so the card promises a prediction week and not a forecast field. Once the list exists
-# and its terms are in docs/data-terms.md, give this race an `entrant_list` and delete the
-# flag. Until then `freeze` would still fall back to field-forecast mode (the participation
-# model, PLAN.md 5.6: one final file, no daily ones), which is why this must be wired before
-# the week starts on 2026-11-04. Remembrance Day is after the clocks go back.
+# The start list is on Trackie (`ingest.entrants.LISTS`), wired 2026-10-18: registration
+# opened 2026-10-16 and was closed by the 18th, its cap of 200 filled, so the list is the
+# field and the participation model (PLAN.md 5.6) is not needed this year. The list prints
+# no sex, so a runner with no history is predicted from first-timers of both sexes together,
+# with a wider range. Remembrance Day is after the clocks go back.
 [r2r-2026]
 name = "Run to Remember"
 date = "2026-11-11"
 distance_m = 11000
 course_id = "run-to-remember-11000"
 gun = "2026-11-11T08:00:00-03:30"   # confirmed by Peter 2026-09-19
-registration_opens = "2026-10-16"   # from Peter 2026-10-11; the card says so until then
-entrant_list_expected = true
+registration_opens = "2026-10-16"   # from Peter 2026-10-11; full (200) by 2026-10-18
+entrant_list = "r2r-2026"

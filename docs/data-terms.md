@@ -270,6 +270,12 @@ kids' races, so the event each entrant chose was read too, to count each race's 
 was not predicted (PLAN.md 13 item 44), the list was taken out of the daily snapshot, and the
 one snapshot was deleted; only its manifest row, a URL and two hashes, remains.
 
+**Run to Remember's list, added 2026-10-18.** Peter pointed to it
+(`trackie.com/entry-list/run-to-remember/1039132/`) when registration opened. It is the same
+site under the same terms, and it is read the same way: two requests a second apart under the
+identifying user agent, name, sex and hometown kept, the snapshot gitignored in
+`data/entrants/`.
+
 ## Course elevation
 
 ⚠️ **Nothing is fetched for this, and nothing needs to be.** The course factor this project
