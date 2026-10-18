@@ -33,7 +33,8 @@ def test_a_row_carries_the_raw_morning() -> None:
     morning = weather.row(met(20.0, 30.0), 20_000.0, None, 0.6)
     observed, temp, sun, log_distance, exposure, net = morning
     assert (observed, temp, sun, net) == (1.0, 20.0, 0.6, 0.0)
-    assert exposure == pytest.approx(route.EVERY_WAY * 10.0), "an unknown course faces every way"
+    # Speed 30 against a neutral 20, on a course that faces every way: half of 9 less half of 4.
+    assert exposure == pytest.approx(0.5 * 9.0 - 0.5 * 4.0), "an unknown course faces every way"
 
     assert log_distance == pytest.approx(math.log(4.0)), "pivoted at 5 km"
     assert weather.row(met(20.0), 5_000.0, None)[3] == 0.0
@@ -111,15 +112,16 @@ def test_a_forecast_draw_carries_the_forecast_sun_as_given() -> None:
     assert np.allclose(drawn[:, 3], math.log(4.0))
 
 
-def test_a_drawn_net_push_is_never_more_than_the_wind_along_the_road() -> None:
+def test_a_drawn_net_push_never_exceeds_the_wind_along_the_road() -> None:
     error = weather.ForecastError(40, 0.0, 1.0, 0.0, 8.0, 0.0, 6.0, 0.0, 6.0)
     east_west = route.Route((route.Leg(70.0, 0.7), route.Leg(160.0, 0.3)))
     drawn = weather.draws(
         met(10.0, 5.0, east=4.0, north=1.0), error, 16_093.0, east_west, 20_000,
         np.random.default_rng(2),
     )
-    exposure = drawn[:, 4] + weather.NEUTRAL_EXPOSURE_KMH
-    assert (np.abs(drawn[:, 5]) <= exposure + 1e-9).all()
+    exposure = drawn[:, 4] + weather.NEUTRAL_EXPOSURE
+    # The square of an average is never more than the average of the squares.
+    assert ((drawn[:, 5] / route.SCALE_KMH) ** 2 <= exposure + 1e-9).all()
     assert (exposure >= 0).all()
 
 
@@ -155,7 +157,7 @@ def test_editions_get_observed_covariates_and_the_rest_are_counted() -> None:
     assert temp == pytest.approx(12.0)
     assert sun == 0.0, "no sky record, no sun"
     along = 30.0 * math.sin(math.radians(321.0))
-    assert exposure == pytest.approx(abs(along) - weather.NEUTRAL_EXPOSURE_KMH, abs=0.01)
+    assert exposure == pytest.approx((along / 10.0) ** 2 - weather.NEUTRAL_EXPOSURE, abs=0.01)
     assert net == pytest.approx(along, abs=0.01), "a westerly into a north-west road is a headwind"
 
     sunny, _ = weather.edition_conditions(

@@ -553,7 +553,8 @@ a number above:
   cancel. Until 2026-10-18 wind entered as a speed and as a tailwind along one straight line
   from start to finish, which described none of Cape to Cabot (west, north-west, north,
   north-east, then east) and nothing of an out-and-back. It is now met leg by leg along each
-  course's road: how much of the wind lies along it, and the net push (PLAN.md 13 item 48).
+  course's road, in a part linear in the wind and a part in its square, so an out-and-back
+  into a headwind and back with it still costs the morning something (PLAN.md 13 item 48).
 - **One hot race the heat does not explain: the 2026 Tely 10 is still 3.0% too fast.** 18 C,
   light sun, calm, with a tailwind. No setting of the knee or the sun closes the gap without
   breaking the other hot races, so it is published as an open problem. Item 30.

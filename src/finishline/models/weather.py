@@ -89,8 +89,8 @@ SUN_PRIOR_SCALE_C = 15.0 * 5.0 / 9.0
 HEAT_PIVOT_M = 5_000.0
 
 # A neutral wind meeting a course that faces every way: what `wind_exposure` is measured from,
-# so an unknown course on a neutral morning costs nothing, as it did under the speed term.
-NEUTRAL_EXPOSURE_KMH = routes.EVERY_WAY * NEUTRAL_WIND_KMH
+# so an unknown course on a neutral morning costs nothing.
+NEUTRAL_EXPOSURE = routes.wind_terms(None, None, NEUTRAL_WIND_KMH, None)[0]
 
 # The start assumed when no start hour is given: the standard here (`finishline.starts`).
 DEFAULT_START_HOUR = 8
@@ -161,7 +161,7 @@ def row(
         met.temp_c,
         min(1.0, max(0.0, sun)),
         math.log(distance_m / HEAT_PIVOT_M),
-        exposure - NEUTRAL_EXPOSURE_KMH,
+        exposure - NEUTRAL_EXPOSURE,
         net,
     )
 
@@ -310,7 +310,7 @@ def draws(
             temp,
             np.full(n, min(1.0, max(0.0, sun))),
             np.full(n, log_distance),
-            terms[:, 0] - NEUTRAL_EXPOSURE_KMH,
+            terms[:, 0] - NEUTRAL_EXPOSURE,
             terms[:, 1],
         ]
     )

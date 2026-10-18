@@ -2164,12 +2164,14 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
 
     **Changed.** A course's direction is now its `waypoints` in `data/courses.toml`, points
     on the public road at each turn, cut into legs (`models/route.py`). Two wind terms replace
-    the speed and the tailwind: `wind_exposure`, the share of the wind that lies along the
-    road summed over the legs (plus 2/pi of the part with no steady direction), and
-    `net_tailwind`, the signed push summed over the legs. A cost on the first and a negative
-    cost on the second make a headwind leg cost more than the same tailwind gives back; an
-    out-and-back gets no push and still pays for a wind along its road. A course with no
-    waypoints faces every way: no push, and 2/pi of the speed, which is the old speed term.
+    the speed and the tailwind, from air resistance, which goes with the square of the air
+    speed past a runner: `net_tailwind`, the wind along each leg summed by share, which is the
+    part linear in the wind, and `wind_exposure`, the same wind squared and summed, which is the
+    rest. On an out-and-back the first cancels mile for mile and the second does not, so a
+    headwind out and a tailwind back still cost the morning something, as a climb costs more
+    than the same descent returns (Peter, 2026-10-18, correcting a first version that took the
+    absolute value instead of the square). A course with no waypoints faces every way: no
+    push, and half the squared speed.
     The four `bearing_deg` values are retired and a test refuses one coming back.
 
     **Not yet measured.** The terms want waypoints on the courses that carry the archive's

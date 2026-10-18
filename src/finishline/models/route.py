@@ -19,22 +19,30 @@ the points are the road, as Flat Out's have always been.
 
 THE TWO WIND TERMS
 ------------------
-For a wind blowing with vector v, a leg heading along unit vector u feels v.u of it along the
-road: positive behind the runners, negative in their faces. Over the whole course:
+For a wind blowing with vector v, a leg heading along unit vector u has w = v.u of it along the
+road: positive behind the runners, negative in their faces. Air resistance goes with the square
+of the air speed past the runner, (speed - w) squared, which is speed squared, minus 2 x speed x
+w, plus w squared. So against a calm morning a leg costs a part that is linear in w and a part
+that is w squared, and over the whole course:
 
-    net       = sum over legs of share x (v.u)           the push the course gets, signed
-    exposure  = sum over legs of share x |v.u|        how much of the wind lies along the road
-                + (2/pi) x (mean speed - |v|)         the part with no steady direction
+    net       = sum over legs of share x w                the linear part: help minus hindrance
+    exposure  = sum over legs of share x (w / 10)^2       the squared part, per (10 km/h)^2
+                + half the unsteady part, (S^2 - |v|^2) / 2 / 100
 
-`net` is what the old tailwind term tried to be. On an out-and-back it is zero, whatever the
-wind. `exposure` is why that does not mean the wind is free there: a headwind costs more than
-the same tailwind gives back, so a model with a cost on `exposure` and a (negative) cost on
-`net` charges a headwind leg more than it credits a tailwind leg, and charges an out-and-back
-into a wind along its road more than one with the wind across it. Crosswind is taken as free.
+where S is the mean speed over the race hours and |v| the speed of the mean vector, so the
+second line is the wind that came from no steady direction, taken to blow every way equally.
+
+**The squared part is why an out-and-back is never free.** Out east into a westerly and back
+west with it, `net` is zero, the help cancelling the hindrance mile for mile, and `exposure` is
+the whole wind squared: the headwind half costs more than the tailwind half gives back, as a
+climb costs more than the same descent returns. (Time spent makes it worse again, since the
+headwind half takes longer to run; that is second order and is left in the fitted cost.) The
+same wind across the road is w = 0 on every leg and costs nothing here. Crosswind is taken as
+free, which it nearly is.
 
 A course with no waypoints is taken to face every direction equally, which is the honest
-statement of not knowing: `net` is zero and `exposure` is (2/pi) of the mean speed, the
-average of |cos| over a circle. That is exactly the old wind-speed term, scaled.
+statement of not knowing: `net` is zero and `exposure` is half the squared speed, the average
+of cos squared over a circle.
 
 ⚠️ **Order does not matter here, and that is a simplification.** The wind is the average over
 the race hours, so a leg run at 08:10 and a leg run at 09:30 see the same wind. Only the share
@@ -49,8 +57,12 @@ from dataclasses import dataclass
 from itertools import pairwise
 from typing import Any
 
-# The mean of |cos| over a full circle: a wind meeting a course that faces every way equally.
-EVERY_WAY = 2.0 / math.pi
+# The mean of cos squared over a full circle: a wind meeting a course that faces every way.
+EVERY_WAY = 0.5
+
+# The wind is squared per (10 km/h)^2, so a 30 km/h wind along the road is 9 and not 900, which
+# keeps its coefficient on the same scale as the others in the model.
+SCALE_KMH = 10.0
 
 _EARTH_M = 6_371_000.0
 
@@ -126,7 +138,9 @@ def routes(courses: Mapping[str, Mapping[str, Any]]) -> dict[str, Route]:
 def wind_terms(
     east: float | None, north: float | None, speed: float | None, route: Route | None
 ) -> tuple[float, float]:
-    """(exposure, net) in km/h for a wind of this mean vector and mean speed on this course.
+    """(exposure, net) for a wind of this mean vector and mean speed on this course.
+
+    `exposure` is in (10 km/h)^2 and `net` in km/h.
 
     `east` and `north` are the components of the direction the air travels (`eccc`), so a
     leg's share of it is east x sin(heading) + north x cos(heading), positive behind the field.
@@ -135,8 +149,9 @@ def wind_terms(
         east = north = 0.0
     steady = math.hypot(east, north)
     mean_speed = steady if speed is None else max(speed, steady)
+    unsteady = EVERY_WAY * (mean_speed**2 - steady**2) / SCALE_KMH**2
     if route is None:
-        return EVERY_WAY * mean_speed, 0.0
+        return EVERY_WAY * steady**2 / SCALE_KMH**2 + unsteady, 0.0
     along = [
         (
             leg.share,
@@ -146,5 +161,5 @@ def wind_terms(
         for leg in route.legs
     ]
     net = sum(share * value for share, value in along)
-    exposure = sum(share * abs(value) for share, value in along)
-    return exposure + EVERY_WAY * (mean_speed - steady), net
+    exposure = sum(share * (value / SCALE_KMH) ** 2 for share, value in along)
+    return exposure + unsteady, net
