@@ -993,6 +993,21 @@ is more than half a point past it. Turkey Tea was the first course where the cli
 explain the factor (2026-09-19) and it now reads as one of the courses saying the same thing \
 about which factor to read: PLAN.md 13 item 43.\
 """
+waypoints_source = """\
+Seven points Peter placed on Google Maps on 2026-10-18 along the course, start to finish, as \
+latitude and longitude. Typed by him onto a public road, not read out of Google's product; \
+nothing else from Google is used. In straight lines between the points the course is 9.1 km \
+of the 10, the rest being the roads' curves between them. PLAN.md 13 item 48.\
+"""
+waypoints = [
+    [47.5132633, -52.838226],
+    [47.5135966, -52.8495951],
+    [47.5263341, -52.8369779],
+    [47.5240529, -52.8309243],
+    [47.5208661, -52.8397669],
+    [47.5069825, -52.8157348],
+    [47.5200836, -52.7823446],
+]
 
 [flat-out-5000]
 name = "Flat Out 5 km"
