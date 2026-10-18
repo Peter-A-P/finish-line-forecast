@@ -77,3 +77,22 @@ def test_waypoints_become_legs_with_shares_of_the_length() -> None:
 def test_one_point_is_not_a_route() -> None:
     with pytest.raises(ValueError):
         route.from_waypoints([(47.5, -52.7)])
+
+
+def test_the_courses_with_waypoints_point_the_way_they_are_run() -> None:
+    """The routes in data/courses.toml, against what the courses are known to be.
+
+    The Tely runs one way, Paradise to downtown; Run to Remember goes out and comes back on
+    the same trail; Cape to Cabot's ends are about a third of its length apart.
+    """
+    import tomllib
+    from pathlib import Path
+
+    courses = tomllib.loads(Path("data/courses.toml").read_text(encoding="utf-8"))
+    routes = route.routes(courses)
+    assert routes["tely-10-16093"].net_share > 0.8
+    assert routes["run-to-remember-11000"].net_share < 0.01
+    assert routes["cape-to-cabot-20000"].net_share == pytest.approx(0.34, abs=0.03)
+    assert routes["huffin-puffin-42195"].net_share < 0.01, "a loop"
+    push = route.wind_terms(*WESTERLY, 20.0, routes["tely-10-16093"])[1]
+    assert push > 10, "a westerly pushes the Tely along"

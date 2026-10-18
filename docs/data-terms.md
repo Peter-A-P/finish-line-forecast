@@ -320,6 +320,21 @@ chart images: their headers carry a pace and a moving time, so the website draws
 profile from the heights alone (`web/app.js`, `drawProfile`), and its caption says whether the
 heights are a recording or a public segment and never whose recording.
 
+## Course routes, added 2026-10-18
+
+The wind is met leg by leg along each course's road (PLAN.md 13 item 48), so a course needs
+the points where its road turns. They are in `data/courses.toml` as `waypoints`, with a
+`waypoints_source` beside each.
+
+| Courses | Source | Terms |
+|---|---|---|
+| Tely 10, Cape to Cabot, Mews Memorial, Mundy Pond, Five and Dime 5 km and 10 km, Huffin Puffin marathon | Peter Parker's own watch files of a past edition of each, exported by him from Garmin Connect into `data/courses/` | His own data about his own runs, and only the road is taken: positions reduced to the turn points, so that no bend of more than 25 m is lost, rounded to four places (about 10 m). **No time, pace, heart rate or any other field of the file is read or kept**, and the files themselves are gitignored. **Not from Strava**: Overload holds the same tracks, but it got them through Strava's API, whose agreement forbids using that data to train a model (the first section of this page), and these points feed the fitted wind costs. The watch files are the same runs by another door that carries no such clause. Peter checked every route on a map before it was committed. |
+| Flat Out 5 km | Nine points Peter placed on Google Maps on 2026-09-21 | As in the Flat Out row under course elevation. His watch file of 2022 agrees (start and finish 319 m apart against 363). |
+| Run to Remember 11 km | Nine points Peter placed on Google Maps on 2026-10-18, start to turnaround, and the same back | Typed by him onto a public trail; nothing else from Google is used. |
+
+A course with no waypoints is taken to face every way, which is honest and costs that course
+its direction: Turkey Tea and Harbour Front, as of this row, wait for theirs.
+
 ## Weather
 
 | Source | Use | Terms |
