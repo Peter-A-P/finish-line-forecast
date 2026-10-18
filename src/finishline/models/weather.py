@@ -4,8 +4,10 @@ CONDITIONS
 ----------
 Each race edition enters the model as six raw numbers, not as finished covariates: whether it
 was observed, the air temperature, the share of a clear noon's direct sun over the race hours,
-log distance over 5 km, wind speed above neutral, and tailwind along the course bearing. The
-heat is computed from them inside the model, because the sun's contribution is a parameter:
+log distance over 5 km, and two wind terms worked out leg by leg along the course's route
+(`models/route.py`): how much of the wind lies along the road (`wind_exposure`, less the
+same for a neutral wind) and the net push the course gets from it (`net_tailwind`). The heat
+is computed from them inside the model, because the sun's contribution is a parameter:
 
     felt  = temperature + sun_boost x sun
     heat  = max(0, felt - HEAT_THRESHOLD_C)
@@ -49,17 +51,20 @@ import numpy as np
 
 from finishline.ingest.eccc import Conditions, NoObservation, Station, near_st_johns
 from finishline.ingest.eccc import conditions as eccc_conditions
+from finishline.models import route as routes
 from finishline.models.conditions import NEUTRAL_WIND_KMH
 from finishline.schema import Race
 
 # One edition's conditions, in this order. Unobserved is all zeros.
 CONDITIONS: tuple[str, ...] = (
-    "observed", "temp_c", "sun", "log_distance_5k", "wind", "tailwind",
+    "observed", "temp_c", "sun", "log_distance_5k", "wind_exposure", "net_tailwind",
 )
 NEUTRAL: tuple[float, ...] = (0.0,) * len(CONDITIONS)
 
 # The model's weather parameters, in the order `Posterior.weather` stores them.
-PARAMETERS: tuple[str, ...] = ("heat", "heat_x_log_distance", "wind", "tailwind", "sun_boost")
+PARAMETERS: tuple[str, ...] = (
+    "heat", "heat_x_log_distance", "wind_exposure", "net_tailwind", "sun_boost",
+)
 
 # Felt temperature above which heat costs anything. Chosen, not fitted: on item 30's two tests
 # the editions put the knee at 2 to 6 C and the same runners at 12 to 18 C, and 12 C is the
@@ -83,6 +88,10 @@ SUN_PRIOR_SCALE_C = 15.0 * 5.0 / 9.0
 # distance; fitted free against ten kilometres, the same data claimed heat makes a 5 km fast.
 HEAT_PIVOT_M = 5_000.0
 
+# A neutral wind meeting a course that faces every way: what `wind_exposure` is measured from,
+# so an unknown course on a neutral morning costs nothing, as it did under the speed term.
+NEUTRAL_EXPOSURE_KMH = routes.EVERY_WAY * NEUTRAL_WIND_KMH
+
 # The start assumed when no start hour is given: the standard here (`finishline.starts`).
 DEFAULT_START_HOUR = 8
 
@@ -96,7 +105,7 @@ class _Months(Protocol):
 def edition_conditions(
     races: Iterable[Race],
     cache: _Months,
-    bearings: Mapping[str, float],
+    courses: Mapping[str, routes.Route],
     sun: Mapping[str, float] | None = None,
     start_hours: Mapping[str, int] | None = None,
 ) -> tuple[dict[str, tuple[float, ...]], int]:
@@ -127,7 +136,7 @@ def edition_conditions(
             missing += 1
             continue
         observed[race.race_id] = row(
-            met, race.distance_m, bearings.get(race.course_id), (sun or {}).get(race.race_id, 0.0)
+            met, race.distance_m, courses.get(race.course_id), (sun or {}).get(race.race_id, 0.0)
         )
     return observed, missing
 
@@ -135,21 +144,25 @@ def edition_conditions(
 def row(
     met: Conditions | None,
     distance_m: float,
-    bearing_deg: float | None,
+    route: routes.Route | None,
     sun: float = 0.0,
 ) -> tuple[float, ...]:
-    """One edition's conditions for the model, or `NEUTRAL` when unobserved."""
+    """One edition's conditions for the model, or `NEUTRAL` when unobserved.
+
+    `route` is None for a course whose legs are not known, which is then taken to face every
+    way equally (`route.wind_terms`).
+    """
     if met is None:
         return NEUTRAL
-    wind = (met.wind_kmh if met.wind_kmh is not None else NEUTRAL_WIND_KMH) - NEUTRAL_WIND_KMH
-    tailwind = met.tailwind(bearing_deg)
+    speed = met.wind_kmh if met.wind_kmh is not None else NEUTRAL_WIND_KMH
+    exposure, net = routes.wind_terms(met.wind_east, met.wind_north, speed, route)
     return (
         1.0,
         met.temp_c,
         min(1.0, max(0.0, sun)),
         math.log(distance_m / HEAT_PIVOT_M),
-        wind,
-        0.0 if tailwind is None else tailwind,
+        exposure - NEUTRAL_EXPOSURE_KMH,
+        net,
     )
 
 
@@ -171,11 +184,11 @@ def effect(rows: np.ndarray, parameters: np.ndarray) -> np.ndarray:
     pins the two to agree.
     """
     rows = np.asarray(rows, dtype=float)
-    observed, temp, sun, log_distance, wind, tailwind = rows.T
-    heat_0, heat_1, wind_cost, tail_cost, boost = np.asarray(parameters, dtype=float).T
+    observed, temp, sun, log_distance, exposure, net = rows.T
+    heat_0, heat_1, exposure_cost, net_cost, boost = np.asarray(parameters, dtype=float).T
     hot = observed * np.maximum(0.0, temp + boost * sun - HEAT_THRESHOLD_C)
     return np.asarray(
-        hot * (heat_0 + heat_1 * log_distance) + wind_cost * wind + tail_cost * tailwind
+        hot * (heat_0 + heat_1 * log_distance) + exposure_cost * exposure + net_cost * net
     )
 
 
@@ -247,7 +260,7 @@ def draws(
     forecast: Conditions,
     error: ForecastError,
     distance_m: float,
-    bearing_deg: float | None,
+    route: routes.Route | None,
     n: int,
     rng: np.random.Generator,
     sun: float = 0.0,
@@ -285,18 +298,19 @@ def draws(
     speed = np.maximum(speed, np.hypot(east, north))
 
     log_distance = math.log(distance_m / HEAT_PIVOT_M)
-    if bearing_deg is None:
-        tailwind = np.zeros(n)
-    else:
-        radians = math.radians(bearing_deg)
-        tailwind = east * math.sin(radians) + north * math.cos(radians)
+    terms = np.array(
+        [
+            routes.wind_terms(float(e), float(n_), float(s), route)
+            for e, n_, s in zip(east, north, speed, strict=True)
+        ]
+    )
     return np.column_stack(
         [
             np.ones(n),
             temp,
             np.full(n, min(1.0, max(0.0, sun))),
             np.full(n, log_distance),
-            speed - NEUTRAL_WIND_KMH,
-            tailwind,
+            terms[:, 0] - NEUTRAL_EXPOSURE_KMH,
+            terms[:, 1],
         ]
     )

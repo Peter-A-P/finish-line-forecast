@@ -185,7 +185,7 @@ def conditions_table(model: conditions.Fit | None, editions: int, skipped: int) 
         "|---|---:|---|",
         f"| Temperature at 10 km, per degree | {model.temp_at_reference * 100:+.3f}% "
         f"| [{low * 100:+.3f}, {high * 100:+.3f}] |",
-        f"| Tailwind along the bearing, per km/h | {model.tailwind * 100:+.3f}% "
+        f"| Net tailwind along the route, per km/h | {model.tailwind * 100:+.3f}% "
         f"| [{tail_low * 100:+.3f}, {tail_high * 100:+.3f}] |",
     ]
     return "\n".join(lines)

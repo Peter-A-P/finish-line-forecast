@@ -427,12 +427,15 @@ def build(data: Design) -> pm.Model:
                 "weather",
                 pt.concatenate([heat, air, pt.stack([boost])]),  # type: ignore[no-untyped-call]
             )
-            observed, temp, sun, log_distance, wind, tailwind = (
+            # The wind as it meets the road, leg by leg (`models/route.py`): `air[0]` costs
+            # the wind lying along the course, `air[1]` the net push, so together a headwind
+            # leg costs more than the same tailwind gives back.
+            observed, temp, sun, log_distance, exposure, net = (
                 data.weather[:, k] for k in range(CONDITION_TERMS)
             )
             hot = observed * pt.maximum(temp + boost * sun - weather_model.HEAT_THRESHOLD_C, 0.0)
             delta = delta + (
-                hot * (heat[0] + heat[1] * log_distance) + air[0] * wind + air[1] * tailwind
+                hot * (heat[0] + heat[1] * log_distance) + air[0] * exposure + air[1] * net
             )
 
         row = data.runner

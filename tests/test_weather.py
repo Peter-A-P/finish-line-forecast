@@ -10,8 +10,11 @@ import numpy as np
 import pytest
 
 from finishline.ingest.eccc import Conditions
-from finishline.models import weather
+from finishline.models import route, weather
 from finishline.schema import Race
+
+# Cape to Cabot as its old single bearing pretended it was: one straight road, north-west.
+STRAIGHT_NW = route.Route((route.Leg(321.0, 1.0),))
 
 
 def met(
@@ -21,15 +24,17 @@ def met(
 
 
 def test_an_unobserved_morning_is_all_zeros_and_costs_nothing() -> None:
-    assert weather.row(None, 20_000.0, 321.0) == weather.NEUTRAL
+    assert weather.row(None, 20_000.0, STRAIGHT_NW) == weather.NEUTRAL
     parameters = np.array([[0.01, 0.01, 0.01, 0.01, 8.0]])
     assert weather.effect(np.array([weather.NEUTRAL]), parameters)[0] == 0.0
 
 
 def test_a_row_carries_the_raw_morning() -> None:
     morning = weather.row(met(20.0, 30.0), 20_000.0, None, 0.6)
-    observed, temp, sun, log_distance, wind, tail = morning
-    assert (observed, temp, sun, wind, tail) == (1.0, 20.0, 0.6, 10.0, 0.0)
+    observed, temp, sun, log_distance, exposure, net = morning
+    assert (observed, temp, sun, net) == (1.0, 20.0, 0.6, 0.0)
+    assert exposure == pytest.approx(route.EVERY_WAY * 10.0), "an unknown course faces every way"
+
     assert log_distance == pytest.approx(math.log(4.0)), "pivoted at 5 km"
     assert weather.row(met(20.0), 5_000.0, None)[3] == 0.0
     assert weather.row(met(20.0), 10_000.0, None, 1.7)[2] == 1.0, "a share is at most a clear noon"
@@ -69,7 +74,7 @@ def test_an_edition_without_a_sky_record_has_no_sun() -> None:
 
 def test_a_westerly_is_a_headwind_on_cape_to_cabot() -> None:
     westerly = met(10.0, 30.0, east=30.0)
-    assert weather.row(westerly, 20_000.0, 321.0)[5] < -15
+    assert weather.row(westerly, 20_000.0, STRAIGHT_NW)[5] < -15
 
 
 def test_bias_is_forecast_minus_observed() -> None:
@@ -90,7 +95,9 @@ def test_too_few_mornings_is_a_refusal() -> None:
 def test_a_warm_forecast_is_cooled_by_its_bias_and_spread_by_its_error() -> None:
     """Six degrees warm, as Overload measured: the draws centre on the corrected morning."""
     error = weather.ForecastError(40, 6.0, 1.5, 0.0, 4.0, 0.0, 3.0, 0.0, 3.0)
-    drawn = weather.draws(met(21.0, 20.0), error, 20_000.0, 321.0, 50_000, np.random.default_rng(1))
+    drawn = weather.draws(
+        met(21.0, 20.0), error, 20_000.0, STRAIGHT_NW, 50_000, np.random.default_rng(1)
+    )
     assert drawn.shape == (50_000, len(weather.CONDITIONS))
     assert drawn[:, 1].mean() == pytest.approx(15.0, abs=0.05)  # 21 - 6
     assert drawn[:, 1].std() == pytest.approx(1.5, abs=0.05)
@@ -104,14 +111,16 @@ def test_a_forecast_draw_carries_the_forecast_sun_as_given() -> None:
     assert np.allclose(drawn[:, 3], math.log(4.0))
 
 
-def test_a_drawn_tailwind_is_never_stronger_than_the_drawn_wind() -> None:
+def test_a_drawn_net_push_is_never_more_than_the_wind_along_the_road() -> None:
     error = weather.ForecastError(40, 0.0, 1.0, 0.0, 8.0, 0.0, 6.0, 0.0, 6.0)
+    east_west = route.Route((route.Leg(70.0, 0.7), route.Leg(160.0, 0.3)))
     drawn = weather.draws(
-        met(10.0, 5.0, east=4.0, north=1.0), error, 16_093.0, 70.0, 20_000, np.random.default_rng(2)
+        met(10.0, 5.0, east=4.0, north=1.0), error, 16_093.0, east_west, 20_000,
+        np.random.default_rng(2),
     )
-    speed = drawn[:, 4] + 20.0
-    assert (np.abs(drawn[:, 5]) <= speed + 1e-9).all()
-    assert (speed >= 0).all()
+    exposure = drawn[:, 4] + weather.NEUTRAL_EXPOSURE_KMH
+    assert (np.abs(drawn[:, 5]) <= exposure + 1e-9).all()
+    assert (exposure >= 0).all()
 
 
 class _Month:
@@ -138,18 +147,19 @@ def test_editions_get_observed_covariates_and_the_rest_are_counted() -> None:
         Race("c2c-2025-other-day", "c2c", date(2025, 10, 20), 20_000.0, "cape-to-cabot-20000", ""),
     ]
     observed, missing = weather.edition_conditions(
-        races, _Month(), {"cape-to-cabot-20000": 321.0}
+        races, _Month(), {"cape-to-cabot-20000": STRAIGHT_NW}
     )
     assert set(observed) == {"c2c-2025"}
     assert missing == 2, "Gander is too far from the airport, and one day has no reading"
-    _, temp, sun, _, wind, tail = observed["c2c-2025"]
+    _, temp, sun, _, exposure, net = observed["c2c-2025"]
     assert temp == pytest.approx(12.0)
     assert sun == 0.0, "no sky record, no sun"
-    assert wind == pytest.approx(10.0)
-    assert tail < -15, "a westerly into Cape to Cabot's north-west bearing is a headwind"
+    along = 30.0 * math.sin(math.radians(321.0))
+    assert exposure == pytest.approx(abs(along) - weather.NEUTRAL_EXPOSURE_KMH, abs=0.01)
+    assert net == pytest.approx(along, abs=0.01), "a westerly into a north-west road is a headwind"
 
     sunny, _ = weather.edition_conditions(
-        races, _Month(), {"cape-to-cabot-20000": 321.0}, {"c2c-2025": 0.9}
+        races, _Month(), {"cape-to-cabot-20000": STRAIGHT_NW}, {"c2c-2025": 0.9}
     )
     assert sunny["c2c-2025"][2] == pytest.approx(0.9)
 

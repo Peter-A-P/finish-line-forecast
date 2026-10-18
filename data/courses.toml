@@ -19,10 +19,14 @@ climb_m = 550
 drop_m = 450
 steepest_grade = 0.0878
 fastest_grade = -0.0825
-bearing_deg = 321
 start = [47.5189, -52.6197]
 finish = [47.5707, -52.6815]
 bearing_source = """\
+**Retired on 2026-10-18, kept as the record.** The model no longer reads a single \
+bearing: it reads `waypoints` along the road, leg by leg (`models/route.py`, PLAN.md 13 item \
+48), and a course without them is taken to face every way. What follows is the straight \
+line between the two ends and what was said about it.\
+
 Great-circle bearing from Cape Spear (47.5189 N, 52.6197 W) to Cabot Tower on Signal Hill \
 (47.5707 N, 52.6815 W). North-west, so the westerly that pushes the Tely along is a \
 headwind here: the same 30 km/h wind is +28.5 km/h of tailwind at the Tely and 18.5 km/h \
@@ -308,10 +312,14 @@ climb_m = 28.2
 drop_m = 103.2
 steepest_grade = 0.0168
 fastest_grade = -0.0292
-bearing_deg = 49
 start = [47.5500, -52.7441]
 finish = [47.5777, -52.6968]
 bearing_source = """\
+**Retired on 2026-10-18, kept as the record.** The model no longer reads a single \
+bearing: it reads `waypoints` along the road, leg by leg (`models/route.py`, PLAN.md 13 item \
+48), and a course without them is taken to face every way. What follows is the straight \
+line between the two ends and what was said about it.\
+
 Great-circle bearing from the start to the finish below, the first and last points of Peter's \
 2022 recording: 4,699 m apart on 49 degrees, north-east. 59 percent of the 8 km has that net \
 direction and the rest cancels, the share Cape to Cabot's note explains. Set on 2026-10-18 \
@@ -347,7 +355,7 @@ PLAN.md 13 item 43 counts it for what it is.
 **Point to point, and now with a direction.** Start and finish are 4,699 m apart on a bearing \
 of 49 degrees, north-east from the west end of the city towards the east end, so 59 percent \
 of the course has a net direction: more than Cape to Cabot's 37. This is the course in the \
-file that most wants a bearing, and since 2026-10-18 has one (`bearing_source` above).\
+file that most wants a direction, and since 2026-10-18 wants `waypoints`, not a bearing.\
 """
 
 [harbour-front-10000]
@@ -497,8 +505,12 @@ climb_m = 97.3
 drop_m = 221.5
 steepest_grade = 0.0273
 fastest_grade = -0.0458
-bearing_deg = 70
 bearing_source = """\
+**Retired on 2026-10-18, kept as the record.** The model no longer reads a single \
+bearing: it reads `waypoints` along the road, leg by leg (`models/route.py`, PLAN.md 13 item \
+48), and a course without them is taken to face every way. What follows is the straight \
+line between the two ends and what was said about it.\
+
 Great-circle bearing from the start in Paradise to the finish at Bannerman Park, \
 St. John's. Peter's local knowledge, which the geometry then confirmed: the wind at this \
 time of year is usually westerly, and a westerly is close to a straight tailwind on this \
@@ -543,8 +555,12 @@ climb_m = 39.5
 drop_m = 123.4
 steepest_grade = 0.0278
 fastest_grade = -0.0250
-bearing_deg = 79
 bearing_source = """\
+**Retired on 2026-10-18, kept as the record.** The model no longer reads a single \
+bearing: it reads `waypoints` along the road, leg by leg (`models/route.py`, PLAN.md 13 item \
+48), and a course without them is taken to face every way. What follows is the straight \
+line between the two ends and what was said about it.\
+
 Start and finish read from the map of the public Strava segment "Turkey Day 10K" \
 (segment 10652676, Mount Pearl), which Peter supplied as a screenshot on 2026-09-19: \
 start by Danny Drive in the west, finish near Brookfield Road and the T'Railway in the \

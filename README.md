@@ -550,10 +550,10 @@ a number above:
 - **A wind speed is not a wind.** The prevailing wind in Tely season is westerly and the Tely
   runs east-north-east, so the usual wind pushes that field along; Cape to Cabot runs
   north-west, so the same westerly is a headwind. Fitted as one speed for the province those
-  cancel. Wind now enters as a speed, which a loop pays whichever way it blows, and as a signed
-  tailwind along a course bearing, which only a point-to-point course has. Three courses carry a
-  bearing so far, so the tailwind term has the right sign and an interval that still includes
-  zero, and it is reported that way rather than kept quiet because the sign is pleasing.
+  cancel. Until 2026-10-18 wind entered as a speed and as a tailwind along one straight line
+  from start to finish, which described none of Cape to Cabot (west, north-west, north,
+  north-east, then east) and nothing of an out-and-back. It is now met leg by leg along each
+  course's road: how much of the wind lies along it, and the net push (PLAN.md 13 item 48).
 - **One hot race the heat does not explain: the 2026 Tely 10 is still 3.0% too fast.** 18 C,
   light sun, calm, with a tailwind. No setting of the knee or the sun closes the gap without
   breaking the other hot races, so it is published as an open problem. Item 30.

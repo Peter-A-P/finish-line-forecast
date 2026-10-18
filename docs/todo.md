@@ -107,7 +107,33 @@ which is the line this project drew for Strava and it does not move because the 
 arrived by a different route. A single published ascent total about a public road is a
 different thing, and is what Cape to Cabot's second figure is.
 
-### 2. Course bearings, which are now worth more than elevations
+### 2. Course waypoints, which replaced bearings on 2026-10-18
+
+**Wanted, before Run to Remember's backtest.** A single bearing per course is retired (PLAN.md
+13 item 48): the wind is now met leg by leg along each course's road, from `waypoints` in
+`data/courses.toml`. Per course, the points at each turn along the public road, in running
+order, start first and finish last, an out-and-back's turnaround in between, as latitude and
+longitude typed from a map, as Flat Out's nine were. Roughly one point per real change of
+direction; ten is plenty for most. In order of finishes near the airport (share of all):
+
+| Course | Finishes | Cumulative |
+|---|---:|---:|
+| Tely 10 | 34,209 | 47% |
+| Cape to Cabot | 6,329 | 56% |
+| Mews Memorial 8 km | 5,422 | 64% |
+| Mundy Pond 5 km | 3,613 | 68% |
+| Flat Out 5 km | has them | 73% |
+| Turkey Tea 10 km | 2,840 | 77% |
+| Harbour Front 10 km | 2,682 | 80% |
+| Five and Dime 5 km | 1,224 | 82% |
+| CHCM 10 km | 1,135 | 84% |
+| USR 10 km | 1,134 | 85% |
+| Run to Remember 11 km | 1,117 | 87% |
+
+A course without them is taken to face every way, which is honest and costs that course its
+direction. **Nothing below this paragraph about bearings is current**; it is kept as the
+record of how the single bearing came to be.
+
 
 **This is the highest-value thing anyone can add to `data/courses.toml`.** Peter's point
 that the Tely's prevailing westerly is a tailwind for almost the whole race turned out to

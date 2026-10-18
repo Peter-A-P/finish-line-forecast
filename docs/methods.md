@@ -72,8 +72,11 @@ A hierarchical Bayesian model, fitted with PyMC and the nutpie sampler
 - **Heat and wind**, from the hourly observations at St. John's airport over the hours the
   field was out, from each race's published start (`models/weather.py`, `data/starts.toml`).
   Heat is the felt temperature above 12 C, where the sun adds a number of degrees the model
-  estimates, and its cost per degree grows with distance; wind is a speed, and on the two
-  point-to-point courses with a known bearing also a tailwind. Races too far from the airport
+  estimates, and its cost per degree grows with distance. Wind is met leg by leg along the
+  course's road (`models/route.py`): how much of it lies along the road, and the net push the
+  course gets from it, so a headwind leg costs more than the same tailwind gives back and an
+  out-and-back gets no push but still pays for a wind along its road. A course whose legs are
+  not recorded is taken to face every way. Races too far from the airport
   carry no weather term. [rejected.md](rejected.md) is the straight-line design this replaced.
 - **The edition**, what is left of that morning, and **noise**, a Student-t with heavy
   tails, because a bad day is not Gaussian.

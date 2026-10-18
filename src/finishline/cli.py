@@ -41,6 +41,7 @@ from finishline.ingest import eccc, entrants, nlaa
 from finishline.metrics import grade
 from finishline.models import baselines, conditions
 from finishline.models import courses as models_courses
+from finishline.models import route as route_model
 from finishline.schema import Race
 from finishline.store import Dataset
 
@@ -451,7 +452,7 @@ def weather_effect(
     )
     low, high = model.intervals["tailwind"]
     typer.echo(
-        f"tailwind             : {model.tailwind * 100:+.3f}% per km/h along the bearing "
+        f"net tailwind         : {model.tailwind * 100:+.3f}% per km/h along the route "
         f"[{low * 100:+.3f}, {high * 100:+.3f}]  (negative means it helps)"
     )
     typer.echo(
@@ -484,7 +485,7 @@ def _conditions_rows(
         if result.finished:
             finishers[result.race_id] = finishers.get(result.race_id, 0) + 1
 
-    profiles = course_profiles()
+    legs = course_routes()
     begins = starts.load()
     rows: list[conditions.Observation] = []
     skipped = 0
@@ -504,7 +505,9 @@ def _conditions_rows(
             if met.wind_kmh is None:
                 skipped += 1
                 continue
-            bearing = profiles.get(race.course_id, {}).get("bearing_deg")
+            _, net = route_model.wind_terms(
+                met.wind_east, met.wind_north, met.wind_kmh, legs.get(race.course_id)
+            )
             rows.append(
                 conditions.Observation(
                     race_id=race_id,
@@ -514,7 +517,7 @@ def _conditions_rows(
                     effect=effect,
                     temp_c=met.temp_c,
                     wind_kmh=met.wind_kmh,
-                    tailwind_kmh=met.tailwind(None if bearing is None else float(bearing)),
+                    tailwind_kmh=net if race.course_id in legs else None,
                 )
             )
     return rows, skipped
@@ -625,13 +628,9 @@ def _challenger_rows(
     return rows
 
 
-def bearings() -> dict[str, float]:
-    """Each point-to-point course's bearing, from data/courses.toml."""
-    return {
-        course_id: float(record["bearing_deg"])
-        for course_id, record in course_profiles().items()
-        if "bearing_deg" in record
-    }
+def course_routes() -> dict[str, route_model.Route]:
+    """Each course whose legs are known, from the waypoints in data/courses.toml."""
+    return route_model.routes(course_profiles())
 
 
 def _edition_sun(data: Dataset) -> dict[str, float]:
@@ -667,7 +666,7 @@ def _edition_weather(data: Dataset) -> tuple[Weather, int]:
     hours = starts.load().by_race(data.races)
     with eccc.Cache(WEATHER) as cache:
         return weather_model.edition_conditions(
-            data.races.values(), cache, bearings(), sun, hours
+            data.races.values(), cache, course_routes(), sun, hours
         )
 
 
@@ -1847,11 +1846,11 @@ def _forecast(
 
     # The error measured at this lead: a week out, the forecast is worse than the day before.
     error = daily.forecast_error_for(FORECAST_ERROR_BY_LEAD, FORECAST_ERROR, lead_days)
-    bearing = bearings().get(race.course_id)
+    legs = course_routes().get(race.course_id)
     # No forecast sun is treated as none, which never adds sunshine nobody forecast.
     sun = 0.0 if sun_share is None else sun_share
     drawn = weather_model.draws(
-        met, error, race.distance_m, bearing, draws, np.random.default_rng(seed), sun
+        met, error, race.distance_m, legs, draws, np.random.default_rng(seed), sun
     )
     typer.echo(
         f"forecast {met.temp_c:.1f} C, wind {met.wind_kmh} km/h, sun {sun:.0%} of a clear noon "
@@ -1869,7 +1868,7 @@ def _forecast(
             "wind_north_kmh": None if met.wind_north is None else round(met.wind_north, 2),
             "sun_share": None if sun_share is None else round(sun_share, 3),
         },
-        "bearing_deg": bearing,
+        "route_legs": None if legs is None else len(legs.legs),
         "lead_days": lead_days,
         "forecast_error": {
             key: round(value, 4) if isinstance(value, float) else value

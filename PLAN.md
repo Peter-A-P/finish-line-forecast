@@ -2152,3 +2152,27 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     **Not measured yet**: whether the picks are right. The results will print an age group for
     most of these runners, and each pick can then be checked against the band (docs/todo.md).
     Item 46's other objection stands as written: this fixes the entrants a person looked at.
+
+48. **One bearing per course was not a direction anyone runs (2026-10-18).** Since item 27 the
+    wind entered as a speed and, on four courses, as a tailwind along `bearing_deg`, the
+    straight line from start to finish. Cape to Cabot's was 321 degrees, north-west; the race
+    runs west, north-west, north, north-east and then east (Peter), so its first and last legs
+    face opposite ways and the line describes none of them. Item 41 had measured that the line
+    covers 37 percent of that course and proposed scaling by it, which would have kept the
+    wrong picture and shrunk it. An out-and-back such as Run to Remember had no direction term
+    at all, so a wind straight along its road and one straight across it cost the same.
+
+    **Changed.** A course's direction is now its `waypoints` in `data/courses.toml`, points
+    on the public road at each turn, cut into legs (`models/route.py`). Two wind terms replace
+    the speed and the tailwind: `wind_exposure`, the share of the wind that lies along the
+    road summed over the legs (plus 2/pi of the part with no steady direction), and
+    `net_tailwind`, the signed push summed over the legs. A cost on the first and a negative
+    cost on the second make a headwind leg cost more than the same tailwind gives back; an
+    out-and-back gets no push and still pays for a wind along its road. A course with no
+    waypoints faces every way: no push, and 2/pi of the speed, which is the old speed term.
+    The four `bearing_deg` values are retired and a test refuses one coming back.
+
+    **Not yet measured.** The terms want waypoints on the courses that carry the archive's
+    finishes (the Tely alone is 47 percent of them near the airport), and until they arrive
+    those courses face every way, which loses the Tely's real tailwind. The backtest is rerun
+    once they are in, before Run to Remember's week starts on 2026-11-04.

@@ -91,8 +91,8 @@ FEATURES: tuple[str, ...] = (
     "temp_c",
     "sun",
     "log_distance_5k",
-    "wind",
-    "tailwind",
+    "wind_exposure",
+    "net_tailwind",
     # The second batch, from the 2022-2023 search: the shapes the hierarchical model is told
     # about and trees would have to discover, and what a coach reads off a history.
     "felt_heat",

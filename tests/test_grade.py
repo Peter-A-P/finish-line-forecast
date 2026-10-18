@@ -219,16 +219,20 @@ def _leg(start: list[float], end: list[float]) -> complex:
     return complex(east, north)
 
 
-def test_cape_to_cabots_bearing_is_its_start_and_finish_and_covers_a_third_of_it() -> None:
-    """The stored bearing is computed from the two ends, and says how much of the race it is.
+def test_no_course_carries_a_single_bearing_any_more() -> None:
+    """One straight line from start to finish is not a direction anyone runs (PLAN.md 13 item 48).
 
-    The legs of any route sum to the displacement from start to finish, so displacement over
-    distance is the share of the course that has a net direction: 7.4 km of 20 km here.
+    Cape to Cabot's was 321 degrees, north-west, on a race that runs west, north-west, north,
+    north-east and east. A course's direction is its `waypoints` now, leg by leg.
     """
+    courses = tomllib.loads(COURSES.read_text(encoding="utf-8"))
+    assert not [course for course, record in courses.items() if "bearing_deg" in record]
+
+
+def test_cape_to_cabots_ends_are_seven_kilometres_apart_on_a_twenty_kilometre_race() -> None:
+    """Displacement over distance: the share of the course with a net direction, 37% here."""
     record = tomllib.loads(COURSES.read_text(encoding="utf-8"))["cape-to-cabot-20000"]
     net = _leg(record["start"], record["finish"])
-    bearing = math.degrees(math.atan2(net.real, net.imag)) % 360
-    assert bearing == pytest.approx(record["bearing_deg"], abs=1)
     assert abs(net) / record["distance_m"] == pytest.approx(0.37, abs=0.01)
 
 
