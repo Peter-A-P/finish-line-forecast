@@ -18,10 +18,12 @@ them with no runner ID to join on, every course's difficulty is measured from th
 a whole field is predicted, first-timers included. The first race on the record is scored: the
 Turkey Tea 10 km on 2026-10-04, predicted in six daily files tagged before the gun, came in at
 3.0 minutes of average miss (95% interval 2.6 to 3.4), 2.3 minutes closer than carry-forward on
-the same runners, with the 80% ranges holding 82% of the time. Cape to Cabot 20 km on 2026-10-18
-is in its prediction week: the first daily file was tagged on 2026-10-11 with 477 runners, and
-the final file, with places, is due by 08:00 on 2026-10-17. [The live record](#the-live-record)
-has both.
+the same runners, with the 80% ranges holding 82% of the time. The second is Cape to Cabot 20 km
+on 2026-10-18, scored from its final file, tagged the morning before with places: 6.7 minutes of
+average miss (6.0 to 7.5) over 443 finishers, 5.6 minutes closer than carry-forward on the same
+runners, the 80% ranges holding 79% of the time and the 90% ranges 93%. It is scored against the
+list the race's timer posted that morning; nlaa.ca had not posted the race yet, and the score is
+rerun against the association's page once it does. [The live record](#the-live-record) has both.
 
 ## How good is it
 
@@ -286,6 +288,7 @@ every finisher's prediction beside their result.
 | Race | Finishers scored | Finishers with a prediction | Predictions that finished | MAE, minutes: model | Model minus carry-forward, minutes | 80% held | 90% held | Place error | Spearman | Prediction |
 |---|---:|---:|---:|---|---|---|---|---|---|---|
 | [Turkey Tea 10k, 2026-10-04](docs/predictions/tt-2026.md) | 339 | 93% | 83% | 3.0 (2.6 to 3.4) | -2.3 (-2.7 to -1.8) | 82% (78 to 86) | 92% (89 to 95) | 25.6 (21.9 to 30.2) | 0.917 (0.887 to 0.939) | 6 daily files, `predictions/tt-2026/daily-*` (no final file was tagged) |
+| [Cape to Cabot, 2026-10-18](docs/predictions/c2c-2026.md) | 443 | 98% | 90% | 6.7 (6.0 to 7.5) | -5.6 (-6.3 to -4.8) | 79% (75 to 82) | 93% (90 to 95) | 37.6 (33.3 to 42.7) | 0.899 (0.864 to 0.925) | `predictions/c2c-2026/final`, sha256 `a7cb2cdcda1a` |
 
 95% CIs resample runners within each race, so each describes that race's morning and not the next one: runners in one race share its weather, and when the morning surprises the model they miss together. Model minus carry-forward is on the runners carry-forward could answer for; negative means the model was closer.
 <!-- finishline:end:live -->

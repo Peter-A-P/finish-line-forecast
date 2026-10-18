@@ -222,6 +222,16 @@ alone where nothing contradicts it. The affiliation ("Eastern Health", "Canadian
 not a hometown and is not read. **When nlaa.ca carries the same race**, the same date on the
 same course, the club's copy is dropped (`store.build`), so no edition is counted twice.
 
+**Cape to Cabot 2026, added 2026-10-18.** Cape to Cabot is the club's own race, and its timer
+posted the overall list on the race's site the morning of the race,
+`capetocabot.com/Cape_to_Cabot_Live_Results.htm` ("Timing & Results by Athletics NorthEAST").
+Peter pointed to it to score the prediction the same day. One page, fetched once at 14:38 UTC
+under the crawler's user agent, kept in `data/cache/ane/` with the others. This list prints a
+gender, an age group with the place inside it, and a club, read as printed; it prints no
+hometown, and the race page's hometowns are the ones the prediction file already published.
+`finishline score` reads it only while nlaa.ca has not posted the race, and the same swap
+applies to the archive.
+
 ## Trackie entry lists, added 2026-09-19
 
 The Turkey Tea 10k, this project's dress rehearsal on 2026-10-04, registers through Trackie,

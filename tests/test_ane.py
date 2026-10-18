@@ -89,3 +89,36 @@ def test_every_outside_race_is_in_that_list_and_says_where_it_came_from() -> Non
     assert len(rows) == len(ane.REGISTER) + len(raceroster.REGISTER)
     assert {row.source for row in rows} == {"Athletics NorthEAST", "Race Roster"}
     assert all(row.name for row in rows)
+
+
+# The layout of the 2026 Cape to Cabot list on the race's own site, names invented: a gender,
+# an age group with the place inside it, and a club before the split and the times.
+C2C_PAGE = """
+<table class="racetable">
+  <tr><td>Place</td><td>Name</td><td>Club</td><td>Bib No</td><td>Gender</td><td>Age Group</td>
+      <td>Rnk</td><td>Time</td><td>Rnk</td><td>Time</td><td>Time</td><td>Time</td></tr>
+  <tr><td>1</td><td>Perpetua Sled</td><td>ANER</td><td>12</td><td>F</td><td>1:30-39</td>
+      <td></td><td></td><td>1</td><td>1:22:41</td><td>1:22:41</td><td>1:22:43</td></tr>
+  <tr><td>2</td><td>Tobias Hale-Ford</td><td></td><td>34</td><td>M</td><td>3: 0-19</td>
+      <td></td><td></td><td>2</td><td>1:30:00</td><td>1:30:00</td><td>1:30:05</td></tr>
+</table>
+"""
+
+
+def test_a_list_that_prints_gender_and_age_group_has_them_read_as_printed() -> None:
+    first, second = ane.to_results(C2C_PAGE, "r")
+    assert (first.sex, first.age_band, first.category_place, first.club) == (
+        "F", "30-39", 1, "ANER"
+    )
+    assert (second.sex, second.age_band, second.category_place, second.club) == (
+        "M", "0-19", 3, None
+    )
+    assert (first.chip_seconds, first.gun_seconds) == (4961.0, 4963.0)
+    assert all(r.hometown is None for r in (first, second)), "no town is printed"
+
+
+def test_the_race_site_list_is_found_by_date_and_course() -> None:
+    listed = ane.posted_for(date(2026, 10, 18), "cape-to-cabot-20000")
+    assert listed is not None
+    assert listed.url == "https://www.capetocabot.com/Cape_to_Cabot_Live_Results.htm"
+    assert ane.posted_for(date(2026, 10, 18), "usr-10000") is None

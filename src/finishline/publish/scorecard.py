@@ -814,7 +814,8 @@ def _prediction_line(card: Mapping[str, Any]) -> str:
     tail = (
         f"for a gun at {card['gun']}. Model `{prediction['model']}` at commit "
         f"`{prediction['commit'][:12]}`. Scored against {card['results']['url']} "
-        f"(SHA-256 `{card['results']['sha256'][:16]}`) on {card['scored_at'][:10]}."
+        f"(SHA-256 `{card['results']['sha256'][:16]}`) on {card['scored_at'][:10]}"
+        + (f", {card['results']['source']}." if card["results"].get("source") else ".")
     )
     files = prediction.get("files")
     if not files:

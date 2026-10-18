@@ -1,4 +1,4 @@
-"""Results Athletics NorthEAST posts on its own site before the association republishes them.
+"""Results Athletics NorthEAST posts on its own sites before the association republishes them.
 
 WHY
 ---
@@ -15,15 +15,21 @@ timed and published these results itself, and Peter wrote to it before they were
 page is fetched once, at the crawler's pace and under its name, and kept in
 `data/cache/ane/`, which is gitignored.
 
+Cape to Cabot is the club's race, and its timer posts the overall list on the race's own site,
+`capetocabot.com`, the morning of the race (added 2026-10-18, at Peter's request, to score the
+prediction the same day). That list prints a gender, an age group and a club as well; no
+hometown.
+
 ⚠️ **Superseded the moment the association posts the same race.** When nlaa.ca carries an
 edition on the same date and course, `store.build` drops the copy from here, so one race is
 never counted twice and the association's page, with its sex and age columns, wins.
 
-⚠️ **These pages print no sex, no age and no hometown.** Only a place, a name, a service
+⚠️ **The USR pages print no sex, no age and no hometown.** Only a place, a name, a service
 affiliation ("Badge"), a bib and the times. The affiliation is not a hometown or a club and
 is not read. The resolver treats a missing sex or age as no information, so these results
 join a runner's history by name alone where nothing contradicts it, which is weaker
-evidence than any other source here gives it.
+evidence than any other source here gives it. A list whose header names a Gender, an Age
+Group or a Club column (Cape to Cabot's) has those read as printed; no list prints a hometown.
 """
 
 from __future__ import annotations
@@ -58,10 +64,11 @@ class Posted:
     distance_m: float
     course_id: str
     page: str  # the page's name on the site, as its URL spells it
+    site: str = BASE  # the club's own site, or the race's
 
     @property
     def url(self) -> str:
-        return BASE + self.page.replace(" ", "%20") + ".htm"
+        return self.site + self.page.replace(" ", "%20") + ".htm"
 
     @property
     def race(self) -> Race:
@@ -80,6 +87,7 @@ class Posted:
 
 
 _USR = date(2026, 9, 13)
+_C2C = date(2026, 10, 18)
 
 # Committed, because which races were read from where is part of the published claim.
 # ⚠️ The 2026 marathon and half are new routes (`nlaa.SAME_ROUTE`) and keep `usr-42195` and
@@ -92,10 +100,28 @@ REGISTER: tuple[Posted, ...] = (
     Posted("20260913-usr-10k-ane", "USR Quidi Vidi Brewery 10k", _USR, 10_000.0,
            "usr-10000", "USR 10k Overall"),
     Posted("20260913-usr-5k-ane", "USR 5k", _USR, 5_000.0, "usr-5000", "USR 5k Overall"),
+    Posted("20261018-c2c-20km-ane", "Capital Subaru Cape to Cabot 20k", _C2C, 20_000.0,
+           "cape-to-cabot-20000", "Cape_to_Cabot_Live_Results", "https://www.capetocabot.com/"),
 )
+
+
+def posted_for(when: date, course_id: str) -> Posted | None:
+    """The club's list for this date and course, if it posted one."""
+    return next(
+        (p for p in REGISTER if p.date == when and p.course_id == course_id), None
+    )
 
 _ROW = re.compile(r"<tr[^>]*>(.*?)</tr>", re.DOTALL | re.IGNORECASE)
 _CELL = re.compile(r"<td[^>]*>(.*?)</td>", re.DOTALL | re.IGNORECASE)
+# "1:20-29" and "1: 0-19" in Cape to Cabot's Age Group column: the place within the group, then
+# the group, kept as printed.
+_GROUP = re.compile(r"^(?P<place>\d+):\s*(?P<band>\d{1,2}-\d{1,3}|U\d{1,2}|\d{1,2}\+)$")
+
+
+def _printed(cells: list[str], column: dict[str, int], header: str) -> str | None:
+    """The cell under this header on one row, or None if the list has no such column."""
+    i = column.get(header)
+    return (cells[i] or None) if i is not None and i < len(cells) else None
 
 
 def to_results(page: str, race_id: str) -> list[Result]:
@@ -103,27 +129,34 @@ def to_results(page: str, race_id: str) -> list[Result]:
 
     Data rows start with a place. The columns before the times vary by race (the longer
     ones print splits and a division), but every list ends with the chip time and then the
-    gun time, so those are read from the end.
+    gun time, so those are read from the end. A Gender, Age Group or Club column is read where
+    the header row names one; a Badge never is.
     """
     results: list[Result] = []
+    column: dict[str, int] = {}
     for row in _ROW.findall(page):
         cells = [clean(html.unescape(re.sub(r"<[^>]+>", " ", cell))) for cell in _CELL.findall(row)]
+        if cells and cells[0] == "Place":
+            column = {cell.lower(): i for i, cell in enumerate(cells) if cell}
+            continue
         if len(cells) < 6 or not cells[0].isdigit():
             continue
         name = cells[1]
         if not name:
             continue
+        sex = _printed(cells, column, "gender")
+        group = _GROUP.match(_printed(cells, column, "age group") or "")
         results.append(
             Result(
                 race_id=race_id,
                 place=int(cells[0]),
                 bib=parse.integer(cells[3]),
                 name=name,
-                club=None,
-                sex=None,
+                club=_printed(cells, column, "club"),
+                sex=sex if sex in ("M", "F", "X") else None,
                 sex_place=None,
-                age_band=None,
-                category_place=None,
+                age_band=group["band"] if group else None,
+                category_place=int(group["place"]) if group else None,
                 hometown=None,
                 gun_seconds=parse.seconds(cells[-1]),
                 chip_seconds=parse.seconds(cells[-2]),

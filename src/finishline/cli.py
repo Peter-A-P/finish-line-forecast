@@ -2102,13 +2102,15 @@ def score_race(
     24 hours before the gun. With no final tag it scores the daily files instead, each from its
     own tag under the same checks, and no places (PLAN.md 13 item 45). Finds the results page
     on the association's index, refreshing that year's index once if the race is not on the
-    cached copy, and fetches the page once.
+    cached copy, and fetches the page once. Until the association posts the race, the list
+    its timer posted (`ingest/ane.REGISTER`) is scored instead, and the card says so; a
+    rerun once nlaa.ca carries the race scores the association's page.
     Writes scores/<race>.json, docs/predictions/<race>.md and the README's live rows.
     """
     import json
     from datetime import UTC, datetime
 
-    from finishline.ingest import records
+    from finishline.ingest import ane, records
     from finishline.publish import daily, predictions
     from finishline.publish import scorecard as cards
 
@@ -2215,18 +2217,37 @@ def score_race(
             typer.echo(f"not on the cached {when.year} index; reading it again, once")
             cache.get(nlaa.INDEX.format(year=when.year), refetch=True)
             found = candidates()
-        if not found:
+        timer = ane.posted_for(when, target["course_id"]) if results is None else None
+        if not found and timer is None:
             typer.echo(f"no results posted yet for {target['course_id']} on {when}")
             raise typer.Exit(code=1)
         if len(found) > 1:
             names = ", ".join(race.race_id for race in found)
             typer.echo(f"several pages match ({names}); pass --results with one", err=True)
             raise typer.Exit(code=2)
-        race = found[0]
-        if not cache.cached(race.url) and not (notices_sent or os.environ.get(NOTICES_ENV)):
-            typer.echo(NOTICES, err=True)
-            raise typer.Exit(code=2)
-        page = cache.get(race.url)
+        source: str | None = None
+        if found:
+            race = found[0]
+            if not cache.cached(race.url) and not (notices_sent or os.environ.get(NOTICES_ENV)):
+                typer.echo(NOTICES, err=True)
+                raise typer.Exit(code=2)
+            page = cache.get(race.url)
+            rows = records.to_results(page, race.race_id)
+        else:
+            assert timer is not None
+            if not (ANE_RESULTS / timer.cache_name).exists() and not (
+                notices_sent or os.environ.get(NOTICES_ENV)
+            ):
+                typer.echo(NOTICES, err=True)
+                raise typer.Exit(code=2)
+            typer.echo(f"not on nlaa.ca yet; scoring the list the timer posted, {timer.url}")
+            race = timer.race
+            page = ane.fetch(timer, ANE_RESULTS)
+            rows = ane.to_results(page, race.race_id)
+            source = (
+                "the list Athletics NorthEAST, the race's timer, posted the day of the race; "
+                "the association had not posted the race yet"
+            )
 
     if abs(race.distance_m - float(target["distance_m"])) > 1.0:
         typer.echo(
@@ -2236,7 +2257,6 @@ def score_race(
         )
         raise typer.Exit(code=2)
 
-    rows = records.to_results(page, race.race_id)
     lines = cards.published(doc)
     matching = cards.match(lines, rows)
 
@@ -2266,6 +2286,7 @@ def score_race(
             "race_id": race.race_id,
             "url": race.url,
             "sha256": predictions.sha256(page.encode("utf-8")),
+            **({"source": source} if source else {}),
         },
         scored_at=datetime.now(UTC),
     )
