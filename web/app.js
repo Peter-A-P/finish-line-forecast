@@ -498,7 +498,7 @@
       s.versus_carry_forward ? stat(errorText(Math.abs(s.versus_carry_forward[0])) +
         (s.versus_carry_forward[0] < 0 ? " closer" : " further"),
         "than \"you will run what you ran last time\", on the " + count(s.carry_forward_runners) +
-        " runners it could answer for (95% CI " + range(s.versus_carry_forward.map(Math.abs), mins) + " min)") : null,
+        " runners with a past race, which that rule needs (95% CI " + range(s.versus_carry_forward.map(Math.abs), mins) + " min)") : null,
       stat(pct(s.held80[0]), "of finishes inside their 80% range (95% CI " + range(s.held80, pct) + ")"),
       s.spearman ? stat(s.spearman[0].toFixed(2), "rank agreement between predicted and actual finishing order, where 1 is perfect") : null
     ].filter(Boolean));
@@ -738,7 +738,9 @@
         "first-timers included"),
       info.paired ? stat(errorText(info.paired_model_min) + " vs " + errorText(info.paired_baseline_min),
         "the model against \"you will run what you ran last time\", on the " + count(info.paired) +
-        " runners both could answer for") : null,
+        " runners with a past race, which that rule needs" +
+        (info.scored > info.paired ? "; the " + count(info.scored - info.paired) + " without one are only in the " +
+          errorText(info.mae_min) + ", and miss by more" : "")) : null,
       isNumber(info.coverage80) ? stat(percent(info.coverage80, 0),
         "of finishes landed inside the 80% range, which promises 80%") : null,
       stat(info.median_places_out + " places", "the middle miss on where a runner finished in " +
