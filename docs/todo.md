@@ -235,7 +235,7 @@ an average morning, as it should. The saved backtests match the archive as it st
 **When nlaa.ca posts Cape to Cabot's results**, which it probably will before 2026-11-04, the
 archive changes (the association's page replaces the timer's list), so, in order: `finishline
 crawl --notices-sent --refresh-index`, `finishline score c2c-2026 --notices-sent` (it scores
-the association's page from then on), `scriptsun-post-c2c` style backtest rerun (about 8 hours,
+the association's page from then on), a backtest rerun (about 8 hours; `scratch/run-post-c2c.ps1` runs both with retries:
 `backtest --hierarchical --weather --challenger`, then `--no-weather`), `finishline report`, commit
 and push, all **before** 06:15 on 2026-11-04. The rehearsal fits were moved aside to
 `data/cache/freeze/r2r-2026/rehearsal-*.pkl` so the first daily file fits fresh; if a
