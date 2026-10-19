@@ -480,9 +480,12 @@ Neutral is 10 C and 20 km/h, which is the middle of this archive rather than a l
 hierarchical model the same idea is fitted as felt heat above a 12 C knee, with the sun adding
 degrees to the temperature a runner feels: a degree above the knee costs +0.05% at 5 km (95% CI
 +0.00 to +0.13), +0.31% at 10 km, +0.50% on the Tely, +0.58% on Cape to Cabot and +0.87% at a
-marathon, and a km/h of wind +0.027%. Paired against the same model fitted without any weather,
-it lowers a runner's own error by 0.0010 of a finish time, an interval that only clears zero for
-first-timers. That is the size it should be: weather moves the level of a whole field by one to
+marathon. The wind is met leg by leg along each course's road (PLAN.md 13 item 48): a 20 km/h
+wind in the field's face for a whole race costs +1.2% (+0.4 to +2.0) and the same wind behind
+it gives back -0.4% (-1.1 to +0.4), about a third, so an out-and-back on a windy morning still
+pays. Paired against the same model fitted without any weather,
+it lowers a runner's own error by 0.0011 of a finish time (95% CI -0.0020 to +0.0001, races
+resampled), an interval that clears zero only for runners with two or three past races. That is the size it should be: weather moves the level of a whole field by one to
 five percent and individual error is around ten, so a correct level shift is nearly invisible per
 runner. It is not invisible to a race director planning a finish-line clock, and that is where
 the check matters: without weather, bias climbs with the heat, leaving +0.42 (+/- 0.30) of each

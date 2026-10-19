@@ -2174,7 +2174,14 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     push, and half the squared speed.
     The four `bearing_deg` values are retired and a test refuses one coming back.
 
-    **Not yet measured.** The terms want waypoints on the courses that carry the archive's
-    finishes (the Tely alone is 47 percent of them near the airport), and until they arrive
-    those courses face every way, which loses the Tely's real tailwind. The backtest is rerun
-    once they are in, before Run to Remember's week starts on 2026-11-04.
+    **Measured (2026-10-18).** Waypoints came for nine courses: seven from Peter's own watch
+    files, Run to Remember, Turkey Tea and Flat Out placed by him; Harbour Front, discontinued
+    after 2019 with no map, faces every way. On the fit over the whole archive both terms clear
+    zero for the first time a wind direction has: `wind_exposure` +0.00097 per (10 km/h)^2
+    [+0.00048, +0.00142] and `net_tailwind` -0.040% per km/h [-0.077, -0.003]. A 20 km/h wind
+    in the face for a whole race costs +1.2% [+0.4, +2.0]; the same wind behind gives back
+    -0.4% [-1.1, +0.4], about a third, the asymmetry the squared term exists for. On Run to
+    Remember a 20 km/h wind along the trail costs +0.39% [+0.19, +0.57], about 13 seconds in 55
+    minutes, and the same wind across it nothing. The backtest is the same to a tenth of a
+    minute at every depth (blend 4.9 at four or more, 34 percent skill), which is the size a
+    correct shift of whole-field levels should be per runner (item 29).

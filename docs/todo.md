@@ -226,6 +226,22 @@ are fetched by hand (`finishline crawl --refresh-index`) before the backtest eac
 never between that backtest and the freeze. When nlaa.ca posts the USR, its pages replace the
 club's copy automatically (`store.build`).
 
+### 3a. Before Run to Remember's week starts, 2026-11-04 06:15
+
+Rehearsed on 2026-10-18 (`freeze r2r-2026 --dry-run`): 193 runners, 3 excluded as ambiguous,
+21 with no history, schema clean; the forecast was out of range 23 days ahead, so it predicted
+an average morning, as it should. The saved backtests match the archive as it stands.
+
+**When nlaa.ca posts Cape to Cabot's results**, which it probably will before 2026-11-04, the
+archive changes (the association's page replaces the timer's list), so, in order: `finishline
+crawl --notices-sent --refresh-index`, `finishline score c2c-2026 --notices-sent` (it scores
+the association's page from then on), `scriptsun-post-c2c` style backtest rerun (about 8 hours,
+`backtest --hierarchical --weather --challenger`, then `--no-weather`), `finishline report`, commit
+and push, all **before** 06:15 on 2026-11-04. The rehearsal fits were moved aside to
+`data/cache/freeze/r2r-2026/rehearsal-*.pkl` so the first daily file fits fresh; if a
+`posterior.pkl` is there from anything else, the 06:15 task refuses on a changed archive.
+Three entrants share a name with more than one runner: `finishline review r2r-2026` before then.
+
 ### 3b. Cape to Cabot's prediction week, 2026-10-11 to 2026-10-17
 
 The Turkey Tea rehearsal is finished: six daily files tagged before the gun, scored on
