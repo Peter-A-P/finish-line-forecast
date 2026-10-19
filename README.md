@@ -87,57 +87,61 @@ the two beats both, and where the average loses it loses by 0.06 points at one d
 <!-- finishline:baselines -->
 | Prior results | Runners | Model | Answered | MAE, minutes (95% CI) | Mean % error | Skill vs carry-forward |
 |---|---:|---|---:|---|---:|---:|
-| 0 | 5748 | `carry-forward` | 0% | - | - | baseline |
+| 0 | 5777 | `carry-forward` | 0% | - | - | baseline |
 |  |  | `best-equal-vdot` | 0% | - | - | - |
-|  |  | `category-median` | 95% | 18.3 (17.9 to 18.8) | 18% | - |
-|  |  | `hierarchical` | 100% | 17.9 (17.5 to 18.4) | 18% | - |
-|  |  | `lightgbm` | 100% | 18.6 (18.1 to 19.1) | 17% | - |
-|  |  | `blend` | 100% | 18.0 (17.5 to 18.4) | 17% | - |
-| 1 | 2765 | `carry-forward` | 100% | 9.5 (9.0 to 9.9) | 10% | baseline |
-|  |  | `best-equal-vdot` | 65% | 7.5 (7.1 to 7.9) | 8% | 21% |
-|  |  | `category-median` | 96% | 15.9 (15.3 to 16.5) | 16% | -68% |
-|  |  | `hierarchical` | 100% | 9.3 (8.9 to 9.8) | 10% | 2% |
-|  |  | `lightgbm` | 100% | 8.7 (8.3 to 9.1) | 9% | 8% |
-|  |  | `blend` | 100% | 8.6 (8.2 to 9.0) | 9% | 9% |
-| 2 to 3 | 2983 | `carry-forward` | 100% | 9.2 (8.8 to 9.6) | 9% | baseline |
-|  |  | `best-equal-vdot` | 73% | 7.7 (7.3 to 8.1) | 8% | 16% |
-|  |  | `category-median` | 95% | 15.7 (15.1 to 16.3) | 16% | -70% |
-|  |  | `hierarchical` | 100% | 8.4 (8.0 to 8.8) | 9% | 9% |
-|  |  | `lightgbm` | 100% | 7.6 (7.3 to 8.0) | 7% | 17% |
+|  |  | `category-median` | 95% | 18.3 (17.9 to 18.9) | 18% | - |
+|  |  | `hierarchical` | 100% | 18.0 (17.5 to 18.5) | 18% | - |
+|  |  | `hierarchical-no-weather` | 100% | 18.0 (17.6 to 18.5) | 18% | - |
+|  |  | `lightgbm` | 100% | 18.7 (18.2 to 19.2) | 17% | - |
+|  |  | `blend` | 100% | 18.0 (17.6 to 18.5) | 17% | - |
+| 1 | 2811 | `carry-forward` | 100% | 9.5 (9.1 to 10.0) | 10% | baseline |
+|  |  | `best-equal-vdot` | 65% | 7.5 (7.2 to 7.9) | 8% | 21% |
+|  |  | `category-median` | 96% | 16.0 (15.4 to 16.6) | 16% | -68% |
+|  |  | `hierarchical` | 100% | 9.3 (8.9 to 9.7) | 10% | 2% |
+|  |  | `hierarchical-no-weather` | 100% | 9.5 (9.1 to 9.9) | 10% | 1% |
+|  |  | `lightgbm` | 100% | 8.7 (8.4 to 9.1) | 9% | 8% |
+|  |  | `blend` | 100% | 8.6 (8.2 to 9.0) | 9% | 10% |
+| 2 to 3 | 3055 | `carry-forward` | 100% | 9.3 (8.9 to 9.7) | 9% | baseline |
+|  |  | `best-equal-vdot` | 74% | 7.9 (7.5 to 8.2) | 8% | 15% |
+|  |  | `category-median` | 95% | 15.6 (15.1 to 16.2) | 16% | -68% |
+|  |  | `hierarchical` | 100% | 8.4 (8.0 to 8.8) | 9% | 10% |
+|  |  | `hierarchical-no-weather` | 100% | 8.5 (8.2 to 8.9) | 9% | 8% |
+|  |  | `lightgbm` | 100% | 7.7 (7.4 to 8.1) | 7% | 17% |
 |  |  | `blend` | 100% | 7.7 (7.3 to 8.0) | 8% | 17% |
-| 4 or more | 7709 | `carry-forward` | 100% | 7.3 (7.1 to 7.5) | 8% | baseline |
-|  |  | `best-equal-vdot` | 88% | 7.1 (6.8 to 7.3) | 7% | 3% |
-|  |  | `category-median` | 95% | 13.9 (13.6 to 14.2) | 18% | -91% |
-|  |  | `hierarchical` | 100% | 5.3 (5.1 to 5.5) | 6% | 27% |
-|  |  | `lightgbm` | 100% | 5.1 (4.9 to 5.2) | 5% | 30% |
-|  |  | `blend` | 100% | 4.9 (4.8 to 5.1) | 5% | 32% |
+| 4 or more | 8005 | `carry-forward` | 100% | 7.4 (7.2 to 7.7) | 8% | baseline |
+|  |  | `best-equal-vdot` | 88% | 7.4 (7.2 to 7.7) | 8% | -0% |
+|  |  | `category-median` | 95% | 14.0 (13.7 to 14.3) | 18% | -88% |
+|  |  | `hierarchical` | 100% | 5.3 (5.1 to 5.5) | 6% | 29% |
+|  |  | `hierarchical-no-weather` | 100% | 5.4 (5.3 to 5.6) | 6% | 27% |
+|  |  | `lightgbm` | 100% | 5.1 (5.0 to 5.3) | 5% | 31% |
+|  |  | `blend` | 100% | 4.9 (4.8 to 5.1) | 5% | 34% |
 
 `lightgbm` against `hierarchical` on the same runners. The difference is in mean absolute error as a percent of each runner's own finish time; negative favours `lightgbm`, and the 95% CI resamples races.
 
 | Prior results | Runners | Races | MAE, minutes, `lightgbm` vs `hierarchical` | Difference, points of a finish time (95% CI) |
 |---|---:|---:|---|---|
-| 0 | 5,740 | 54 | 18.6 vs 17.9 | +0.83 (-0.40 to +1.71) |
-| 1 | 2,759 | 53 | 8.7 vs 9.3 | -0.89 (-1.69 to -0.54) |
-| 2 to 3 | 2,977 | 53 | 7.7 vs 8.4 | -0.95 (-1.37 to -0.74) |
-| 4 or more | 7,699 | 52 | 5.1 vs 5.3 | -0.37 (-0.59 to -0.17) |
+| 0 | 5,769 | 55 | 18.6 vs 18.0 | +0.88 (-0.52 to +1.83) |
+| 1 | 2,805 | 54 | 8.7 vs 9.3 | -0.83 (-1.52 to -0.46) |
+| 2 to 3 | 3,049 | 54 | 7.7 vs 8.4 | -0.88 (-1.27 to -0.67) |
+| 4 or more | 7,995 | 53 | 5.1 vs 5.3 | -0.35 (-0.54 to -0.21) |
 
 `blend` against `hierarchical` on the same runners. The difference is in mean absolute error as a percent of each runner's own finish time; negative favours `blend`, and the 95% CI resamples races.
 
 | Prior results | Runners | Races | MAE, minutes, `blend` vs `hierarchical` | Difference, points of a finish time (95% CI) |
 |---|---:|---:|---|---|
-| 0 | 5,740 | 54 | 18.0 vs 17.9 | +0.19 (-0.73 to +0.73) |
-| 1 | 2,759 | 53 | 8.6 vs 9.3 | -0.90 (-1.44 to -0.67) |
-| 2 to 3 | 2,977 | 53 | 7.7 vs 8.4 | -0.89 (-1.20 to -0.73) |
-| 4 or more | 7,699 | 52 | 4.9 vs 5.3 | -0.50 (-0.63 to -0.38) |
+| 0 | 5,769 | 55 | 18.0 vs 18.0 | +0.20 (-0.85 to +0.77) |
+| 1 | 2,805 | 54 | 8.6 vs 9.3 | -0.86 (-1.34 to -0.64) |
+| 2 to 3 | 3,049 | 54 | 7.7 vs 8.4 | -0.85 (-1.12 to -0.70) |
+| 4 or more | 7,995 | 53 | 4.9 vs 5.3 | -0.49 (-0.61 to -0.40) |
 
 `blend` against `lightgbm` on the same runners. The difference is in mean absolute error as a percent of each runner's own finish time; negative favours `blend`, and the 95% CI resamples races.
 
 | Prior results | Runners | Races | MAE, minutes, `blend` vs `lightgbm` | Difference, points of a finish time (95% CI) |
 |---|---:|---:|---|---|
-| 0 | 5,740 | 54 | 18.0 vs 18.6 | -0.64 (-1.00 to -0.21) |
-| 1 | 2,759 | 53 | 8.6 vs 8.7 | -0.00 (-0.14 to +0.24) |
-| 2 to 3 | 2,977 | 53 | 7.7 vs 7.7 | +0.06 (+0.01 to +0.19) |
-| 4 or more | 7,699 | 52 | 4.9 vs 5.1 | -0.13 (-0.23 to -0.03) |
+| 0 | 5,769 | 55 | 18.0 vs 18.6 | -0.69 (-1.07 to -0.23) |
+| 1 | 2,805 | 54 | 8.6 vs 8.7 | -0.03 (-0.19 to +0.19) |
+| 2 to 3 | 3,049 | 54 | 7.7 vs 7.7 | +0.04 (-0.04 to +0.16) |
+| 4 or more | 7,995 | 53 | 4.9 vs 5.1 | -0.14 (-0.21 to -0.05) |
 <!-- finishline:end:baselines -->
 
 **None of those three rules was lying around to be beaten.** "You will run what you ran last
@@ -169,11 +173,11 @@ is what compares a 5 km with a marathon.
 | Race length | Runners | Typical finish, minutes | Average miss, whole field | Half within | 9 in 10 within | Average miss, 4+ races |
 |---|---:|---:|---:|---:|---:|---:|
 | 5 km | 2,494 | 28.2 | 3.5 min (10%) | 1.6 min | 8.7 min | 1.4 min (5%) |
-| 8 km | 1,154 | 42.4 | 2.7 min (6%) | 1.6 min | 6.5 min | 1.8 min (4%) |
-| 10 km | 2,273 | 57.8 | 4.4 min (7%) | 2.4 min | 10.4 min | 2.6 min (4%) |
-| 16 km (the Tely 10) | 10,901 | 102.6 | 12.7 min (11%) | 7.4 min | 31.1 min | 6.6 min (6%) |
-| 20 km | 2,028 | 129.2 | 9.3 min (7%) | 5.8 min | 21.4 min | 6.1 min (5%) |
-| Marathon | 325 | 270.4 | 25.5 min (9%) | 18.8 min | 59.0 min | 17.7 min (6%) |
+| 8 km | 1,154 | 42.4 | 2.7 min (6%) | 1.7 min | 6.5 min | 1.8 min (4%) |
+| 10 km | 2,273 | 57.8 | 4.3 min (7%) | 2.4 min | 10.7 min | 2.6 min (4%) |
+| 16 km (the Tely 10) | 10,901 | 102.6 | 12.7 min (11%) | 7.5 min | 31.1 min | 6.6 min (6%) |
+| 20 km | 2,471 | 127.7 | 8.9 min (7%) | 5.5 min | 20.0 min | 5.9 min (5%) |
+| Marathon | 325 | 270.4 | 25.4 min (9%) | 18.5 min | 57.6 min | 17.2 min (6%) |
 <!-- finishline:end:distances -->
 
 ### By where a runner finishes in their own field
@@ -188,12 +192,12 @@ much history each group happens to have.
 
 | Race length | Front of the field (fastest quarter) | Mid-pack (middle half) | Later finishers (last quarter) |
 |---|---|---|---|
-| 5 km | 46 sec, 3.9% (372) | 1.3 min, 5.1% (572) | 3.4 min, 9.6% (159) |
-| 8 km | 1.1 min, 3.3% (223) | 1.8 min, 4.2% (336) | 3.1 min, 5.6% (135) |
-| 10 km | 1.5 min, 3.4% (380) | 2.5 min, 4.3% (543) | 4.4 min, 5.9% (236) |
-| 16 km (the Tely 10) | 3.6 min, 4.8% (1,177) | 6.2 min, 5.9% (1,710) | 13.7 min, 9.3% (585) |
-| 20 km | 4.2 min, 4.1% (310) | 6.1 min, 4.7% (559) | 8.5 min, 5.2% (265) |
-| Marathon | 10.4 min, 4.8% (39) | 19.2 min, 6.9% (67) | 23.6 min, 7.0% (31) |
+| 5 km | 45 sec, 3.8% (372) | 1.3 min, 5.1% (572) | 3.3 min, 9.5% (159) |
+| 8 km | 1.1 min, 3.3% (223) | 1.8 min, 4.2% (336) | 3.1 min, 5.7% (135) |
+| 10 km | 1.5 min, 3.4% (380) | 2.5 min, 4.2% (543) | 4.5 min, 5.9% (236) |
+| 16 km (the Tely 10) | 3.6 min, 4.7% (1,177) | 6.2 min, 5.9% (1,710) | 13.9 min, 9.5% (585) |
+| 20 km | 4.2 min, 4.1% (377) | 5.7 min, 4.5% (714) | 8.3 min, 5.1% (339) |
+| Marathon | 10.3 min, 4.8% (39) | 18.6 min, 6.7% (67) | 22.8 min, 6.7% (31) |
 <!-- finishline:end:speeds -->
 
 ### The order of finish
@@ -201,22 +205,24 @@ much history each group happens to have.
 <!-- finishline:placing -->
 | Model | Races | Mean absolute place error | Spearman, predicted vs actual |
 |---|---:|---:|---:|
-| `carry-forward` | 54 | 24.6 | 0.838 |
-| `best-equal-vdot` | 53 | 17.8 | 0.839 |
-| `category-median` | 47 | 95.5 | 0.349 |
-| `hierarchical` | 54 | 50.3 | 0.717 |
-| `lightgbm` | 54 | 49.2 | 0.739 |
-| `blend` | 54 | 48.2 | 0.736 |
+| `carry-forward` | 55 | 24.8 | 0.839 |
+| `best-equal-vdot` | 54 | 18.1 | 0.840 |
+| `category-median` | 48 | 95.7 | 0.350 |
+| `hierarchical` | 55 | 50.2 | 0.720 |
+| `hierarchical-no-weather` | 55 | 50.2 | 0.720 |
+| `lightgbm` | 55 | 49.1 | 0.741 |
+| `blend` | 55 | 48.1 | 0.739 |
 
 The same runners: each model against `carry-forward`, both ranked among the runners both answered for in each race (races with at least 10 of them). Negative place error and positive Spearman differences favour the model; the 95% CI resamples races.
 
 | Model | Races | Runners | Place error, model vs `carry-forward` | Difference (95% CI) | Spearman, model vs `carry-forward` | Difference (95% CI) |
 |---|---:|---:|---|---|---|---|
-| `best-equal-vdot` | 52 | 10,705 | 18.0 vs 19.0 | -1.0 (-2.2 to +0.0) | 0.851 vs 0.849 | +0.001 (-0.007 to +0.009) |
-| `category-median` | 45 | 12,759 | 69.3 vs 27.8 | +41.5 (+21.4 to +68.3) | 0.368 vs 0.854 | -0.486 (-0.541 to -0.444) |
-| `hierarchical` | 52 | 13,425 | 23.6 vs 25.4 | -1.8 (-3.1 to -0.7) | 0.857 vs 0.851 | +0.006 (-0.007 to +0.019) |
-| `lightgbm` | 52 | 13,425 | 21.3 vs 25.4 | -4.1 (-6.6 to -2.1) | 0.877 vs 0.851 | +0.026 (+0.015 to +0.036) |
-| `blend` | 52 | 13,425 | 21.3 vs 25.4 | -4.1 (-6.6 to -2.1) | 0.878 vs 0.851 | +0.027 (+0.015 to +0.038) |
+| `best-equal-vdot` | 53 | 11,088 | 18.4 vs 19.3 | -0.9 (-2.2 to +0.0) | 0.851 vs 0.850 | +0.001 (-0.007 to +0.009) |
+| `category-median` | 46 | 13,173 | 70.0 vs 28.0 | +42.0 (+22.0 to +67.1) | 0.369 vs 0.855 | -0.486 (-0.536 to -0.444) |
+| `hierarchical` | 53 | 13,839 | 23.8 vs 25.6 | -1.9 (-3.2 to -0.8) | 0.859 vs 0.852 | +0.008 (-0.005 to +0.020) |
+| `hierarchical-no-weather` | 53 | 13,839 | 23.8 vs 25.6 | -1.8 (-3.1 to -0.8) | 0.859 vs 0.852 | +0.007 (-0.006 to +0.020) |
+| `lightgbm` | 53 | 13,839 | 21.5 vs 25.6 | -4.2 (-6.7 to -2.2) | 0.878 vs 0.852 | +0.027 (+0.016 to +0.037) |
+| `blend` | 53 | 13,839 | 21.5 vs 25.6 | -4.2 (-6.7 to -2.3) | 0.879 vs 0.852 | +0.027 (+0.016 to +0.038) |
 <!-- finishline:end:placing -->
 
 **Read the second table, not the first.** The first ranks each method among the runners it
@@ -240,40 +246,40 @@ one, split by how much history a runner has.
 
 | Prior results | Level | Runners checked | Races | Model's own interval | After conformal | Median width, minutes (own to conformal) |
 |---|---:|---:|---:|---|---|---|
-| 0 | 80% | 5,678 | 52 | 77% (75 to 82) | 78% (74 to 84) | 51.9 to 52.8 |
-| 1 | 80% | 2,700 | 48 | 74% (72 to 77) | 75% (71 to 79) | 20.4 to 20.6 |
-| 2 to 3 | 80% | 2,908 | 48 | 74% (71 to 77) | 78% (75 to 80) | 18.3 to 19.9 |
-| 4 or more | 80% | 7,599 | 51 | 80% (77 to 83) | 77% (75 to 80) | 13.2 to 12.0 |
-| 0 | 90% | 5,678 | 52 | 87% (85 to 90) | 89% (85 to 93) | 67.6 to 72.0 |
-| 1 | 90% | 2,700 | 48 | 84% (83 to 87) | 87% (86 to 90) | 27.8 to 30.7 |
-| 2 to 3 | 90% | 2,908 | 48 | 84% (82 to 86) | 88% (87 to 90) | 24.5 to 27.7 |
-| 4 or more | 90% | 7,599 | 51 | 89% (87 to 91) | 88% (86 to 90) | 17.9 to 16.9 |
+| 0 | 80% | 5,707 | 53 | 77% (75 to 81) | 78% (74 to 84) | 52.0 to 52.6 |
+| 1 | 80% | 2,746 | 49 | 75% (72 to 77) | 75% (72 to 79) | 20.3 to 20.7 |
+| 2 to 3 | 80% | 2,980 | 49 | 74% (71 to 77) | 77% (75 to 79) | 18.1 to 19.5 |
+| 4 or more | 80% | 7,895 | 52 | 80% (77 to 83) | 77% (75 to 80) | 13.2 to 12.1 |
+| 0 | 90% | 5,707 | 53 | 87% (85 to 90) | 89% (86 to 93) | 67.7 to 72.2 |
+| 1 | 90% | 2,746 | 49 | 84% (82 to 87) | 87% (85 to 90) | 27.9 to 30.5 |
+| 2 to 3 | 90% | 2,980 | 49 | 84% (82 to 86) | 88% (87 to 90) | 24.4 to 28.0 |
+| 4 or more | 90% | 7,895 | 52 | 89% (87 to 91) | 88% (86 to 90) | 18.0 to 17.1 |
 
 `hierarchical`, every race from 2024 on. Each race's intervals are adjusted using only races dated before it, separately for each history depth. Coverage is the share of runners whose finish fell inside; the 95% CI resamples races, not runners, because runners in one race share its morning.
 
 | Prior results | Level | Runners checked | Races | Model's own interval | After conformal | Median width, minutes (own to conformal) |
 |---|---:|---:|---:|---|---|---|
-| 0 | 80% | 5,686 | 52 | 77% (76 to 80) | 79% (74 to 84) | 54.2 to 55.0 |
-| 1 | 80% | 2,706 | 48 | 74% (70 to 75) | 78% (75 to 79) | 20.5 to 23.0 |
-| 2 to 3 | 80% | 2,914 | 48 | 71% (68 to 74) | 79% (76 to 82) | 18.3 to 22.6 |
-| 4 or more | 80% | 7,609 | 51 | 77% (74 to 79) | 78% (75 to 80) | 13.2 to 13.4 |
-| 0 | 90% | 5,686 | 52 | 87% (86 to 89) | 89% (88 to 92) | 70.6 to 75.0 |
-| 1 | 90% | 2,706 | 48 | 84% (82 to 85) | 89% (88 to 90) | 28.0 to 33.5 |
-| 2 to 3 | 90% | 2,914 | 48 | 82% (79 to 84) | 88% (87 to 90) | 24.5 to 30.3 |
-| 4 or more | 90% | 7,609 | 51 | 87% (85 to 88) | 89% (87 to 90) | 17.8 to 18.8 |
+| 0 | 80% | 5,715 | 53 | 77% (76 to 80) | 79% (74 to 83) | 54.3 to 55.1 |
+| 1 | 80% | 2,752 | 49 | 73% (70 to 75) | 78% (75 to 80) | 20.4 to 23.6 |
+| 2 to 3 | 80% | 2,986 | 49 | 71% (68 to 74) | 78% (76 to 81) | 18.1 to 22.1 |
+| 4 or more | 80% | 7,905 | 52 | 77% (74 to 79) | 77% (75 to 80) | 13.2 to 13.4 |
+| 0 | 90% | 5,715 | 53 | 87% (86 to 89) | 89% (87 to 92) | 70.9 to 75.2 |
+| 1 | 90% | 2,752 | 49 | 84% (82 to 85) | 89% (87 to 90) | 28.3 to 33.7 |
+| 2 to 3 | 90% | 2,986 | 49 | 82% (80 to 84) | 88% (87 to 90) | 24.4 to 30.2 |
+| 4 or more | 90% | 7,905 | 52 | 87% (85 to 89) | 89% (87 to 90) | 17.9 to 18.9 |
 
 `lightgbm`, every race from 2024 on. Each race's intervals are adjusted using only races dated before it, separately for each history depth. Coverage is the share of runners whose finish fell inside; the 95% CI resamples races, not runners, because runners in one race share its morning.
 
 | Prior results | Level | Runners checked | Races | Model's own interval | After conformal | Median width, minutes (own to conformal) |
 |---|---:|---:|---:|---|---|---|
-| 0 | 80% | 5,686 | 52 | 73% (70 to 77) | 80% (76 to 84) | 51.6 to 59.1 |
-| 1 | 80% | 2,706 | 48 | 72% (68 to 76) | 76% (73 to 81) | 20.4 to 22.2 |
-| 2 to 3 | 80% | 2,914 | 48 | 69% (66 to 74) | 77% (74 to 81) | 17.0 to 20.2 |
-| 4 or more | 80% | 7,609 | 51 | 69% (65 to 74) | 76% (72 to 81) | 10.7 to 12.5 |
-| 0 | 90% | 5,686 | 52 | 85% (83 to 88) | 89% (86 to 92) | 68.9 to 75.1 |
-| 1 | 90% | 2,706 | 48 | 83% (79 to 86) | 87% (85 to 90) | 27.6 to 30.2 |
-| 2 to 3 | 90% | 2,914 | 48 | 81% (78 to 85) | 88% (85 to 91) | 23.9 to 28.1 |
-| 4 or more | 90% | 7,609 | 51 | 82% (79 to 85) | 88% (85 to 91) | 15.4 to 17.9 |
+| 0 | 80% | 5,715 | 53 | 72% (69 to 76) | 80% (75 to 86) | 45.8 to 54.5 |
+| 1 | 80% | 2,752 | 49 | 72% (68 to 76) | 76% (73 to 81) | 20.5 to 22.8 |
+| 2 to 3 | 80% | 2,986 | 49 | 69% (65 to 72) | 77% (75 to 81) | 16.9 to 20.4 |
+| 4 or more | 80% | 7,905 | 52 | 70% (67 to 74) | 78% (74 to 82) | 11.1 to 13.2 |
+| 0 | 90% | 5,715 | 53 | 84% (81 to 87) | 89% (85 to 93) | 63.7 to 71.9 |
+| 1 | 90% | 2,752 | 49 | 83% (80 to 86) | 87% (85 to 91) | 27.3 to 30.5 |
+| 2 to 3 | 90% | 2,986 | 49 | 81% (78 to 85) | 88% (85 to 92) | 23.6 to 28.2 |
+| 4 or more | 90% | 7,905 | 52 | 83% (80 to 86) | 89% (86 to 91) | 15.7 to 18.4 |
 
 **The assumption.** Conformal coverage is guaranteed on average over races within a history-depth group, provided a new race's errors look like the earlier races' errors (exchangeability). It is not a promise about any one runner or any one race, and it fails when a race meets conditions or a field the earlier races did not: a gale on Signal Hill is exactly that. The first races of the backtest have too few earlier errors to calibrate on (under 50 per group) and are left out of this table rather than given an interval nobody could trust.
 <!-- finishline:end:coverage -->
@@ -337,13 +343,13 @@ history 17 editions.
 <!-- finishline:archive -->
 | | |
 |---|---:|
-| Races read | 287 |
-| Finishes parsed | 75,425 |
-| Runners resolved | 23,861 |
-| Runners this refuses to tell apart, and will not publish | 361 |
-| Runners with one finish | 12,715 |
-| Runners with two or three | 6,298 |
-| Runners with four or more | 4,821 |
+| Races read | 288 |
+| Finishes parsed | 75,877 |
+| Runners resolved | 23,890 |
+| Runners this refuses to tell apart, and will not publish | 366 |
+| Runners with one finish | 12,698 |
+| Runners with two or three | 6,313 |
+| Runners with four or more | 4,852 |
 | Pages that would not parse | 5 |
 <!-- finishline:end:archive -->
 
@@ -456,18 +462,18 @@ Fitted on 232 editions near St. John's airport, 55 of 287 excluded as too far fr
 
 | Race length | Cost per degree above neutral | What a 20 C morning costs |
 |---|---:|---:|
-| 5 km | -0.05% | -0.5% |
-| 10 km | +0.24% | +2.4% |
-| Tely 10 | +0.45% | +4.5% |
-| Cape to Cabot 20 km | +0.54% | +5.4% |
-| marathon | +0.86% | +8.6% |
+| 5 km | -0.04% | -0.4% |
+| 10 km | +0.25% | +2.5% |
+| Tely 10 | +0.46% | +4.6% |
+| Cape to Cabot 20 km | +0.55% | +5.5% |
+| marathon | +0.87% | +8.7% |
 
 Neutral is 10 C and 20 km/h, which is the middle of this archive rather than a laboratory ideal.
 
 | Term | Estimate | 95% CI |
 |---|---:|---|
-| Temperature at 10 km, per degree | +0.244% | [+0.131, +0.368] |
-| Tailwind along the bearing, per km/h | -0.032% | [-0.093, +0.027] |
+| Temperature at 10 km, per degree | +0.255% | [+0.139, +0.395] |
+| Net tailwind along the route, per km/h | -0.044% | [-0.151, +0.043] |
 <!-- finishline:end:conditions -->
 
 **What the model's own weather terms are worth, which is less than it sounds.** Inside the
