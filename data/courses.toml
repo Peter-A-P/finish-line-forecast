@@ -189,11 +189,20 @@ waypoints = [
 [run-to-remember-11000]
 name = "Run to Remember"
 distance_m = 11000
-climb_m = 92.5
+climb_m = 92.0
 drop_m = 92.0
 steepest_grade = 0.0241
 fastest_grade = -0.0241
 source = """\
+**Turned round on 2026-10-18 to start where the race starts.** The segment runs from the low \
+end of the trail (119 m) to the high end and back; the race starts at the high end (about \
+165 m), runs down to the turnaround at about 5.5 km and climbs back, as Peter's chart of the \
+course shows and as the organisers' chart did. The stored series is the same road started at \
+its halfway point: 161 m at the start and finish, low 119.1 m at 5.46 km, high 169.3 m at \
+0.6 km, fastest 700 m -2.4% from 1.36 km and steepest +2.4% from 8.86 km, 92.0 m each way. \
+Nothing in the model reads the order of the heights; the website's drawing does. What follows \
+describes the segment as delivered.
+
 Project 11's profile of 2026-09-25 (the note above the 5 km courses has the provenance of the \
 set), drawn like Turkey Tea's **from Strava's own segment stream and not from anyone's watch \
 trace**, so it carries no clock, no heart rate and no splits: segment 16303190, named \
