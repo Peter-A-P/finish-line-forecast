@@ -1496,9 +1496,12 @@
 
   /* The felt-heat cost per degree above 12 C, by race length: the whole-archive posterior
      medians reported in the README and PLAN.md section 13 item 30. */
+  // Cost per degree of felt heat above the knee, posterior medians of the fit on every result
+  // before Run to Remember 2026 (2026-10-18 rehearsal); README "What the model's own weather
+  // terms are worth" carries the same figures.
   var HEAT = [
-    ["5 km", 0.0005, "w0"], ["10 km", 0.0031, "w1"], ["Tely 10 (16 km)", 0.0050, "w2"],
-    ["Cape to Cabot 20 km", 0.0058, "w3"], ["Marathon", 0.0087, "w4"]
+    ["5 km", 0.0007, "w0"], ["10 km", 0.0031, "w1"], ["Tely 10 (16 km)", 0.0047, "w2"],
+    ["Cape to Cabot 20 km", 0.0054, "w3"], ["Marathon", 0.0080, "w4"]
   ];
   var KNEE = 12;
 

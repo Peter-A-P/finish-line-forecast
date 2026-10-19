@@ -486,6 +486,14 @@
       <div class="legend" id="weather-legend"></div>
       <figcaption>How much slower a field runs as the felt temperature rises, by race length. Below 12 C the model charges nothing; above it, each degree costs more the longer the race. Full sun adds about 2 C of felt heat.</figcaption>
     </figure>
+    <p class="section-lead">
+      <strong>Wind, measured along each course's own road.</strong> A 20 km/h wind in the
+      runners' faces for a whole race costs about 1.2% of the finish time (95% interval 0.4 to
+      2.0%), some 36 seconds on a 50-minute 10 km. The same wind at their backs gives back only
+      about 0.4% (-1.1 to +0.4%), a third of that, which is why an out-and-back like Run to
+      Remember still pays on a windy morning: about 0.4% with a 20 km/h wind along its trail,
+      and nothing with the same wind across it.
+    </p>
     <div class="verdict">
       <p>
         <strong>Weather moves a whole field by a few percent, and that is easy to miss.</strong>
@@ -502,11 +510,14 @@
         Heat enters the race effect as <code>max(0, T + s x sun - 12 C) x (h0 + h1 log(d / 5 km))</code>,
         where <code>sun</code> is the direct radiation over the race hours as a share of a clear
         noon and <code>s</code>, the degrees a full sun adds, is estimated (posterior median
-        2.1 C, 95% interval 0.1 to 9.2, from a prior on the US National Weather Service's 15 F).
+        2.3 C, 95% interval 0.3 to 9.0, from a prior on the US National Weather Service's 15 F).
         Both heat coefficients are constrained positive, so a hot morning never makes a race
         faster. Wind is met leg by leg along each course's road, split as air resistance splits
         it: a part linear in the wind along each leg and a part in its square, so a headwind leg
-        costs more than the same tailwind gives back and an out-and-back is never free.
+        costs more than the same tailwind gives back and an out-and-back is never free. Fitted on
+        every result before Run to Remember 2026: +0.097% per (10 km/h)<sup>2</sup> of wind along
+        the road (95% interval +0.048 to +0.142) and -0.040% per km/h of net push (-0.077 to
+        -0.003), the first time a wind direction has cleared zero here.
       </p>
       <p>
         The straight line in temperature that most race models use was built and backtested

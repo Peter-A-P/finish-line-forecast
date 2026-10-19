@@ -478,9 +478,9 @@ Neutral is 10 C and 20 km/h, which is the middle of this archive rather than a l
 
 **What the model's own weather terms are worth, which is less than it sounds.** Inside the
 hierarchical model the same idea is fitted as felt heat above a 12 C knee, with the sun adding
-degrees to the temperature a runner feels: a degree above the knee costs +0.05% at 5 km (95% CI
-+0.00 to +0.13), +0.31% at 10 km, +0.50% on the Tely, +0.58% on Cape to Cabot and +0.87% at a
-marathon. The wind is met leg by leg along each course's road (PLAN.md 13 item 48): a 20 km/h
+degrees to the temperature a runner feels: a degree above the knee costs +0.07% at 5 km (95% CI
++0.00 to +0.15), +0.31% at 10 km, +0.47% on the Tely, +0.54% on Cape to Cabot and +0.80% at a
+marathon (fitted on every result before Run to Remember 2026). The wind is met leg by leg along each course's road (PLAN.md 13 item 48): a 20 km/h
 wind in the field's face for a whole race costs +1.2% (+0.4 to +2.0) and the same wind behind
 it gives back -0.4% (-1.1 to +0.4), about a third, so an out-and-back on a windy morning still
 pays. Paired against the same model fitted without any weather,
