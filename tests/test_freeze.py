@@ -498,6 +498,12 @@ def test_the_website_is_built_from_the_committed_files_alone(tmp_path: Path) -> 
         encoding="utf-8",
     )
     out = tmp_path / "site"
+    # The measured numbers without their per-race block: a start list `finishline report`
+    # last counted (Run to Remember's, since 2026-10-18) would otherwise decide the shelves.
+    measured = json.loads(Path("data/site/results.json").read_text(encoding="utf-8"))
+    measured.pop("races", None)
+    results = tmp_path / "results.json"
+    results.write_text(json.dumps(measured), encoding="utf-8")
     # No calendar and no retrospect files, so this stays a test of the prediction side. The
     # three-shelf picker and the already-run race have a test of their own below, on data
     # written here rather than on whatever `finishline report` last measured.
@@ -507,6 +513,7 @@ def test_the_website_is_built_from_the_committed_files_alone(tmp_path: Path) -> 
         tmp_path / "predictions",
         tmp_path / "scores",
         date(2026, 10, 12),
+        results=results,
         calendar=tmp_path / "no-calendar.json",
         retrospect=tmp_path / "no-retrospect",
     )
