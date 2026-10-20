@@ -657,28 +657,27 @@ Checks: `uv run ruff check .`, `uv run mypy`, `uv run pytest`.
 
 ## Judgement, and what is borrowed
 
-Design, methodology, evaluation choices and judgement are Peter Parker's, including years of
+The design, the methods, the evaluation and the judgement calls are mine, and so are years of
 racing and coaching on these courses. Two of those calls are in the model: that the Tely's
 prevailing westerly is a tailwind for almost the whole race, and that heat does not act in a
 straight line. The weather model is the clearest case. Four reasonable designs failed first:
 heat as a straight line, humidity, dew point, and sunshine as an effect of its own. What worked
-came off the road rather than out of the data. Below a threshold heat costs nothing; above it
-each degree costs more than the last, and it costs more the longer the race; sunshine has no
-effect of its own but raises the temperature a runner feels. Written that way it explains about
-twice as much of the edition-to-edition variation as the straight line did.
+came from running these races rather than from the data. Below a threshold heat costs nothing;
+above it each degree costs more than the last, and it costs more the longer the race; sunshine
+has no effect of its own but raises the temperature a runner feels. Written that way it explains
+about twice as much of the edition-to-edition variation as the straight line did.
 
-The running arithmetic is borrowed from
-[Overload](https://peterparker.ca/projects/overload/), Peter's AI coaching team for runners:
-Daniels' VDOT, the heat and wind corrections, and the age-grading tables, here in a public
-repository with tests. Constants that came across from Overload, including the full-sun figure
-it takes from the US National Weather Service, are used as priors and labelled as priors
-wherever they appear. Anything this archive can measure is measured here instead, and section 13
-item 30 has what the measurement said about that figure.
+The running arithmetic is borrowed from [Overload](https://peterparker.ca/projects/overload/),
+my AI coaching team for runners: Daniels' VDOT, the heat and wind corrections, and the
+age-grading tables, here in a public repository with tests. Constants that came across from
+Overload, including the full-sun figure it takes from the US National Weather Service, are used
+as priors and labelled as priors wherever they appear. Anything this archive can measure is
+measured here instead, and section 13 item 30 has what the measurement said about that figure.
 
-AI coding assistants (Claude Code) were used for implementation and drafting, the way a senior
+I used AI coding assistants (Claude Code) for implementation and drafting, the way a senior
 engineer uses them in 2026. Every number in the tables above is reproducible from this
-repository with one command, and every live prediction is verifiable from a tag that predates
-the race it describes.
+repository with one command, and every live prediction can be checked against a tag that
+predates the race it describes.
 
 ## Licence
 
