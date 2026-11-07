@@ -1093,6 +1093,8 @@ def _write_showcase(
             # The road itself, drawn under the card where a series exists.
             "elevation": None if series is None else showcase.elevation(series),
             "editions": showcase.editions(data, course_id, temperatures),
+            # How many finishes on this road were faster than each time, every edition.
+            "finish_curve": showcase.finish_curve(data, course_id),
             "backtest": showcase.course_backtest(scored, intervals, data, course_id),
             "entrants": None,
         }

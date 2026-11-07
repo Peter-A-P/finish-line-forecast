@@ -451,6 +451,44 @@ def editions(
     return out
 
 
+# The step of the finish-time curve, in seconds: fine enough that a reader's own time lands
+# within ten seconds of its count, coarse enough that a marathon's six hours is 2,000 numbers.
+CURVE_STEP_S = 10
+
+
+def finish_curve(data: Dataset, course_id: str) -> dict[str, Any] | None:
+    """How many finishes on one course were faster than each time, over every edition.
+
+    `faster[i]` counts the finishes strictly under `start_s + i * step_s`, from the fastest
+    finish to the slowest, so the website can say "under 55:00: 1,234 of 4,567" at any time on
+    the axis without the times themselves leaving this module. These are finishes, not
+    people: a runner with ten editions counts ten times, as each of those finishes was a time
+    somebody ran on this road. Counts only, which the results already publish one by one.
+    """
+    times: list[int] = []
+    editions: set[str] = set()
+    for result in data.results:
+        race = data.races[result.race_id]
+        if race.course_id == course_id and result.finished and result.seconds:
+            times.append(int(result.seconds))
+            editions.add(result.race_id)
+    if len(times) < 20:
+        return None
+    times.sort()
+    start = times[0] // CURVE_STEP_S * CURVE_STEP_S
+    steps = (times[-1] - start) // CURVE_STEP_S + 2
+    years = sorted(data.races[race_id].date.year for race_id in editions)
+    return {
+        "start_s": start,
+        "step_s": CURVE_STEP_S,
+        "faster": [bisect.bisect_left(times, start + i * CURVE_STEP_S) for i in range(steps)],
+        "finishes": len(times),
+        "editions": len(editions),
+        "first_year": years[0],
+        "last_year": years[-1],
+    }
+
+
 def course_backtest(
     scored: Sequence[score.Scored],
     intervals: Sequence[split.Interval],

@@ -218,6 +218,19 @@
       <div class="legend" id="history-legend"></div>
       <figcaption id="history-caption"></figcaption>
     </figure>
+
+    <div id="curve-block" hidden>
+      <h3>How fast is a time on this course?</h3>
+      <figure class="chart-figure">
+        <div class="curve-ask">
+          <label for="curve-time">A finish time</label>
+          <input id="curve-time" type="search" inputmode="numeric" autocomplete="off" placeholder="h:mm:ss or mm:ss">
+        </div>
+        <p class="readout" id="curve-readout"></p>
+        <div id="curve-chart" class="chart"></div>
+        <figcaption id="curve-caption"></figcaption>
+      </figure>
+    </div>
   </section>
 
   <!-- ============================================================== how it works -->

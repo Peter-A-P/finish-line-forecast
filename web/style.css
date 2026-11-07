@@ -1250,3 +1250,9 @@ pre.formula {
 }
 .prose .where { font-size: 0.86rem; color: var(--ink-faint); }
 .arch-back { margin: 0; font-size: 0.95rem; }
+
+/* The finish-time curve: a box to type a time into, over the chart it reads. */
+.curve-ask { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.4rem; }
+.curve-ask label { font-size: 0.9rem; color: var(--ink-soft, var(--ink)); }
+.curve-ask input[type="search"] { width: min(14rem, 100%); }
+.catcher.plain:hover, .catcher.plain:focus { fill: transparent; }

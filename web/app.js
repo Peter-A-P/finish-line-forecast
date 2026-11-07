@@ -199,6 +199,7 @@
     drawPreview(race);
     drawProfile(race);
     drawHistory(race);
+    drawCurve(race);
     hideFinder();
     if (race.retrospect) {
       loadRetrospect(race);
@@ -1339,6 +1340,120 @@
     node.appendChild(root);
     legend("history-legend", [["sw-median-line", "middle of the field"], ["sw-fastest-line", "fastest finish"], ["solid sw-lv2", "finishers"]]);
     byId("history-caption").textContent = "Every edition of this course in the archive, with the number of finishers over each column. Point at a year for its finishers, times and morning temperature.";
+  }
+
+  /* How fast a time is on this course -------------------------------------------------- */
+
+  /* "55", "55:30" or "1:05:30" to seconds; minutes when there is no colon. */
+  function parseClock(text) {
+    var parts = String(text || "").trim().split(":");
+    if (!parts[0]) { return null; }
+    var nums = parts.map(function (p) { return /^\d+(\.\d+)?$/.test(p) ? parseFloat(p) : NaN; });
+    if (nums.some(isNaN) || nums.length > 3) { return null; }
+    if (nums.length === 1) { return nums[0] * 60; }
+    if (nums.length === 2) { return nums[0] * 60 + nums[1]; }
+    return nums[0] * 3600 + nums[1] * 60 + nums[2];
+  }
+
+  /* Finishes strictly under a time, read off the curve's 10-second steps and interpolated
+     between them, so it is within a few finishes of the exact count. */
+  function fasterThan(curve, seconds) {
+    var f = curve.faster, at = (seconds - curve.start_s) / curve.step_s;
+    if (at <= 0) { return 0; }
+    if (at >= f.length - 1) { return curve.finishes; }
+    var i = Math.floor(at);
+    return f[i] + (f[i + 1] - f[i]) * (at - i);
+  }
+
+  function curveText(curve, seconds) {
+    var n = Math.round(fasterThan(curve, seconds));
+    var share = n / curve.finishes;
+    return "Under " + clock(seconds) + ": " + count(n) + " of " + count(curve.finishes) +
+      " finishes on this course were faster (" + percent(share, 1) + "). " + clock(seconds) +
+      " beats " + percent(1 - share, 1) + " of them" +
+      (n === 0 ? ", a course record." : ".");
+  }
+
+  function drawCurve(race) {
+    var info = story(race);
+    var curve = info && info.finish_curve;
+    var wrap = byId("curve-block");
+    var node = clear(byId("curve-chart"));
+    var readout = byId("curve-readout");
+    var box = byId("curve-time");
+    readout.textContent = "";
+    if (!curve || !curve.faster || curve.faster.length < 2) { wrap.hidden = true; return; }
+    wrap.hidden = false;
+
+    /* The slowest half a percent are a long thin tail (walkers, a sweep at the back), which
+       would squeeze everyone else into the left of the chart. The axis stops at 99.5% of
+       finishes; the readout and the box still count all of them. */
+    var f = curve.faster, total = curve.finishes;
+    var endStep = f.length - 1;
+    for (var k = 0; k < f.length; k++) { if (f[k] >= 0.995 * total) { endStep = k; break; } }
+    var lo = curve.start_s / 60, hi = (curve.start_s + endStep * curve.step_s) / 60;
+    var H = 320, L = 58, R = WIDTH - 16, T = 24, B = H - 40;
+    var x = linear([lo, hi], [L, R]);
+    var y = linear([0, 100], [B, T]);
+    var root = frame(H, "Share of finishes on the course of " + race.name + " faster than each time");
+    yAxis(root, y, L, R, function (v) { return v + "%"; }, "finishes faster than this time");
+    ticks(lo, hi, 8).forEach(function (m) {
+      root.appendChild(svg("text", { x: x(m), y: B + 18, "text-anchor": "middle", "class": "tick" }, clock(m * 60)));
+    });
+    var d = [];
+    for (var i = 0; i <= endStep; i++) {
+      var m = (curve.start_s + i * curve.step_s) / 60;
+      d.push((i ? "L" : "M") + x(m).toFixed(1) + " " + y(100 * f[i] / total).toFixed(1));
+    }
+    root.appendChild(svg("path", { d: d.join(" "), "class": "series median-line" }));
+    var cursor = svg("line", { x1: L, x2: L, y1: T, y2: B, "class": "cursor", visibility: "hidden" });
+    var guide = svg("line", { x1: L, x2: L, y1: B, y2: B, "class": "cursor", visibility: "hidden" });
+    var dot = svg("circle", { cx: L, cy: B, r: 4, "class": "dot median-dot", visibility: "hidden" });
+    root.appendChild(cursor); root.appendChild(guide); root.appendChild(dot);
+
+    var mark = function (seconds) {
+      var m = Math.min(Math.max(seconds / 60, lo), hi);
+      var py = y(100 * fasterThan(curve, seconds) / total);
+      cursor.setAttribute("x1", x(m)); cursor.setAttribute("x2", x(m));
+      cursor.setAttribute("y1", py);
+      guide.setAttribute("x1", L); guide.setAttribute("x2", x(m));
+      guide.setAttribute("y1", py); guide.setAttribute("y2", py);
+      dot.setAttribute("cx", x(m)); dot.setAttribute("cy", py);
+      [cursor, guide, dot].forEach(function (n) { n.setAttribute("visibility", "visible"); });
+      readout.textContent = curveText(curve, seconds);
+    };
+    var catcher = svg("rect", { x: L, y: T, width: R - L, height: B - T, "class": "catcher plain" });
+    var follow = function (event) {
+      var matrix = root.getScreenCTM();
+      if (!matrix) { return; }
+      var point = root.createSVGPoint();
+      point.x = event.clientX; point.y = event.clientY;
+      var at = point.matrixTransform(matrix.inverse()).x;
+      var minutes = lo + (hi - lo) * (at - L) / (R - L);
+      mark(Math.round(minutes * 60 / 5) * 5);
+    };
+    catcher.addEventListener("mousemove", follow);
+    catcher.addEventListener("click", follow);
+    root.appendChild(catcher);
+    node.appendChild(root);
+
+    box.value = "";
+    box.oninput = function () {
+      var seconds = parseClock(box.value);
+      if (seconds === null || seconds <= 0) {
+        readout.textContent = box.value.trim() ? "Type a time as h:mm:ss, mm:ss or minutes." : "";
+        return;
+      }
+      mark(seconds);
+    };
+
+    byId("curve-caption").textContent = "Every finish on this course in the archive, " +
+      count(total) + " over " + plural(curve.editions, "edition", "editions") + " from " +
+      curve.first_year + (curve.last_year !== curve.first_year ? " to " + curve.last_year : "") +
+      ". The line is the share of those finishes faster than each time. Point along it, or type a " +
+      "time above, for how many finished faster and what share of the field that time beats. " +
+      "These are finishes, not people: a runner with ten editions counts ten times. The slowest " +
+      "half a percent are off the right of the axis and still counted.";
   }
 
   /* ================================================================== how it works */

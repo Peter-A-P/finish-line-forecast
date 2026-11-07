@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import date
 from itertools import pairwise
 from pathlib import Path
 from typing import Any
@@ -13,7 +14,8 @@ from finishline.identity.link import Link, Status
 from finishline.identity.resolve import Runner
 from finishline.ingest.entrants import Entrant
 from finishline.publish import showcase
-from finishline.schema import Result
+from finishline.schema import Race, Result
+from finishline.store import Dataset
 
 COMMITTED = Path("data/site/results.json")
 
@@ -155,3 +157,30 @@ def test_what_the_card_draws_says_nothing_about_a_run() -> None:
         "points", "climb_m", "descent_m", "high", "low", "steepest", "fastest",
         "origin", "segment_id", "edition",
     }  # fmt: skip
+
+
+def test_the_finish_curve_counts_finishes_strictly_faster_over_every_edition() -> None:
+    """The website reads "under T: n of N finished faster" straight off this array."""
+    def finish(race_id: str, seconds: float) -> Result:
+        return Result(
+            race_id, None, None, "x", None, None, None, None, None, None, seconds, None
+        )
+
+    races = {
+        "a": Race("a", "Club 10k", date(2024, 9, 1), 10_000.0, "club-10000", "u"),
+        "b": Race("b", "Club 10k", date(2025, 9, 1), 10_000.0, "club-10000", "u"),
+        "c": Race("c", "Other 5k", date(2025, 9, 1), 5_000.0, "other-5000", "u"),
+    }
+    # 25 finishes on the course, one a second from 40:00, and one elsewhere that must not count.
+    results = [finish("a" if i % 2 else "b", 2400.0 + i) for i in range(25)]
+    results.append(finish("c", 1000.0))
+    data = Dataset(races=races, results=results, runners=[], failures=[])
+    curve = showcase.finish_curve(data, "club-10000")
+    assert curve is not None
+    assert curve["start_s"] == 2400 and curve["step_s"] == showcase.CURVE_STEP_S
+    assert curve["faster"][0] == 0  # nobody is under the fastest time
+    assert curve["faster"][1] == 10  # 40:00 to 40:09
+    assert curve["faster"][-1] == 25  # everyone, by the last step
+    assert (curve["finishes"], curve["editions"]) == (25, 2)
+    assert (curve["first_year"], curve["last_year"]) == (2024, 2025)
+    assert showcase.finish_curve(data, "other-5000") is None  # too few finishes to draw
