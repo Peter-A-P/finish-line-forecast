@@ -36,7 +36,8 @@ finishline crawl        fetch the results pages, once, one a second  (needs --no
                         --refresh-index finds races posted since; a new race makes the
                         saved model backtest stale, so crawl before a backtest, never
                         between one and a freeze; the weekly task runs it with --scheduled,
-                        which pauses around every race in data/live.toml)
+                        which pauses around every race in data/live.toml, and on any day
+                        the saved backtest matches while a live race is still to come)
 finishline weather      fetch the ECCC observations per race month   (needs --notices-sent)
 finishline dataset      parse, resolve runners, print what came out, and which races are
                         still read from outside the association (`store.borrowed`: the

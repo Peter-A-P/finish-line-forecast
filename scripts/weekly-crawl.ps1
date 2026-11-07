@@ -7,7 +7,10 @@
 #
 # It stands down from ten days before each race in data/live.toml to the day after
 # (`finishline crawl --scheduled`), because a crawl that finds a new race makes the saved
-# model backtest stale and `freeze` refuses without a matching one.
+# model backtest stale and `freeze` refuses without a matching one. Since 2026-11-07 it also
+# stands down on any day the saved backtest still matches while a live race is to come
+# (`cli._backtest_guard`): a weather refresh on 2026-10-25, outside the ten days, broke the one
+# Run to Remember's week was to use.
 #
 # The log is appended to data/cache/nlaa/crawl.log, gitignored with the rest of the cache.
 

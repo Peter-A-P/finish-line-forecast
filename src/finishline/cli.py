@@ -300,13 +300,50 @@ def crawl(
 
 
 def _scheduled_pause() -> bool:
-    """Whether a scheduled fetch should stand down today, saying why if so."""
+    """Whether a scheduled fetch should stand down today, saying why if so.
+
+    Two reasons. The fixed window around each live race (`freeze.crawl_paused`), and,
+    since 2026-11-07, **any day between a backtest and the freeze that needs it**: while a
+    live race is still to come and the saved backtest matches the archive and its weather,
+    a refresh can only break that match. On 2026-10-25 the weekly task re-read October's
+    airport readings and the year's sun record (revised after the fact by its publisher),
+    seventeen days after the backtest Run to Remember's week was to use and before the
+    fixed window opened; every saved run went stale and the week's first files could not
+    be made. The guard costs one read of the archive, and lifts itself the day the race is
+    run or the moment the backtest is stale for another reason, when a refresh is free.
+    """
     from finishline.publish import freeze as freezing
 
     reason = freezing.crawl_paused(LIVE, date.today())
+    if reason is None:
+        reason = _backtest_guard()
     if reason is not None:
         typer.echo(reason)
     return reason is not None
+
+
+def _backtest_guard() -> str | None:
+    """Why a refresh would break a backtest a coming race needs, or None when it would not."""
+    records: dict[str, Any] = (
+        tomllib.loads(LIVE.read_text(encoding="utf-8")) if LIVE.exists() else {}
+    )
+    today = date.today()
+    coming = sorted(
+        (date.fromisoformat(str(record["date"])), race_id)
+        for race_id, record in records.items()
+        if date.fromisoformat(str(record["date"])) >= today
+    )
+    if not coming:
+        return None
+    data = _dataset(FIRST_YEAR, LAST_YEAR)
+    covariates, _missing = _edition_weather(data)
+    if _blend_rows(data, 2024, covariates) is None:
+        return None
+    when, race_id = coming[0]
+    return (
+        f"paused: the saved backtest matches the archive and its weather, and {race_id} on "
+        f"{when} will be frozen on it; a refresh now would make it stale"
+    )
 
 
 @app.command()
