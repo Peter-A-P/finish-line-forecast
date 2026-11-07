@@ -322,7 +322,9 @@ def _fetch_trackie(client: httpx.Client, url: str) -> str:
     return response.text
 
 
-def snapshot(directory: Path, *, lists: dict[str, str] | None = None) -> list[Snapshot]:
+def snapshot(
+    directory: Path, *, lists: dict[str, str] | None = None
+) -> tuple[list[Snapshot], list[tuple[str, str]]]:
     """Take today's look at each list, and write down what was seen.
 
     Two things are recorded and they are not the same thing. The **file** is the start
@@ -341,10 +343,17 @@ def snapshot(directory: Path, *, lists: dict[str, str] | None = None) -> list[Sn
     pages = lists if lists is not None else LISTS
     directory.mkdir(parents=True, exist_ok=True)
     seen: list[Snapshot] = []
+    # A list that cannot be read today is reported, and the others are still read: one site
+    # down for maintenance is no reason to miss a day of another race's list.
+    failed: list[tuple[str, str]] = []
     for index, (prefix, url) in enumerate(sorted(pages.items())):
         if index:
             time.sleep(MIN_INTERVAL)
-        body = _fetch(url)
+        try:
+            body = _fetch(url)
+        except httpx.HTTPError as error:
+            failed.append((prefix, str(error).splitlines()[0]))
+            continue
         at = datetime.now(UTC)
         entered = parse(body)
         listing = _listing_digest(entered)
@@ -367,7 +376,7 @@ def snapshot(directory: Path, *, lists: dict[str, str] | None = None) -> list[Sn
         seen.append(
             Snapshot(prefix=prefix, path=path, at=at, entrants=len(entered), changed=changed)
         )
-    return seen
+    return seen, failed
 
 
 def _filename(prefix: str, at: datetime, url: str = "") -> str:

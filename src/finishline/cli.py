@@ -135,10 +135,27 @@ def snapshot(
         typer.echo(NOTICES, err=True)
         raise typer.Exit(code=2)
 
-    for seen in entrants.snapshot(ENTRANTS):
-        moved = "changed" if seen.changed else "unchanged since the last look"
-        typer.echo(f"  {seen.prefix:<10} {seen.entrants:>4} entrants, {moved}  {seen.path.name}")
+    # ⚠️ Only the lists of races still to come. From 2026-10-20 to 2026-11-07 every look
+    # failed because Athletics NorthEAST's store was down for maintenance: it holds the
+    # lists of two races already run, and their failure stopped Run to Remember's list,
+    # which is on Trackie, from being read at all, and with it every daily file of that
+    # race's week. A list whose race is over has nothing left to observe.
+    live: dict[str, Any] = tomllib.loads(LIVE.read_text(encoding="utf-8"))
+    today = date.today()
+    coming = {
+        prefix: url
+        for prefix, url in entrants.LISTS.items()
+        if prefix in live and date.fromisoformat(str(live[prefix]["date"])) >= today
+    }
+    seen, failed = entrants.snapshot(ENTRANTS, lists=coming)
+    for look in seen:
+        moved = "changed" if look.changed else "unchanged since the last look"
+        typer.echo(f"  {look.prefix:<10} {look.entrants:>4} entrants, {moved}  {look.path.name}")
+    for prefix, error in failed:
+        typer.echo(f"  {prefix:<10} not read: {error}", err=True)
     typer.echo("nothing here is committed (see .gitignore)")
+    if failed:
+        raise typer.Exit(code=1)
 
 
 @app.command()

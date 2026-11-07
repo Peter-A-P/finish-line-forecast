@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import httpx
 import pytest
 
 from finishline.ingest import entrants, resultsfile
@@ -146,9 +147,9 @@ def test_a_page_that_differs_only_in_its_security_token_is_not_a_change(
         "<h1", "<script>var securityToken = '{token}';</script>\n<h1"
     )
     monkeypatch.setattr(entrants, "_fetch", lambda url: tokened.format(token="a" * 32))
-    first = entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
+    first, _ = entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
     monkeypatch.setattr(entrants, "_fetch", lambda url: tokened.format(token="b" * 32))
-    second = entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
+    second, _ = entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
 
     assert first[0].changed and not second[0].changed
     assert len(list(tmp_path.glob("*.html"))) == 1
@@ -176,7 +177,7 @@ def test_a_reordered_list_is_not_a_change(
         "<li>Susan Abbott ---- (Female) Women's XS</li>\n  <li>Hollie Young",
     )
     monkeypatch.setattr(entrants, "_fetch", lambda url: shuffled)
-    again = entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
+    again, _ = entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
     assert not again[0].changed
 
 
@@ -191,8 +192,8 @@ def test_a_snapshot_is_written_once_and_re_observed_without_a_copy(
     monkeypatch.setattr(entrants, "_fetch", lambda url: LIST_PAGE)
     monkeypatch.setattr(entrants, "MIN_INTERVAL", 0.0)
 
-    first = entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
-    second = entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
+    first, _ = entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
+    second, _ = entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
 
     assert [s.changed for s in first] == [True]
     assert [s.changed for s in second] == [False]
@@ -217,7 +218,7 @@ def test_a_changed_list_never_overwrites_the_earlier_look(
     # A second snapshot in the same minute would collide on the filename, so the clock is
     # what separates them; the guard here is that nothing is lost, not that it is fast.
     monkeypatch.setattr(entrants, "_filename", lambda prefix, at, url="": f"{prefix}_later.html")
-    later = entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
+    later, _ = entrants.snapshot(tmp_path, lists={"c2c-2026": "https://example.invalid/list"})
 
     assert later[0].changed
     assert later[0].entrants == 4
@@ -270,7 +271,7 @@ def test_a_trackie_snapshot_is_filed_as_one(
 ) -> None:
     monkeypatch.setattr(entrants, "_fetch", lambda url: TRACKIE_LIST)
     url = "https://www.trackie.com/entry-list/some-race/123/"
-    (seen,) = entrants.snapshot(tmp_path, lists={"tt-2026": url})
+    (seen,), _ = entrants.snapshot(tmp_path, lists={"tt-2026": url})
     assert seen.path.name.startswith("tt-2026_trackie-list_")
     assert seen.entrants == 2
 
@@ -328,3 +329,22 @@ def test_one_race_is_taken_out_of_a_list_that_covers_several() -> None:
     ]
     # A list for one race is left whole.
     assert entrants.for_events(field, ()) == field
+
+
+def test_one_list_that_cannot_be_read_does_not_stop_the_others(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """2026-10-20 to 2026-11-07: a store down for maintenance cost another race its whole week."""
+
+    def fetch(url: str) -> str:
+        if "down" in url:
+            raise httpx.ConnectError("503 Service Unavailable")
+        return LIST_PAGE
+
+    monkeypatch.setattr(entrants, "_fetch", fetch)
+    monkeypatch.setattr(entrants, "MIN_INTERVAL", 0.0)
+    seen, failed = entrants.snapshot(
+        tmp_path, lists={"a-race": "https://down.invalid/", "b-race": "https://up.invalid/"}
+    )
+    assert [look.prefix for look in seen] == ["b-race"]
+    assert [prefix for prefix, _ in failed] == ["a-race"]
