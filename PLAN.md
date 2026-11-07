@@ -2185,3 +2185,16 @@ courses, 17 age-sex groups. The numbers are from `az.summary` over four chains.
     minutes, and the same wind across it nothing. The backtest is the same to a tenth of a
     minute at every depth (blend 4.9 at four or more, 34 percent skill), which is the size a
     correct shift of whole-field levels should be per runner (item 29).
+
+49. **A row printed twice is one person entered twice (2026-11-07).** Run to Remember's
+    Trackie list printed one entry twice, identical in name, hometown and club, the second
+    row new since 2026-10-19, and the archive holds one runner of that name. The linker
+    refused both rows, as two entrants claiming one runner, and the review page offered no
+    pick, since a pick names a person and the list did not say which row it would mean; so a
+    runner with four results was out of the first daily file and could not be put back by
+    hand (Peter could not pick her). Two people of one name, one town and one club, entered
+    in the same capped race, one of them with no result anywhere in eighteen years, is the
+    less likely reading. `entrants.parse_trackie` now keeps a one-race list's identical rows
+    once; entries of one name that differ in anything printed stay separate and refused,
+    which is the case the page's rule was written for. The entrant is in the next daily file
+    as a newly listed entrant; no tagged line changes.

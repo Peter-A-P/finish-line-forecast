@@ -197,11 +197,19 @@ def parse_trackie(page: str) -> list[Entrant]:
     same heading two or three times over (on 2026-09-25, "Male 5km U19 - Entries: 11" twice),
     so an entrant is kept once per name, sex and event. The "Category" column is an age band
     and the "Team" column a club; neither is read, as the Turkey Tea's club is not.
+
+    ⚠️ **A one-race list can print one entry twice**, row for row: on 2026-11-07 Run to
+    Remember's printed one name twice with the same hometown and club, the second row new
+    since 2026-10-19, against one runner of that name in the whole archive. Kept twice, the
+    linker refused both (two entrants claiming one runner) and the review page could not
+    pick either, because a pick names a person, not a row. A row identical in every column
+    read here is read as the same person entered twice and kept once (PLAN.md 13 item 49);
+    two entries of one name that differ in anything printed stay two, and refused.
     """
     body = page.split(_TRACKIE_SPLIT, 1)[0]
     groups = list(_TRACKIE_GROUP.finditer(body))
     if not groups:
-        return _trackie_table(body, None, None)
+        return list(dict.fromkeys(_trackie_table(body, None, None)))
     entrants: list[Entrant] = []
     seen: set[tuple[str, str | None, str | None]] = set()
     for index, group in enumerate(groups):

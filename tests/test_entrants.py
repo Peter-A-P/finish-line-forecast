@@ -266,6 +266,19 @@ def test_a_trackie_list_reads_name_sex_and_hometown_and_not_the_medal() -> None:
     assert "Medal" not in repr(field)
 
 
+def test_a_row_printed_twice_is_one_entrant_and_a_namesake_from_elsewhere_is_two() -> None:
+    """Run to Remember's list of 2026-11-07 printed one entry twice, row for row."""
+    twice = (
+        "<tr><td>Sled, Perpetua</td><td>Female</td><td>Medal</td>"
+        "<td>Mount Pearl</td><td>Paradise Running Club</td></tr>"
+    )
+    elsewhere = twice.replace("Mount Pearl", "Gander")
+    head, tail = TRACKIE_LIST.split("</tr>", 1)
+    assert entrants.parse(head + "</tr>" + twice + tail) == entrants.parse(TRACKIE_LIST)
+    two = entrants.parse(head + "</tr>" + elsewhere + tail)
+    assert [entrant.name for entrant in two].count("Perpetua Sled") == 2
+
+
 def test_a_trackie_snapshot_is_filed_as_one(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
