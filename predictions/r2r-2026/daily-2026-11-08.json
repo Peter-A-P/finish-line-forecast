@@ -1,0 +1,158 @@
+{
+  "conditions": {
+    "conditions_mean": {
+      "log_distance_5k": 0.7885,
+      "net_tailwind": 0.0001,
+      "observed": 1.0,
+      "sun": 0.0,
+      "temp_c": 6.1261,
+      "wind_exposure": 4.1785
+    },
+    "forecast": {
+      "sun_share": 0.0,
+      "temp_c": 4.4,
+      "wind_east_kmh": 17.82,
+      "wind_kmh": 18.1,
+      "wind_north_kmh": -3.13
+    },
+    "forecast_error": {
+      "east_bias": -4.5789,
+      "east_sd": 9.4,
+      "mornings": 36,
+      "north_bias": -1.3628,
+      "north_sd": 8.3235,
+      "temp_bias": -1.6102,
+      "temp_sd": 2.4812,
+      "wind_bias": -8.2426,
+      "wind_sd": 5.4478
+    },
+    "hours": 2,
+    "lead_days": 3,
+    "route_legs": 16,
+    "source": "Open-Meteo forecast, St. John's airport",
+    "used": true
+  },
+  "entrant_snapshot": {
+    "file": "r2r-2026_trackie-list_20261108T0845Z.html",
+    "picks_sha256": "92a90d512e628776e6680d461f0506161992f72345ea2142ba9f1cd503ddfff8",
+    "sha256": "72bb3bb68379483b1bbed719a31898337aa170756f7342873ba25e52e680dc11"
+  },
+  "entrants": {
+    "ambiguous": 2,
+    "linked": 189,
+    "listed": 214,
+    "new": 23,
+    "predicted": 4,
+    "published_before": 208,
+    "resolved_by_hand": 2
+  },
+  "frozen_at": "2026-11-08T08:47:41.681508+00:00",
+  "gun": "2026-11-11T08:00:00-03:30",
+  "kind": "daily",
+  "model": {
+    "blend": {
+      "centre": "(1 - w) * log(hierarchical) + w * log(lightgbm)",
+      "challenger_answered": 212,
+      "distribution": "the hierarchical model's draws, scaled onto the blended centre",
+      "weight": 0.65
+    },
+    "calibration": {
+      "80": {
+        "0": 0.019115061513341303,
+        "1": 0.01737208914805688,
+        "2 to 3": 0.016525635054858157,
+        "4 or more": 0.00020607928560778532
+      },
+      "90": {
+        "0": 0.03870689657899895,
+        "1": 0.028833925563583662,
+        "2 to 3": 0.02797126548609974,
+        "4 or more": 0.003630455369293628
+      }
+    },
+    "commit": "983238ec4229f2a3f7f7ecfb88487c37206ee2a2",
+    "diagnostics": {
+      "divergences": 0.0,
+      "draws": 1200.0,
+      "max_rhat": 1.4975836021363944,
+      "min_ess_bulk": 7.746299437753156
+    },
+    "fit_on_results_before": "2026-11-11",
+    "name": "blend",
+    "settings": {
+      "chains": 4,
+      "draws": 300,
+      "months": 3,
+      "tune": 400,
+      "weather": 1
+    }
+  },
+  "race": {
+    "course_id": "run-to-remember-11000",
+    "date": "2026-11-11",
+    "distance_m": 11000.0,
+    "name": "Run to Remember",
+    "race_id": "r2r-2026"
+  },
+  "runners": [
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        2282.5,
+        2531.4
+      ],
+      "interval_90": [
+        2200.7,
+        2580.6
+      ],
+      "name": "Kate Bazeley",
+      "prior_results": 42,
+      "seconds": 2416.5
+    },
+    {
+      "hometown": "Conception Bay South",
+      "interval_80": [
+        3774.0,
+        4154.5
+      ],
+      "interval_90": [
+        3678.7,
+        4284.4
+      ],
+      "name": "Tina Reynolds",
+      "prior_results": 4,
+      "seconds": 3962.1
+    },
+    {
+      "hometown": "St. John's",
+      "interval_80": [
+        4825.2,
+        5280.2
+      ],
+      "interval_90": [
+        4701.9,
+        5401.5
+      ],
+      "name": "Raylene Smith",
+      "prior_results": 9,
+      "resolved_by_hand": true,
+      "seconds": 5032.4
+    },
+    {
+      "hometown": "Cupids",
+      "interval_80": [
+        5889.5,
+        6601.4
+      ],
+      "interval_90": [
+        5696.4,
+        6816.8
+      ],
+      "name": "Tammy Butler",
+      "prior_results": 20,
+      "resolved_by_hand": true,
+      "seconds": 6206.4
+    }
+  ],
+  "schema_version": 1
+}
