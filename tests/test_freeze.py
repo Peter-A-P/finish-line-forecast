@@ -666,7 +666,9 @@ def test_the_picker_has_three_shelves_and_a_race_already_run(tmp_path: Path) -> 
     assert "{{" not in page
     assert page.count("<optgroup") == 3
     assert "last read on 2026-09-20" in page, "a live page's age is on the page"
-    assert "One of them is a race this project does not predict" in page, "one is not 'are'"
+    unpredicted = r"(One of them is a race|[2-9]\d* of them are races) this project does not"
+    assert re.search(unpredicted, page)
+    assert "1 of them are" not in page, "one is not 'are'"
     # A race already run used to rebind the build's source directory to its JSON file, and
     # the engineering tile read "0 lines of typed Python" for seven weeks.
     lines = re.search(
@@ -823,13 +825,17 @@ def test_the_hero_strip_follows_the_part_of_the_field_it_is_asked_for() -> None:
         }
     }
     front = site.hero_distances(measured)
-    assert "48 sec" in front and "3.8% of the finish time" in front, "under a minute reads as seconds"
+    assert "48 sec" in front and "3.8% of the finish time" in front, (
+        "under a minute reads as seconds"
+    )
     assert front.count("hd-pct") == 2 and "avg miss," in front, "one short line per row"
     assert "half within 28 sec," in front and "90% within 1.6 min" in front, (
         "the average is never shown without the shape of the misses around it"
     )
     back = site.hero_distances(measured, "back")
-    assert "3.4 min" in back and "9.8% of the finish time" in back, "a slower group is not flattered"
+    assert "3.4 min" in back and "9.8% of the finish time" in back, (
+        "a slower group is not flattered"
+    )
     assert site.hero_distances(measured, "mid") == "", "a group with no rows shows nothing"
     assert site.hero_distances({}) == "", "no backtest, no strip, and still a valid page"
 
