@@ -218,7 +218,9 @@ def status(
         return "Final prediction frozen and published. Nothing changes now."
     if now == "week":
         runners = len(_standing(files))
-        return f"Prediction week: {len(files)} daily file(s) so far, {runners} runners predicted."
+        count = len(files)
+        plural = "" if count == 1 else "s"
+        return f"Prediction week: {count} daily file{plural} so far, {runners} runners predicted."
     if now == "run":
         return "Race run; waiting for the official results."
     # A date, not a countdown: the site is rebuilt only when something is pushed, so "in 8
@@ -597,8 +599,9 @@ def calendar_note(calendar: Mapping[str, Any] | None, races: Sequence[Mapping[st
     counted = len([race for race in races if not race.get("predicted")])
     source = html.escape(str(calendar.get("source", "")))
     tail = (
-        f" {counted} of them are races this project does not predict, listed so that the "
-        "season is not quieter here than it is on the road."
+        (" One of them is a race" if counted == 1 else f" {counted} of them are races")
+        + " this project does not predict, listed so that the season looks as busy here as it "
+        "is on the road."
         if counted
         else ""
     )
@@ -744,8 +747,8 @@ def _blend_sentences(backtest: Mapping[str, Any]) -> list[str]:
     if not against_model or not against_trees:
         return []
     said = [
-        "<strong>So what this site publishes is neither model on its own: it is the two "
-        "averaged.</strong> The average is taken on the log scale, leaning about two thirds on "
+        "<strong>What this site publishes is the two models averaged.</strong> "
+        "The average is taken on the log scale, leaning about two thirds on "
         "the trees, and how far to lean was read off the 2022 and 2023 races alone, so nothing "
         "in the tables on this page helped choose it."
     ]
@@ -762,10 +765,9 @@ def _blend_sentences(backtest: Mapping[str, Any]) -> list[str]:
             body = parts[0] if len(parts) == 1 else ", ".join(parts[:-1]) + ", and " + parts[-1]
             said.append(f"Against the {name}, the average is {body}.")
     said.append(
-        "Averaging two models that make different mistakes is the oldest trick in forecasting, "
-        "and the gain here is real but small: a few tenths of a percent of a finish time, which "
-        "is seconds rather than minutes. It is published because it is measured, at the size it "
-        "was measured."
+        "Averaging two models that make different mistakes is a standard forecasting method, "
+        "and the gain here is small: a few tenths of a percent of a finish time, seconds rather "
+        "than minutes."
     )
     return said
 
@@ -830,7 +832,7 @@ def hero_distances(results: Mapping[str, Any], group: str = DEFAULT_SPEED) -> st
         f"<span class=\"hd-race\">{html.escape(str(row['label']))}</span>"
         f"<span class=\"hd-min\">{showcase.error_text(row['mae_min'])}</span>"
         "<span class=\"hd-pct\">avg miss,</span>"
-        f"<span class=\"hd-pct\">{row['mape'] * 100:.1f}% of the time</span>"
+        f"<span class=\"hd-pct\">{row['mape'] * 100:.1f}% of the finish time</span>"
         + "".join(f"<span class=\"hd-spread\">{line}</span>" for line in _spread_lines(row))
         + "</span>"
         for row in rows
@@ -914,8 +916,12 @@ def challenger_text(results: Mapping[str, Any]) -> tuple[str, str]:
             f"On the order of a field, it is {mine:.1f} places closer than \"last time\" on the "
             f"same runners, against the Bayesian model's {theirs:.1f}."
         )
-    sentences.extend(_blend_sentences(backtest))
+    # Two paragraphs, the challenger and then the blend: one block of eleven comparisons was a
+    # whole phone screen of numbers. The template wraps the token in <p>...</p>.
+    blended = " ".join(_blend_sentences(backtest))
     verdict = " ".join(sentence for sentence in sentences if sentence)
+    if blended:
+        verdict = f"{verdict}</p><p>{blended}"
 
     held = {
         (row["stratum"], row["level"]): row for row in backtest.get("challenger_coverage", [])
@@ -1103,9 +1109,11 @@ def build(
     for block in closed.values():
         races.append(closed_record(block))
         path = out / RETROSPECT_DATA / f"{block['race_id']}.json"
-        source = retrospect / f"{block['race_id']}.json"
-        if source.exists():
-            story = json.loads(source.read_text(encoding="utf-8"))
+        # Not `source`: that name is the code directory the engineering tile counts, and
+        # rebinding it here made the page say "0 lines of typed Python" from 2026-09-20.
+        story_path = retrospect / f"{block['race_id']}.json"
+        if story_path.exists():
+            story = json.loads(story_path.read_text(encoding="utf-8"))
             story["runners"] = redact.default().rows(story.get("runners", []))
             _json(path, story)
             written.append(path)

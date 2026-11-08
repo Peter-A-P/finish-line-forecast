@@ -52,10 +52,10 @@
       results. Each prediction is a <strong>blend of two models</strong>, because the two make
       different mistakes and the average of them is more accurate than either one.
       The predictions are <strong>locked in a public record before the race starts</strong>,
-      so nobody can quietly adjust them afterwards, and once the official results are posted the
+      so nobody can adjust them afterwards, and once the official results are posted the
       error is published right beside them. A race director can plan pacers, the finish-line
-      clock and medical staff from expected finishing times rather than guesses, and a runner
-      gets a goal time with an honest range instead of a hunch.
+      clock and medical staff from expected finishing times, and a runner gets a goal time with
+      an honest range around it.
     </p>
     <p class="hero-cta"><a class="button" href="#races">See this year's predictions</a></p>
     <p class="hero-independent">
@@ -102,10 +102,9 @@
     </div>
     <p class="hero-strip-label">
       <strong>How far out a prediction usually is</strong>, by race length, for runners with four
-      or more past races. The big figure is the average miss. It is not a margin every prediction
-      carries: the line underneath says where the middle of the misses falls and where nine in ten
-      of them stop, and a handful are further out than that, which is why every published
-      prediction comes with its own range rather than a single time.
+      or more past races. The big figure is the average miss. The line underneath gives the miss
+      half the predictions beat and the one nine in ten beat; a handful are further out still,
+      which is why every published prediction comes with its own range.
     </p>
     <div class="hero-distances" id="hero-distances">{{hero_distances}}</div>
     <p class="hero-note">
@@ -134,6 +133,7 @@
       <li><a href="#record">Written down before the gun</a></li>
       <li><a href="#refuted">What the data proved wrong</a></li>
       <li><a href="#privacy">Real people, handled carefully</a></li>
+      <li><a href="#limits">Where it is weakest</a></li>
       <li><a href="#engineering">How it is engineered</a></li>
       <li><a href="#built">How this was built</a></li>
     </ol>
@@ -250,7 +250,7 @@
     <h2>The whole idea in one picture</h2>
     <p class="section-lead">
       Seven steps, and the order matters: the prediction is fixed in public before the race
-      exists, so the prediction cannot be adjusted once the result is known.
+      is run, so it cannot be adjusted once the result is known.
     </p>
     <ol class="pipeline">
       <li><span class="step">1</span><strong>Read</strong><span>Every public road-race result in the province since {{first_year}}, fetched once, politely.</span></li>
@@ -266,8 +266,7 @@
         <strong>Most predictions of this kind are never checked.</strong> A backtest, where a
         model predicts races that have already happened, is useful and is done here too, but it
         is always possible to tune a model until its backtest looks good. A prediction locked
-        before the race cannot be tuned afterwards. That is why this project locks its
-        predictions.
+        before the race cannot be tuned afterwards.
       </p>
     </div>
   </section>
@@ -431,7 +430,7 @@
       comparison is clean.
     </p>
     <figure class="chart-figure">
-      <div id="courses-chart" class="chart"></div>
+      <div id="courses-chart" class="chart wide-chart"></div>
       <p class="readout" id="courses-readout"></p>
       <div class="legend" id="courses-legend"></div>
       <figcaption>How much slower than a flat road each course runs, with its 95% interval, in a column per race length. Courses with at least 30 finishes; the dashed line is the typical course at that length, and the races on this page are marked. Point at a dot for both numbers: against a flat road, and against the other courses of its own length.</figcaption>
@@ -440,19 +439,19 @@
       <p>
         <strong>The Tely 10 is a fast road, and only its own column says so.</strong> Against
         the flat reference it reads {{tely_factor}}, which looks like any other course. Measured
-        against its own length it is {{tely_peers}}, and that is the comparison with a road in
-        it: the Tely drops more than it climbs and the prevailing westerly is behind the field.
-        Both figures come out of the same fit. The first still has the race length inside it and
-        the second does not. One caveat kept in view: at 10 miles this archive has one other
-        course, the hilly Bell Island Blast, so that is two roads compared and not ten.
+        against its own length it is {{tely_peers}}, and that is the figure that describes the
+        road: the Tely drops more than it climbs and the prevailing westerly is behind the field.
+        Both figures come out of the same fit; the first still has the race length inside it and
+        the second does not. One caveat: at 10 miles this archive has one other course, the hilly
+        Bell Island Blast, so that is two roads compared, not ten.
       </p>
       <p>
         <strong>The measurement agrees with the physics, without being tuned to it.</strong>
         Cape to Cabot measures about {{c2c_factor}} slower than flat. Run that number backwards
         through the energy cost of running uphill (Minetti's curve) and the published 550 m of
         climb implies an average grade of about 10 percent on the hills. The race's own course
-        page says "grades of more than 10 per cent in some parts". Two independent routes to one
-        number, and the agreement is a ballpark rather than a decimal: at 20 km it is the only
+        page says "grades of more than 10 per cent in some parts". The two independent routes agree
+        only roughly: at 20 km it is the only
         course on the archive, so a point or so of that {{c2c_factor}} is the same race-length
         effect, and the grade that explains the rest is nearer 8 to 10 percent.
       </p>
@@ -494,7 +493,7 @@
       airport for the hours each race was actually running, and learns what heat and wind cost.
     </p>
     <figure class="chart-figure">
-      <div id="weather-chart" class="chart"></div>
+      <div id="weather-chart" class="chart wide-chart"></div>
       <p class="readout" id="weather-readout"></p>
       <div class="legend" id="weather-legend"></div>
       <figcaption>How much slower a field runs as the felt temperature rises, by race length. Below 12 C the model charges nothing; above it, each degree costs more the longer the race. Full sun adds about 2 C of felt heat.</figcaption>
@@ -717,16 +716,15 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
     </p>
     <div class="verdict">
       <p>
-        <strong>One thing to be clear about before the numbers: none of these rules of thumb
-        were lying around.</strong> "You will run what you ran last time" sounds like something
+        <strong>The rules of thumb are not free: this project computes them.</strong> "You will run what you ran last time" sounds like something
         anybody could do, and for one runner with one race in front of them it is. For a field of
         several hundred it is not. It needs eighteen years of results pages read and parsed, the
         same person's results joined across those years with no runner ID to go on, their last
         race converted to this race's distance through Daniels' tables, and this course's
         difficulty measured against every other course in the province. All of that is this
-        project, and the rules of thumb are computed by it. So the comparison below is not this
-        model against something a runner can look up; it is this model against the best simple
-        answer the same machinery can give, which is a harder test.
+        project, and the rules of thumb are computed by it. So the comparison below is this
+        model against the best simple answer the same machinery can give, a harder test than
+        anything a runner could look up.
       </p>
       <p>
         <strong>And a rule of thumb cannot answer for everybody.</strong> "Last time" has nothing
@@ -756,8 +754,8 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
         {{mae_model}} minutes against {{mae_cf}}.</strong> For runners with one or two races the
         gain is small, which is expected: one result is one result. For first-timers every method
         is out by about {{mae_new}} minutes, because nothing about them is known but their age
-        group. That, not the model comparison, is the real size of the problem, and it is why
-        every prediction carries a range.
+        group. That is the size of the problem for a first-timer, and it is why every
+        prediction carries a range.
       </p>
       <p>{{gbm_verdict}}</p>
     </div>
@@ -766,17 +764,17 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
       An average error in minutes is not one claim across distances. The same model that is out
       by a minute and a half over 5 km is out by a quarter of an hour over a marathon, and both
       are about the same fraction of the runner's day. So here it is both ways, for the whole
-      field and for the runners the archive knows well. <strong>An average is also not a margin
-      every prediction carries</strong>, so the middle of the misses and the ninth decile are
-      beside it: half of these runners were predicted closer than the one and nine in ten closer
-      than the other, while a handful, usually somebody having a very bad day or a very good one,
+      field and for the runners the archive knows well, with two more columns beside the
+      average: the miss half the runners beat and the one nine in ten beat, while a handful, usually somebody having a very bad day or a very good one,
       are further out than any of these numbers.
     </p>
+    <div class="table-wrap">
     <table class="example">
-      <caption>The published prediction's error by race length, over every race since 2024.</caption>
+      <caption>The published prediction's error by race length, over every race since {{bt_first_year}}.</caption>
       <thead><tr><th>Race length</th><th class="num">Runners</th><th class="num">Typical finish, minutes</th><th class="num">Average miss, whole field</th><th class="num">Half within</th><th class="num">9 in 10 within</th><th class="num">Average miss, 4+ past races</th></tr></thead>
       <tbody>{{distance_rows}}</tbody>
     </table>
+    </div>
     <details class="disclose">
       <summary>For the technical reader: how two models become one prediction</summary>
       <p>
@@ -813,7 +811,7 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
       <p>
         The only way any model sees the archive is through a history object that takes the
         origin date and keeps nothing dated on or after it, so a model has no way to reach
-        later results, and the harness checks this again at every origin. The tests found two
+        later results, and the backtest checks this again at every origin date. The tests found two
         leaks, both now closed: races on the same morning are not each
         other's history, and the runner handed to a model carries only the results the history
         carries. The model is refitted once per calendar quarter on the history before the
@@ -855,7 +853,7 @@ noise        ~ StudentT(nu, 0, sigma_eps)                a bad day is not Gaussi
         never will be. What is shown there is what the model would have said: rows from the
         backtest, made by a fit that had seen no result from July 2026 onward. It is here
         because it is the only place the whole thing can be seen end to end before the first
-        real prediction, and it is labelled rather than quietly counted.
+        real prediction, and it is labelled as such and kept out of the record.
       </p>
     </div>
     <details class="disclose">
@@ -884,7 +882,7 @@ sha256sum predictions/tt-2026/daily-2026-09-27.json       # the same hash, or it
   <section class="section" id="refuted">
     <h2>What the data proved wrong</h2>
     <p class="section-lead">
-      The plan written before any code was reasonable. Measured against the data, {{refuted}} of
+      The plan was written before any code. Measured against the data, {{refuted}} of
       its designs turned out to be wrong, and every one is logged in the repository with the
       evidence, so a reader can tell a decision from a guess. A few of them:
     </p>
@@ -932,12 +930,42 @@ sha256sum predictions/tt-2026/daily-2026-09-27.json       # the same hash, or it
     </p>
     <ul class="checks">
       <li><strong>Only what the results already publish.</strong> A name as printed, a hometown as printed, and the prediction. The entrant lists also show shirt sizes; they are never read.</li>
-      <li><strong>No training data, for anyone.</strong> The original idea used runners' public Strava activity. Strava's terms forbid displaying other users' data even when it is public, and forbid training models on it, so the public model uses race results only. It is weaker, and the repository says so first.</li>
+      <li><strong>Race results only, no activity data.</strong> The original idea used runners' public Strava activity. Strava's terms forbid displaying other users' data even when it is public, and forbid training models on it, so the public model uses race results only. It is weaker, and the repository says so first.</li>
       <li><strong>Not in search engines.</strong> The prediction data asks search engines not to index it, so a person's prediction does not turn up when someone searches their name.</li>
       <li><strong>Anyone can opt out, in one email.</strong> The link under every runner table opens an email to ask. From then on that runner's row reads "Redacted name" with no hometown, on this site and in every later prediction file, and the list of who asked holds no names, only a keyed fingerprint of each. A file already tagged before the request is not edited, because tagged files are never changed; the site stops showing the name from it all the same.</li>
       <li><strong>No tracking.</strong> This page loads nothing from anywhere else: no analytics, no fonts from a third party, no advertising.</li>
       <li><strong>Ambiguous runners are left out.</strong> If the archive cannot tell two people apart, neither gets a published prediction.</li>
     </ul>
+  </section>
+
+  <section class="section" id="limits">
+    <h2>Where it is weakest</h2>
+    <div class="cards">
+      <article class="card-note">
+        <h3>First-timers get a wide range</h3>
+        <p>About {{newcomer_share}} of a field has no past result. For them every method is out by about {{mae_new}} minutes, because nothing is known but their age group, so their range is around {{width_new}} minutes.</p>
+      </article>
+      <article class="card-note">
+        <h3>Visiting fast runners are unknown</h3>
+        <p>At the biggest races, visitors with no results here reach the top ten. The model cannot know which newcomer is an elite runner, so their expected places are shown as placeholders, not given to a name.</p>
+      </article>
+      <article class="card-note">
+        <h3>A morning unlike any before</h3>
+        <p>The ranges hold on average when a race's errors look like earlier races'. A gale on Signal Hill would not, and the ranges would fail on it.</p>
+      </article>
+      <article class="card-note">
+        <h3>Race results only</h3>
+        <p>Strava's terms rule out runners' activity data, so the model sees only race results. It is weaker for that, and the repository says so first.</p>
+      </article>
+      <article class="card-note">
+        <h3>Some runners are left out</h3>
+        <p>{{ambiguous}} runners the archive cannot tell apart get no published prediction, so a few real entrants are never predicted.</p>
+      </article>
+      <article class="card-note">
+        <h3>One part of the model does not fully converge</h3>
+        <p>A first-timer's starting level mixes poorly in the sampler, so first-timers' ranges are calibrated separately. What a returning runner's prediction uses does converge.</p>
+      </article>
+    </div>
   </section>
 
   <section class="section" id="engineering">
@@ -991,8 +1019,8 @@ sha256sum predictions/tt-2026/daily-2026-09-27.json       # the same hash, or it
       live prediction has a timestamp from before its race.
     </p>
     <p>
-      The running arithmetic comes from Overload, my own running application - this includes
-      Daniels' formulas, the age-grading tables, and the heat and wind corrections. The figure
+      The running arithmetic comes from Overload, my own running application: Daniels'
+      formulas, the age-grading tables, and the heat and wind corrections. The figure
       for full sun is one of them, and Overload takes it from the US National Weather
       Service. Here I checked it against eighteen years of races instead of taking it as given.
       Any constant that came over from Overload is treated as a starting assumption and
@@ -1004,9 +1032,12 @@ sha256sum predictions/tt-2026/daily-2026-09-27.json       # the same hash, or it
         <dt>Backtest</dt><dd>Predicting races that already happened, using only what was known before each one, and scoring the predictions against the results.</dd>
         <dt>Baseline</dt><dd>A simple rule a model must beat to be worth anything, such as "you will run what you ran last time".</dd>
         <dt>Bayesian hierarchical model</dt><dd>A statistical model in which each runner's parameters are estimated together with their group's, so runners with little data borrow strength from runners like them.</dd>
+        <dt>Calibration</dt><dd>Widening or narrowing a model's ranges by exactly as much as they missed on earlier races, so that an 80% range holds about 80% of the time.</dd>
         <dt>Conformal prediction</dt><dd>A way of calibrating prediction ranges on past errors so that they hold as often as they claim, on average, under stated assumptions.</dd>
         <dt>Coverage</dt><dd>How often a range actually contained the outcome. An 80% range should cover about 80% of finishes.</dd>
         <dt>Ensemble, or blend</dt><dd>Averaging the predictions of two models that make different mistakes. Where one is too fast and the other too slow, the average lands closer than either, which is why the published prediction here is an average of two.</dd>
+        <dt>Gradient-boosted trees (LightGBM)</dt><dd>Many small decision trees, each one fitted to the errors of the ones before. It learns patterns nobody specified, and here it is the more accurate of the two models for every runner with a past race.</dd>
+        <dt>Log scale</dt><dd>Measuring differences as proportions rather than minutes, so 0.05 is five percent of a finish time whether the race is a 5 km or a marathon.</dd>
         <dt>Mean absolute error</dt><dd>The average size of a miss, ignoring whether it was too fast or too slow. It describes a pile of predictions, not any one of them: roughly half the misses are smaller than the average and a few are much larger, which is what pulls an average above the middle. For one runner, the range published beside their time is the honest statement of how sure the model is.</dd>
         <dt>Pre-registration</dt><dd>Publishing a prediction, fixed and dated, before the event it predicts, so it cannot be adjusted after the fact.</dd>
         <dt>SHA-256</dt><dd>A fingerprint of a file. Change one character and the fingerprint changes completely.</dd>

@@ -13,7 +13,7 @@ pictures are on the live site at
 The diagram reads left to right: reading the results, modelling them, and publishing.
 
 The results come from public pages run by the provincial athletics association and Athletics
-NorthEast. They were read once, one request a second, after the clubs had been told, and kept.
+NorthEast. They were read once, one request a second, after both organisations had been told, and kept.
 Working out who is who is the hard part, because results carry only a name. The one free
 clue is that nobody gets younger, so a printed age band on a dated race is the only thing
 allowed to split one name into two runners. A runner's history can only be read as it stood

@@ -311,6 +311,7 @@ strong { font-weight: 600; }
   left: 0;
   top: calc(100% + 0.4rem);
   width: min(32rem, 100%);
+  box-sizing: border-box; /* padding inside the 100%, or the bubble pushes a phone page sideways */
   padding: 0.7rem 0.85rem;
   background: var(--paper-soft);
   color: var(--ink-soft);
@@ -1129,6 +1130,13 @@ input[type="search"]:disabled { opacity: 0.55; }
 /* ------------------------------------------------------------- how it works */
 
 .baselines { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 0.75rem; margin: 1.25rem 0; }
+/* Six cards: three to a row on a wide screen, so the published blend is never left alone on a second row. */
+@media (min-width: 48rem) { .baselines { grid-template-columns: repeat(3, 1fr); } }
+/* Two charts dense with course names: on a phone they keep a readable size and scroll in their own box. */
+#courses-chart svg { min-width: 60rem; }
+#weather-chart svg { min-width: 46rem; }
+/* No heading ends on one orphaned word. */
+h1, h2, .part-title { text-wrap: balance; }
 .baselines > div { padding: 0.8rem 0.95rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper-soft); }
 .baselines dt { font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
 .baselines dd { margin: 0.25rem 0 0; font-size: 0.86rem; color: var(--ink-soft); line-height: 1.5; }

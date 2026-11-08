@@ -1091,7 +1091,7 @@
       ],
       points: bt.points,
       none: "first race here",
-      caption: "Every finisher in the " + year + " edition who was in the backtest, shown without names. Most misses above the diagonal are runners who ran slower than their history said: a bad day, an injury, or a friend being paced."
+      caption: "Every finisher in the " + year + " edition who was in the backtest, shown without names. Dots above the diagonal are runners who ran slower than their history said."
     });
   }
 
@@ -1114,7 +1114,7 @@
          runners people look for first. Cape to Cabot 2026 was won in 1:10:19 by a first-timer, who
          was trimmed off the axes while this chart kept the backtest's middle 99%. */
       whole: true,
-      caption: "Every finisher in today's race who had a prediction, shown without names; the table above has them by name. Most misses above the diagonal are runners who ran slower than their history said: a bad day, an injury, or a friend being paced."
+      caption: "Every finisher in today's race who had a prediction, shown without names; the table above has them by name. Dots above the diagonal are runners who ran slower than their history said."
     };
   }
 
@@ -1479,7 +1479,7 @@
         el("span", { "class": "hd-race" }, row.label),
         el("span", { "class": "hd-min" }, errorText(row.mae_min)),
         el("span", { "class": "hd-pct" }, "avg miss,"),
-        el("span", { "class": "hd-pct" }, percent(row.mape, 1) + " of the time"),
+        el("span", { "class": "hd-pct" }, percent(row.mape, 1) + " of the finish time"),
         spread ? el("span", { "class": "hd-spread" }, "half within " + errorText(row.median_error_min) + ",") : null,
         spread ? el("span", { "class": "hd-spread" }, "90% within " + errorText(row.p90_error_min)) : null
       ]);
@@ -1642,6 +1642,9 @@
     });
     node.appendChild(root);
     byId("weather-readout").textContent = "Point at a dot for the cost per degree at that race length.";
+    /* On a phone the chart scrolls in its own box; open it at the warm end, where the curves are. */
+    var weatherBox = byId("weather-chart");
+    weatherBox.scrollLeft = weatherBox.scrollWidth;
   }
 
   /* The shrinkage illustration: invented results, a normal-normal posterior. */
@@ -1752,7 +1755,9 @@
         var v = s.models[m[0]];
         var x = gx + group * 0.1 + bw * mi;
         if (!v || !isNumber(v.mae_min)) {
-          root.appendChild(svg("text", { x: x + bw / 2, y: B - 6, "text-anchor": "middle", "class": "row-note" }, "none"));
+          /* Upright, so two empty slots side by side do not run their labels together. */
+          var nx = x + bw / 2 + 4;
+          root.appendChild(svg("text", { x: nx, y: B - 6, transform: "rotate(-90 " + nx + " " + (B - 6) + ")", "text-anchor": "start", "class": "row-note" }, "none"));
           return;
         }
         var bar = svg("rect", { x: x + 2, y: y(v.mae_min), width: bw - 4, height: B - y(v.mae_min), rx: 2, "class": "bar " + m[2] });
