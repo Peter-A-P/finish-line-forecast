@@ -122,3 +122,32 @@ def test_the_race_site_list_is_found_by_date_and_course() -> None:
     assert listed is not None
     assert listed.url == "https://www.capetocabot.com/Cape_to_Cabot_Live_Results.htm"
     assert ane.posted_for(date(2026, 10, 18), "usr-10000") is None
+
+
+# Run to Remember 2026, as Stride Running NL posted it: a header in <th>, the place under
+# "Overall", the age group and the place in it in two columns, and a pace after the times.
+# The names are invented.
+R2R_PAGE = """
+<table><thead><tr><th>Overall</th><th>Name</th><th>Club</th><th>Bib</th><th>Gender</th>
+<th>Age Group</th><th>AG Place</th><th>Chip Time</th><th>Gun Time</th><th>Pace</th></tr></thead>
+<tbody><tr><td>1</td><td>Perpetua Sled</td><td></td><td>515</td><td>F</td><td>40-49</td>
+<td>1/22</td><td>40:59</td><td>41:01</td><td>3:44/km</td></tr></tbody></table>
+"""
+
+
+def test_a_list_with_named_time_columns_and_a_pace_after_them() -> None:
+    (only,) = ane.to_results(R2R_PAGE, "r")
+    assert (only.place, only.bib, only.sex, only.age_band, only.category_place) == (
+        1, 515, "F", "40-49", 1
+    )
+    assert (only.chip_seconds, only.gun_seconds) == (2459.0, 2461.0), "not the pace"
+
+
+def test_the_organisers_list_is_registered_with_its_own_address() -> None:
+    listed = ane.posted_for(date(2026, 11, 11), "run-to-remember-11000")
+    assert listed is not None
+    assert listed.url == "https://striderunningnl.ca/results-2026/"
+    assert listed.cache_name == "results-2026.htm"
+    assert "Stride Running NL" in listed.poster
+    usr = ane.posted_for(date(2026, 9, 13), "usr-10000")
+    assert usr is not None and usr.cache_name == "USR-10k-Overall.htm", "cached names unchanged"

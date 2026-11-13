@@ -295,6 +295,7 @@ every finisher's prediction beside their result.
 |---|---:|---:|---:|---|---|---|---|---|---|---|
 | [Turkey Tea 10k, 2026-10-04](docs/predictions/tt-2026.md) | 339 | 93% | 83% | 3.0 (2.6 to 3.4) | -2.3 (-2.7 to -1.8) | 82% (78 to 86) | 92% (89 to 95) | 25.6 (21.9 to 30.2) | 0.917 (0.887 to 0.939) | 6 daily files, `predictions/tt-2026/daily-*` (no final file was tagged) |
 | [Cape to Cabot, 2026-10-18](docs/predictions/c2c-2026.md) | 443 | 98% | 90% | 6.7 (6.0 to 7.5) | -5.6 (-6.3 to -4.8) | 79% (75 to 82) | 93% (90 to 95) | 37.6 (33.3 to 42.7) | 0.899 (0.864 to 0.925) | `predictions/c2c-2026/final`, sha256 `a7cb2cdcda1a` |
+| [Run to Remember, 2026-11-11](docs/predictions/r2r-2026.md) | 182 | 98% | 86% | 4.7 (3.8 to 5.8) | -1.7 (-2.3 to -1.2) | 72% (65 to 79) | 86% (80 to 91) | 18.0 (14.6 to 22.3) | 0.850 (0.767 to 0.913) | `predictions/r2r-2026/final`, sha256 `586d741ce221` |
 
 95% CIs resample runners within each race, so each describes that race's morning and not the next one: runners in one race share its weather, and when the morning surprises the model they miss together. Model minus carry-forward is on the runners carry-forward could answer for; negative means the model was closer.
 <!-- finishline:end:live -->

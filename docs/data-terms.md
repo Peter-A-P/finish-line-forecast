@@ -232,6 +232,13 @@ hometown, and the race page's hometowns are the ones the prediction file already
 `finishline score` reads it only while nlaa.ca has not posted the race, and the same swap
 applies to the archive.
 
+**Run to Remember 2026, added 2026-11-13.** Run to Remember is Stride Running NL's race, and
+the club posted its results on its own site, `striderunningnl.ca/results-2026/`, which Peter
+pointed to on 2026-11-13 to score the prediction. The same terms as the timer's lists above:
+a public results page, fetched once under the crawler's user agent, kept in
+`data/cache/ane/` with the others and gitignored, read only for what it prints, and used
+only while nlaa.ca has not posted the race; the same swap applies to the archive.
+
 ## Trackie entry lists, added 2026-09-19
 
 The Turkey Tea 10k, this project's dress rehearsal on 2026-10-04, registers through Trackie,

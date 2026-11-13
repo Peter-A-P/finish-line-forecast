@@ -65,10 +65,13 @@ class Posted:
     course_id: str
     page: str  # the page's name on the site, as its URL spells it
     site: str = BASE  # the club's own site, or the race's
+    suffix: str = ".htm"  # what the URL ends with after the page's name
+    # Who posted the list, as the scored race's card names its source.
+    poster: str = "Athletics NorthEAST, the race's timer,"
 
     @property
     def url(self) -> str:
-        return self.site + self.page.replace(" ", "%20") + ".htm"
+        return self.site + self.page.replace(" ", "%20") + self.suffix
 
     @property
     def race(self) -> Race:
@@ -83,11 +86,12 @@ class Posted:
 
     @property
     def cache_name(self) -> str:
-        return self.page.replace(" ", "-") + ".htm"
+        return re.sub(r"[^\w.-]+", "-", self.page.strip("/")) + ".htm"
 
 
 _USR = date(2026, 9, 13)
 _C2C = date(2026, 10, 18)
+_R2R = date(2026, 11, 11)
 
 # Committed, because which races were read from where is part of the published claim.
 # ⚠️ The 2026 marathon and half are new routes (`nlaa.SAME_ROUTE`) and keep `usr-42195` and
@@ -102,6 +106,11 @@ REGISTER: tuple[Posted, ...] = (
     Posted("20260913-usr-5k-ane", "USR 5k", _USR, 5_000.0, "usr-5000", "USR 5k Overall"),
     Posted("20261018-c2c-20km-ane", "Capital Subaru Cape to Cabot 20k", _C2C, 20_000.0,
            "cape-to-cabot-20000", "Cape_to_Cabot_Live_Results", "https://www.capetocabot.com/"),
+    # Not Athletics NorthEAST's: Stride Running NL, which organises Run to Remember, posted the
+    # list on its own site (docs/data-terms.md). The same layout of columns, named by header.
+    Posted("20261111-r2r-11km-stride", "Run to Remember 11K", _R2R, 11_000.0,
+           "run-to-remember-11000", "results-2026/", "https://striderunningnl.ca/", suffix="",
+           poster="Stride Running NL, the race's organiser,"),
 )
 
 
@@ -112,10 +121,13 @@ def posted_for(when: date, course_id: str) -> Posted | None:
     )
 
 _ROW = re.compile(r"<tr[^>]*>(.*?)</tr>", re.DOTALL | re.IGNORECASE)
-_CELL = re.compile(r"<td[^>]*>(.*?)</td>", re.DOTALL | re.IGNORECASE)
+_CELL = re.compile(r"<t[hd][^>]*>(.*?)</t[hd]>", re.DOTALL | re.IGNORECASE)
 # "1:20-29" and "1: 0-19" in Cape to Cabot's Age Group column: the place within the group, then
 # the group, kept as printed.
 _GROUP = re.compile(r"^(?P<place>\d+):\s*(?P<band>\d{1,2}-\d{1,3}|U\d{1,2}|\d{1,2}\+)$")
+# Run to Remember's prints the group alone ("40-49") and the place in it separately ("1/22").
+_BAND = re.compile(r"^(?P<band>\d{1,2}-\d{1,3}|U\d{1,2}|\d{1,2}\+)$")
+_OF = re.compile(r"^(?P<place>\d+)\s*/\s*\d+$")
 
 
 def _printed(cells: list[str], column: dict[str, int], header: str) -> str | None:
@@ -128,15 +140,16 @@ def to_results(page: str, race_id: str) -> list[Result]:
     """Every finisher on one overall list.
 
     Data rows start with a place. The columns before the times vary by race (the longer
-    ones print splits and a division), but every list ends with the chip time and then the
-    gun time, so those are read from the end. A Gender, Age Group or Club column is read where
-    the header row names one; a Badge never is.
+    ones print splits and a division), and the timer's lists end with the chip time and then
+    the gun time, so those are read from the end unless the header names them: Run to
+    Remember's prints a pace after them. A Gender, Age Group, AG Place or Club column is read
+    where the header row names one; a Badge never is.
     """
     results: list[Result] = []
     column: dict[str, int] = {}
     for row in _ROW.findall(page):
         cells = [clean(html.unescape(re.sub(r"<[^>]+>", " ", cell))) for cell in _CELL.findall(row)]
-        if cells and cells[0] == "Place":
+        if cells and cells[0] in ("Place", "Overall"):
             column = {cell.lower(): i for i, cell in enumerate(cells) if cell}
             continue
         if len(cells) < 6 or not cells[0].isdigit():
@@ -145,21 +158,28 @@ def to_results(page: str, race_id: str) -> list[Result]:
         if not name:
             continue
         sex = _printed(cells, column, "gender")
-        group = _GROUP.match(_printed(cells, column, "age group") or "")
+        printed = _printed(cells, column, "age group") or ""
+        group = _GROUP.match(printed)
+        band = group["band"] if group else (m["band"] if (m := _BAND.match(printed)) else None)
+        of = _OF.match(_printed(cells, column, "ag place") or "")
+        within = int(group["place"]) if group else (int(of["place"]) if of else None)
+        gun = _printed(cells, column, "gun time") if "gun time" in column else cells[-1]
+        chip = _printed(cells, column, "chip time") if "chip time" in column else cells[-2]
+        bib = _printed(cells, column, "bib") if "bib" in column else cells[3]
         results.append(
             Result(
                 race_id=race_id,
                 place=int(cells[0]),
-                bib=parse.integer(cells[3]),
+                bib=parse.integer(bib or ""),
                 name=name,
                 club=_printed(cells, column, "club"),
                 sex=sex if sex in ("M", "F", "X") else None,
                 sex_place=None,
-                age_band=group["band"] if group else None,
-                category_place=int(group["place"]) if group else None,
+                age_band=band,
+                category_place=within,
                 hometown=None,
-                gun_seconds=parse.seconds(cells[-1]),
-                chip_seconds=parse.seconds(cells[-2]),
+                gun_seconds=parse.seconds(gun or ""),
+                chip_seconds=parse.seconds(chip or ""),
             )
         )
     return results

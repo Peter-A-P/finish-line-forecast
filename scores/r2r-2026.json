@@ -1,0 +1,4871 @@
+{
+  "error": {
+    "all": {
+      "bias_minutes": [
+        -0.913580586080586,
+        -2.1040995879120876,
+        0.2100505952380947
+      ],
+      "carry_forward": {
+        "carry_forward_mae_minutes": [
+          5.734415706880365,
+          4.802121848119477,
+          6.79034356386865
+        ],
+        "difference_minutes": [
+          -1.7331784880664598,
+          -2.3048934347668513,
+          -1.1593122872656498
+        ],
+        "model_mae_minutes": [
+          4.001237218813906,
+          3.225844069529653,
+          4.9981477505112455
+        ],
+        "runners": 163
+      },
+      "mae_minutes": [
+        4.711071428571429,
+        3.8064791666666666,
+        5.751098443223443
+      ],
+      "mean_percent_error": [
+        6.39901788672341,
+        5.242414585906868,
+        7.615369289408056
+      ],
+      "runners": 182
+    },
+    "by_stratum": {
+      "0": {
+        "bias_minutes": [
+          -0.9915686274509805,
+          -7.514629901960783,
+          5.199041666666664
+        ],
+        "carry_forward": {
+          "carry_forward_mae_minutes": null,
+          "difference_minutes": null,
+          "model_mae_minutes": null,
+          "runners": 0
+        },
+        "mae_minutes": [
+          10.585098039215685,
+          6.889379901960785,
+          14.78540931372548
+        ],
+        "mean_percent_error": [
+          14.416077068433985,
+          8.927970489919721,
+          21.267323925642057
+        ],
+        "runners": 17
+      },
+      "1": {
+        "bias_minutes": [
+          -0.49399999999999944,
+          -3.0643812499999976,
+          1.7741666666666662
+        ],
+        "carry_forward": {
+          "carry_forward_mae_minutes": [
+            4.834922078582963,
+            3.216996088202839,
+            6.818474918310701
+          ],
+          "difference_minutes": [
+            -0.5824220785829635,
+            -1.6551659584415535,
+            0.46085391838413264
+          ],
+          "model_mae_minutes": [
+            4.2524999999999995,
+            2.841143749999999,
+            5.948437499999999
+          ],
+          "runners": 20
+        },
+        "mae_minutes": [
+          4.2524999999999995,
+          2.841143749999999,
+          5.948437499999999
+        ],
+        "mean_percent_error": [
+          5.791673375016282,
+          4.116650283406287,
+          7.552902428761024
+        ],
+        "runners": 20
+      },
+      "2 to 3": {
+        "bias_minutes": [
+          -0.04799999999999983,
+          -2.281213095238095,
+          2.2902059523809513
+        ],
+        "carry_forward": {
+          "carry_forward_mae_minutes": [
+            6.1420824092442805,
+            3.88597062634741,
+            8.735514055585826
+          ],
+          "difference_minutes": [
+            -1.5457966949585662,
+            -2.9004645511437848,
+            -0.3490432341598217
+          ],
+          "model_mae_minutes": [
+            4.596285714285715,
+            3.0835571428571438,
+            6.338969047619044
+          ],
+          "runners": 35
+        },
+        "mae_minutes": [
+          4.596285714285715,
+          3.0835571428571438,
+          6.338969047619044
+        ],
+        "mean_percent_error": [
+          6.4082348124999715,
+          4.3537028123244985,
+          8.771174920081323
+        ],
+        "runners": 35
+      },
+      "4 or more": {
+        "bias_minutes": [
+          -1.2532272727272726,
+          -2.781811742424241,
+          -0.04431818181818279
+        ],
+        "carry_forward": {
+          "carry_forward_mae_minutes": [
+            5.768874391910097,
+            4.6783281433492245,
+            7.197533263410424
+          ],
+          "difference_minutes": [
+            -2.0070071079594802,
+            -2.6640814759176408,
+            -1.3161088773172347
+          ],
+          "model_mae_minutes": [
+            3.761867283950617,
+            2.720438271604938,
+            5.118081404320987
+          ],
+          "runners": 108
+        },
+        "mae_minutes": [
+          3.923166666666667,
+          2.8700087121212134,
+          5.361957575757576
+        ],
+        "mean_percent_error": [
+          5.267511448022346,
+          4.079897399894439,
+          6.714635195449372
+        ],
+        "runners": 110
+      }
+    }
+  },
+  "field": {
+    "ambiguous": 0,
+    "did_not_finish": 0,
+    "excluded_at_freeze": 2,
+    "finished": 182,
+    "finishers": 185,
+    "linked": 189,
+    "listed": 214,
+    "not_found": 30,
+    "predicted": 212,
+    "unpredicted_finishers": 3
+  },
+  "finishers": [
+    {
+      "actual": 2459.0,
+      "name": "Kate Bazeley",
+      "place": 1
+    },
+    {
+      "actual": 2542.0,
+      "name": "Ethan Walsh",
+      "place": 2
+    },
+    {
+      "actual": 2840.0,
+      "name": "William Duggan",
+      "place": 5
+    },
+    {
+      "actual": 2712.0,
+      "name": "Cole Parsons",
+      "place": 3
+    },
+    {
+      "actual": 2739.0,
+      "name": "Morgan White",
+      "place": 4
+    },
+    {
+      "actual": 2896.0,
+      "name": "Tyler Reid",
+      "place": 8
+    },
+    {
+      "actual": 2930.0,
+      "name": "Gregory Bragg",
+      "place": 11
+    },
+    {
+      "actual": 2886.0,
+      "name": "Michael Dobbin",
+      "place": 7
+    },
+    {
+      "actual": 3391.0,
+      "name": "Michael Noseworthy",
+      "place": 29
+    },
+    {
+      "actual": 3043.0,
+      "name": "Mark Duff",
+      "place": 18
+    },
+    {
+      "actual": 3047.0,
+      "name": "Sean Marquez",
+      "place": 17
+    },
+    {
+      "actual": 3009.0,
+      "name": "Cody Garnier",
+      "place": 15
+    },
+    {
+      "actual": 3063.0,
+      "name": "Catherine Deveau",
+      "place": 19
+    },
+    {
+      "actual": 6311.0,
+      "name": "Michael Philpott",
+      "place": 181
+    },
+    {
+      "actual": 3024.0,
+      "name": "Brian Furlong",
+      "place": 16
+    },
+    {
+      "actual": 3504.0,
+      "name": "Noel Moffatt",
+      "place": 40
+    },
+    {
+      "actual": 2854.0,
+      "name": "Ethan Kirby",
+      "place": 6
+    },
+    {
+      "actual": 2962.0,
+      "name": "Edward Moakler",
+      "place": 12
+    },
+    {
+      "actual": 3000.0,
+      "name": "Christine Aubrey-Bassler",
+      "place": 14
+    },
+    {
+      "actual": 3001.0,
+      "name": "John Walsh",
+      "place": 13
+    },
+    {
+      "actual": 3149.0,
+      "name": "Zachary Visser",
+      "place": 20
+    },
+    {
+      "actual": 2927.0,
+      "name": "Zachary Fagan",
+      "place": 10
+    },
+    {
+      "actual": 3251.0,
+      "name": "Giulio Russo",
+      "place": 24
+    },
+    {
+      "actual": 3205.0,
+      "name": "Darlene Parrott-Manning",
+      "place": 22
+    },
+    {
+      "actual": 3412.0,
+      "name": "Max Diamond",
+      "place": 31
+    },
+    {
+      "actual": 3303.0,
+      "name": "Anna Murphy",
+      "place": 25
+    },
+    {
+      "actual": 3688.0,
+      "name": "Keith Glynn",
+      "place": 53
+    },
+    {
+      "actual": 3504.0,
+      "name": "Beth Tremblett",
+      "place": 41
+    },
+    {
+      "actual": 3580.0,
+      "name": "Chris Boyde",
+      "place": 48
+    },
+    {
+      "actual": 3326.0,
+      "name": "Amanda Tzenov",
+      "place": 26
+    },
+    {
+      "actual": 3350.0,
+      "name": "Guy Beazley",
+      "place": 27
+    },
+    {
+      "actual": 3628.0,
+      "name": "Randy Follett",
+      "place": 52
+    },
+    {
+      "actual": 5326.0,
+      "name": "Patrick Griffin",
+      "place": 162
+    },
+    {
+      "actual": 3417.0,
+      "name": "Alexandra Hodder",
+      "place": 32
+    },
+    {
+      "actual": 3732.0,
+      "name": "Ashlee Power",
+      "place": 58
+    },
+    {
+      "actual": 3206.0,
+      "name": "Nolan Turner",
+      "place": 21
+    },
+    {
+      "actual": 3833.0,
+      "name": "Rosalind Keyes",
+      "place": 73
+    },
+    {
+      "actual": 3224.0,
+      "name": "Nick Earle",
+      "place": 23
+    },
+    {
+      "actual": 3491.0,
+      "name": "Geoffrey Budden",
+      "place": 38
+    },
+    {
+      "actual": 4575.0,
+      "name": "Heather Jones",
+      "place": 130
+    },
+    {
+      "actual": 3580.0,
+      "name": "Sonya Ivany",
+      "place": 49
+    },
+    {
+      "actual": 3439.0,
+      "name": "Amanda White",
+      "place": 34
+    },
+    {
+      "actual": 3472.0,
+      "name": "Natalie Whyte",
+      "place": 35
+    },
+    {
+      "actual": 3499.0,
+      "name": "Tara Simms",
+      "place": 37
+    },
+    {
+      "actual": 3799.0,
+      "name": "Darren Jensen",
+      "place": 70
+    },
+    {
+      "actual": 3585.0,
+      "name": "Kaitlyn Hall",
+      "place": 50
+    },
+    {
+      "actual": 3888.0,
+      "name": "Adam Oakley",
+      "place": 82
+    },
+    {
+      "actual": 3706.0,
+      "name": "Juleah Lunden",
+      "place": 56
+    },
+    {
+      "actual": 3763.0,
+      "name": "Bruce Fancy",
+      "place": 60
+    },
+    {
+      "actual": 3513.0,
+      "name": "Jay Callanan",
+      "place": 39
+    },
+    {
+      "actual": 3570.0,
+      "name": "Lorie Mercer",
+      "place": 47
+    },
+    {
+      "actual": 3577.0,
+      "name": "Jeremy Lester",
+      "place": 51
+    },
+    {
+      "actual": 3553.0,
+      "name": "Maura Maguire",
+      "place": 43
+    },
+    {
+      "actual": 3706.0,
+      "name": "Jillian Greene",
+      "place": 55
+    },
+    {
+      "actual": 3416.0,
+      "name": "Terry Tucker",
+      "place": 30
+    },
+    {
+      "actual": 3695.0,
+      "name": "Kim Dwyer",
+      "place": 54
+    },
+    {
+      "actual": 3756.0,
+      "name": "Kelsey Campbell",
+      "place": 80
+    },
+    {
+      "actual": 3775.0,
+      "name": "Frances Winsor",
+      "place": 62
+    },
+    {
+      "actual": 3312.0,
+      "name": "Neil Parsons",
+      "place": 28
+    },
+    {
+      "actual": 3800.0,
+      "name": "Jeremy Snow",
+      "place": 66
+    },
+    {
+      "actual": 3422.0,
+      "name": "Josh Wernaart",
+      "place": 33
+    },
+    {
+      "actual": 4460.0,
+      "name": "Emmie Penney",
+      "place": 121
+    },
+    {
+      "actual": 3557.0,
+      "name": "Colin Brockerville",
+      "place": 44
+    },
+    {
+      "actual": 3500.0,
+      "name": "Kenneth Baquing",
+      "place": 36
+    },
+    {
+      "actual": 3804.0,
+      "name": "Joan Hartery",
+      "place": 68
+    },
+    {
+      "actual": 3559.0,
+      "name": "Jeff Hutchings",
+      "place": 45
+    },
+    {
+      "actual": 3890.0,
+      "name": "Rick Lawes",
+      "place": 81
+    },
+    {
+      "actual": 4030.0,
+      "name": "Tracy Lawrence",
+      "place": 93
+    },
+    {
+      "actual": 3769.0,
+      "name": "Emily Eaton",
+      "place": 64
+    },
+    {
+      "actual": 3939.0,
+      "name": "Colin Elliott",
+      "place": 85
+    },
+    {
+      "actual": 3948.0,
+      "name": "Chad Budden",
+      "place": 89
+    },
+    {
+      "actual": 3768.0,
+      "name": "Amanda Dermody",
+      "place": 63
+    },
+    {
+      "actual": 3849.0,
+      "name": "Fred Foley",
+      "place": 76
+    },
+    {
+      "actual": 5016.0,
+      "name": "Jonathan Strickland",
+      "place": 155
+    },
+    {
+      "actual": 4742.0,
+      "name": "Emily Whelan",
+      "place": 134
+    },
+    {
+      "actual": 3949.0,
+      "name": "Sarah Peters",
+      "place": 87
+    },
+    {
+      "actual": 4066.0,
+      "name": "Matthew Burbridge",
+      "place": 97
+    },
+    {
+      "actual": 3999.0,
+      "name": "Tina Reynolds",
+      "place": 91
+    },
+    {
+      "actual": 3788.0,
+      "name": "Stephen Harding",
+      "place": 65
+    },
+    {
+      "actual": 3744.0,
+      "name": "Janna Andronowski",
+      "place": 59
+    },
+    {
+      "actual": 3732.0,
+      "name": "Rona Moore",
+      "place": 57
+    },
+    {
+      "actual": 3868.0,
+      "name": "Rachel Davis",
+      "place": 78
+    },
+    {
+      "actual": 3799.0,
+      "name": "Christopher Tobin",
+      "place": 69
+    },
+    {
+      "actual": 4122.0,
+      "name": "Colin Walsh",
+      "place": 103
+    },
+    {
+      "actual": 3869.0,
+      "name": "Maggie Collins",
+      "place": 77
+    },
+    {
+      "actual": 5438.0,
+      "name": "Jeff Cake",
+      "place": 168
+    },
+    {
+      "actual": 4117.0,
+      "name": "Debbie Blagdon",
+      "place": 98
+    },
+    {
+      "actual": 3834.0,
+      "name": "Sarthak Srivastava",
+      "place": 74
+    },
+    {
+      "actual": 3845.0,
+      "name": "John Quinlan",
+      "place": 79
+    },
+    {
+      "actual": 3975.0,
+      "name": "Wendy Read",
+      "place": 88
+    },
+    {
+      "actual": 4374.0,
+      "name": "Roxanne Millan",
+      "place": 111
+    },
+    {
+      "actual": 4422.0,
+      "name": "Sam Paterson",
+      "place": 116
+    },
+    {
+      "actual": 4422.0,
+      "name": "Alice Paterson",
+      "place": 117
+    },
+    {
+      "actual": 3915.0,
+      "name": "Brenda Lee Steele",
+      "place": 83
+    },
+    {
+      "actual": 4250.0,
+      "name": "Tammy Lahey",
+      "place": 107
+    },
+    {
+      "actual": 3935.0,
+      "name": "Brooke Strickland",
+      "place": 86
+    },
+    {
+      "actual": 4578.0,
+      "name": "Victoria Strickland",
+      "place": 131
+    },
+    {
+      "actual": 4129.0,
+      "name": "Stephanie Hayman",
+      "place": 101
+    },
+    {
+      "actual": 4139.0,
+      "name": "Linda Ennis",
+      "place": 102
+    },
+    {
+      "actual": 4487.0,
+      "name": "Mallory Peacock",
+      "place": 124
+    },
+    {
+      "actual": 4224.0,
+      "name": "Jennifer Dominie",
+      "place": 106
+    },
+    {
+      "actual": 4045.0,
+      "name": "Hiliary Hasan",
+      "place": 95
+    },
+    {
+      "actual": 3822.0,
+      "name": "Anna Sparkes",
+      "place": 71
+    },
+    {
+      "actual": 4509.0,
+      "name": "Lisa Mackey",
+      "place": 125
+    },
+    {
+      "actual": 4102.0,
+      "name": "Barbara Mason",
+      "place": 99
+    },
+    {
+      "actual": 4533.0,
+      "name": "Dennis Flynn",
+      "place": 126
+    },
+    {
+      "actual": 4164.0,
+      "name": "Katie Gale",
+      "place": 104
+    },
+    {
+      "actual": 4464.0,
+      "name": "Matthew Courage",
+      "place": 119
+    },
+    {
+      "actual": 4462.0,
+      "name": "William Boyde",
+      "place": 120
+    },
+    {
+      "actual": 4486.0,
+      "name": "Afrooz Manabery",
+      "place": 123
+    },
+    {
+      "actual": 4009.0,
+      "name": "Bill Steele",
+      "place": 92
+    },
+    {
+      "actual": 3557.0,
+      "name": "Glenn Ryan",
+      "place": 46
+    },
+    {
+      "actual": 3544.0,
+      "name": "Ian Boddy",
+      "place": 42
+    },
+    {
+      "actual": 4318.0,
+      "name": "Dylan Moss",
+      "place": 108
+    },
+    {
+      "actual": 4476.0,
+      "name": "Bernadette Jerrett",
+      "place": 122
+    },
+    {
+      "actual": 4358.0,
+      "name": "Renee Tucker",
+      "place": 110
+    },
+    {
+      "actual": 4888.0,
+      "name": "Vanessa Coish",
+      "place": 148
+    },
+    {
+      "actual": 3927.0,
+      "name": "Anthony Deveau",
+      "place": 84
+    },
+    {
+      "actual": 4111.0,
+      "name": "Tammy O'Reilly",
+      "place": 100
+    },
+    {
+      "actual": 4781.0,
+      "name": "Stacey Coish",
+      "place": 142
+    },
+    {
+      "actual": 4784.0,
+      "name": "Janet Loveless",
+      "place": 140
+    },
+    {
+      "actual": 4066.0,
+      "name": "Stephen Burbridge",
+      "place": 96
+    },
+    {
+      "actual": 4424.0,
+      "name": "Andrew Stratton",
+      "place": 118
+    },
+    {
+      "actual": 4944.0,
+      "name": "Charlotte Bonnier",
+      "place": 153
+    },
+    {
+      "actual": 4786.0,
+      "name": "Sylvie Campeau",
+      "place": 144
+    },
+    {
+      "actual": 2914.0,
+      "name": "Ramero Pineda",
+      "place": 9
+    },
+    {
+      "actual": 5670.0,
+      "name": "Katharina Hernschier",
+      "place": 175
+    },
+    {
+      "actual": 5548.0,
+      "name": "Felicia Hayward",
+      "place": 172
+    },
+    {
+      "actual": 3808.0,
+      "name": "Jessica Hapney",
+      "place": 72
+    },
+    {
+      "actual": 3854.0,
+      "name": "Cameron Youden",
+      "place": 75
+    },
+    {
+      "actual": 5337.0,
+      "name": "Angela Dunn",
+      "place": 165
+    },
+    {
+      "actual": 4786.0,
+      "name": "Josée Guillot",
+      "place": 145
+    },
+    {
+      "actual": 6311.0,
+      "name": "Katie Philpott",
+      "place": 180
+    },
+    {
+      "actual": 4209.0,
+      "name": "Jason Lecoure",
+      "place": 105
+    },
+    {
+      "actual": 4008.0,
+      "name": "Jesmar David",
+      "place": 90
+    },
+    {
+      "actual": 4787.0,
+      "name": "Amber Squires",
+      "place": 141
+    },
+    {
+      "actual": 4374.0,
+      "name": "Stephanie Caines",
+      "place": 115
+    },
+    {
+      "actual": 4942.0,
+      "name": "Roma Barron",
+      "place": 152
+    },
+    {
+      "actual": 4751.0,
+      "name": "Jessie Cahill",
+      "place": 137
+    },
+    {
+      "actual": 4012.0,
+      "name": "Megan Bickford",
+      "place": 94
+    },
+    {
+      "actual": 4587.0,
+      "name": "Mandy Halbot",
+      "place": 132
+    },
+    {
+      "actual": 4773.0,
+      "name": "Shauna Hickey",
+      "place": 138
+    },
+    {
+      "actual": 4339.0,
+      "name": "Sawyer Birch",
+      "place": 109
+    },
+    {
+      "actual": 4749.0,
+      "name": "Jackie Hutchings",
+      "place": 136
+    },
+    {
+      "actual": 4563.0,
+      "name": "Jennifer Grandy",
+      "place": 129
+    },
+    {
+      "actual": 4995.0,
+      "name": "Sherry Frampton",
+      "place": 154
+    },
+    {
+      "actual": 4546.0,
+      "name": "Barb Hollett",
+      "place": 127
+    },
+    {
+      "actual": 4374.0,
+      "name": "Julie Oakley",
+      "place": 113
+    },
+    {
+      "actual": 4379.0,
+      "name": "Tracy Buckle",
+      "place": 112
+    },
+    {
+      "actual": 4374.0,
+      "name": "Ahlyah Randell",
+      "place": 114
+    },
+    {
+      "actual": 4814.0,
+      "name": "Melinda Harty",
+      "place": 143
+    },
+    {
+      "actual": 5045.0,
+      "name": "Shelby Stone",
+      "place": 157
+    },
+    {
+      "actual": 4788.0,
+      "name": "Karen Paddle",
+      "place": 139
+    },
+    {
+      "actual": 4878.0,
+      "name": "Ken Scott",
+      "place": 147
+    },
+    {
+      "actual": 4560.0,
+      "name": "Darin Steeves",
+      "place": 128
+    },
+    {
+      "actual": 5058.0,
+      "name": "Tylor Walsh",
+      "place": 156
+    },
+    {
+      "actual": 4872.0,
+      "name": "Florence Barron",
+      "place": 146
+    },
+    {
+      "actual": 4888.0,
+      "name": "Gerry Marshall",
+      "place": 149
+    },
+    {
+      "actual": 4945.0,
+      "name": "Kristina Hudson",
+      "place": 151
+    },
+    {
+      "actual": 4595.0,
+      "name": "Meaghan Mellis",
+      "place": 133
+    },
+    {
+      "actual": 5039.0,
+      "name": "Julia Trahey",
+      "place": 158
+    },
+    {
+      "actual": 5604.0,
+      "name": "Raylene Smith",
+      "place": 174
+    },
+    {
+      "actual": 5337.0,
+      "name": "Amanda Dohey",
+      "place": 164
+    },
+    {
+      "actual": 5439.0,
+      "name": "Tonya Cake",
+      "place": 167
+    },
+    {
+      "actual": 5072.0,
+      "name": "Cathie Reed",
+      "place": 159
+    },
+    {
+      "actual": 5323.0,
+      "name": "Taylor Broderick",
+      "place": 163
+    },
+    {
+      "actual": 5489.0,
+      "name": "Mohammad Zawad Ali",
+      "place": 169
+    },
+    {
+      "actual": 4885.0,
+      "name": "Trudi Mercer",
+      "place": 150
+    },
+    {
+      "actual": 5323.0,
+      "name": "Monica Griffin",
+      "place": 161
+    },
+    {
+      "actual": 5157.0,
+      "name": "Kalli Hawley",
+      "place": 160
+    },
+    {
+      "actual": 5415.0,
+      "name": "Heather Tracey",
+      "place": 166
+    },
+    {
+      "actual": 4742.0,
+      "name": "Brieanna Smith",
+      "place": 135
+    },
+    {
+      "actual": 5507.0,
+      "name": "Susan Chang",
+      "place": 170
+    },
+    {
+      "actual": 5868.0,
+      "name": "Chelsea Stamplecoski",
+      "place": 179
+    },
+    {
+      "actual": 5549.0,
+      "name": "Erica Bennett",
+      "place": 173
+    },
+    {
+      "actual": 6489.0,
+      "name": "Hannah Kerfont",
+      "place": 182
+    },
+    {
+      "actual": 6655.0,
+      "name": "Lisa Marie Carter",
+      "place": 185
+    },
+    {
+      "actual": 5736.0,
+      "name": "Caitriona Bonia",
+      "place": 176
+    },
+    {
+      "actual": 5735.0,
+      "name": "Carl Butler",
+      "place": 178
+    },
+    {
+      "actual": 6509.0,
+      "name": "Jackie Laracy",
+      "place": 183
+    },
+    {
+      "actual": 5734.0,
+      "name": "Tammy Butler",
+      "place": 177
+    },
+    {
+      "actual": 6653.0,
+      "name": "Sherry Gosse",
+      "place": 184
+    }
+  ],
+  "gun": "2026-11-11T08:00:00-03:30",
+  "intervals": {
+    "all": {
+      "80": {
+        "coverage": [
+          0.7197802197802198,
+          0.6483516483516484,
+          0.7857142857142857
+        ],
+        "median_width_minutes": 8.72166666666667
+      },
+      "90": {
+        "coverage": [
+          0.8571428571428571,
+          0.8021978021978022,
+          0.9065934065934066
+        ],
+        "median_width_minutes": 12.748333333333335
+      },
+      "runners": 182
+    },
+    "by_stratum": {
+      "0": {
+        "80": {
+          "coverage": [
+            0.8823529411764706,
+            0.7058823529411765,
+            1.0
+          ],
+          "median_width_minutes": 43.19166666666667
+        },
+        "90": {
+          "coverage": [
+            0.9411764705882353,
+            0.8235294117647058,
+            1.0
+          ],
+          "median_width_minutes": 56.736666666666665
+        },
+        "runners": 17
+      },
+      "1": {
+        "80": {
+          "coverage": [
+            0.85,
+            0.7,
+            1.0
+          ],
+          "median_width_minutes": 11.655000000000003
+        },
+        "90": {
+          "coverage": [
+            0.95,
+            0.85,
+            1.0
+          ],
+          "median_width_minutes": 17.3125
+        },
+        "runners": 20
+      },
+      "2 to 3": {
+        "80": {
+          "coverage": [
+            0.7428571428571429,
+            0.6,
+            0.8857142857142857
+          ],
+          "median_width_minutes": 10.23499999999999
+        },
+        "90": {
+          "coverage": [
+            0.9142857142857143,
+            0.8285714285714286,
+            1.0
+          ],
+          "median_width_minutes": 15.214999999999995
+        },
+        "runners": 35
+      },
+      "4 or more": {
+        "80": {
+          "coverage": [
+            0.6636363636363637,
+            0.5818181818181818,
+            0.7545454545454545
+          ],
+          "median_width_minutes": 6.954166666666667
+        },
+        "90": {
+          "coverage": [
+            0.8090909090909091,
+            0.7363636363636363,
+            0.8818181818181818
+          ],
+          "median_width_minutes": 10.528333333333334
+        },
+        "runners": 110
+      }
+    }
+  },
+  "placing": {
+    "carry_forward": {
+      "carry_forward_place_error": [
+        19.171779141104295,
+        15.87101226993865,
+        23.043558282208586
+      ],
+      "model_place_error": [
+        13.846625766871165,
+        11.073312883435584,
+        17.620245398773005
+      ],
+      "runners": 163
+    },
+    "place_error": [
+      17.96153846153846,
+      14.570329670329672,
+      22.259478021978016
+    ],
+    "range_checked": 182,
+    "range_held": [
+      0.5494505494505495,
+      0.47802197802197804,
+      0.6208791208791209
+    ],
+    "runners": 182,
+    "spearman": [
+      0.8497922552992989,
+      0.7667922056505524,
+      0.9127774073744181
+    ]
+  },
+  "prediction": {
+    "commit": "caed1f58eaa88228f161f447e6da8de96166fee2",
+    "file": "predictions/r2r-2026.json",
+    "model": "blend",
+    "sha256": "586d741ce2210bad8e818573c9cc4a2cbf1acab379aca1643d01c92d671c5193",
+    "tag": "predictions/r2r-2026/final",
+    "tagged_at": "2026-11-10T05:17:31-03:30"
+  },
+  "race": {
+    "course_id": "run-to-remember-11000",
+    "date": "2026-11-11",
+    "distance_m": 11000.0,
+    "name": "Run to Remember",
+    "race_id": "r2r-2026"
+  },
+  "resolved_by_hand": {
+    "error": {
+      "bias_minutes": [
+        -1.0141666666666658,
+        -9.644999999999998,
+        7.616666666666666
+      ],
+      "carry_forward": {
+        "carry_forward_mae_minutes": [
+          11.708715351848559,
+          11.708715351848559,
+          11.708715351848559
+        ],
+        "difference_minutes": [
+          -2.063715351848561,
+          -2.063715351848561,
+          -2.063715351848561
+        ],
+        "model_mae_minutes": [
+          9.644999999999998,
+          9.644999999999998,
+          9.644999999999998
+        ],
+        "runners": 1
+      },
+      "mae_minutes": [
+        8.630833333333332,
+        7.616666666666666,
+        9.644999999999998
+      ],
+      "mean_percent_error": [
+        9.14827797524664,
+        7.970003487966515,
+        10.326552462526763
+      ],
+      "runners": 2
+    },
+    "intervals": {
+      "80": {
+        "coverage": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "median_width_minutes": 9.649166666666671
+      },
+      "90": {
+        "coverage": [
+          0.5,
+          0.0,
+          1.0
+        ],
+        "median_width_minutes": 15.222499999999998
+      },
+      "runners": 2
+    },
+    "predicted": 2
+  },
+  "results": {
+    "race_id": "20261111-r2r-11km-stride",
+    "sha256": "a2f0f6b4bc469481eb7e8c067f843d24fa02ad0898140e7346588b5e13db1e1c",
+    "source": "the list Stride Running NL, the race's organiser, posted after the race; the association had not posted the race yet",
+    "url": "https://striderunningnl.ca/results-2026/"
+  },
+  "schema_version": 1,
+  "scored_at": "2026-11-13T23:25:48.520896+00:00",
+  "shares": {
+    "entrants_with_history": 0.883177570093458,
+    "finishers_with_a_prediction": 0.9837837837837838,
+    "predictions_that_finished": 0.8584905660377359
+  },
+  "story": {
+    "ambiguous": 3,
+    "bands": [
+      {
+        "key": "front",
+        "label": "Front of the field",
+        "mae_min": 3.33,
+        "mape": 0.0614,
+        "note": "fastest quarter",
+        "places_out": 13.7,
+        "runners": 46
+      },
+      {
+        "key": "mid",
+        "label": "Mid-pack",
+        "mae_min": 3.83,
+        "mape": 0.0553,
+        "note": "middle half",
+        "places_out": 18.9,
+        "runners": 91
+      },
+      {
+        "key": "back",
+        "label": "Later finishers",
+        "mae_min": 7.9,
+        "mape": 0.0841,
+        "note": "last quarter",
+        "places_out": 20.2,
+        "runners": 45
+      }
+    ],
+    "borrowed": 0,
+    "coverage80": 0.7198,
+    "finishers": 185,
+    "mae_min": 4.71,
+    "median_error_min": 2.86,
+    "median_places_out": 10.0,
+    "paired": 163,
+    "paired_baseline_min": 5.73,
+    "paired_model_min": 4.0,
+    "places_out": 17.9,
+    "runners": [
+      {
+        "actual": 2459.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2277,
+          2522
+        ],
+        "name": "Kate Bazeley",
+        "out_by": 50.1,
+        "place": 1,
+        "places_out": 0,
+        "prior": 42,
+        "seconds": 2408.9,
+        "sex": "F"
+      },
+      {
+        "actual": 2542.0,
+        "age": "0-19",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2498,
+          2745
+        ],
+        "name": "Ethan Walsh",
+        "out_by": -79.2,
+        "place": 2,
+        "places_out": 0,
+        "prior": 12,
+        "seconds": 2621.2,
+        "sex": "M"
+      },
+      {
+        "actual": 2712.0,
+        "age": "0-19",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2602,
+          2850
+        ],
+        "name": "Cole Parsons",
+        "out_by": -6.5,
+        "place": 3,
+        "places_out": 1,
+        "prior": 9,
+        "seconds": 2718.5,
+        "sex": "M"
+      },
+      {
+        "actual": 2739.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2632,
+          2865
+        ],
+        "name": "Morgan White",
+        "out_by": -10.3,
+        "place": 4,
+        "places_out": 1,
+        "prior": 10,
+        "seconds": 2749.3,
+        "sex": "M"
+      },
+      {
+        "actual": 2840.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2588,
+          2837
+        ],
+        "name": "William Duggan",
+        "out_by": 136.4,
+        "place": 5,
+        "places_out": -2,
+        "prior": 63,
+        "seconds": 2703.6,
+        "sex": "M"
+      },
+      {
+        "actual": 2854.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2867,
+          3521
+        ],
+        "name": "Ethan Kirby",
+        "out_by": -231.0,
+        "place": 6,
+        "places_out": 11,
+        "prior": 4,
+        "seconds": 3085.0,
+        "sex": "M"
+      },
+      {
+        "actual": 2886.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2746,
+          3305
+        ],
+        "name": "Michael Dobbin",
+        "out_by": -85.1,
+        "place": 7,
+        "places_out": 1,
+        "prior": 2,
+        "seconds": 2971.1,
+        "sex": "M"
+      },
+      {
+        "actual": 2896.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2725,
+          3027
+        ],
+        "name": "Tyler Reid",
+        "out_by": 26.4,
+        "place": 8,
+        "places_out": -2,
+        "prior": 21,
+        "seconds": 2869.6,
+        "sex": "M"
+      },
+      {
+        "actual": 2914.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3448,
+          6103
+        ],
+        "name": "Ramero Pineda",
+        "out_by": -1647.3,
+        "place": 9,
+        "places_out": 117,
+        "prior": 0,
+        "seconds": 4561.3,
+        "sex": "M"
+      },
+      {
+        "actual": 2927.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2869,
+          3546
+        ],
+        "name": "Zachary Fagan",
+        "out_by": -249.6,
+        "place": 10,
+        "places_out": 12,
+        "prior": 4,
+        "seconds": 3176.6,
+        "sex": "M"
+      },
+      {
+        "actual": 2930.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2749,
+          3349
+        ],
+        "name": "Gregory Bragg",
+        "out_by": -18.7,
+        "place": 11,
+        "places_out": -4,
+        "prior": 1,
+        "seconds": 2948.7,
+        "sex": "M"
+      },
+      {
+        "actual": 2962.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2862,
+          3366
+        ],
+        "name": "Edward Moakler",
+        "out_by": -126.5,
+        "place": 12,
+        "places_out": 6,
+        "prior": 3,
+        "seconds": 3088.5,
+        "sex": "M"
+      },
+      {
+        "actual": 3001.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2960,
+          3268
+        ],
+        "name": "John Walsh",
+        "out_by": -117.8,
+        "place": 13,
+        "places_out": 6,
+        "prior": 62,
+        "seconds": 3118.8,
+        "sex": "M"
+      },
+      {
+        "actual": 3000.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2947,
+          3249
+        ],
+        "name": "Christine Aubrey-Bassler",
+        "out_by": -88.9,
+        "place": 14,
+        "places_out": 6,
+        "prior": 19,
+        "seconds": 3088.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3009.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2901,
+          3190
+        ],
+        "name": "Cody Garnier",
+        "out_by": -34.4,
+        "place": 15,
+        "places_out": -3,
+        "prior": 7,
+        "seconds": 3043.4,
+        "sex": "M"
+      },
+      {
+        "actual": 3024.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2842,
+          3280
+        ],
+        "name": "Brian Furlong",
+        "out_by": -34.9,
+        "place": 16,
+        "places_out": -1,
+        "prior": 3,
+        "seconds": 3058.9,
+        "sex": "M"
+      },
+      {
+        "actual": 3047.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2838,
+          3252
+        ],
+        "name": "Sean Marquez",
+        "out_by": 15.3,
+        "place": 17,
+        "places_out": -7,
+        "prior": 2,
+        "seconds": 3031.7,
+        "sex": "M"
+      },
+      {
+        "actual": 3043.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2828,
+          3230
+        ],
+        "name": "Mark Duff",
+        "out_by": 29.2,
+        "place": 18,
+        "places_out": -7,
+        "prior": 2,
+        "seconds": 3013.8,
+        "sex": "M"
+      },
+      {
+        "actual": 3063.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2897,
+          3183
+        ],
+        "name": "Catherine Deveau",
+        "out_by": 8.6,
+        "place": 19,
+        "places_out": -6,
+        "prior": 10,
+        "seconds": 3054.4,
+        "sex": "F"
+      },
+      {
+        "actual": 3149.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2878,
+          3536
+        ],
+        "name": "Zachary Visser",
+        "out_by": -23.5,
+        "place": 20,
+        "places_out": 1,
+        "prior": 3,
+        "seconds": 3172.5,
+        "sex": "M"
+      },
+      {
+        "actual": 3206.0,
+        "age": "0-19",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3123,
+          3823
+        ],
+        "name": "Nolan Turner",
+        "out_by": -254.9,
+        "place": 21,
+        "places_out": 14,
+        "prior": 1,
+        "seconds": 3460.9,
+        "sex": "M"
+      },
+      {
+        "actual": 3205.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3044,
+          3392
+        ],
+        "name": "Darlene Parrott-Manning",
+        "out_by": -9.5,
+        "place": 22,
+        "places_out": 3,
+        "prior": 9,
+        "seconds": 3214.5,
+        "sex": "F"
+      },
+      {
+        "actual": 3224.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3272,
+          3764
+        ],
+        "name": "Nick Earle",
+        "out_by": -272.8,
+        "place": 23,
+        "places_out": 15,
+        "prior": 11,
+        "seconds": 3496.8,
+        "sex": "M"
+      },
+      {
+        "actual": 3251.0,
+        "age": "0-19",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2937,
+          3505
+        ],
+        "name": "Giulio Russo",
+        "out_by": 71.3,
+        "place": 24,
+        "places_out": -1,
+        "prior": 1,
+        "seconds": 3179.7,
+        "sex": "M"
+      },
+      {
+        "actual": 3303.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3008,
+          3550
+        ],
+        "name": "Anna Murphy",
+        "out_by": 23.2,
+        "place": 25,
+        "places_out": 1,
+        "prior": 13,
+        "seconds": 3279.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3326.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3228,
+          3488
+        ],
+        "name": "Amanda Tzenov",
+        "out_by": -28.8,
+        "place": 26,
+        "places_out": 3,
+        "prior": 25,
+        "seconds": 3354.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3350.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3224,
+          3547
+        ],
+        "name": "Guy Beazley",
+        "out_by": -36.2,
+        "place": 27,
+        "places_out": 3,
+        "prior": 61,
+        "seconds": 3386.2,
+        "sex": "M"
+      },
+      {
+        "actual": 3312.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3578,
+          3984
+        ],
+        "name": "Neil Parsons",
+        "out_by": -486.0,
+        "place": 28,
+        "places_out": 33,
+        "prior": 5,
+        "seconds": 3798.0,
+        "sex": "M"
+      },
+      {
+        "actual": 3391.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2859,
+          3169
+        ],
+        "name": "Michael Noseworthy",
+        "out_by": 379.4,
+        "place": 29,
+        "places_out": -20,
+        "prior": 43,
+        "seconds": 3011.6,
+        "sex": "M"
+      },
+      {
+        "actual": 3416.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3396,
+          4044
+        ],
+        "name": "Terry Tucker",
+        "out_by": -293.2,
+        "place": 30,
+        "places_out": 25,
+        "prior": 18,
+        "seconds": 3709.2,
+        "sex": "M"
+      },
+      {
+        "actual": 3412.0,
+        "age": "0-19",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2998,
+          3486
+        ],
+        "name": "Max Diamond",
+        "out_by": 142.0,
+        "place": 31,
+        "places_out": -5,
+        "prior": 2,
+        "seconds": 3270.0,
+        "sex": "M"
+      },
+      {
+        "actual": 3417.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3169,
+          3685
+        ],
+        "name": "Alexandra Hodder",
+        "out_by": -13.5,
+        "place": 32,
+        "places_out": 2,
+        "prior": 2,
+        "seconds": 3430.5,
+        "sex": "F"
+      },
+      {
+        "actual": 3422.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3497,
+          4093
+        ],
+        "name": "Josh Wernaart",
+        "out_by": -380.7,
+        "place": 33,
+        "places_out": 28,
+        "prior": 1,
+        "seconds": 3802.7,
+        "sex": "M"
+      },
+      {
+        "actual": 3439.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3378,
+          3709
+        ],
+        "name": "Amanda White",
+        "out_by": -98.9,
+        "place": 34,
+        "places_out": 8,
+        "prior": 7,
+        "seconds": 3537.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3472.0,
+        "age": "0-19",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3326,
+          3865
+        ],
+        "name": "Natalie Whyte",
+        "out_by": -93.3,
+        "place": 35,
+        "places_out": 8,
+        "prior": 1,
+        "seconds": 3565.3,
+        "sex": "F"
+      },
+      {
+        "actual": 3500.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3577,
+          4108
+        ],
+        "name": "Kenneth Baquing",
+        "out_by": -313.5,
+        "place": 36,
+        "places_out": 26,
+        "prior": 2,
+        "seconds": 3813.5,
+        "sex": "M"
+      },
+      {
+        "actual": 3499.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3427,
+          3777
+        ],
+        "name": "Tara Simms",
+        "out_by": -98.8,
+        "place": 37,
+        "places_out": 7,
+        "prior": 6,
+        "seconds": 3597.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3491.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3168,
+          3958
+        ],
+        "name": "Geoffrey Budden",
+        "out_by": -18.3,
+        "place": 38,
+        "places_out": 3,
+        "prior": 2,
+        "seconds": 3509.3,
+        "sex": "M"
+      },
+      {
+        "actual": 3513.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3446,
+          3826
+        ],
+        "name": "Jay Callanan",
+        "out_by": -114.0,
+        "place": 39,
+        "places_out": 9,
+        "prior": 19,
+        "seconds": 3627.0,
+        "sex": "M"
+      },
+      {
+        "actual": 3504.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2888,
+          3403
+        ],
+        "name": "Noel Moffatt",
+        "out_by": 422.5,
+        "place": 40,
+        "places_out": -23,
+        "prior": 5,
+        "seconds": 3081.5,
+        "sex": "M"
+      },
+      {
+        "actual": 3504.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3121,
+          3497
+        ],
+        "name": "Beth Tremblett",
+        "out_by": 185.6,
+        "place": 41,
+        "places_out": -12,
+        "prior": 5,
+        "seconds": 3318.4,
+        "sex": "F"
+      },
+      {
+        "actual": 3544.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3635,
+          5915
+        ],
+        "name": "Ian Boddy",
+        "out_by": -897.7,
+        "place": 42,
+        "places_out": 71,
+        "prior": 2,
+        "seconds": 4441.7,
+        "sex": "M"
+      },
+      {
+        "actual": 3553.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3416,
+          3957
+        ],
+        "name": "Maura Maguire",
+        "out_by": -119.4,
+        "place": 43,
+        "places_out": 10,
+        "prior": 3,
+        "seconds": 3672.4,
+        "sex": "F"
+      },
+      {
+        "actual": 3557.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3512,
+          4117
+        ],
+        "name": "Colin Brockerville",
+        "out_by": -254.2,
+        "place": 44,
+        "places_out": 19,
+        "prior": 1,
+        "seconds": 3811.2,
+        "sex": "M"
+      },
+      {
+        "actual": 3559.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3671,
+          4009
+        ],
+        "name": "Jeff Hutchings",
+        "out_by": -285.6,
+        "place": 45,
+        "places_out": 20,
+        "prior": 11,
+        "seconds": 3844.6,
+        "sex": "M"
+      },
+      {
+        "actual": 3557.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4062,
+          4787
+        ],
+        "name": "Glenn Ryan",
+        "out_by": -867.0,
+        "place": 46,
+        "places_out": 67,
+        "prior": 3,
+        "seconds": 4424.0,
+        "sex": "M"
+      },
+      {
+        "actual": 3570.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3484,
+          3819
+        ],
+        "name": "Lorie Mercer",
+        "out_by": -79.8,
+        "place": 47,
+        "places_out": 4,
+        "prior": 10,
+        "seconds": 3649.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3580.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3157,
+          3506
+        ],
+        "name": "Chris Boyde",
+        "out_by": 256.2,
+        "place": 48,
+        "places_out": -20,
+        "prior": 17,
+        "seconds": 3323.8,
+        "sex": "M"
+      },
+      {
+        "actual": 3580.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3377,
+          3696
+        ],
+        "name": "Sonya Ivany",
+        "out_by": 52.2,
+        "place": 49,
+        "places_out": -9,
+        "prior": 11,
+        "seconds": 3527.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3585.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3438,
+          3816
+        ],
+        "name": "Kaitlyn Hall",
+        "out_by": -26.4,
+        "place": 50,
+        "places_out": -5,
+        "prior": 24,
+        "seconds": 3611.4,
+        "sex": "F"
+      },
+      {
+        "actual": 3577.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3505,
+          3823
+        ],
+        "name": "Jeremy Lester",
+        "out_by": -92.5,
+        "place": 51,
+        "places_out": 4,
+        "prior": 8,
+        "seconds": 3669.5,
+        "sex": "M"
+      },
+      {
+        "actual": 3628.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3235,
+          3625
+        ],
+        "name": "Randy Follett",
+        "out_by": 215.8,
+        "place": 52,
+        "places_out": -20,
+        "prior": 36,
+        "seconds": 3412.2,
+        "sex": "M"
+      },
+      {
+        "actual": 3688.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3120,
+          3468
+        ],
+        "name": "Keith Glynn",
+        "out_by": 407.3,
+        "place": 53,
+        "places_out": -26,
+        "prior": 77,
+        "seconds": 3280.7,
+        "sex": "M"
+      },
+      {
+        "actual": 3695.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3412,
+          3920
+        ],
+        "name": "Kim Dwyer",
+        "out_by": -14.2,
+        "place": 54,
+        "places_out": 1,
+        "prior": 17,
+        "seconds": 3709.2,
+        "sex": "F"
+      },
+      {
+        "actual": 3706.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3526,
+          3914
+        ],
+        "name": "Jillian Greene",
+        "out_by": 13.9,
+        "place": 55,
+        "places_out": -2,
+        "prior": 14,
+        "seconds": 3692.1,
+        "sex": "F"
+      },
+      {
+        "actual": 3706.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3452,
+          3796
+        ],
+        "name": "Juleah Lunden",
+        "out_by": 87.2,
+        "place": 56,
+        "places_out": -7,
+        "prior": 10,
+        "seconds": 3618.8,
+        "sex": "F"
+      },
+      {
+        "actual": 3732.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3760,
+          4178
+        ],
+        "name": "Rona Moore",
+        "out_by": -228.5,
+        "place": 57,
+        "places_out": 23,
+        "prior": 30,
+        "seconds": 3960.5,
+        "sex": "F"
+      },
+      {
+        "actual": 3732.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3293,
+          3657
+        ],
+        "name": "Ashlee Power",
+        "out_by": 276.0,
+        "place": 58,
+        "places_out": -22,
+        "prior": 6,
+        "seconds": 3456.0,
+        "sex": "F"
+      },
+      {
+        "actual": 3744.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3756,
+          4177
+        ],
+        "name": "Janna Andronowski",
+        "out_by": -211.2,
+        "place": 59,
+        "places_out": 21,
+        "prior": 9,
+        "seconds": 3955.2,
+        "sex": "F"
+      },
+      {
+        "actual": 3763.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3431,
+          3828
+        ],
+        "name": "Bruce Fancy",
+        "out_by": 143.5,
+        "place": 60,
+        "places_out": -12,
+        "prior": 19,
+        "seconds": 3619.5,
+        "sex": "M"
+      },
+      {
+        "actual": 3771.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": null,
+        "i80": null,
+        "name": "Yvonne Martin",
+        "out_by": null,
+        "place": 61,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "F"
+      },
+      {
+        "actual": 3775.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3510,
+          3986
+        ],
+        "name": "Frances Winsor",
+        "out_by": 27.3,
+        "place": 62,
+        "places_out": -6,
+        "prior": 3,
+        "seconds": 3747.7,
+        "sex": "F"
+      },
+      {
+        "actual": 3768.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3704,
+          4094
+        ],
+        "name": "Amanda Dermody",
+        "out_by": -115.2,
+        "place": 63,
+        "places_out": 10,
+        "prior": 22,
+        "seconds": 3883.2,
+        "sex": "F"
+      },
+      {
+        "actual": 3769.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3643,
+          4059
+        ],
+        "name": "Emily Eaton",
+        "out_by": -94.6,
+        "place": 64,
+        "places_out": 6,
+        "prior": 15,
+        "seconds": 3863.6,
+        "sex": "F"
+      },
+      {
+        "actual": 3788.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3681,
+          4295
+        ],
+        "name": "Stephen Harding",
+        "out_by": -165.7,
+        "place": 65,
+        "places_out": 14,
+        "prior": 2,
+        "seconds": 3953.7,
+        "sex": "M"
+      },
+      {
+        "actual": 3800.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3530,
+          4001
+        ],
+        "name": "Jeremy Snow",
+        "out_by": 0.6,
+        "place": 66,
+        "places_out": -8,
+        "prior": 8,
+        "seconds": 3799.4,
+        "sex": "M"
+      },
+      {
+        "actual": 3804.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": null,
+        "i80": null,
+        "name": "Cynthia Parsons",
+        "out_by": null,
+        "place": 67,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "F"
+      },
+      {
+        "actual": 3804.0,
+        "age": "70-79",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3664,
+          3991
+        ],
+        "name": "Joan Hartery",
+        "out_by": -10.9,
+        "place": 68,
+        "places_out": -4,
+        "prior": 119,
+        "seconds": 3814.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3799.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3786,
+          4169
+        ],
+        "name": "Christopher Tobin",
+        "out_by": -187.8,
+        "place": 69,
+        "places_out": 16,
+        "prior": 46,
+        "seconds": 3986.8,
+        "sex": "M"
+      },
+      {
+        "actual": 3799.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3420,
+          3778
+        ],
+        "name": "Darren Jensen",
+        "out_by": 200.0,
+        "place": 70,
+        "places_out": -21,
+        "prior": 87,
+        "seconds": 3599.0,
+        "sex": "M"
+      },
+      {
+        "actual": 3822.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4024,
+          4508
+        ],
+        "name": "Anna Sparkes",
+        "out_by": -432.5,
+        "place": 71,
+        "places_out": 32,
+        "prior": 8,
+        "seconds": 4254.5,
+        "sex": "F"
+      },
+      {
+        "actual": 3808.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3425,
+          6016
+        ],
+        "name": "Jessica Hapney",
+        "out_by": -758.7,
+        "place": 72,
+        "places_out": 59,
+        "prior": 0,
+        "seconds": 4566.7,
+        "sex": "F"
+      },
+      {
+        "actual": 3833.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3146,
+          3851
+        ],
+        "name": "Rosalind Keyes",
+        "out_by": 354.9,
+        "place": 73,
+        "places_out": -35,
+        "prior": 1,
+        "seconds": 3478.1,
+        "sex": "F"
+      },
+      {
+        "actual": 3834.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3680,
+          4320
+        ],
+        "name": "Sarthak Srivastava",
+        "out_by": -180.4,
+        "place": 74,
+        "places_out": 15,
+        "prior": 1,
+        "seconds": 4014.4,
+        "sex": "M"
+      },
+      {
+        "actual": 3854.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3534,
+          5924
+        ],
+        "name": "Cameron Youden",
+        "out_by": -722.5,
+        "place": 75,
+        "places_out": 54,
+        "prior": 0,
+        "seconds": 4576.5,
+        "sex": "M"
+      },
+      {
+        "actual": 3849.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3588,
+          4192
+        ],
+        "name": "Fred Foley",
+        "out_by": -43.2,
+        "place": 76,
+        "places_out": -2,
+        "prior": 1,
+        "seconds": 3892.2,
+        "sex": "M"
+      },
+      {
+        "actual": 3869.0,
+        "age": "0-19",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3751,
+          4328
+        ],
+        "name": "Maggie Collins",
+        "out_by": -138.9,
+        "place": 77,
+        "places_out": 7,
+        "prior": 2,
+        "seconds": 4007.9,
+        "sex": "F"
+      },
+      {
+        "actual": 3868.0,
+        "age": "0-19",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3693,
+          4193
+        ],
+        "name": "Rachel Davis",
+        "out_by": -112.4,
+        "place": 78,
+        "places_out": 5,
+        "prior": 5,
+        "seconds": 3980.4,
+        "sex": "F"
+      },
+      {
+        "actual": 3845.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3798,
+          4273
+        ],
+        "name": "John Quinlan",
+        "out_by": -170.8,
+        "place": 79,
+        "places_out": 15,
+        "prior": 7,
+        "seconds": 4015.8,
+        "sex": "M"
+      },
+      {
+        "actual": 3756.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3526,
+          3902
+        ],
+        "name": "Kelsey Campbell",
+        "out_by": 33.3,
+        "place": 80,
+        "places_out": -3,
+        "prior": 12,
+        "seconds": 3722.7,
+        "sex": "F"
+      },
+      {
+        "actual": 3890.0,
+        "age": "70-79",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3685,
+          4058
+        ],
+        "name": "Rick Lawes",
+        "out_by": 38.1,
+        "place": 81,
+        "places_out": -13,
+        "prior": 104,
+        "seconds": 3851.9,
+        "sex": "M"
+      },
+      {
+        "actual": 3888.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3346,
+          3901
+        ],
+        "name": "Adam Oakley",
+        "out_by": 270.2,
+        "place": 82,
+        "places_out": -32,
+        "prior": 1,
+        "seconds": 3617.8,
+        "sex": "M"
+      },
+      {
+        "actual": 3915.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3700,
+          4534
+        ],
+        "name": "Brenda Lee Steele",
+        "out_by": -187.3,
+        "place": 83,
+        "places_out": 13,
+        "prior": 9,
+        "seconds": 4102.3,
+        "sex": "F"
+      },
+      {
+        "actual": 3927.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4051,
+          4988
+        ],
+        "name": "Anthony Deveau",
+        "out_by": -568.6,
+        "place": 84,
+        "places_out": 36,
+        "prior": 2,
+        "seconds": 4495.6,
+        "sex": "M"
+      },
+      {
+        "actual": 3939.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3582,
+          4121
+        ],
+        "name": "Colin Elliott",
+        "out_by": 74.7,
+        "place": 85,
+        "places_out": -14,
+        "prior": 2,
+        "seconds": 3864.3,
+        "sex": "M"
+      },
+      {
+        "actual": 3935.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3845,
+          4421
+        ],
+        "name": "Brooke Strickland",
+        "out_by": -172.7,
+        "place": 86,
+        "places_out": 13,
+        "prior": 2,
+        "seconds": 4107.7,
+        "sex": "F"
+      },
+      {
+        "actual": 3949.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3775,
+          4137
+        ],
+        "name": "Sarah Peters",
+        "out_by": 8.9,
+        "place": 87,
+        "places_out": -10,
+        "prior": 14,
+        "seconds": 3940.1,
+        "sex": "F"
+      },
+      {
+        "actual": 3975.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3847,
+          4203
+        ],
+        "name": "Wendy Read",
+        "out_by": -45.6,
+        "place": 88,
+        "places_out": 3,
+        "prior": 24,
+        "seconds": 4020.6,
+        "sex": "F"
+      },
+      {
+        "actual": 3948.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3590,
+          4173
+        ],
+        "name": "Chad Budden",
+        "out_by": 83.2,
+        "place": 89,
+        "places_out": -14,
+        "prior": 1,
+        "seconds": 3864.8,
+        "sex": "M"
+      },
+      {
+        "actual": 4008.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3490,
+          5966
+        ],
+        "name": "Jesmar David",
+        "out_by": -582.5,
+        "place": 90,
+        "places_out": 46,
+        "prior": 0,
+        "seconds": 4590.5,
+        "sex": "M"
+      },
+      {
+        "actual": 3999.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3762,
+          4138
+        ],
+        "name": "Tina Reynolds",
+        "out_by": 48.5,
+        "place": 91,
+        "places_out": -10,
+        "prior": 4,
+        "seconds": 3950.5,
+        "sex": "F"
+      },
+      {
+        "actual": 4009.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4079,
+          4778
+        ],
+        "name": "Bill Steele",
+        "out_by": -405.3,
+        "place": 92,
+        "places_out": 21,
+        "prior": 1,
+        "seconds": 4414.3,
+        "sex": "M"
+      },
+      {
+        "actual": 4030.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3691,
+          4051
+        ],
+        "name": "Tracy Lawrence",
+        "out_by": 174.6,
+        "place": 93,
+        "places_out": -24,
+        "prior": 48,
+        "seconds": 3855.4,
+        "sex": "F"
+      },
+      {
+        "actual": 4012.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3356,
+          6101
+        ],
+        "name": "Megan Bickford",
+        "out_by": -586.0,
+        "place": 94,
+        "places_out": 49,
+        "prior": 0,
+        "seconds": 4598.0,
+        "sex": "F"
+      },
+      {
+        "actual": 4045.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4024,
+          4425
+        ],
+        "name": "Hiliary Hasan",
+        "out_by": -184.3,
+        "place": 95,
+        "places_out": 9,
+        "prior": 4,
+        "seconds": 4229.3,
+        "sex": "F"
+      },
+      {
+        "actual": 4066.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3404,
+          6081
+        ],
+        "name": "Stephen Burbridge",
+        "out_by": -473.3,
+        "place": 96,
+        "places_out": 27,
+        "prior": 0,
+        "seconds": 4539.3,
+        "sex": "M"
+      },
+      {
+        "actual": 4066.0,
+        "age": "0-19",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3618,
+          4324
+        ],
+        "name": "Matthew Burbridge",
+        "out_by": 124.3,
+        "place": 97,
+        "places_out": -17,
+        "prior": 1,
+        "seconds": 3941.7,
+        "sex": "M"
+      },
+      {
+        "actual": 4117.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3724,
+          4253
+        ],
+        "name": "Debbie Blagdon",
+        "out_by": 105.2,
+        "place": 98,
+        "places_out": -11,
+        "prior": 5,
+        "seconds": 4011.8,
+        "sex": "F"
+      },
+      {
+        "actual": 4102.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4004,
+          4670
+        ],
+        "name": "Barbara Mason",
+        "out_by": -212.1,
+        "place": 99,
+        "places_out": 9,
+        "prior": 2,
+        "seconds": 4314.1,
+        "sex": "F"
+      },
+      {
+        "actual": 4111.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4272,
+          4769
+        ],
+        "name": "Tammy O'Reilly",
+        "out_by": -385.6,
+        "place": 100,
+        "places_out": 22,
+        "prior": 4,
+        "seconds": 4496.6,
+        "sex": "F"
+      },
+      {
+        "actual": 4129.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3869,
+          4417
+        ],
+        "name": "Stephanie Hayman",
+        "out_by": -20.3,
+        "place": 101,
+        "places_out": -2,
+        "prior": 3,
+        "seconds": 4149.3,
+        "sex": "F"
+      },
+      {
+        "actual": 4139.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3994,
+          4371
+        ],
+        "name": "Linda Ennis",
+        "out_by": -29.8,
+        "place": 102,
+        "places_out": -2,
+        "prior": 26,
+        "seconds": 4168.8,
+        "sex": "F"
+      },
+      {
+        "actual": 4122.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3517,
+          4552
+        ],
+        "name": "Colin Walsh",
+        "out_by": 131.4,
+        "place": 103,
+        "places_out": -15,
+        "prior": 1,
+        "seconds": 3990.6,
+        "sex": "M"
+      },
+      {
+        "actual": 4164.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4063,
+          4538
+        ],
+        "name": "Katie Gale",
+        "out_by": -164.8,
+        "place": 104,
+        "places_out": 5,
+        "prior": 13,
+        "seconds": 4328.8,
+        "sex": "F"
+      },
+      {
+        "actual": 4209.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4338,
+          4831
+        ],
+        "name": "Jason Lecoure",
+        "out_by": -372.3,
+        "place": 105,
+        "places_out": 31,
+        "prior": 8,
+        "seconds": 4581.3,
+        "sex": "M"
+      },
+      {
+        "actual": 4224.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4039,
+          4418
+        ],
+        "name": "Jennifer Dominie",
+        "out_by": 15.8,
+        "place": 106,
+        "places_out": -3,
+        "prior": 12,
+        "seconds": 4208.2,
+        "sex": "F"
+      },
+      {
+        "actual": 4250.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3929,
+          4302
+        ],
+        "name": "Tammy Lahey",
+        "out_by": 145.8,
+        "place": 107,
+        "places_out": -10,
+        "prior": 41,
+        "seconds": 4104.2,
+        "sex": "F"
+      },
+      {
+        "actual": 4318.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4064,
+          4772
+        ],
+        "name": "Dylan Moss",
+        "out_by": -137.1,
+        "place": 108,
+        "places_out": 8,
+        "prior": 3,
+        "seconds": 4455.1,
+        "sex": "M"
+      },
+      {
+        "actual": 4339.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4424,
+          4972
+        ],
+        "name": "Sawyer Birch",
+        "out_by": -346.6,
+        "place": 109,
+        "places_out": 36,
+        "prior": 2,
+        "seconds": 4685.6,
+        "sex": "M"
+      },
+      {
+        "actual": 4358.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4263,
+          4668
+        ],
+        "name": "Renee Tucker",
+        "out_by": -105.2,
+        "place": 110,
+        "places_out": 8,
+        "prior": 14,
+        "seconds": 4463.2,
+        "sex": "F"
+      },
+      {
+        "actual": 4374.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3852,
+          4215
+        ],
+        "name": "Roxanne Millan",
+        "out_by": 345.2,
+        "place": 111,
+        "places_out": -18,
+        "prior": 13,
+        "seconds": 4028.8,
+        "sex": "F"
+      },
+      {
+        "actual": 4379.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4112,
+          5441
+        ],
+        "name": "Tracy Buckle",
+        "out_by": -404.0,
+        "place": 112,
+        "places_out": 36,
+        "prior": 6,
+        "seconds": 4783.0,
+        "sex": "F"
+      },
+      {
+        "actual": 4374.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4489,
+          5043
+        ],
+        "name": "Julie Oakley",
+        "out_by": -405.5,
+        "place": 113,
+        "places_out": 37,
+        "prior": 4,
+        "seconds": 4779.5,
+        "sex": "F"
+      },
+      {
+        "actual": 4374.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4540,
+          5024
+        ],
+        "name": "Ahlyah Randell",
+        "out_by": -411.2,
+        "place": 114,
+        "places_out": 38,
+        "prior": 4,
+        "seconds": 4785.2,
+        "sex": "F"
+      },
+      {
+        "actual": 4374.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4216,
+          4951
+        ],
+        "name": "Stephanie Caines",
+        "out_by": -219.4,
+        "place": 115,
+        "places_out": 27,
+        "prior": 2,
+        "seconds": 4593.4,
+        "sex": "F"
+      },
+      {
+        "actual": 4422.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3865,
+          4283
+        ],
+        "name": "Sam Paterson",
+        "out_by": 367.4,
+        "place": 116,
+        "places_out": -22,
+        "prior": 21,
+        "seconds": 4054.6,
+        "sex": "M"
+      },
+      {
+        "actual": 4422.0,
+        "age": "0-19",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3865,
+          4307
+        ],
+        "name": "Alice Paterson",
+        "out_by": 324.5,
+        "place": 117,
+        "places_out": -22,
+        "prior": 10,
+        "seconds": 4097.5,
+        "sex": "F"
+      },
+      {
+        "actual": 4424.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3466,
+          5887
+        ],
+        "name": "Andrew Stratton",
+        "out_by": -122.4,
+        "place": 118,
+        "places_out": 7,
+        "prior": 0,
+        "seconds": 4546.4,
+        "sex": "M"
+      },
+      {
+        "actual": 4464.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4148,
+          4604
+        ],
+        "name": "Matthew Courage",
+        "out_by": 101.6,
+        "place": 119,
+        "places_out": -11,
+        "prior": 5,
+        "seconds": 4362.4,
+        "sex": "M"
+      },
+      {
+        "actual": 4462.0,
+        "age": "80-99",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4175,
+          4623
+        ],
+        "name": "William Boyde",
+        "out_by": 88.2,
+        "place": 120,
+        "places_out": -9,
+        "prior": 36,
+        "seconds": 4373.8,
+        "sex": "M"
+      },
+      {
+        "actual": 4460.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3616,
+          3982
+        ],
+        "name": "Emmie Penney",
+        "out_by": 652.5,
+        "place": 121,
+        "places_out": -55,
+        "prior": 15,
+        "seconds": 3807.5,
+        "sex": "F"
+      },
+      {
+        "actual": 4476.0,
+        "age": "70-79",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4263,
+          4650
+        ],
+        "name": "Bernadette Jerrett",
+        "out_by": 13.3,
+        "place": 122,
+        "places_out": -5,
+        "prior": 109,
+        "seconds": 4462.7,
+        "sex": "F"
+      },
+      {
+        "actual": 4486.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4037,
+          4805
+        ],
+        "name": "Afrooz Manabery",
+        "out_by": 84.7,
+        "place": 123,
+        "places_out": -11,
+        "prior": 1,
+        "seconds": 4401.3,
+        "sex": "F"
+      },
+      {
+        "actual": 4487.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3394,
+          5167
+        ],
+        "name": "Mallory Peacock",
+        "out_by": 298.5,
+        "place": 124,
+        "places_out": -22,
+        "prior": 1,
+        "seconds": 4188.5,
+        "sex": "F"
+      },
+      {
+        "actual": 4509.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4059,
+          4527
+        ],
+        "name": "Lisa Mackey",
+        "out_by": 230.0,
+        "place": 125,
+        "places_out": -19,
+        "prior": 13,
+        "seconds": 4279.0,
+        "sex": "F"
+      },
+      {
+        "actual": 4533.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4180,
+          4527
+        ],
+        "name": "Dennis Flynn",
+        "out_by": 211.5,
+        "place": 126,
+        "places_out": -18,
+        "prior": 122,
+        "seconds": 4321.5,
+        "sex": "M"
+      },
+      {
+        "actual": 4546.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4479,
+          5323
+        ],
+        "name": "Barb Hollett",
+        "out_by": -221.4,
+        "place": 127,
+        "places_out": 22,
+        "prior": 4,
+        "seconds": 4767.4,
+        "sex": "F"
+      },
+      {
+        "actual": 4560.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4649,
+          5143
+        ],
+        "name": "Darin Steeves",
+        "out_by": -300.7,
+        "place": 128,
+        "places_out": 29,
+        "prior": 9,
+        "seconds": 4860.7,
+        "sex": "M"
+      },
+      {
+        "actual": 4563.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4447,
+          4985
+        ],
+        "name": "Jennifer Grandy",
+        "out_by": -157.7,
+        "place": 129,
+        "places_out": 18,
+        "prior": 18,
+        "seconds": 4720.7,
+        "sex": "F"
+      },
+      {
+        "actual": 4575.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3356,
+          3682
+        ],
+        "name": "Heather Jones",
+        "out_by": 1059.0,
+        "place": 130,
+        "places_out": -88,
+        "prior": 25,
+        "seconds": 3516.0,
+        "sex": "F"
+      },
+      {
+        "actual": 4578.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3843,
+          4408
+        ],
+        "name": "Victoria Strickland",
+        "out_by": 442.6,
+        "place": 131,
+        "places_out": -32,
+        "prior": 3,
+        "seconds": 4135.4,
+        "sex": "F"
+      },
+      {
+        "actual": 4587.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4363,
+          4880
+        ],
+        "name": "Mandy Halbot",
+        "out_by": -15.2,
+        "place": 132,
+        "places_out": 11,
+        "prior": 4,
+        "seconds": 4602.2,
+        "sex": "F"
+      },
+      {
+        "actual": 4595.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4707,
+          5265
+        ],
+        "name": "Meaghan Mellis",
+        "out_by": -370.1,
+        "place": 133,
+        "places_out": 29,
+        "prior": 5,
+        "seconds": 4965.1,
+        "sex": "F"
+      },
+      {
+        "actual": 4742.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3648,
+          4198
+        ],
+        "name": "Emily Whelan",
+        "out_by": 833.9,
+        "place": 134,
+        "places_out": -57,
+        "prior": 2,
+        "seconds": 3908.1,
+        "sex": "F"
+      },
+      {
+        "actual": 4742.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4438,
+          6363
+        ],
+        "name": "Brieanna Smith",
+        "out_by": -555.3,
+        "place": 135,
+        "places_out": 39,
+        "prior": 1,
+        "seconds": 5297.3,
+        "sex": "F"
+      },
+      {
+        "actual": 4749.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4494,
+          4937
+        ],
+        "name": "Jackie Hutchings",
+        "out_by": 56.1,
+        "place": 136,
+        "places_out": 10,
+        "prior": 21,
+        "seconds": 4692.9,
+        "sex": "F"
+      },
+      {
+        "actual": 4751.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3475,
+          6071
+        ],
+        "name": "Jessie Cahill",
+        "out_by": 155.0,
+        "place": 137,
+        "places_out": 4,
+        "prior": 0,
+        "seconds": 4596.0,
+        "sex": "F"
+      },
+      {
+        "actual": 4773.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3435,
+          6088
+        ],
+        "name": "Shauna Hickey",
+        "out_by": 152.0,
+        "place": 138,
+        "places_out": 6,
+        "prior": 0,
+        "seconds": 4621.0,
+        "sex": "F"
+      },
+      {
+        "actual": 4788.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4607,
+          5086
+        ],
+        "name": "Karen Paddle",
+        "out_by": -60.2,
+        "place": 139,
+        "places_out": 11,
+        "prior": 6,
+        "seconds": 4848.2,
+        "sex": "F"
+      },
+      {
+        "actual": 4784.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3890,
+          5110
+        ],
+        "name": "Janet Loveless",
+        "out_by": 268.4,
+        "place": 140,
+        "places_out": -17,
+        "prior": 4,
+        "seconds": 4515.6,
+        "sex": "F"
+      },
+      {
+        "actual": 4787.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3408,
+          6028
+        ],
+        "name": "Amber Squires",
+        "out_by": 195.0,
+        "place": 141,
+        "places_out": -5,
+        "prior": 0,
+        "seconds": 4592.0,
+        "sex": "F"
+      },
+      {
+        "actual": 4781.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4170,
+          4903
+        ],
+        "name": "Stacey Coish",
+        "out_by": 282.4,
+        "place": 142,
+        "places_out": -17,
+        "prior": 3,
+        "seconds": 4498.6,
+        "sex": "F"
+      },
+      {
+        "actual": 4814.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4607,
+          5051
+        ],
+        "name": "Melinda Harty",
+        "out_by": -12.8,
+        "place": 143,
+        "places_out": 8,
+        "prior": 4,
+        "seconds": 4826.8,
+        "sex": "F"
+      },
+      {
+        "actual": 4786.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3492,
+          6107
+        ],
+        "name": "Sylvie Campeau",
+        "out_by": 226.1,
+        "place": 144,
+        "places_out": -14,
+        "prior": 0,
+        "seconds": 4559.9,
+        "sex": "F"
+      },
+      {
+        "actual": 4786.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3550,
+          6025
+        ],
+        "name": "Josée Guillot",
+        "out_by": 208.3,
+        "place": 145,
+        "places_out": -8,
+        "prior": 0,
+        "seconds": 4577.7,
+        "sex": "F"
+      },
+      {
+        "actual": 4872.0,
+        "age": "80-99",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4729,
+          5135
+        ],
+        "name": "Florence Barron",
+        "out_by": -40.8,
+        "place": 146,
+        "places_out": 13,
+        "prior": 114,
+        "seconds": 4912.8,
+        "sex": "F"
+      },
+      {
+        "actual": 4878.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4645,
+          5098
+        ],
+        "name": "Ken Scott",
+        "out_by": 21.8,
+        "place": 147,
+        "places_out": 9,
+        "prior": 92,
+        "seconds": 4856.2,
+        "sex": "M"
+      },
+      {
+        "actual": 4888.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4289,
+          4746
+        ],
+        "name": "Vanessa Coish",
+        "out_by": 402.2,
+        "place": 148,
+        "places_out": -30,
+        "prior": 19,
+        "seconds": 4485.8,
+        "sex": "F"
+      },
+      {
+        "actual": 4888.0,
+        "age": "70-79",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4727,
+          5200
+        ],
+        "name": "Gerry Marshall",
+        "out_by": -59.2,
+        "place": 149,
+        "places_out": 10,
+        "prior": 27,
+        "seconds": 4947.2,
+        "sex": "F"
+      },
+      {
+        "actual": 4885.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4822,
+          5654
+        ],
+        "name": "Trudi Mercer",
+        "out_by": -294.9,
+        "place": 150,
+        "places_out": 22,
+        "prior": 2,
+        "seconds": 5179.9,
+        "sex": "F"
+      },
+      {
+        "actual": 4945.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4420,
+          5295
+        ],
+        "name": "Kristina Hudson",
+        "out_by": -19.6,
+        "place": 151,
+        "places_out": 8,
+        "prior": 4,
+        "seconds": 4964.6,
+        "sex": "F"
+      },
+      {
+        "actual": 4942.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4298,
+          4919
+        ],
+        "name": "Roma Barron",
+        "out_by": 347.7,
+        "place": 152,
+        "places_out": -11,
+        "prior": 3,
+        "seconds": 4594.3,
+        "sex": "F"
+      },
+      {
+        "actual": 4944.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3478,
+          6002
+        ],
+        "name": "Charlotte Bonnier",
+        "out_by": 385.5,
+        "place": 153,
+        "places_out": -26,
+        "prior": 0,
+        "seconds": 4558.5,
+        "sex": "F"
+      },
+      {
+        "actual": 4995.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4512,
+          4959
+        ],
+        "name": "Sherry Frampton",
+        "out_by": 243.5,
+        "place": 154,
+        "places_out": -6,
+        "prior": 15,
+        "seconds": 4751.5,
+        "sex": "F"
+      },
+      {
+        "actual": 5016.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3724,
+          4131
+        ],
+        "name": "Jonathan Strickland",
+        "out_by": 1110.6,
+        "place": 155,
+        "places_out": -79,
+        "prior": 5,
+        "seconds": 3905.4,
+        "sex": "M"
+      },
+      {
+        "actual": 5058.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4596,
+          5144
+        ],
+        "name": "Tylor Walsh",
+        "out_by": 178.2,
+        "place": 156,
+        "places_out": 0,
+        "prior": 9,
+        "seconds": 4879.8,
+        "sex": "M"
+      },
+      {
+        "actual": 5045.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4515,
+          5144
+        ],
+        "name": "Shelby Stone",
+        "out_by": 209.5,
+        "place": 157,
+        "places_out": -3,
+        "prior": 3,
+        "seconds": 4835.5,
+        "sex": "F"
+      },
+      {
+        "actual": 5039.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4699,
+          5272
+        ],
+        "name": "Julia Trahey",
+        "out_by": 63.9,
+        "place": 158,
+        "places_out": 7,
+        "prior": 4,
+        "seconds": 4975.1,
+        "sex": "F"
+      },
+      {
+        "actual": 5072.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4796,
+          5377
+        ],
+        "name": "Cathie Reed",
+        "out_by": -18.2,
+        "place": 159,
+        "places_out": 8,
+        "prior": 5,
+        "seconds": 5090.2,
+        "sex": "F"
+      },
+      {
+        "actual": 5157.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4790,
+          5696
+        ],
+        "name": "Kalli Hawley",
+        "out_by": -69.1,
+        "place": 160,
+        "places_out": 12,
+        "prior": 1,
+        "seconds": 5226.1,
+        "sex": "F"
+      },
+      {
+        "actual": 5323.0,
+        "age": "70-79",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4963,
+          5467
+        ],
+        "name": "Monica Griffin",
+        "out_by": 123.2,
+        "place": 161,
+        "places_out": 9,
+        "prior": 16,
+        "seconds": 5199.8,
+        "sex": "F"
+      },
+      {
+        "actual": 5326.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2853,
+          4053
+        ],
+        "name": "Patrick Griffin",
+        "out_by": 1896.0,
+        "place": 162,
+        "places_out": -128,
+        "prior": 5,
+        "seconds": 3430.0,
+        "sex": "M"
+      },
+      {
+        "actual": 5323.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4814,
+          5474
+        ],
+        "name": "Taylor Broderick",
+        "out_by": 187.8,
+        "place": 163,
+        "places_out": 7,
+        "prior": 3,
+        "seconds": 5135.2,
+        "sex": "F"
+      },
+      {
+        "actual": 5337.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4803,
+          5361
+        ],
+        "name": "Amanda Dohey",
+        "out_by": 286.8,
+        "place": 164,
+        "places_out": 0,
+        "prior": 6,
+        "seconds": 5050.2,
+        "sex": "F"
+      },
+      {
+        "actual": 5337.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3514,
+          5902
+        ],
+        "name": "Angela Dunn",
+        "out_by": 760.2,
+        "place": 165,
+        "places_out": -31,
+        "prior": 0,
+        "seconds": 4576.8,
+        "sex": "F"
+      },
+      {
+        "actual": 5415.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4994,
+          5613
+        ],
+        "name": "Heather Tracey",
+        "out_by": 129.0,
+        "place": 166,
+        "places_out": 7,
+        "prior": 4,
+        "seconds": 5286.0,
+        "sex": "F"
+      },
+      {
+        "actual": 5439.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4544,
+          6037
+        ],
+        "name": "Tonya Cake",
+        "out_by": 372.7,
+        "place": 167,
+        "places_out": -2,
+        "prior": 2,
+        "seconds": 5066.3,
+        "sex": "F"
+      },
+      {
+        "actual": 5438.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3559,
+          5169
+        ],
+        "name": "Jeff Cake",
+        "out_by": 1428.8,
+        "place": 168,
+        "places_out": -79,
+        "prior": 2,
+        "seconds": 4009.2,
+        "sex": "M"
+      },
+      {
+        "actual": 5489.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4892,
+          5474
+        ],
+        "name": "Mohammad Zawad Ali",
+        "out_by": 315.5,
+        "place": 169,
+        "places_out": 0,
+        "prior": 16,
+        "seconds": 5173.5,
+        "sex": "M"
+      },
+      {
+        "actual": 5507.0,
+        "age": "40-49",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          5111,
+          5676
+        ],
+        "name": "Susan Chang",
+        "out_by": 124.3,
+        "place": 170,
+        "places_out": 5,
+        "prior": 7,
+        "seconds": 5382.7,
+        "sex": "F"
+      },
+      {
+        "actual": 5508.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": "Not on the entrant list under this name when the prediction files were published: a late entry, a name spelled differently, or a runner the archive could not tell apart",
+        "hometown": null,
+        "i80": null,
+        "name": "Carol Howell",
+        "out_by": null,
+        "place": 171,
+        "places_out": null,
+        "prior": null,
+        "seconds": null,
+        "sex": "F"
+      },
+      {
+        "actual": 5548.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3526,
+          5997
+        ],
+        "name": "Felicia Hayward",
+        "out_by": 982.8,
+        "place": 172,
+        "places_out": -41,
+        "prior": 0,
+        "seconds": 4565.2,
+        "sex": "F"
+      },
+      {
+        "actual": 5549.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4550,
+          6538
+        ],
+        "name": "Erica Bennett",
+        "out_by": 46.5,
+        "place": 173,
+        "places_out": 5,
+        "prior": 2,
+        "seconds": 5502.5,
+        "sex": "F"
+      },
+      {
+        "actual": 5604.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4824,
+          5269
+        ],
+        "name": "Raylene Smith",
+        "out_by": 578.7,
+        "place": 174,
+        "places_out": -9,
+        "prior": 9,
+        "resolved": true,
+        "seconds": 5025.3,
+        "sex": "F"
+      },
+      {
+        "actual": 5670.0,
+        "age": "0-19",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3477,
+          6091
+        ],
+        "name": "Katharina Hernschier",
+        "out_by": 1107.8,
+        "place": 175,
+        "places_out": -45,
+        "prior": 0,
+        "seconds": 4562.2,
+        "sex": "F"
+      },
+      {
+        "actual": 5736.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          5236,
+          5967
+        ],
+        "name": "Caitriona Bonia",
+        "out_by": 98.1,
+        "place": 176,
+        "places_out": 3,
+        "prior": 17,
+        "seconds": 5637.9,
+        "sex": "F"
+      },
+      {
+        "actual": 5734.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          5873,
+          6586
+        ],
+        "name": "Tammy Butler",
+        "out_by": -457.0,
+        "place": 177,
+        "places_out": 8,
+        "prior": 20,
+        "resolved": true,
+        "seconds": 6191.0,
+        "sex": "F"
+      },
+      {
+        "actual": 5735.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          5037,
+          6187
+        ],
+        "name": "Carl Butler",
+        "out_by": 49.5,
+        "place": 178,
+        "places_out": 5,
+        "prior": 4,
+        "seconds": 5685.5,
+        "sex": "M"
+      },
+      {
+        "actual": 5868.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4789,
+          6172
+        ],
+        "name": "Chelsea Stamplecoski",
+        "out_by": 436.1,
+        "place": 179,
+        "places_out": -2,
+        "prior": 3,
+        "seconds": 5431.9,
+        "sex": "F"
+      },
+      {
+        "actual": 6311.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          3564,
+          5845
+        ],
+        "name": "Katie Philpott",
+        "out_by": 1731.4,
+        "place": 180,
+        "places_out": -45,
+        "prior": 0,
+        "seconds": 4579.6,
+        "sex": "F"
+      },
+      {
+        "actual": 6311.0,
+        "age": "30-39",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          2930,
+          3240
+        ],
+        "name": "Michael Philpott",
+        "out_by": 3252.4,
+        "place": 181,
+        "places_out": -163,
+        "prior": 5,
+        "seconds": 3058.6,
+        "sex": "M"
+      },
+      {
+        "actual": 6489.0,
+        "age": "20-29",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          5182,
+          5980
+        ],
+        "name": "Hannah Kerfont",
+        "out_by": 911.0,
+        "place": 182,
+        "places_out": -3,
+        "prior": 1,
+        "seconds": 5578.0,
+        "sex": "F"
+      },
+      {
+        "actual": 6509.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          5188,
+          6796
+        ],
+        "name": "Jackie Laracy",
+        "out_by": 518.4,
+        "place": 183,
+        "places_out": 0,
+        "prior": 1,
+        "seconds": 5990.6,
+        "sex": "F"
+      },
+      {
+        "actual": 6653.0,
+        "age": "60-69",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          6403,
+          7103
+        ],
+        "name": "Sherry Gosse",
+        "out_by": -64.0,
+        "place": 184,
+        "places_out": 1,
+        "prior": 10,
+        "seconds": 6717.0,
+        "sex": "F"
+      },
+      {
+        "actual": 6655.0,
+        "age": "50-59",
+        "age_from": "Printed on this race's own results page",
+        "borrowed": false,
+        "excluded": null,
+        "hometown": null,
+        "i80": [
+          4966,
+          6336
+        ],
+        "name": "Lisa Marie Carter",
+        "out_by": 1035.6,
+        "place": 185,
+        "places_out": -5,
+        "prior": 9,
+        "seconds": 5619.4,
+        "sex": "F"
+      }
+    ],
+    "scored": 182,
+    "with_age": 185,
+    "with_sex": 185
+  }
+}

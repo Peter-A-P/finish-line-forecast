@@ -2295,12 +2295,12 @@ def score_race(
             ):
                 typer.echo(NOTICES, err=True)
                 raise typer.Exit(code=2)
-            typer.echo(f"not on nlaa.ca yet; scoring the list the timer posted, {timer.url}")
+            typer.echo(f"not on nlaa.ca yet; scoring the list {timer.poster} posted, {timer.url}")
             race = timer.race
             page = ane.fetch(timer, ANE_RESULTS)
             rows = ane.to_results(page, race.race_id)
             source = (
-                "the list Athletics NorthEAST, the race's timer, posted the day of the race; "
+                f"the list {timer.poster} posted after the race; "
                 "the association had not posted the race yet"
             )
 
