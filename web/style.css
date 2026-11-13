@@ -849,7 +849,7 @@ tbody tr.reference { background: var(--accent-soft); }
 }
 
 .part { padding: 3.5rem 0 0.5rem; }
-.part-title { font-size: clamp(1.75rem, 3.4vw, 2.4rem); line-height: 1.15; margin-bottom: 0.9rem; }
+.part-title { font-size: clamp(1.75rem, 3vw, 2.2rem); line-height: 1.15; margin-bottom: 0.9rem; }
 
 .two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 1.25rem 2rem; margin: 1rem 0; }
 
@@ -1136,7 +1136,10 @@ input[type="search"]:disabled { opacity: 0.55; }
 #courses-chart svg { min-width: 60rem; }
 #weather-chart svg { min-width: 46rem; }
 /* No heading ends on one orphaned word. */
-h1, h2, .part-title { text-wrap: balance; }
+h1, h2 { text-wrap: balance; }
+/* A part title runs the width of the column and wraps only where it must: balanced, the long
+   one under "How it was built" broke in the middle of the page on a wide screen. */
+.part-title { text-wrap: pretty; }
 .baselines > div { padding: 0.8rem 0.95rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper-soft); }
 .baselines dt { font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
 .baselines dd { margin: 0.25rem 0 0; font-size: 0.86rem; color: var(--ink-soft); line-height: 1.5; }
